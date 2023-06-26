@@ -181,12 +181,15 @@ function generateUnauthenticatedFunction(functionInformation: FunctionInformatio
     returnType,
     ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
     ts.factory.createBlock([
-      // call method this.simple.get()
+      // call method this.basic.get()
       ts.factory.createReturnStatement(ts.factory.createCallExpression(
         ts.factory.createPropertyAccessExpression(
           ts.factory.createPropertyAccessExpression(
-            ts.factory.createThis(),
-            "simple",
+            ts.factory.createPropertyAccessExpression(
+              ts.factory.createThis(),
+              "baseApi",
+            ),
+            "basic",
           ),
           "get",
         ),
@@ -223,7 +226,10 @@ function generateAuthenticatedFunction(functionInformation: FunctionInformation)
       ts.factory.createReturnStatement(ts.factory.createCallExpression(
         ts.factory.createPropertyAccessExpression(
           ts.factory.createPropertyAccessExpression(
-            ts.factory.createThis(),
+            ts.factory.createPropertyAccessExpression(
+              ts.factory.createThis(),
+              "baseApi",
+            ),
             "authenticated",
           ),
           "get",
@@ -320,14 +326,14 @@ export function generateApi(apiInformation: ApiInformation, options?: ApiGenerat
 
   return ts.factory.createClassDeclaration(
     [],
-    "Api",
+    apiName,
     [],
     [
       ts.factory.createHeritageClause(
         ts.SyntaxKind.ExtendsKeyword,
         [
           ts.factory.createExpressionWithTypeArguments(
-            ts.factory.createIdentifier("Api"),
+            ts.factory.createIdentifier(authApiAvailable ? "AuthenticatedGenericApiClient" : "GenericApiClient"),
             undefined,
           ),
         ],
@@ -339,7 +345,7 @@ export function generateApi(apiInformation: ApiInformation, options?: ApiGenerat
         "baseApi",
         undefined,
         ts.factory.createTypeReferenceNode(
-          ts.factory.createIdentifier("ApiBase"),
+          ts.factory.createIdentifier(apiName),
           undefined,
         ),
         ts.factory.createThis(),
@@ -435,7 +441,7 @@ export function declarationsToApiInformation(name: string, declarations: Declara
   return apiInformation;
 }
 
-export function createFile(name: string, classDeclaration: ts.ClassDeclaration) {
+export function createFile(classDeclaration: ts.ClassDeclaration) {
   return ts.factory.createSourceFile(
     [
       ts.factory.createImportDeclaration(
@@ -458,9 +464,25 @@ export function createFile(name: string, classDeclaration: ts.ClassDeclaration) 
             ],
           ),
         ),
-        ts.factory.createStringLiteral("api-base"),
+        ts.factory.createStringLiteral("./api-base"),
       ),
       classDeclaration,
+      ts.factory.createExportDeclaration(
+        undefined,
+        false,
+        ts.factory.createNamedExports(
+          [
+            ts.factory.createExportSpecifier(
+              false,
+              undefined,
+              ts.factory.createIdentifier(classDeclaration.name!!.text),
+            ),
+          ],
+        ),
+      ),
+      ts.factory.createExportDefault(ts.factory.createIdentifier(classDeclaration.name!!.text)
+      ),
+
     ],
     ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
     ts.NodeFlags.None,
@@ -470,11 +492,11 @@ export function createFile(name: string, classDeclaration: ts.ClassDeclaration) 
 export async function generateDeclarations(name: string, ctx: Context, filename: string = "index.ts") {
   const declarations = collectDeclarations(ctx);
   const apiInformation = declarationsToApiInformation(name, declarations);
-  const file = createFile(name, generateApi(apiInformation));
+  const file = createFile(generateApi(apiInformation));
 
   // get files tsconfig.generator.json references
 
-  fs.writeFileSync(path.join(__dirname, "../../cli", name), ts.createPrinter().printFile(file), "utf-8");
+  fs.writeFileSync(path.join(__dirname, "../../../src/cli", filename), ts.createPrinter().printFile(file), "utf-8");
 
   const files = await glob(tsconfig.config.include, { ignore: tsconfig.config.exclude, });
 
@@ -498,7 +520,7 @@ export async function generateDeclarations(name: string, ctx: Context, filename:
     }
   });
 
-  fs.unlinkSync(path.join(__dirname, "../../cli", name));
+  fs.unlinkSync(path.join(__dirname, "../../../src/cli", filename));
 
   return emitResult.emitSkipped
 }
