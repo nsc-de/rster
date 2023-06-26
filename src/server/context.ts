@@ -297,6 +297,12 @@ export class Context {
       }),
     };
   }
+
+  collect() {
+    const map: Context[] = (this.children.filter(c => c.type === 'condition') as ContextTypeCondition[]).flatMap(e => e.context.collect());
+    map.push(this);
+    return map;
+  }
 }
 
 export function when(condition: ContextCondition, init: ContextHandler): Context {

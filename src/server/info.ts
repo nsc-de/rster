@@ -1,4 +1,4 @@
-import { declaration } from "./api-generator.js";
+import { declaration } from "./generator/index.js";
 import { Context, ContextTypeCondition, any, data, setData, use } from "./context.js";
 
 export function description(): string[];

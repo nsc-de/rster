@@ -161,3 +161,4 @@ export abstract class AuthenticatedGenericApiClient extends GenericApiClient {
     }
   }))(this);
 }
+
