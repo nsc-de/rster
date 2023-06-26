@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "cli-dist",
+    "module": "esnext",
+    "target": "ES2018",
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipDefaultLibCheck": true,
+    "lib": [
+      "ES6"
+    ],
+  },
+  "include": [
+    "cli/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
