@@ -30,7 +30,11 @@ const api = rest(ctx => {
 console.log(JSON.stringify(api.toJson()));
 
 
-generateDeclarations("test", api);
+generateDeclarations({
+  name: "test",
+  ctx: api,
+  outDir: "./cli",
+});
 
 // emit typescript declaration using typescript printer
 // const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });

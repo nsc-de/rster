@@ -489,7 +489,12 @@ export function createFile(classDeclaration: ts.ClassDeclaration) {
   );
 }
 
-export async function generateDeclarations(name: string, ctx: Context, filename: string = "index.ts") {
+export async function generateDeclarations({ name, ctx, filename = "index.ts", outDir = "./generated" }: {
+  name: string,
+  ctx: Context,
+  filename?: string,
+  outDir?: string,
+}) {
   const declarations = collectDeclarations(ctx);
   const apiInformation = declarationsToApiInformation(name, declarations);
   const file = createFile(generateApi(apiInformation));
@@ -498,10 +503,15 @@ export async function generateDeclarations(name: string, ctx: Context, filename:
 
   fs.writeFileSync(path.join(__dirname, "../../../src/cli", filename), ts.createPrinter().printFile(file), "utf-8");
 
-  const files = await glob(tsconfig.config.include, { ignore: tsconfig.config.exclude, });
+  const basePath = path.resolve(path.join(__dirname, "../../../"));
+  const files = await glob(tsconfig.config.include, { ignore: tsconfig.config.exclude, realpath: true, cwd: basePath });
+
+  console.log(`Generating api into ${path.resolve(outDir)}...`);
+  console.log(`Found ${files.length} files to compile`);
 
   let program = ts.createProgram(files, {
     ...tsconfig.config.compilerOptions,
+    outDir: path.resolve(outDir),
   });
 
   let emitResult = program.emit();
@@ -522,6 +532,9 @@ export async function generateDeclarations(name: string, ctx: Context, filename:
 
   fs.unlinkSync(path.join(__dirname, "../../../src/cli", filename));
 
-  return emitResult.emitSkipped
-}
+  if (emitResult.emitSkipped)
+    throw new Error("Failed to generate api, errors occurred");
+  console.log("Successfully generated api!");
 
+  return emitResult.emitSkipped;
+}
