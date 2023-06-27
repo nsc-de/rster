@@ -2,7 +2,7 @@
   "name": "api-gen",
   "version": "0.1.0",
   "description": "Toolset for REST Api creation",
-  "main": "dist/index.js",
+  "main": "dist/server/index.js",
   "author": "Nicolas Schmidt",
   "license": "BSD-2-Clause",
   "dependencies": {

@@ -504,7 +504,7 @@ export async function generateDeclarations({ name, ctx, filename = "index.ts", o
   fs.writeFileSync(path.join(__dirname, "../../../src/cli", filename), ts.createPrinter().printFile(file), "utf-8");
 
   const basePath = path.resolve(path.join(__dirname, "../../../"));
-  const files = await glob(tsconfig.config.include, { ignore: tsconfig.config.exclude, realpath: true, cwd: basePath });
+  const files = await glob(tsconfig.config.include, { ignore: tsconfig.config.exclude, realpath: true, absolute: true, cwd: basePath });
 
   console.log(`Generating api into ${path.resolve(outDir)}...`);
   console.log(`Found ${files.length} files to compile`);
