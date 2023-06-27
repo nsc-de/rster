@@ -42,7 +42,7 @@ export function hasDeclaration(context?: Context): boolean {
   return typeof context.data("@info/declaration") !== "undefined";
 }
 
-export function collectDeclarations(ctx: Context): Declaration[] {
+export function collectDeclarations(ctx: Context): { declaration: Declaration, ctx: Context }[] {
   const contexts = ctx.collect();
-  return contexts.map(c => declaration(c)).filter(d => !!d) as Declaration[];
+  return contexts.map(c => ({ declaration: declaration(c), ctx: c })).filter(d => !!d.declaration) as { declaration: Declaration, ctx: Context }[];
 }

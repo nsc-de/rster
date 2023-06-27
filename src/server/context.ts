@@ -1,4 +1,4 @@
-import { Request, Response } from "./common.js";
+import { Method, Request, Response } from "./common.js";
 import { ConditionInfo, ContextCondition, ContextConditionMethod, ContextConditionPath, ContextConditionPath2 } from "./condition.js";
 import { HttpError } from "./error.js";
 import { RestfulApi } from "./index.js";
@@ -10,6 +10,7 @@ export type ContextTypeAction = { type: "action", func: ActionFunction };
 export type ContextType = ContextTypeCondition | ContextTypeUse | ContextTypeAction;
 export class Context {
   private static _current: Context | undefined;
+
   static get current(): Context {
     if (!Context._current) throw new Error('No context');
     return Context._current;
@@ -18,7 +19,11 @@ export class Context {
   private children: ContextType[] = [];
   private _data: { [key: string]: any } = {};
 
-  constructor(protected _api: RestfulApi) { }
+  constructor(
+    protected _api: RestfulApi,
+    public readonly condition?: ContextCondition | undefined,
+    public readonly parent?: Context | undefined,
+  ) { }
 
   public get api() {
     return this._api;
@@ -33,7 +38,7 @@ export class Context {
   }
 
   when(condition: ContextCondition, handler: ContextHandler): this {
-    this.children.push({ type: "condition", condition: condition, context: new Context(this.api).init(handler) });
+    this.children.push({ type: "condition", condition: condition, context: new Context(this.api, condition, this).init(handler) });
     return this;
   }
 
@@ -302,6 +307,16 @@ export class Context {
     const map: Context[] = (this.children.filter(c => c.type === 'condition') as ContextTypeCondition[]).flatMap(e => e.context.collect());
     map.push(this);
     return map;
+  }
+
+  getPath(): string {
+    const info = this.condition?.info();
+    return this.parent?.getPath() + (info?.path ?? "");
+  }
+
+  getMethod(): Method | 'any' {
+    const info = this.condition?.info();
+    return info?.method ?? this.parent?.getMethod() ?? 'any';
   }
 }
 

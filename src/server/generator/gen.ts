@@ -1,7 +1,7 @@
 import ts, { CallExpression } from "typescript";
 import { AnyBooleanTypeInformation, AnyNumberTypeInformation, AnyStringTypeInformation, AnyTypeInformation, ArrayTypeInformation, BooleanTypeInformation, NullTypeInformation, NumberRangeTypeInformation, NumberTypeInformation, ObjectTypeInformation, Or, StringTypeInformation, TypeInformation } from "../../shared/types.js";
 import { Declaration, collectDeclarations } from "./index.js";
-import { Context } from "../index.js";
+import { Context, Method } from "../index.js";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from 'url';
@@ -26,6 +26,8 @@ interface ModuleInformation {
 
 interface FunctionInformation {
   name: string;
+  call: string;
+  method: Method;
   parameters: ParameterInformation[];
   returnType: TypeInformation;
   requireAuthentication: boolean;
@@ -164,7 +166,12 @@ AnyTypeInformation.prototype.toTypeScript = function () {
 
 function generateUnauthenticatedFunction(functionInformation: FunctionInformation) {
   const parametersType = new ObjectTypeInformation(Object.fromEntries(functionInformation.parameters.map(p => [p.name, { type: p.type, required: !p.optional }]))).toTypeScript();
-  const returnType = functionInformation.returnType.toTypeScript()
+
+  // Create Promise<ReturnType>
+  const returnType = ts.factory.createTypeReferenceNode(
+    ts.factory.createIdentifier("Promise"),
+    [functionInformation.returnType.toTypeScript()],
+  );
 
   return ts.factory.createArrowFunction(
     undefined,
@@ -182,30 +189,44 @@ function generateUnauthenticatedFunction(functionInformation: FunctionInformatio
     ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
     ts.factory.createBlock([
       // call method this.basic.get()
-      ts.factory.createReturnStatement(ts.factory.createCallExpression(
-        ts.factory.createPropertyAccessExpression(
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createPropertyAccessExpression(
-              ts.factory.createThis(),
-              "baseApi",
+      // cast to any
+      ts.factory.createReturnStatement(
+        ts.factory.createParenthesizedExpression(
+          ts.factory.createAsExpression(
+            ts.factory.createCallExpression(
+
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createPropertyAccessExpression(
+                  ts.factory.createPropertyAccessExpression(
+                    ts.factory.createThis(),
+                    "baseApi",
+                  ),
+                  "basic",
+                ),
+                "get",
+              ),
+              undefined,
+              [
+                ts.factory.createStringLiteral(functionInformation.name),
+                ts.factory.createIdentifier("parameters"),
+              ],
             ),
-            "basic",
-          ),
-          "get",
-        ),
-        undefined,
-        [
-          ts.factory.createStringLiteral(functionInformation.name),
-          ts.factory.createIdentifier("parameters"),
-        ],
-      )),
+            ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+          )
+        )
+      ),
     ], true),
   );
 }
 
 function generateAuthenticatedFunction(functionInformation: FunctionInformation) {
   const parametersType = new ObjectTypeInformation(Object.fromEntries(functionInformation.parameters.map(p => [p.name, { type: p.type, required: !p.optional }]))).toTypeScript();
-  const returnType = functionInformation.returnType.toTypeScript();
+
+  // Create Promise<ReturnType>
+  const returnType = ts.factory.createTypeReferenceNode(
+    ts.factory.createIdentifier("Promise"),
+    [functionInformation.returnType.toTypeScript()],
+  );
 
   return ts.factory.createArrowFunction(
     undefined,
@@ -222,24 +243,32 @@ function generateAuthenticatedFunction(functionInformation: FunctionInformation)
     returnType,
     ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
     ts.factory.createBlock([
-      // call method this.authenticated.get()
-      ts.factory.createReturnStatement(ts.factory.createCallExpression(
-        ts.factory.createPropertyAccessExpression(
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createPropertyAccessExpression(
-              ts.factory.createThis(),
-              "baseApi",
+      // call method this.basic.get()
+      // cast to any
+      ts.factory.createReturnStatement(
+        ts.factory.createParenthesizedExpression(
+          ts.factory.createAsExpression(
+            ts.factory.createCallExpression(
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createPropertyAccessExpression(
+                  ts.factory.createPropertyAccessExpression(
+                    ts.factory.createThis(),
+                    "baseApi",
+                  ),
+                  "authenticated",
+                ),
+                "get",
+              ),
+              undefined,
+              [
+                ts.factory.createStringLiteral(functionInformation.name),
+                ts.factory.createIdentifier("parameters"),
+              ],
             ),
-            "authenticated",
-          ),
-          "get",
-        ),
-        undefined,
-        [
-          ts.factory.createStringLiteral(functionInformation.name),
-          ts.factory.createIdentifier("parameters"),
-        ],
-      )),
+            ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+          )
+        )
+      ),
     ], true),
   );
 }
@@ -372,14 +401,14 @@ interface ApiGenerationOptions {
   authenticationApiAvailable?: boolean;
 }
 
-export function declarationsToApiInformation(name: string, declarations: Declaration[]): ApiInformation {
+export function declarationsToApiInformation(name: string, declarations: { declaration: Declaration, ctx: Context }[]): ApiInformation {
   const apiInformation: ApiInformation = {
     name: "Api",
     submodules: [],
     functions: [],
   };
 
-  function recursiveInsert(declaration: Declaration, parts: string[], element: ApiInformation | ModuleInformation): void {
+  function recursiveInsert({ declaration, ctx }: { declaration: Declaration, ctx: Context }, parts: string[], element: ApiInformation | ModuleInformation): void {
     if (parts.length === 0) {
       console.warn("Declaration name should not be empty");
       return;
@@ -387,10 +416,18 @@ export function declarationsToApiInformation(name: string, declarations: Declara
 
     const name = parts.splice(0, 1)[0];
     if (parts.length === 0) {
+      let method = ctx.getMethod();
+      let call = ctx.getPath();
+
+      if (method === "any") {
+        method = "get";
+      }
 
       // generate function
       element.functions.push(
         {
+          method,
+          call,
           name: name,
           parameters: [
             ...Object.entries(declaration.expectParams ?? {}).map(([name, { type, optional }]) => ({
@@ -433,10 +470,10 @@ export function declarationsToApiInformation(name: string, declarations: Declara
       element.submodules.push(module);
     }
 
-    recursiveInsert(declaration, parts, module);
+    recursiveInsert({ declaration, ctx }, parts, module);
   }
 
-  declarations.forEach(d => recursiveInsert(d, d.name.split("."), apiInformation));
+  declarations.forEach(d => recursiveInsert(d, d.declaration.name.split("."), apiInformation));
 
   return apiInformation;
 }
@@ -530,10 +567,16 @@ export async function generateDeclarations({ name, ctx, filename = "index.ts", o
     }
   });
 
-  fs.unlinkSync(path.join(__dirname, "../../../src/cli", filename));
-
-  if (emitResult.emitSkipped)
-    throw new Error("Failed to generate api, errors occurred");
+  //fs.unlinkSync(path.join(__dirname, "../../../src/cli", filename));
+  if (emitResult.emitSkipped || allDiagnostics.length > 0) {
+    console.log("\nWARNING generating api, errors occurred while compiling typescript");
+    console.log("Generated file:\n\n\n");
+    console.log(ts.createPrinter().printFile(file));
+    console.log("\n");
+  }
+  if (emitResult.emitSkipped) {
+    throw new Error("Failed to generate api, errors occurred compiling typescript");
+  }
   console.log("Successfully generated api!");
 
   return emitResult.emitSkipped;

@@ -4,7 +4,7 @@ import "./express.js";
 import express from "express";
 import { generateDeclarations } from "./generator/gen.js";
 import { declaration } from "./generator/index.js";
-import { AnyTypeInformation } from "../shared/types.js";
+import { AnyTypeInformation, ObjectTypeInformation, StringTypeInformation, object, string } from "../shared/types.js";
 
 
 const api = rest(ctx => {
@@ -14,8 +14,10 @@ const api = rest(ctx => {
     description("Just returns {\"test\": \"test\"}");
 
     declaration({
-      name: "test.test",
-      returnBody: AnyTypeInformation.instance
+      name: "ping",
+      returnBody: object({
+        message: string("pong")
+      })
     })
 
     action((req, res) => {

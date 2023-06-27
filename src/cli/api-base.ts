@@ -48,12 +48,6 @@ export abstract class GenericApiClient {
     this.basePath = basePath;
   }
 
-  ping(): Promise<{
-    message: "pong"
-  }> {
-    return this.basic.get('/ping');
-  }
-
   public readonly basic = ((ApiClient_THIS: GenericApiClient) => ({
     request(path: string, init?: RequestInit | undefined) {
       const url = `${ApiClient_THIS.host}${ApiClient_THIS.basePath}${path}`;
