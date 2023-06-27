@@ -9,4 +9,3 @@ yarn-error.log*
 
 # compiled output
 /dist
-/cli-dist
