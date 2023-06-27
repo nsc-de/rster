@@ -87,7 +87,15 @@ export abstract class GenericApiClient {
         method: 'PUT',
         ...init,
       });
-    }
+    },
+
+    execute(path: string, method: string, urlSchema: string, body: any, urlParams: { [key: string]: string } = {}, query: { [key: string]: string } = {}) {
+      //TODO urlSchema and urlParams and query
+      return this.request(path, {
+        method: method,
+        body: JSON.stringify(body),
+      });
+    },
   }))(this);
 }
 
@@ -152,7 +160,15 @@ export abstract class AuthenticatedGenericApiClient extends GenericApiClient {
         method: 'PUT',
         ...init,
       }, token);
-    }
+    },
+
+    execute(path: string, method: string, urlSchema: string, body: any, urlParams: { [key: string]: string } = {}, query: { [key: string]: string } = {}) {
+      //TODO urlSchema and urlParams and query
+      return this.request(path, {
+        method: method,
+        body: JSON.stringify(body),
+      });
+    },
   }))(this);
 }
 

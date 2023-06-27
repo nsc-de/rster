@@ -188,13 +188,12 @@ function generateUnauthenticatedFunction(functionInformation: FunctionInformatio
     returnType,
     ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
     ts.factory.createBlock([
-      // call method this.basic.get()
+      // call method this.basic.execute()
       // cast to any
       ts.factory.createReturnStatement(
         ts.factory.createParenthesizedExpression(
           ts.factory.createAsExpression(
             ts.factory.createCallExpression(
-
               ts.factory.createPropertyAccessExpression(
                 ts.factory.createPropertyAccessExpression(
                   ts.factory.createPropertyAccessExpression(
@@ -203,11 +202,13 @@ function generateUnauthenticatedFunction(functionInformation: FunctionInformatio
                   ),
                   "basic",
                 ),
-                "get",
+                "execute",
               ),
               undefined,
               [
-                ts.factory.createStringLiteral(functionInformation.name),
+                ts.factory.createStringLiteral(functionInformation.call),
+                ts.factory.createStringLiteral(functionInformation.method),
+                ts.factory.createStringLiteral(""), // TODO
                 ts.factory.createIdentifier("parameters"),
               ],
             ),
@@ -243,7 +244,7 @@ function generateAuthenticatedFunction(functionInformation: FunctionInformation)
     returnType,
     ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
     ts.factory.createBlock([
-      // call method this.basic.get()
+      // call method this.basic.execute()
       // cast to any
       ts.factory.createReturnStatement(
         ts.factory.createParenthesizedExpression(
@@ -257,11 +258,13 @@ function generateAuthenticatedFunction(functionInformation: FunctionInformation)
                   ),
                   "authenticated",
                 ),
-                "get",
+                "execute",
               ),
               undefined,
               [
-                ts.factory.createStringLiteral(functionInformation.name),
+                ts.factory.createStringLiteral(functionInformation.call),
+                ts.factory.createStringLiteral(functionInformation.method),
+                ts.factory.createStringLiteral(""), // TODO
                 ts.factory.createIdentifier("parameters"),
               ],
             ),
