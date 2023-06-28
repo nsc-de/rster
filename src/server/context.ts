@@ -311,7 +311,7 @@ export class Context {
 
   getPath(): string {
     const info = this.condition?.info();
-    return this.parent?.getPath() + (info?.path ?? "");
+    return (this.parent?.getPath() ?? "") + (info?.path ?? "");
   }
 
   getMethod(): Method | 'any' {
