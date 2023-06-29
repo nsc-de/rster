@@ -46,3 +46,27 @@ export function collectDeclarations(ctx: Context): { declaration: Declaration, c
   const contexts = ctx.collect();
   return contexts.map(c => ({ declaration: declaration(c), ctx: c })).filter(d => !!d.declaration) as { declaration: Declaration, ctx: Context }[];
 }
+
+export function requireAuthentication(): void;
+export function requireAuthentication(context: Context): void;
+export function requireAuthentication(context?: Context): void {
+  if (typeof context === "undefined")
+    context = Context.current;
+
+  if (typeof context === "undefined")
+    throw new Error("No context");
+
+  context.setData("@info/requireAuthentication", true);
+}
+
+export function requiresAuthentication(): boolean;
+export function requiresAuthentication(context: Context): boolean;
+export function requiresAuthentication(context?: Context): boolean {
+  if (typeof context === "undefined")
+    context = Context.current;
+
+  if (typeof context === "undefined")
+    throw new Error("No context");
+
+  return !!context.data("@info/requireAuthentication");
+}

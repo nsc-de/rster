@@ -124,12 +124,6 @@ export abstract class AuthenticatedGenericApiClient extends GenericApiClient {
     this._token = token;
   }
 
-  ping(): Promise<{
-    message: "pong"
-  }> {
-    return this.basic.get('/ping');
-  }
-
   public readonly authenticated = ((ApiClient_THIS: AuthenticatedGenericApiClient) => ({
     request(path: string, init?: RequestInit | undefined, token?: Token | null) {
       return ApiClient_THIS.basic.request(path, {

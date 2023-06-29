@@ -1,5 +1,5 @@
 {
-  "name": "api-gen",
+  "name": "rster",
   "version": "0.1.0",
   "description": "Toolset for REST Api creation",
   "main": "dist/server/index.js",

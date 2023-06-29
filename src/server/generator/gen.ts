@@ -1,6 +1,6 @@
 import ts, { CallExpression } from "typescript";
 import { AnyBooleanTypeInformation, AnyNumberTypeInformation, AnyStringTypeInformation, AnyTypeInformation, ArrayTypeInformation, BooleanTypeInformation, NullTypeInformation, NumberRangeTypeInformation, NumberTypeInformation, ObjectTypeInformation, Or, StringTypeInformation, TypeInformation } from "../../shared/types.js";
-import { Declaration, collectDeclarations } from "./index.js";
+import { Declaration, collectDeclarations, requiresAuthentication } from "./index.js";
 import { Context, Method } from "../index.js";
 import path from "path";
 import fs from "fs";
@@ -429,8 +429,6 @@ export function declarationsToApiInformation(name: string, declarations: { decla
       // generate function
       element.functions.push(
         {
-          method,
-          call,
           name: name,
           parameters: [
             ...Object.entries(declaration.expectParams ?? {}).map(([name, { type, optional }]) => ({
@@ -455,7 +453,9 @@ export function declarationsToApiInformation(name: string, declarations: { decla
             })),
           ],
           returnType: declaration.returnBody,
-          requireAuthentication: false
+          method,
+          call,
+          requireAuthentication: requiresAuthentication(ctx),
         });
 
       return;
@@ -529,15 +529,16 @@ export function createFile(classDeclaration: ts.ClassDeclaration) {
   );
 }
 
-export async function generateDeclarations({ name, ctx, filename = "index.ts", outDir = "./generated" }: {
+export async function generateDeclarations({ name, ctx, filename = "index.ts", outDir = "./generated", useAuth = false }: {
   name: string,
   ctx: Context,
   filename?: string,
   outDir?: string,
+  useAuth?: boolean,
 }) {
   const declarations = collectDeclarations(ctx);
   const apiInformation = declarationsToApiInformation(name, declarations);
-  const file = createFile(generateApi(apiInformation));
+  const file = createFile(generateApi(apiInformation, { authenticationApiAvailable: useAuth }));
 
   // get files tsconfig.generator.json references
 
