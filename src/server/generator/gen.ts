@@ -582,5 +582,22 @@ export async function generateDeclarations({ name, ctx, filename = "index.ts", o
   }
   console.log("Successfully generated api!");
 
+  // generate package.json
+  const packageJson = {
+    name: "generated-api",
+    version: "1.0.0",
+    description: "Generated api",
+    main: "cli/" + path.basename(filename, ".ts") + ".js",
+    types: "cli/" + path.basename(filename, ".ts") + ".d.ts",
+    scripts: {
+      test: "echo \"Error: no test specified\" && exit 1",
+    },
+    dependencies: {
+      "cross-fetch": "^3.1.6",
+    }
+  };
+
+  fs.writeFileSync(path.join(outDir, "package.json"), JSON.stringify(packageJson, null, 2), "utf-8");
+
   return emitResult.emitSkipped;
 }
