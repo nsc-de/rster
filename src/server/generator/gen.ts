@@ -207,7 +207,7 @@ function generateUnauthenticatedFunction(functionInformation: FunctionInformatio
               undefined,
               [
                 ts.factory.createStringLiteral(functionInformation.call),
-                ts.factory.createStringLiteral(functionInformation.method),
+                ts.factory.createStringLiteral(functionInformation.method.toUpperCase()),
                 ts.factory.createStringLiteral(""), // TODO
                 ts.factory.createIdentifier("parameters"),
               ],
@@ -263,7 +263,7 @@ function generateAuthenticatedFunction(functionInformation: FunctionInformation)
               undefined,
               [
                 ts.factory.createStringLiteral(functionInformation.call),
-                ts.factory.createStringLiteral(functionInformation.method),
+                ts.factory.createStringLiteral(functionInformation.method.toUpperCase()),
                 ts.factory.createStringLiteral(""), // TODO
                 ts.factory.createIdentifier("parameters"),
               ],

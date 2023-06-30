@@ -63,7 +63,7 @@ export abstract class GenericApiClient {
           return await res.json();
         }
         return await res.json().then((body: any) => {
-          throw new ApiError(res.status, body.message ?? res.statusText, res, body);
+          throw new ApiError(res.status, body.message ?? `[${res.status}] ${res.statusText}`, res, body);
         });
       });
     },
@@ -91,6 +91,18 @@ export abstract class GenericApiClient {
 
     execute(path: string, method: string, urlSchema: string, body: any, urlParams: { [key: string]: string } = {}, query: { [key: string]: string } = {}) {
       //TODO urlSchema and urlParams and query
+
+      // GET and HEAD requests cannot have body
+      // Handle empty object body to not throw error
+      if (method === 'GET' || method === 'HEAD') {
+        if (typeof body === "object" && Object.keys(body).length === 0) {
+          body = undefined;
+        }
+        if (body !== undefined) {
+          throw new Error(`Cannot send body with ${method}`);
+        }
+      }
+
       return this.request(path, {
         method: method,
         body: JSON.stringify(body),
@@ -158,6 +170,17 @@ export abstract class AuthenticatedGenericApiClient extends GenericApiClient {
 
     execute(path: string, method: string, urlSchema: string, body: any, urlParams: { [key: string]: string } = {}, query: { [key: string]: string } = {}) {
       //TODO urlSchema and urlParams and query
+
+      // GET and HEAD requests cannot have body
+      // Handle empty object body to not throw error
+      if (method === 'GET' || method === 'HEAD') {
+        if (typeof body === "object" && Object.keys(body).length === 0) {
+          body = undefined;
+        }
+        if (body !== undefined) {
+          throw new Error(`Cannot send body with ${method}`);
+        }
+      }
       return this.request(path, {
         method: method,
         body: JSON.stringify(body),

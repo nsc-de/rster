@@ -25,7 +25,7 @@ export class RestfulApi extends Context {
     try {
       const found = await this.execute(req, res);
       if (!found && send404) {
-        await res.status(404).json({ error: `Not Found`, path: req.fullPath, api_path: req.fullApiPath, method: req.method });
+        await res.status(404).json({ message: `Not Found`, path: req.fullPath, api_path: req.fullApiPath, method: req.method });
       }
       res.end();
       return;
@@ -34,7 +34,9 @@ export class RestfulApi extends Context {
       // @ts-ignore
       if (err.stack) console.error(err.stack);
       else console.error(err);
-      try { await res.status(500).json({ error: "Internal Server Error" }); } catch (err) { }
+      try {
+        await res.status(500).json({ message: "Internal Server Error" });
+      } catch (err) { }
     }
   }
 

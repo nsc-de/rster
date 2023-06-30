@@ -227,10 +227,13 @@ export class Context {
 
     } catch (e) {
       if (e instanceof HttpError) {
-        res.status(e.status).json({ error: e.message });
-      } else
+        res.status(e.status).json({ message: e.message }).end();
+      } else {
         console.error(e);
-      res.status(500).json({ error: "Internal server error" });
+        try {
+          res.status(500).json({ message: "Internal server error" });
+        } catch (e) { }
+      }
       return true;
     }
 
