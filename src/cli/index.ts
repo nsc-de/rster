@@ -4,7 +4,7 @@ class Api extends GenericApiClient {
     ping = (parameters: {}): Promise<{
         message: string;
     }> => {
-        return (this.baseApi.basic.execute("/test", "get", "", parameters) as any);
+        return (this.baseApi.basic.execute("/test", "GET", "", parameters) as any);
     };
 }
 export { Api };

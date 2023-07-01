@@ -166,6 +166,7 @@ AnyTypeInformation.prototype.toTypeScript = function () {
 
 function generateUnauthenticatedFunction(functionInformation: FunctionInformation) {
   const parametersType = new ObjectTypeInformation(Object.fromEntries(functionInformation.parameters.map(p => [p.name, { type: p.type, required: !p.optional }]))).toTypeScript();
+  const parametersIsEmptyOrAllOptional = functionInformation.parameters.length === 0 || functionInformation.parameters.every(p => p.optional);
 
   // Create Promise<ReturnType>
   const returnType = ts.factory.createTypeReferenceNode(
@@ -181,7 +182,7 @@ function generateUnauthenticatedFunction(functionInformation: FunctionInformatio
         undefined,
         undefined,
         "parameters",
-        undefined,
+        parametersIsEmptyOrAllOptional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
         parametersType,
       ),
     ],
@@ -222,6 +223,7 @@ function generateUnauthenticatedFunction(functionInformation: FunctionInformatio
 
 function generateAuthenticatedFunction(functionInformation: FunctionInformation) {
   const parametersType = new ObjectTypeInformation(Object.fromEntries(functionInformation.parameters.map(p => [p.name, { type: p.type, required: !p.optional }]))).toTypeScript();
+  const parametersIsEmptyOrAllOptional = functionInformation.parameters.length === 0 || functionInformation.parameters.every(p => p.optional);
 
   // Create Promise<ReturnType>
   const returnType = ts.factory.createTypeReferenceNode(
@@ -237,7 +239,7 @@ function generateAuthenticatedFunction(functionInformation: FunctionInformation)
         undefined,
         undefined,
         "parameters",
-        undefined,
+        parametersIsEmptyOrAllOptional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
         parametersType,
       ),
     ],
