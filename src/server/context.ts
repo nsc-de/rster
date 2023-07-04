@@ -19,6 +19,10 @@ export class Context {
   private children: ContextType[] = [];
   private _data: { [key: string]: any } = {};
 
+  public get debugger() {
+    return this.api.debugger;
+  }
+
   constructor(
     protected _api: RestfulApi,
     public readonly condition?: ContextCondition | undefined,
@@ -224,9 +228,9 @@ export class Context {
           }
         }
       }
-
     } catch (e) {
       if (e instanceof HttpError) {
+        this.debugger.debugHttpError(e);
         res.status(e.status).json({ message: e.message }).end();
       } else {
         console.error(e);
