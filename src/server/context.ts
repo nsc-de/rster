@@ -206,6 +206,7 @@ export class Context {
           const it = this.children[i] as ContextTypeCondition;
           const { condition, context } = it;
           if (await condition.appliesTo(req)) {
+            this.debugger.debugRoute(req, condition);
             if (await context.execute(condition.subRequest(req), res)) return true;
           }
         }

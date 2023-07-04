@@ -15,8 +15,9 @@ export abstract class ContextCondition {
 
   abstract info(): ConditionInfo
 
-
   abstract toJson(): any;
+  abstract infoJson(): any;
+
 
 }
 
@@ -49,6 +50,16 @@ export class ContextConditionAnd extends ContextCondition {
       conditions: this.conditions.map(c => c.toJson()),
     };
   }
+
+  infoJson(): any {
+    let it = {};
+
+    for (const c of this.conditions) {
+      it = { ...it, ...c.infoJson() };
+    }
+
+    return it;
+  }
 }
 
 export class ContextConditionPath extends ContextCondition {
@@ -77,6 +88,12 @@ export class ContextConditionPath extends ContextCondition {
   }
 
   info(): ConditionInfo {
+    return {
+      path: this.path,
+    };
+  }
+
+  infoJson(): any {
     return {
       path: this.path,
     };
@@ -114,6 +131,12 @@ export class ContextConditionPath2 extends ContextCondition {
       flags: this.path.flags,
     };
   }
+
+  infoJson(): any {
+    return {
+      path2: this.path.source,
+    };
+  }
 }
 
 export class ContextConditionMethod extends ContextCondition {
@@ -135,6 +158,12 @@ export class ContextConditionMethod extends ContextCondition {
   }
 
   info(): ConditionInfo {
+    return {
+      method: this.method,
+    };
+  }
+
+  infoJson(): any {
     return {
       method: this.method,
     };

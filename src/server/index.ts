@@ -3,29 +3,20 @@ import { Context, ContextHandler } from "./context.js";
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import { ExpressMixin, ExpressOptions } from "./express.js";
 import { HttpError } from "./error.js";
+import { ContextCondition } from "./condition.js";
+import { ResterDebugger } from "./debug.js";
 
 export * from "./common.js";
 export * from "./condition.js";
 export * from "./context.js";
+export * from "./debug.js";
 export * from "./error.js";
 export * from "./express.js";
 export * from "./info.js";
 
-export function importer<T>(fn: () => Promise<T>): () => Promise<T> {
-  let _result: T | undefined;
-  let _promise: Promise<T> | undefined;
-  return async () => {
-    if (_result) return _result;
-    if (_promise) return await _promise;
-    _promise = fn();
-    _result = await _promise;
-    return _result;
-  }
-}
-
 export class RestfulApi extends Context {
   private _options: RestfulApiOptions;
-  public readonly _debugger: ResterDebugger;
+  public readonly _debugger = new ResterDebugger();
 
   get debugger() {
     return this._debugger;
@@ -43,7 +34,6 @@ export class RestfulApi extends Context {
     this._options = opts;
 
     this._api = this;
-    this._debugger = new ResterDebugger(opts);
 
   }
 
@@ -81,31 +71,6 @@ export interface RestfulApiOptionsInit {
   debug?: boolean;
 }
 
-export class ResterDebugger {
-  get isDebugEnabled() {
-    return this._options.debug!!;
-  }
-
-  constructor(private readonly _options: RestfulApiOptions) { }
-
-  private __get_debug = importer(() => import("debug").then(e => e.default));
-  private __get_debug_general = importer(() => import("debug").then(e => e.default("rster:general")));
-  private __get_debug_http_error = importer(() => import("debug").then(e => e.default("rster:http:error")));
-
-  public async debugHttpError(err: HttpError) {
-    if (this.isDebugEnabled) {
-      const debug = await this.__get_debug_http_error();
-      debug("Error %s caught: \n%s", err.name, err.stack);
-    }
-  }
-
-  public async debug(formatter: any, ...args: any[]) {
-    if (this.isDebugEnabled) {
-      const debug = await this.__get_debug_general();
-      debug(formatter, ...args);
-    }
-  }
-}
 export function rest(init: ContextHandler, options?: RestfulApiOptionsInit) {
   return new RestfulApi().init(init);
 }
