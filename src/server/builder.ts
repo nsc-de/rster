@@ -1,6 +1,16 @@
 import rest, { RestfulApi, action, description, when } from "./index.js";
 import { Method } from "./common.js";
 import { ContextConditionMethod, ContextConditionPath } from "./condition.js";
+import { TypeInformation, undefinedType } from "../shared/types.js";
+
+export interface ParameterDeclaration {
+  expectBody?: { [key: string]: { type: TypeInformation; optional: boolean } };
+  expectQuery?: { [key: string]: { type: TypeInformation; optional: boolean } };
+  expectParams?: {
+    [key: string]: { type: TypeInformation; optional: boolean };
+  };
+  returns: TypeInformation;
+}
 
 export interface RsterApiJson {
   version: string;
@@ -133,6 +143,7 @@ export class RsterApiMethod {
   constructor(
     public readonly name: string,
     public readonly description: string[],
+    public readonly declaration: ParameterDeclaration,
     public readonly httpPath?: string,
     public readonly httpMethod?: Method
   ) {}
@@ -282,6 +293,12 @@ export class RsterApiMethodContext {
   private readonly _description: string[] = [];
   private _httpPath?: string;
   private _httpMethod?: Method;
+  private _declaration: ParameterDeclaration = {
+    expectBody: {},
+    expectQuery: {},
+    expectParams: {},
+    returns: undefinedType(),
+  };
 
   constructor(name: string) {
     this._name = name;
@@ -299,10 +316,69 @@ export class RsterApiMethodContext {
     this._httpMethod = method;
   }
 
+  public declaration(declaration: ParameterDeclaration) {
+    this._declaration = declaration;
+  }
+
+  public getDeclaration() {
+    return this._declaration;
+  }
+
+  public declarationBody(body: {
+    [key: string]: { type: TypeInformation; optional: boolean };
+  }) {
+    this._declaration.expectBody = body;
+  }
+
+  public declarationBodyParam(name: string, type: TypeInformation) {
+    if (!this._declaration.expectBody) this._declaration.expectBody = {};
+    this._declaration.expectBody![name] = { type, optional: false };
+  }
+
+  public declarationBodyParamOptional(name: string, type: TypeInformation) {
+    if (!this._declaration.expectBody) this._declaration.expectBody = {};
+    this._declaration.expectBody![name] = { type, optional: true };
+  }
+
+  public declarationQuery(query: {
+    [key: string]: { type: TypeInformation; optional: boolean };
+  }) {
+    this._declaration.expectQuery = query;
+  }
+
+  public declarationQueryParam(name: string, type: TypeInformation) {
+    if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
+    this._declaration.expectQuery![name] = { type, optional: false };
+  }
+
+  public declarationQueryParamOptional(name: string, type: TypeInformation) {
+    if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
+    this._declaration.expectQuery![name] = { type, optional: true };
+  }
+
+  public declarationParams(params: {
+    [key: string]: { type: TypeInformation; optional: boolean };
+  }) {
+    this._declaration.expectParams = params;
+  }
+
+  public declarationParam(name: string, type: TypeInformation) {
+    if (!this._declaration.expectParams) this._declaration.expectParams = {};
+    this._declaration.expectParams![name] = { type, optional: false };
+  }
+
+  public declarationParamOptional(name: string, type: TypeInformation) {
+    if (!this._declaration.expectParams) this._declaration.expectParams = {};
+    this._declaration.expectParams![name] = { type, optional: true };
+  }
+
   public generate(): RsterApiMethod {
+    if (this._declaration === undefined)
+      throw new Error("No declaration for method " + this._name);
     return new RsterApiMethod(
       this._name,
       this._description,
+      this._declaration,
       this._httpPath,
       this._httpMethod
     );
