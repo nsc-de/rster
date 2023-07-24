@@ -4,6 +4,19 @@ import { ContextConditionMethod, ContextConditionPath } from "./condition.js";
 import { TypeInformation, undefinedType } from "../shared/types.js";
 import { declaration } from "./generator/index.js";
 
+/**
+ * Declaration for method parameters.
+ *
+ * @typeparam RETURNS - The type of the return value.
+ * @typeparam EXPECT_BODY - The type of the expected body.
+ * @typeparam EXPECT_QUERY - The type of the expected query.
+ * @typeparam EXPECT_PARAMS - The type of the expected parameters.
+ *
+ * @param expectBody - The expected body.
+ * @param expectQuery - The expected query.
+ * @param expectParams - The expected parameters.
+ * @param returns - The return type.
+ */
 export interface ParameterDeclaration<
   RETURNS extends TypeInformation = TypeInformation,
   EXPECT_BODY extends {
@@ -22,16 +35,61 @@ export interface ParameterDeclaration<
   returns: RETURNS;
 }
 
-export interface ParameterDeclarationWithContext extends ParameterDeclaration {
-  _name: string;
-  _description: string[];
-}
+/**
+ * A map of modules of the api or it's submodules. (Contained once in each module and submodule and once on the api itself)
+ *
+ * @see ModuleBuilderMap
+ */
+export type ModuleMap<T extends RsterApiModule = RsterApiModule> = {
+  [key: string]: T;
+};
 
-export type ModuleMap = Record<string, RsterApiModule>;
-export type MethodMap = Record<string, RsterApiMethod>;
-export type ModuleBuilderMap = Record<string, RsterApiModuleBuilder>;
-export type MethodBuilderMap = Record<string, RsterApiMethodBuilder>;
+/**
+ * A map of methods of the api or it's submodules. (Contained once in each module and submodule and once on the api itself)
+ *
+ * @typeparam T - The type of the method.
+ *
+ * @see MethodBuilderMap
+ */
+export type MethodMap<T extends RsterApiMethod = RsterApiMethod> = {
+  [key: string]: T;
+};
 
+/**
+ * A map of modules of the api or it's submodules. (Contained once in each module and submodule and once on the api itself)
+ * This is the implementation for the builders
+ *
+ * @typeparam T - The type of the module builder context.
+ *
+ * @see ModuleMap
+ */
+export type ModuleBuilderMap<
+  T extends RsterApiModuleBuilderContext = RsterApiModuleBuilderContext
+> = {
+  [key: string]: T;
+};
+
+/**
+ * A map of methods of the api or it's submodules. (Contained once in each module and submodule and once on the api itself)
+ * This is the implementation for the builders
+ *
+ * @typeparam T - The type of the method builder context.
+ *
+ * @see MethodMap
+ */
+export type MethodBuilderMap<
+  T extends RsterApiMethodContext = RsterApiMethodContext
+> = {
+  [key: string]: T;
+};
+
+/**
+ * A type to convert an array of objects with the key 'K' property to an object with the key 'K' property.
+ * This is used to help typescript infer the type of the object when using the `ArrayFinder` function.
+ *
+ * @typeparam T - The type of elements in the array.
+ * @typeparam K - The key of the property to be used as the key for accessing elements in the array.
+ */
 type ArrayToObject<T, K extends keyof T> = {
   [P in T[K] as string]: Extract<T, Record<K, P>>;
 };
@@ -45,7 +103,7 @@ type ArrayToObject<T, K extends keyof T> = {
  * @param property - The property to be used as the key for accessing elements in the array.
  * @returns A proxy object with keys based on the specified property and values of type `T`.
  */
-function ArrayFinder<T, K extends keyof T>(
+export function ArrayFinder<T, K extends keyof T>(
   array: T[],
   property: K
 ): ArrayToObject<T, K> {
@@ -64,29 +122,129 @@ function ArrayFinder<T, K extends keyof T>(
   });
 }
 
-type Values<T extends Record<string, any>> = T[keyof T][];
-
+/**
+ * A type for the json representation of the api class. Returned by the `json` method, used to get info about the api.
+ *
+ * @see RsterApi.json
+ * @see RsterApi
+ */
 export interface RsterApiJson {
+  /**
+   * The version string of the api.
+   * @see RsterApi.version
+   */
   version: string;
+
+  /**
+   * The name of the api.
+   * @see RsterApi.name
+   */
   name: string;
+
+  /**
+   * The description of the api.
+   * @see RsterApi.description
+   */
   description: string[];
+
+  /**
+   * The modules of the api.
+   * @see RsterApi.modules
+   * @see RsterApiModuleJson
+   */
   modules: RsterApiModuleJson[];
+
+  /**
+   * The methods of the api.
+   * @see RsterApi.methods
+   * @see RsterApiMethodJson
+   */
   methods: RsterApiMethodJson[];
 }
 
+/**
+ * A type for the json representation of the module class. Returned by the `json` method, used to get info about the module.
+ *
+ * @see RsterApiModule.json
+ * @see RsterApiModule
+ * @see RsterApiJson
+ * @see RsterApiModuleJson
+ */
 export interface RsterApiModuleJson {
+  /**
+   * The name of the module.
+   * @see RsterApiModule.name
+   */
   name: string;
+
+  /**
+   * The description of the module.
+   * @see RsterApiModule.description
+   */
   description: string[];
+
+  /**
+   * The modules of the module.
+   * @see RsterApiModule.modules
+   * @see RsterApiModuleJson
+   */
   modules: RsterApiModuleJson[];
+
+  /**
+   * The methods of the module.
+   * @see RsterApiModule.methods
+   * @see RsterApiMethodJson
+   */
   methods: RsterApiMethodJson[];
+
+  /**
+   * The http path of the module. Will be joined with the parent module's path.
+   * This is the condition for the module to be used for a request.
+   * @see RsterApiModule.httpPath
+   */
   httpPath?: string;
+
+  /**
+   * The http method of the module. This is the condition for the module to be used for a request.
+   * @see RsterApiModule.httpMethod
+   * @see Method
+   */
   httpMethod?: Method;
 }
 
+/**
+ * A type for the json representation of the method class. Returned by the `json` method, used to get info about the method.
+ *
+ * @see RsterApiMethod.json
+ * @see RsterApiMethod
+ * @see RsterApiJson
+ * @see RsterApiModuleJson
+ */
 export interface RsterApiMethodJson {
+  /**
+   * The name of the method.
+   * @see RsterApiMethod.name
+   */
   name: string;
+
+  /**
+   * The description of the method.
+   * @see RsterApiMethod.description
+   */
   description: string[];
+
+  /**
+   * The http path of the method. Will be joined with the parent module's path.
+   * This is the condition for the method to be used for a request.
+   * @see RsterApiMethod.httpPath
+   */
   httpPath?: string;
+
+  /**
+   * The http method of the method. This is the condition for the method to be used for a request.
+   * @see RsterApiMethod.httpMethod
+   * @see Method
+   */
   httpMethod?: Method;
 }
 
@@ -256,7 +414,7 @@ export class RsterApiBuilderContext<
 
   public method<T extends ParameterDeclarationWithContext>(
     name: string,
-    builder: RsterApiMethodBuilder<RsterApiMethodContext<T>>
+    builder: RsterApiMethodBuilder<T>
   ) {
     const context = new RsterApiMethodContext<T>({ name });
     builder.call(context);
