@@ -22,6 +22,7 @@ export type DestructedType =
 type SendMethod = "param" | "body" | "query";
 
 export abstract class TypeInformation<T> {
+  abstract check(value: any): value is T;
   abstract readonly sendableVia: SendMethod[];
   abstract get type(): T;
 }
@@ -31,6 +32,9 @@ export class StringTypeInformation<
 > extends TypeInformation<T> {
   constructor(public readonly value: T) {
     super();
+  }
+  check(value: any): value is T {
+    return typeof value === "string" && value === this.value;
   }
   get sendableVia(): SendMethod[] {
     return ["param", "body", "query"];
@@ -46,6 +50,11 @@ export class NumberTypeInformation<
   constructor(public readonly value: T) {
     super();
   }
+
+  check(value: any): value is T {
+    return typeof value === "number" && value === this.value;
+  }
+
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
@@ -61,6 +70,11 @@ export class NumberRangeTypeInformation<
   constructor(public readonly min: MIN, public readonly max: MAX) {
     super();
   }
+
+  check(value: any): value is IntRange<MIN, MAX> {
+    return typeof value === "number" && this.includes(value);
+  }
+
   includes(value: number) {
     return value >= this.min && value <= this.max;
   }
@@ -80,6 +94,10 @@ export class Or<
     super();
   }
 
+  check(value: any): value is T0 | T1 {
+    return this.value0.check(value) || this.value1.check(value);
+  }
+
   get sendableVia(): SendMethod[] {
     return [this.value0, this.value1]
       .map((v) => v.sendableVia)
@@ -92,7 +110,7 @@ export class Or<
 }
 export class ObjectTypeInformation<
   T extends { [key: string]: TypeInformation<any> }
-> extends TypeInformation<T> {
+> extends TypeInformation<{ [key in keyof T]: T[key]["type"] }> {
   constructor(
     public readonly properties: {
       // [key: string]: { required: boolean; type: TypeInformation };
@@ -101,11 +119,25 @@ export class ObjectTypeInformation<
   ) {
     super();
   }
+
+  check(value: any): value is { [key in keyof T]: T[key]["type"] } {
+    return (
+      typeof value === "object" &&
+      Object.keys(this.properties).every((key) => {
+        const property = this.properties[key];
+        return (
+          (property.required && value[key] !== undefined) ||
+          property.type.check(value[key])
+        );
+      })
+    );
+  }
+
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
 
-  get type(): T {
+  get type(): { [key in keyof T]: T[key]["type"] } {
     return Object.keys(this.properties).reduce((acc, key) => {
       const value = this.properties[key];
       acc[key] = value.type.type;
@@ -115,7 +147,7 @@ export class ObjectTypeInformation<
 }
 export class ArrayTypeInformation<
   T extends TypeInformation<any>
-> extends TypeInformation<T[]> {
+> extends TypeInformation<T["type"][]> {
   minItems?: number;
   maxItems?: number;
   constructor(
@@ -132,11 +164,21 @@ export class ArrayTypeInformation<
     this.minItems = minItems;
     this.maxItems = maxItems;
   }
+
+  check(value: any): value is T["type"][] {
+    return (
+      Array.isArray(value) &&
+      value.length >= (this.minItems ?? 0) &&
+      value.length <= (this.maxItems ?? Infinity) &&
+      value.every((v) => this.values.some((t) => t.check(v)))
+    );
+  }
+
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
 
-  get type(): T[] {
+  get type(): T["type"][] {
     return this.values.map((v) => v.type);
   }
 }
@@ -150,6 +192,11 @@ export class BooleanTypeInformation<
   constructor(public readonly value: T) {
     super();
   }
+
+  check(value: any): value is T {
+    return typeof value === "boolean" && value === this.value;
+  }
+
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
@@ -166,6 +213,11 @@ export class NullTypeInformation extends TypeInformation<null> {
   constructor() {
     super();
   }
+
+  check(value: any): value is null {
+    return value === null;
+  }
+
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
@@ -182,6 +234,11 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
   constructor() {
     super();
   }
+
+  check(value: any): value is undefined {
+    return value === undefined;
+  }
+
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
@@ -197,6 +254,11 @@ export class AnyStringTypeInformation extends TypeInformation<string> {
   constructor() {
     super();
   }
+
+  check(value: any): value is string {
+    return typeof value === "string";
+  }
+
   get sendableVia(): SendMethod[] {
     return ["param", "body", "query"];
   }
@@ -212,6 +274,11 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
   constructor() {
     super();
   }
+
+  check(value: any): value is number {
+    return typeof value === "number";
+  }
+
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
@@ -227,6 +294,11 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
   constructor() {
     super();
   }
+
+  check(value: any): value is boolean {
+    return typeof value === "boolean";
+  }
+
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
@@ -242,6 +314,11 @@ export class AnyTypeInformation extends TypeInformation<any> {
   constructor() {
     super();
   }
+
+  check(value: any): value is any {
+    return true;
+  }
+
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
@@ -351,3 +428,14 @@ export function falseType(): BooleanTypeInformation<false> {
 export function any(): AnyTypeInformation {
   return AnyTypeInformation.instance;
 }
+
+export type NoUndefined<TYPE, ALTERNATIVE> = TYPE extends undefined
+  ? ALTERNATIVE
+  : TYPE;
+
+export type PrimitiveType<TYPE extends TypeInformation> = TYPE["type"];
+export type MapToPrimitiveType<
+  TYPE extends Record<string, { type: TypeInformation }>
+> = {
+  [key in keyof TYPE]: PrimitiveType<TYPE[key]["type"]>;
+};
