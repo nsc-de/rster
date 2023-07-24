@@ -26,8 +26,15 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { glob } from "glob";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// fallback for __dirname and __filename
+if (!__dirname) {
+  // @ts-ignore
+  __dirname = path.dirname(fileURLToPath(import.meta.url));
+}
+if (!__filename) {
+  // @ts-ignore
+  __filename = path.basename(fileURLToPath(import.meta.url));
+}
 
 const tsconfig = ts.readConfigFile(
   path.join(__dirname, "../../../tsconfig.generator.json"),

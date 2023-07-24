@@ -125,10 +125,7 @@ export class ObjectTypeInformation<
       typeof value === "object" &&
       Object.keys(this.properties).every((key) => {
         const property = this.properties[key];
-        return (
-          (property.required && value[key] !== undefined) ||
-          property.type.check(value[key])
-        );
+        return !property.required || property.type.check(value[key]);
       })
     );
   }
