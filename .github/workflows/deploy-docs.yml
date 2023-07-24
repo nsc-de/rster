@@ -37,9 +37,8 @@ jobs:
 
       - name: Install and Build 🔧
         run: |
-          npm install
-          npm run build:doc
-          npm run build:doc:readme
+          yarn install
+          yarn build:docs
           
       - name: Setup Pages 📄
         uses: actions/configure-pages@v3
