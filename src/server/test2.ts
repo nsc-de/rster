@@ -1,26 +1,35 @@
-import { buildRsterApi } from "./builder.js";
+import { string } from "../shared/types.js";
+import { api, buildRsterApi, method, module } from "./builder.js";
 
 console.log(
   JSON.stringify(
-    buildRsterApi(function () {
-      this.name("test");
-      this.description("Just a simple test API");
+    api({
+      name: "test2",
+      version: "0.1.0",
 
-      this.module("test", function () {
-        this.httpPath("/test");
+      modules: [
+        module({
+          name: "test2",
 
-        this.description("Just a simple test module");
-        this.method("ping", function () {
-          this.httpMethod("get");
-          this.httpPath("/ping");
+          methods: [
+            method({
+              name: "test2",
+              declaration: {
+                returns: string(),
+              },
+            }),
+          ],
+        }),
+      ],
 
-          this.description("Just a simple test method");
-        });
-      });
+      methods: [
+        method({
+          name: "test2",
+          declaration: {
+            returns: string(),
+          },
+        }),
+      ],
     })
-      .rest()
-      .toJson(),
-    null,
-    2
   )
 );
