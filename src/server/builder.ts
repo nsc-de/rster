@@ -1,8 +1,21 @@
 import rest, { RestfulApi, action, description, when } from "./index.js";
 import { Method } from "./common.js";
 import { ContextConditionMethod, ContextConditionPath } from "./condition.js";
-import { TypeInformation, undefinedType } from "../shared/types.js";
+import {
+  MapToPrimitiveType,
+  NoUndefined,
+  PrimitiveType,
+  TypeInformation,
+  undefinedType,
+} from "../shared/types.js";
 import { declaration } from "./generator/index.js";
+
+export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
+  (
+    args: MapToPrimitiveType<NoUndefined<D["expectBody"], {}>> &
+      MapToPrimitiveType<NoUndefined<D["expectQuery"], {}>> &
+      MapToPrimitiveType<NoUndefined<D["expectParams"], {}>>
+  ) => PrimitiveType<D["returns"]>;
 
 /**
  * Declaration for method parameters.
@@ -18,16 +31,16 @@ import { declaration } from "./generator/index.js";
  * @param returns - The return type.
  */
 export interface ParameterDeclaration<
-  RETURNS extends TypeInformation = TypeInformation,
+  RETURNS extends TypeInformation,
   EXPECT_BODY extends {
     [key: string]: { type: TypeInformation; optional: boolean };
-  } = any,
+  },
   EXPECT_QUERY extends {
     [key: string]: { type: TypeInformation; optional: boolean };
-  } = any,
+  },
   EXPECT_PARAMS extends {
     [key: string]: { type: TypeInformation; optional: boolean };
-  } = any
+  }
 > {
   expectBody?: EXPECT_BODY;
   expectQuery?: EXPECT_QUERY;
@@ -61,7 +74,7 @@ export type ModuleMap<T extends RsterApiModule = RsterApiModule> = {
  *
  * @see MethodBuilderMap
  */
-export type MethodMap<T extends RsterApiMethod = RsterApiMethod> = {
+export type MethodMap<T extends RsterApiMethod<any> = RsterApiMethod<any>> = {
   [key: string]: T;
 };
 
@@ -73,11 +86,10 @@ export type MethodMap<T extends RsterApiMethod = RsterApiMethod> = {
  *
  * @see ModuleMap
  */
-export type ModuleBuilderMap<
-  T extends RsterApiModuleBuilderContext = RsterApiModuleBuilderContext
-> = {
-  [key: string]: T;
-};
+export type ModuleBuilderMap<T extends RsterApiModuleBuilderContext<any, any>> =
+  {
+    [key: string]: T;
+  };
 
 /**
  * A map of methods of the api or it's submodules. (Contained once in each module and submodule and once on the api itself)
@@ -87,9 +99,7 @@ export type ModuleBuilderMap<
  *
  * @see MethodMap
  */
-export type MethodBuilderMap<
-  T extends RsterApiMethodBuilderContext = RsterApiMethodBuilderContext
-> = {
+export type MethodBuilderMap<T extends RsterApiMethodBuilderContext<any>> = {
   [key: string]: T;
 };
 
@@ -268,7 +278,7 @@ export class RsterApi {
     public readonly name: string,
     public readonly description: string[],
     public readonly modules: RsterApiModule[],
-    public readonly methods: RsterApiMethod[]
+    public readonly methods: RsterApiMethod<any>[]
   ) {}
 
   public json(): RsterApiJson {
@@ -301,7 +311,7 @@ export class RsterApiModule {
     public readonly name: string,
     public readonly description: string[],
     public readonly modules: RsterApiModule[],
-    public readonly methods: RsterApiMethod[],
+    public readonly methods: RsterApiMethod<any>[],
     public readonly httpPath?: string,
     public readonly httpMethod?: Method
   ) {}
@@ -345,11 +355,13 @@ export class RsterApiModule {
   }
 }
 
-export class RsterApiMethod {
+export class RsterApiMethod<
+  DECLARATION extends ParameterDeclaration<any, any, any, any>
+> {
   constructor(
     public readonly name: string,
     public readonly description: string[],
-    public readonly declaration: ParameterDeclaration,
+    public readonly declaration: DECLARATION,
     public readonly httpPath?: string,
     public readonly httpMethod?: Method
   ) {}
@@ -379,8 +391,8 @@ export class RsterApiMethod {
 }
 
 export class RsterApiBuilderContext<
-  MODULES extends ModuleBuilderMap<RsterApiModuleBuilderContext> = any,
-  METHODS extends MethodBuilderMap<RsterApiMethodBuilderContext> = any
+  MODULES extends ModuleBuilderMap<RsterApiModuleBuilderContext<any, any>>,
+  METHODS extends MethodBuilderMap<RsterApiMethodBuilderContext<any>>
 > {
   private _version?: string;
   private _name?: string;
@@ -419,7 +431,7 @@ export class RsterApiBuilderContext<
 
   public module<T extends Value<MODULES>>(
     name: string,
-    builder: RsterApiModuleBuilder<NoNever<T, ModuleBuilderMap>>
+    builder: RsterApiModuleBuilder<NoNever<T, ModuleBuilderMap<any>>>
   ) {
     const context = new RsterApiModuleBuilderContext({
       name,
@@ -431,7 +443,7 @@ export class RsterApiBuilderContext<
 
   public method<T extends Value<METHODS>>(
     name: string,
-    builder: RsterApiMethodBuilder<NoNever<T, ModuleBuilderMap>>
+    builder: RsterApiMethodBuilder<NoNever<T, ModuleBuilderMap<any>>>
   ) {
     const context = new RsterApiMethodBuilderContext({
       name,
@@ -497,8 +509,8 @@ export class RsterApiBuilderContext<
 }
 
 export class RsterApiModuleBuilderContext<
-  MODULES extends ModuleBuilderMap = any,
-  METHODS extends MethodBuilderMap = any
+  MODULES extends ModuleBuilderMap<any>,
+  METHODS extends MethodBuilderMap<any>
 > {
   private readonly _name: string;
   private _description: string[] = [];
@@ -534,7 +546,7 @@ export class RsterApiModuleBuilderContext<
 
   public module<T extends Value<MODULES>>(
     name: string,
-    builder: RsterApiModuleBuilder<NoNever<T, ModuleBuilderMap>>
+    builder: RsterApiModuleBuilder<NoNever<T, ModuleBuilderMap<any>>>
   ) {
     const context = new RsterApiModuleBuilderContext({
       name,
@@ -577,7 +589,7 @@ export class RsterApiModuleBuilderContext<
 }
 
 export class RsterApiMethodBuilderContext<
-  DECLARATION extends ParameterDeclaration = ParameterDeclaration
+  DECLARATION extends ParameterDeclaration<any, any, any, any>
 > {
   private readonly _name: string;
   private readonly _description: string[] = [];
@@ -589,11 +601,7 @@ export class RsterApiMethodBuilderContext<
     return this._name;
   }
 
-  private _action?: (
-    args: typeof this._declaration.expectBody &
-      typeof this._declaration.expectQuery &
-      typeof this._declaration.expectParams
-  ) => typeof this._declaration.returns;
+  private _action?: ActionFunction<DECLARATION>;
 
   constructor({
     name,
@@ -613,11 +621,7 @@ export class RsterApiMethodBuilderContext<
     httpPath?: string;
     httpMethod?: Method;
     declaration?: DECLARATION;
-    action?: (
-      args: typeof declaration.expectBody &
-        typeof declaration.expectQuery &
-        typeof declaration.expectParams
-    ) => typeof declaration.returns;
+    action?: ActionFunction<DECLARATION>;
   }) {
     this._name = name;
     this._description = description;
@@ -711,7 +715,7 @@ export class RsterApiMethodBuilderContext<
     this._action = action;
   }
 
-  public generate(): RsterApiMethod {
+  public generate(): RsterApiMethod<any> {
     if (this._declaration === undefined)
       throw new Error("No declaration for method " + this._name);
     return new RsterApiMethod(
@@ -724,25 +728,28 @@ export class RsterApiMethodBuilderContext<
   }
 }
 
-export type RsterApiBuilder<
-  T extends RsterApiBuilderContext = RsterApiBuilderContext
-> = (this: T) => void;
+export type RsterApiBuilder<T extends RsterApiBuilderContext<any, any>> = (
+  this: T
+) => void;
 export type RsterApiModuleBuilder<
-  T extends RsterApiModuleBuilderContext = RsterApiModuleBuilderContext
+  T extends RsterApiModuleBuilderContext<
+    any,
+    any
+  > = RsterApiModuleBuilderContext<any, any>
 > = (this: T) => void;
 export type RsterApiMethodBuilder<
-  T extends RsterApiMethodBuilderContext = RsterApiMethodBuilderContext
+  T extends RsterApiMethodBuilderContext<any> = RsterApiMethodBuilderContext<any>
 > = (this: T) => void;
 
-export function buildRsterApi(builder: RsterApiBuilder) {
+export function buildRsterApi(builder: RsterApiBuilder<any>) {
   const context = new RsterApiBuilderContext({});
   builder.call(context);
   return context.generate();
 }
 
 export function api<
-  MODULES extends ModuleBuilderMap<RsterApiModuleBuilderContext> = any,
-  METHODS extends MethodBuilderMap<RsterApiMethodBuilderContext> = any
+  MODULES extends ModuleBuilderMap<RsterApiModuleBuilderContext<any, any>>,
+  METHODS extends MethodBuilderMap<RsterApiMethodBuilderContext<any>>
 >(
   {
     version,
@@ -772,8 +779,8 @@ export function api<
 }
 
 export function module<
-  MODULES extends ModuleBuilderMap,
-  METHODS extends MethodBuilderMap
+  MODULES extends ModuleBuilderMap<any>,
+  METHODS extends MethodBuilderMap<any>
 >(
   {
     name,
@@ -805,7 +812,9 @@ export function module<
   return context;
 }
 
-export function method(
+export function method<
+  DECLARATION extends ParameterDeclaration<any, any, any, any>
+>(
   {
     name,
     description,
@@ -818,16 +827,12 @@ export function method(
     description?: string[];
     httpPath?: string;
     httpMethod?: Method;
-    declaration: ParameterDeclaration;
-    action?: (
-      args: typeof declaration.expectBody &
-        typeof declaration.expectQuery &
-        typeof declaration.expectParams
-    ) => typeof declaration.returns;
+    declaration: DECLARATION;
+    action?: ActionFunction<DECLARATION>;
   },
-  builder?: RsterApiMethodBuilder
+  builder?: RsterApiMethodBuilder // TODO: Add builder type
 ) {
-  const context = new RsterApiMethodBuilderContext({
+  const context = new RsterApiMethodBuilderContext<DECLARATION>({
     name,
     description,
     httpPath,
@@ -836,6 +841,7 @@ export function method(
     action,
   });
 
+  // @ts-ignore
   if (builder) builder.call(context);
   return context;
 }

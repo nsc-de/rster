@@ -1,4 +1,4 @@
-import { string } from "../shared/types.js";
+import { boolean, object, string } from "../shared/types.js";
 import { api, buildRsterApi, method, module } from "./builder.js";
 
 console.log(
@@ -13,9 +13,23 @@ console.log(
 
           methods: [
             method({
-              name: "test2",
+              name: "ping",
               declaration: {
-                returns: string(),
+                expectBody: {
+                  message: { type: string(), optional: true },
+                },
+                returns: object({
+                  message: string(),
+                  received: string(),
+                  ok: boolean(),
+                }),
+              },
+              action: async ({ message }) => {
+                return {
+                  message: message || "pong",
+                  received: new Date().toISOString(),
+                  ok: "hello",
+                };
               },
             }),
           ],
