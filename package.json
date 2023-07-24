@@ -27,7 +27,8 @@
     "test": "yarn build && yarn start-test",
     "start-test2": "node -r source-map-support/register dist/server/test2.js",
     "test2": "yarn build && yarn start-test2",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "build:docs": "typedoc"
   },
   "type": "module"
 }
