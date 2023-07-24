@@ -36,6 +36,16 @@ export interface ParameterDeclaration<
 }
 
 /**
+ * Converts an Object's type to it's value type.
+ */
+type Value<T extends Record<string, any>> = T[keyof T];
+
+/**
+ * Converts an Object's type to an array of it's value types.
+ */
+type Values<T extends Record<string, any>> = Value<T>[];
+
+/**
  * A map of modules of the api or it's submodules. (Contained once in each module and submodule and once on the api itself)
  *
  * @see ModuleBuilderMap
@@ -365,14 +375,16 @@ export class RsterApiMethod {
 }
 
 export class RsterApiBuilderContext<
-  MODULES extends ModuleBuilderMap = ModuleBuilderMap,
-  METHODS extends MethodBuilderMap = MethodBuilderMap
+  MODULE_TYPE extends RsterApiModuleBuilderContext = RsterApiModuleBuilderContext,
+  METHOD_TYPE extends RsterApiMethodContext = RsterApiMethodContext,
+  MODULES extends ModuleBuilderMap<MODULE_TYPE> = ModuleBuilderMap<MODULE_TYPE>,
+  METHODS extends MethodBuilderMap<METHOD_TYPE> = MethodBuilderMap<METHOD_TYPE>
 > {
   private _version?: string;
   private _name?: string;
   private _description: string[] = [];
-  private readonly _modules: Values<MODULES> = [];
-  private readonly _methods: Values<METHODS> = [];
+  private readonly _modules: MODULE_TYPE[] = [];
+  private readonly _methods: METHOD_TYPE[] = [];
 
   public readonly modules: MODULES = ArrayFinder(
     this._modules,
@@ -395,7 +407,7 @@ export class RsterApiBuilderContext<
     description?: string[];
     modules?: Values<MODULES>;
     methods?: Values<METHODS>;
-  }) {
+  } = {}) {
     this._version = version;
     this._name = name;
     this._description = description;
@@ -403,20 +415,18 @@ export class RsterApiBuilderContext<
     this._methods.push(...methods);
   }
 
-  public module(
-    name: string,
-    builder: RsterApiModuleBuilder<MODULES[keyof MODULES]>
-  ) {
-    const context = new RsterApiModuleBuilderContext({ name });
+  public module(name: string, builder: RsterApiModuleBuilder<MODULE_TYPE>) {
+    const context = new RsterApiModuleBuilderContext({
+      name,
+    }) as MODULE_TYPE;
     builder.call(context);
     this._modules.push(context);
   }
 
-  public method<T extends ParameterDeclarationWithContext>(
-    name: string,
-    builder: RsterApiMethodBuilder<T>
-  ) {
-    const context = new RsterApiMethodContext<T>({ name });
+  public method(name: string, builder: RsterApiMethodBuilder<METHOD_TYPE>) {
+    const context = new RsterApiMethodContext({
+      name,
+    }) as METHOD_TYPE;
     builder.call(context);
     this._methods.push(context);
   }
@@ -549,7 +559,7 @@ export class RsterApiModuleBuilderContext<
 }
 
 export class RsterApiMethodContext<
-  DECLARATION extends ParameterDeclarationWithContext = ParameterDeclarationWithContext
+  DECLARATION extends ParameterDeclaration = ParameterDeclaration
 > {
   private readonly _name: string;
   private readonly _description: string[] = [];
@@ -707,7 +717,7 @@ export type RsterApiMethodBuilder<
 > = (this: T) => void;
 
 export function buildRsterApi(builder: RsterApiBuilder) {
-  const context = new RsterApiBuilderContext();
+  const context = new RsterApiBuilderContext({});
   builder.call(context);
   return context.generate();
 }
