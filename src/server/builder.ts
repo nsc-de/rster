@@ -2,15 +2,69 @@ import rest, { RestfulApi, action, description, when } from "./index.js";
 import { Method } from "./common.js";
 import { ContextConditionMethod, ContextConditionPath } from "./condition.js";
 import { TypeInformation, undefinedType } from "../shared/types.js";
+import { declaration } from "./generator/index.js";
 
-export interface ParameterDeclaration {
-  expectBody?: { [key: string]: { type: TypeInformation; optional: boolean } };
-  expectQuery?: { [key: string]: { type: TypeInformation; optional: boolean } };
-  expectParams?: {
+export interface ParameterDeclaration<
+  RETURNS extends TypeInformation = TypeInformation,
+  EXPECT_BODY extends {
     [key: string]: { type: TypeInformation; optional: boolean };
-  };
-  returns: TypeInformation;
+  } = {},
+  EXPECT_QUERY extends {
+    [key: string]: { type: TypeInformation; optional: boolean };
+  } = {},
+  EXPECT_PARAMS extends {
+    [key: string]: { type: TypeInformation; optional: boolean };
+  } = {}
+> {
+  expectBody?: EXPECT_BODY;
+  expectQuery?: EXPECT_QUERY;
+  expectParams?: EXPECT_PARAMS;
+  returns: RETURNS;
 }
+
+export interface ParameterDeclarationWithContext extends ParameterDeclaration {
+  _name: string;
+  _description: string[];
+}
+
+export type ModuleMap = Record<string, RsterApiModule>;
+export type MethodMap = Record<string, RsterApiMethod>;
+export type ModuleBuilderMap = Record<string, RsterApiModuleBuilder>;
+export type MethodBuilderMap = Record<string, RsterApiMethodBuilder>;
+
+type ArrayToObject<T, K extends keyof T> = {
+  [P in T[K] as string]: Extract<T, Record<K, P>>;
+};
+
+/**
+ * Creates a proxy object that allows accessing elements in the array using a specified property as the key.
+ *
+ * @typeparam T - The type of elements in the array.
+ * @typeparam K - The key of the property to be used as the key for accessing elements in the array.
+ * @param array - The array of elements.
+ * @param property - The property to be used as the key for accessing elements in the array.
+ * @returns A proxy object with keys based on the specified property and values of type `T`.
+ */
+function ArrayFinder<T, K extends keyof T>(
+  array: T[],
+  property: K
+): ArrayToObject<T, K> {
+  const result: any = {};
+  for (const item of array) {
+    result[item[property] as string] = item;
+  }
+
+  return new Proxy(result, {
+    get: (target, prop) => {
+      if (typeof prop === "string") {
+        return target[prop] || undefined;
+      }
+      return target[prop as keyof typeof result];
+    },
+  });
+}
+
+type Values<T extends Record<string, any>> = T[keyof T][];
 
 export interface RsterApiJson {
   version: string;
@@ -92,49 +146,29 @@ export class RsterApiModule {
   }
 
   public rest() {
+    const contents = () => {
+      description(...this.description);
+      this.modules.forEach((m) => {
+        m.rest();
+      });
+      this.methods.forEach((m) => {
+        m.rest();
+      });
+    };
+
     if (this.httpPath && this.httpMethod) {
       when(
         new ContextConditionPath(this.httpPath).and(
           new ContextConditionMethod(this.httpMethod)
         ),
-        () => {
-          this.modules.forEach((m) => {
-            m.rest();
-          });
-
-          this.methods.forEach((m) => {
-            m.rest();
-          });
-        }
+        contents
       );
     } else if (this.httpPath) {
-      when(new ContextConditionPath(this.httpPath), () => {
-        this.modules.forEach((m) => {
-          m.rest();
-        });
-
-        this.methods.forEach((m) => {
-          m.rest();
-        });
-      });
+      when(new ContextConditionPath(this.httpPath), contents);
     } else if (this.httpMethod) {
-      when(new ContextConditionMethod(this.httpMethod), () => {
-        this.modules.forEach((m) => {
-          m.rest();
-        });
-
-        this.methods.forEach((m) => {
-          m.rest();
-        });
-      });
+      when(new ContextConditionMethod(this.httpMethod), contents);
     } else {
-      this.modules.forEach((m) => {
-        m.rest();
-      });
-
-      this.methods.forEach((m) => {
-        m.rest();
-      });
+      contents();
     }
   }
 }
@@ -158,29 +192,73 @@ export class RsterApiMethod {
   }
 
   public rest() {
+    description(...this.description);
+    declaration({
+      name: this.name,
+      returnBody: this.declaration.returns,
+      expectBody: this.declaration.expectBody,
+      expectQuery: this.declaration.expectQuery,
+      expectParams: this.declaration.expectParams,
+    });
     action((req, res) => {
       res.status(200).send("Hello World!");
     });
   }
 }
 
-export class RsterApiBuilderContext {
+export class RsterApiBuilderContext<
+  MODULES extends ModuleBuilderMap = ModuleBuilderMap,
+  METHODS extends MethodBuilderMap = MethodBuilderMap
+> {
   private _version?: string;
   private _name?: string;
   private _description: string[] = [];
-  private readonly _modules: RsterApiModuleBuilderContext[] = [];
-  private readonly _methods: RsterApiMethodContext[] = [];
+  private readonly _modules: Values<MODULES> = [];
+  private readonly _methods: Values<METHODS> = [];
 
-  constructor() {}
+  public readonly modules: MODULES = ArrayFinder(
+    this._modules,
+    "name" as any
+  ) as any;
+  public readonly methods: METHODS = ArrayFinder(
+    this._methods,
+    "name" as any
+  ) as any;
 
-  public module(name: string, builder: RsterApiModuleBuilder) {
-    const context = new RsterApiModuleBuilderContext(name);
+  constructor({
+    version,
+    name,
+    description = [],
+    modules = [],
+    methods = [],
+  }: {
+    version?: string;
+    name?: string;
+    description?: string[];
+    modules?: Values<MODULES>;
+    methods?: Values<METHODS>;
+  }) {
+    this._version = version;
+    this._name = name;
+    this._description = description;
+    this._modules.push(...modules);
+    this._methods.push(...methods);
+  }
+
+  public module(
+    name: string,
+    builder: RsterApiModuleBuilder<MODULES[keyof MODULES]>
+  ) {
+    const context = new RsterApiModuleBuilderContext({ name });
     builder.call(context);
     this._modules.push(context);
   }
 
-  public method(name: string, builder: RsterApiMethodBuilder) {
-    const context = new RsterApiMethodContext(name);
+  public method<T extends ParameterDeclarationWithContext>(
+    name: string,
+    builder: RsterApiMethodBuilder<RsterApiMethodContext<T>>
+  ) {
+    const context = new RsterApiMethodContext<T>({ name });
     builder.call(context);
     this._methods.push(context);
   }
@@ -240,7 +318,10 @@ export class RsterApiBuilderContext {
   }
 }
 
-export class RsterApiModuleBuilderContext {
+export class RsterApiModuleBuilderContext<
+  MODULES extends ModuleBuilderMap = ModuleBuilderMap,
+  METHODS extends MethodBuilderMap = MethodBuilderMap
+> {
   private readonly _name: string;
   private _description: string[] = [];
   private _httpPath?: string;
@@ -248,18 +329,39 @@ export class RsterApiModuleBuilderContext {
   private readonly _modules: RsterApiModuleBuilderContext[] = [];
   private readonly _methods: RsterApiMethodContext[] = [];
 
-  constructor(name: string) {
+  constructor({
+    name,
+    description = [],
+    httpPath,
+    httpMethod,
+  }: {
+    name: string;
+    modules?: MODULES;
+    methods?: METHODS;
+    description?: string[];
+    httpPath?: string;
+    httpMethod?: Method;
+  }) {
     this._name = name;
+    this._description = description ?? [];
+    this._httpPath = httpPath;
+    this._httpMethod = httpMethod;
+    this._modules = [];
+    this._methods = [];
+  }
+
+  public get name() {
+    return this._name;
   }
 
   public module(name: string, builder: RsterApiModuleBuilder) {
-    const context = new RsterApiModuleBuilderContext(name);
+    const context = new RsterApiModuleBuilderContext({ name });
     builder.call(context);
     this._modules.push(context);
   }
 
   public method(name: string, builder: RsterApiMethodBuilder) {
-    const context = new RsterApiMethodContext(name);
+    const context = new RsterApiMethodContext({ name });
     builder.call(context);
     this._methods.push(context);
   }
@@ -288,20 +390,55 @@ export class RsterApiModuleBuilderContext {
   }
 }
 
-export class RsterApiMethodContext {
+export class RsterApiMethodContext<
+  DECLARATION extends ParameterDeclarationWithContext = ParameterDeclarationWithContext
+> {
   private readonly _name: string;
   private readonly _description: string[] = [];
   private _httpPath?: string;
   private _httpMethod?: Method;
-  private _declaration: ParameterDeclaration = {
-    expectBody: {},
-    expectQuery: {},
-    expectParams: {},
-    returns: undefinedType(),
-  };
+  private _declaration: DECLARATION;
 
-  constructor(name: string) {
+  public get name() {
+    return this._name;
+  }
+
+  private _action?: (
+    args: typeof this._declaration.expectBody &
+      typeof this._declaration.expectQuery &
+      typeof this._declaration.expectParams
+  ) => typeof this._declaration.returns;
+
+  constructor({
+    name,
+    description = [],
+    httpPath,
+    httpMethod,
+    declaration = {
+      expectBody: {},
+      expectQuery: {},
+      expectParams: {},
+      returns: undefinedType,
+    } as any as DECLARATION,
+    action,
+  }: {
+    name: string;
+    description?: string[];
+    httpPath?: string;
+    httpMethod?: Method;
+    declaration?: DECLARATION;
+    action?: (
+      args: typeof declaration.expectBody &
+        typeof declaration.expectQuery &
+        typeof declaration.expectParams
+    ) => typeof declaration.returns;
+  }) {
     this._name = name;
+    this._description = description;
+    this._httpPath = httpPath;
+    this._httpMethod = httpMethod;
+    this._declaration = declaration;
+    this._action = action;
   }
 
   public description(...description: string[]) {
@@ -316,7 +453,7 @@ export class RsterApiMethodContext {
     this._httpMethod = method;
   }
 
-  public declaration(declaration: ParameterDeclaration) {
+  public declaration(declaration: DECLARATION) {
     this._declaration = declaration;
   }
 
@@ -332,11 +469,13 @@ export class RsterApiMethodContext {
 
   public declarationBodyParam(name: string, type: TypeInformation) {
     if (!this._declaration.expectBody) this._declaration.expectBody = {};
+    // @ts-ignore
     this._declaration.expectBody![name] = { type, optional: false };
   }
 
   public declarationBodyParamOptional(name: string, type: TypeInformation) {
     if (!this._declaration.expectBody) this._declaration.expectBody = {};
+    // @ts-ignore
     this._declaration.expectBody![name] = { type, optional: true };
   }
 
@@ -348,11 +487,13 @@ export class RsterApiMethodContext {
 
   public declarationQueryParam(name: string, type: TypeInformation) {
     if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
+    // @ts-ignore
     this._declaration.expectQuery![name] = { type, optional: false };
   }
 
   public declarationQueryParamOptional(name: string, type: TypeInformation) {
     if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
+    // @ts-ignore
     this._declaration.expectQuery![name] = { type, optional: true };
   }
 
@@ -364,12 +505,24 @@ export class RsterApiMethodContext {
 
   public declarationParam(name: string, type: TypeInformation) {
     if (!this._declaration.expectParams) this._declaration.expectParams = {};
+    // @ts-ignore
     this._declaration.expectParams![name] = { type, optional: false };
   }
 
   public declarationParamOptional(name: string, type: TypeInformation) {
     if (!this._declaration.expectParams) this._declaration.expectParams = {};
+    // @ts-ignore
     this._declaration.expectParams![name] = { type, optional: true };
+  }
+
+  public action(
+    action: (
+      args: typeof this._declaration.expectBody &
+        typeof this._declaration.expectQuery &
+        typeof this._declaration.expectParams
+    ) => typeof this._declaration.returns
+  ) {
+    this._action = action;
   }
 
   public generate(): RsterApiMethod {
@@ -385,14 +538,84 @@ export class RsterApiMethodContext {
   }
 }
 
-export type RsterApiBuilder = (this: RsterApiBuilderContext) => void;
-export type RsterApiModuleBuilder = (
-  this: RsterApiModuleBuilderContext
-) => void;
-export type RsterApiMethodBuilder = (this: RsterApiMethodContext) => void;
+export type RsterApiBuilder<
+  T extends RsterApiBuilderContext = RsterApiBuilderContext
+> = (this: T) => void;
+export type RsterApiModuleBuilder<
+  T extends RsterApiModuleBuilderContext = RsterApiModuleBuilderContext
+> = (this: T) => void;
+export type RsterApiMethodBuilder<
+  T extends RsterApiMethodContext = RsterApiMethodContext
+> = (this: T) => void;
 
 export function buildRsterApi(builder: RsterApiBuilder) {
   const context = new RsterApiBuilderContext();
   builder.call(context);
   return context.generate();
+}
+
+export function module(
+  {
+    name,
+    description,
+    httpPath,
+    httpMethod,
+    modules,
+    methods,
+  }: {
+    name: string;
+    description?: string[];
+    httpPath?: string;
+    httpMethod?: Method;
+    modules?: ModuleBuilderMap;
+    methods?: MethodBuilderMap;
+  },
+  builder?: RsterApiModuleBuilder
+) {
+  const context = new RsterApiModuleBuilderContext({
+    name,
+    description,
+    httpPath,
+    httpMethod,
+    modules,
+    methods,
+  });
+
+  if (builder) builder.call(context);
+  return context;
+}
+
+export function method(
+  {
+    name,
+    description,
+    httpPath,
+    httpMethod,
+    declaration,
+    action,
+  }: {
+    name: string;
+    description?: string[];
+    httpPath?: string;
+    httpMethod?: Method;
+    declaration: ParameterDeclaration;
+    action?: (
+      args: typeof declaration.expectBody &
+        typeof declaration.expectQuery &
+        typeof declaration.expectParams
+    ) => typeof declaration.returns;
+  },
+  builder?: RsterApiMethodBuilder
+) {
+  const context = new RsterApiMethodContext({
+    name,
+    description,
+    httpPath,
+    httpMethod,
+    declaration,
+    action,
+  });
+
+  if (builder) builder.call(context);
+  return context;
 }

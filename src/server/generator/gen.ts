@@ -50,14 +50,14 @@ interface FunctionInformation {
   name: string;
   call: string;
   method: Method;
-  parameters: ParameterInformation[];
-  returnType: TypeInformation;
+  parameters: ParameterInformation<any>[];
+  returnType: TypeInformation<any>;
   requireAuthentication: boolean;
 }
 
-interface ParameterInformation {
+interface ParameterInformation<T> {
   name: string;
-  type: TypeInformation;
+  type: TypeInformation<T>;
   optional: boolean;
   where: string;
 }
@@ -72,35 +72,38 @@ Array.prototype.zip = function <T>(other: T[]) {
 };
 
 declare module "../../shared/types" {
-  interface TypeInformation {
+  interface TypeInformation<T = any> {
     toTypeScript(): ts.TypeNode;
   }
 
-  interface ArrayTypeInformation {
+  interface ArrayTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
-  interface ObjectTypeInformation {
+  interface ObjectTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
-  interface Or<T extends TypeInformation> {
+  interface Or<
+    T0 extends TypeInformation<any>,
+    T1 extends TypeInformation<any>
+  > {
     toTypeScript(): ts.TypeNode;
   }
 
-  interface StringTypeInformation {
+  interface StringTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
-  interface NumberTypeInformation {
+  interface NumberTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
-  interface NumberRangeTypeInformation {
+  interface NumberRangeTypeInformation<MIN, MAX> {
     toTypeScript(): ts.TypeNode;
   }
 
-  interface BooleanTypeInformation {
+  interface BooleanTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
@@ -151,7 +154,7 @@ ObjectTypeInformation.prototype.toTypeScript = function () {
 
 Or.prototype.toTypeScript = function () {
   return ts.factory.createUnionTypeNode(
-    this.values.map((v) => v.toTypeScript())
+    [this.value0, this.value1].map((v) => v.toTypeScript())
   );
 };
 

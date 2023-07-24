@@ -1,4 +1,16 @@
-type DestructedType =
+export type Enumerate<
+  N extends number,
+  Acc extends number[] = []
+> = Acc["length"] extends N
+  ? Acc[number]
+  : Enumerate<N, [...Acc, Acc["length"]]>;
+
+export type IntRange<F extends number, T extends number> = Exclude<
+  Enumerate<T>,
+  Enumerate<F>
+>;
+
+export type DestructedType =
   | string
   | number
   | boolean
@@ -9,30 +21,44 @@ type DestructedType =
 
 type SendMethod = "param" | "body" | "query";
 
-export abstract class TypeInformation {
+export abstract class TypeInformation<T> {
   abstract readonly sendableVia: SendMethod[];
+  abstract get type(): T;
 }
 
-export class StringTypeInformation extends TypeInformation {
-  constructor(public value: string) {
+export class StringTypeInformation<
+  T extends string
+> extends TypeInformation<T> {
+  constructor(public readonly value: T) {
     super();
   }
   get sendableVia(): SendMethod[] {
     return ["param", "body", "query"];
   }
+  get type(): T {
+    return this.value;
+  }
 }
 
-export class NumberTypeInformation extends TypeInformation {
-  constructor(public value: number) {
+export class NumberTypeInformation<
+  T extends number
+> extends TypeInformation<T> {
+  constructor(public readonly value: T) {
     super();
   }
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+  get type(): T {
+    return this.value;
+  }
 }
 
-export class NumberRangeTypeInformation extends TypeInformation {
-  constructor(public min: number, public max: number) {
+export class NumberRangeTypeInformation<
+  MIN extends number,
+  MAX extends number
+> extends TypeInformation<IntRange<MIN, MAX>> {
+  constructor(public readonly min: MIN, public readonly max: MAX) {
     super();
   }
   includes(value: number) {
@@ -41,23 +67,36 @@ export class NumberRangeTypeInformation extends TypeInformation {
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+  get type(): IntRange<MIN, MAX> {
+    return this.min as any;
+  }
 }
 
-export class Or<T extends TypeInformation> extends TypeInformation {
-  constructor(public values: T[]) {
+export class Or<
+  T0 extends TypeInformation<any>,
+  T1 extends TypeInformation<any>
+> extends TypeInformation<T0 | T1> {
+  constructor(public readonly value0: T0, public readonly value1: T1) {
     super();
   }
 
   get sendableVia(): SendMethod[] {
-    return this.values
+    return [this.value0, this.value1]
       .map((v) => v.sendableVia)
       .reduce((a, b) => a.concat(b), []);
   }
+
+  get type(): T0 | T1 {
+    return this.value0.type ?? this.value1.type;
+  }
 }
-export class ObjectTypeInformation extends TypeInformation {
+export class ObjectTypeInformation<
+  T extends { [key: string]: TypeInformation<any> }
+> extends TypeInformation<T> {
   constructor(
-    public properties: {
-      [key: string]: { required: boolean; type: TypeInformation };
+    public readonly properties: {
+      // [key: string]: { required: boolean; type: TypeInformation };
+      [key in keyof T]: { required: boolean; type: T[key] };
     }
   ) {
     super();
@@ -65,12 +104,22 @@ export class ObjectTypeInformation extends TypeInformation {
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+
+  get type(): T {
+    return Object.keys(this.properties).reduce((acc, key) => {
+      const value = this.properties[key];
+      acc[key] = value.type.type;
+      return acc;
+    }, {} as any);
+  }
 }
-export class ArrayTypeInformation extends TypeInformation {
+export class ArrayTypeInformation<
+  T extends TypeInformation<any>
+> extends TypeInformation<T[]> {
   minItems?: number;
   maxItems?: number;
   constructor(
-    public values: TypeInformation[],
+    public readonly values: T[],
     {
       minItems,
       maxItems,
@@ -86,21 +135,31 @@ export class ArrayTypeInformation extends TypeInformation {
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+
+  get type(): T[] {
+    return this.values.map((v) => v.type);
+  }
 }
 
-export class BooleanTypeInformation extends TypeInformation {
+export class BooleanTypeInformation<
+  T extends true | false
+> extends TypeInformation<T> {
   static readonly TRUE = new BooleanTypeInformation(true);
   static readonly FALSE = new BooleanTypeInformation(false);
 
-  constructor(public readonly value: boolean) {
+  constructor(public readonly value: T) {
     super();
   }
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+
+  get type(): T {
+    return this.value;
+  }
 }
 
-export class NullTypeInformation extends TypeInformation {
+export class NullTypeInformation extends TypeInformation<null> {
   static readonly instance = new NullTypeInformation();
   static readonly NULL = NullTypeInformation.instance;
 
@@ -110,9 +169,13 @@ export class NullTypeInformation extends TypeInformation {
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+
+  get type(): null {
+    return null;
+  }
 }
 
-export class UndefinedTypeInformation extends TypeInformation {
+export class UndefinedTypeInformation extends TypeInformation<undefined> {
   static readonly instance = new NullTypeInformation();
   static readonly UNDEFINED = UndefinedTypeInformation.instance;
 
@@ -122,9 +185,13 @@ export class UndefinedTypeInformation extends TypeInformation {
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+
+  get type(): undefined {
+    return undefined;
+  }
 }
 
-export class AnyStringTypeInformation extends TypeInformation {
+export class AnyStringTypeInformation extends TypeInformation<string> {
   static readonly instance = new AnyStringTypeInformation();
 
   constructor() {
@@ -133,9 +200,13 @@ export class AnyStringTypeInformation extends TypeInformation {
   get sendableVia(): SendMethod[] {
     return ["param", "body", "query"];
   }
+
+  get type(): string {
+    return "";
+  }
 }
 
-export class AnyNumberTypeInformation extends TypeInformation {
+export class AnyNumberTypeInformation extends TypeInformation<number> {
   static readonly instance = new AnyNumberTypeInformation();
 
   constructor() {
@@ -144,9 +215,13 @@ export class AnyNumberTypeInformation extends TypeInformation {
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+
+  get type(): number {
+    return 0;
+  }
 }
 
-export class AnyBooleanTypeInformation extends TypeInformation {
+export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
   static readonly instance = new AnyBooleanTypeInformation();
 
   constructor() {
@@ -155,9 +230,13 @@ export class AnyBooleanTypeInformation extends TypeInformation {
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+
+  get type(): boolean {
+    return false;
+  }
 }
 
-export class AnyTypeInformation extends TypeInformation {
+export class AnyTypeInformation extends TypeInformation<any> {
   static readonly instance = new AnyTypeInformation();
 
   constructor() {
@@ -166,13 +245,17 @@ export class AnyTypeInformation extends TypeInformation {
   get sendableVia(): SendMethod[] {
     return ["body"];
   }
+
+  get type(): any {
+    return null;
+  }
 }
 
 export function string(): AnyStringTypeInformation;
-export function string(value: string): StringTypeInformation;
+export function string<T extends string>(value: T): StringTypeInformation<T>;
 export function string(
   value?: string
-): AnyStringTypeInformation | StringTypeInformation {
+): AnyStringTypeInformation | StringTypeInformation<any> {
   if (value || value === "") {
     return new StringTypeInformation(value);
   }
@@ -180,45 +263,51 @@ export function string(
 }
 
 export function number(): AnyNumberTypeInformation;
-export function number(value: number): NumberTypeInformation;
+export function number<T extends number>(value: T): NumberTypeInformation<T>;
 export function number(
   value?: number
-): AnyNumberTypeInformation | NumberTypeInformation {
+): AnyNumberTypeInformation | NumberTypeInformation<any> {
   if (value || value === 0) {
     return new NumberTypeInformation(value);
   }
   return AnyNumberTypeInformation.instance;
 }
 
-export function numberRange(
-  min: number,
-  max: number
-): NumberRangeTypeInformation {
+export function numberRange<MIN extends number, MAX extends number>(
+  min: MIN,
+  max: MAX
+): NumberRangeTypeInformation<MIN, MAX> {
   return new NumberRangeTypeInformation(min, max);
 }
 
-export function or<T extends TypeInformation>(...values: T[]): Or<T> {
-  return new Or<T>(values);
+export function or<
+  T0 extends TypeInformation<any>,
+  T1 extends TypeInformation<any>
+>(value0: T0, value1: T1): Or<T0, T1> {
+  return new Or(value0, value1);
 }
 
-export function object(properties: {
-  [key: string]: { required: boolean; type: TypeInformation } | TypeInformation;
-}): ObjectTypeInformation {
+export function object<
+  T extends { [key: string]: TypeInformation<any> }
+>(properties: {
+  [key in keyof T]:
+    | TypeInformation<any>
+    | { required: boolean; type: TypeInformation<any> };
+}): ObjectTypeInformation<T> {
   return new ObjectTypeInformation(
     Object.keys(properties).reduce((acc, key) => {
       const value = properties[key];
-      if (value instanceof TypeInformation) {
-        acc[key] = { required: true, type: value };
-      } else {
-        acc[key] = value;
-      }
+      acc[key] = {
+        required: true,
+        type: value instanceof TypeInformation ? value : value.type,
+      };
       return acc;
-    }, {} as { [key: string]: { required: boolean; type: TypeInformation } })
+    }, {} as any)
   );
 }
 
-export function array(
-  values: TypeInformation[],
+export function array<T extends TypeInformation<any>>(
+  values: T[],
   {
     minItems,
     maxItems,
@@ -226,15 +315,21 @@ export function array(
     minItems?: number;
     maxItems?: number;
   } = {}
-): ArrayTypeInformation {
-  return new ArrayTypeInformation(values, {
-    minItems,
-    maxItems,
-  });
+): ArrayTypeInformation<T> {
+  return new ArrayTypeInformation(values, { minItems, maxItems });
 }
 
-export function boolean(value: boolean): BooleanTypeInformation {
-  return value ? BooleanTypeInformation.TRUE : BooleanTypeInformation.FALSE;
+export function boolean<T extends true | false>(
+  value: boolean
+): BooleanTypeInformation<T>;
+export function boolean(): AnyBooleanTypeInformation;
+export function boolean(
+  value?: boolean
+): AnyBooleanTypeInformation | BooleanTypeInformation<any> {
+  if (value || value === false) {
+    return new BooleanTypeInformation(value);
+  }
+  return AnyBooleanTypeInformation.instance;
 }
 
 export function nullType(): NullTypeInformation {
@@ -245,11 +340,11 @@ export function undefinedType(): UndefinedTypeInformation {
   return NullTypeInformation.instance;
 }
 
-export function trueType(): BooleanTypeInformation {
+export function trueType(): BooleanTypeInformation<true> {
   return BooleanTypeInformation.TRUE;
 }
 
-export function falseType(): BooleanTypeInformation {
+export function falseType(): BooleanTypeInformation<false> {
   return BooleanTypeInformation.FALSE;
 }
 
