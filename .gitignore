@@ -10,3 +10,6 @@ yarn-error.log*
 # compiled output
 /dist
 /cli
+
+# generated documentation
+/docs
