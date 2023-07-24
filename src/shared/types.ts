@@ -176,7 +176,7 @@ export class NullTypeInformation extends TypeInformation<null> {
 }
 
 export class UndefinedTypeInformation extends TypeInformation<undefined> {
-  static readonly instance = new NullTypeInformation();
+  static readonly instance = new UndefinedTypeInformation();
   static readonly UNDEFINED = UndefinedTypeInformation.instance;
 
   constructor() {
@@ -337,7 +337,7 @@ export function nullType(): NullTypeInformation {
 }
 
 export function undefinedType(): UndefinedTypeInformation {
-  return NullTypeInformation.instance;
+  return UndefinedTypeInformation.instance;
 }
 
 export function trueType(): BooleanTypeInformation<true> {
