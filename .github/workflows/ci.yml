@@ -2,29 +2,31 @@
 
 name: Node.js CI
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [v18.5.0]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run:  yarn install --frozen-lockfile
-    - run: yarn build
-    - run: yarn test
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+        # remove yarn.lock to force yarn to install all dependencies
+      - run: rm yarn.lock
+      - run: yarn install
+      - name: Cache
+        uses: actions/cache@v1.2.1
+        with:
+          path: /cache/ci/module_cache
+          key: /cache/ci/module_cache
+      - run: yarn build
+      - run: yarn test

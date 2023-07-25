@@ -1,22 +1,20 @@
-import { Request, Response } from "./common.js";
-import { Context, ContextHandler } from "./context.js";
+import { Request, Response } from "./common";
+import { Context, ContextHandler } from "./context";
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,
 } from "express";
-import { ExpressMixin, ExpressOptions } from "./express.js";
-import { HttpError } from "./error.js";
-import { ContextCondition } from "./condition.js";
-import { ResterDebugger } from "./debug.js";
+import { ExpressMixin, ExpressOptions } from "./express";
+import { ResterDebugger } from "./debug";
 
-export * from "./common.js";
-export * from "./condition.js";
-export * from "./context.js";
-export * from "./debug.js";
-export * from "./error.js";
-export * from "./express.js";
-export * from "./info.js";
-export * as builder from "./builder.js";
+export * from "./common";
+export * from "./condition";
+export * from "./context";
+export * from "./debug";
+export * from "./error";
+export * from "./express";
+export * from "./info";
+export * as builder from "./builder";
 
 export class RestfulApi extends Context {
   private _options: RestfulApiOptions;
@@ -49,14 +47,12 @@ export class RestfulApi extends Context {
     try {
       const found = await this.execute(req, res);
       if (!found && send404) {
-        await res
-          .status(404)
-          .json({
-            message: `Not Found`,
-            path: req.fullPath,
-            api_path: req.fullApiPath,
-            method: req.method,
-          });
+        await res.status(404).json({
+          message: `Not Found`,
+          path: req.fullPath,
+          api_path: req.fullApiPath,
+          method: req.method,
+        });
       }
       res.end();
       return;

@@ -1,6 +1,9 @@
-import { Request, Response } from './common.js';
-import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
-import { RestfulApi } from './index.js';
+import { Request, Response } from "./common";
+import {
+  Request as ExpressRequest,
+  Response as ExpressResponse,
+} from "express";
+import { RestfulApi } from "./index";
 
 export function transformExpressRequest(req: ExpressRequest): Request {
   return {
@@ -40,8 +43,8 @@ export function transformExpressRequest(req: ExpressRequest): Request {
     },
     header(field: string): string {
       return req.headers[field] as string;
-    }
-  }
+    },
+  };
 }
 
 export function transformExpressResponse(res: ExpressResponse): Response {
@@ -80,17 +83,16 @@ export function transformExpressResponse(res: ExpressResponse): Response {
       res.sendFile(path);
       return this;
     },
-  }
+  };
 }
 
 // create function to use in app.use()
 export function ExpressMixin(api: RestfulApi, options?: ExpressOptions) {
   options = options || {};
-  const basePath = options.basePath || '';
+  const basePath = options.basePath || "";
   const send404 = options.send404 ?? true;
 
   return function (req: ExpressRequest, res: ExpressResponse, next: any) {
-
     // if the request path does not start with the base path, skip
     if (!req.path.startsWith(basePath)) {
       return next();
@@ -103,10 +105,10 @@ export function ExpressMixin(api: RestfulApi, options?: ExpressOptions) {
       ...request,
       path: request.path.substring(basePath.length),
       fullApiPath: request.fullApiPath.substring(basePath.length),
-    }
+    };
 
     api.handle(request, response, { send404 });
-  }
+  };
 }
 
 export interface ExpressOptions {

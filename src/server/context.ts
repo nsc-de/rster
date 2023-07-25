@@ -1,7 +1,7 @@
-import { Method, Request, Response } from "./common.js";
-import { ConditionInfo, ContextCondition, ContextConditionMethod, ContextConditionPath, ContextConditionPath2 } from "./condition.js";
-import { HttpError } from "./error.js";
-import { RestfulApi } from "./index.js";
+import { Method, Request, Response } from "./common";
+import { ConditionInfo, ContextCondition, ContextConditionMethod, ContextConditionPath, ContextConditionPath2 } from "./condition";
+import { HttpError } from "./error";
+import { RestfulApi } from "./index";
 
 
 export type ContextTypeCondition = { type: "condition", condition: ContextCondition, context: Context };

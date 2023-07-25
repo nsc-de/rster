@@ -11,7 +11,7 @@ const {
   AnyNumberTypeInformation,
   AnyBooleanTypeInformation,
   AnyTypeInformation,
-} = require("../../lib/shared/types");
+} = require("./types");
 
 describe("TypeInformation", () => {
   describe("StringTypeInformation", () => {

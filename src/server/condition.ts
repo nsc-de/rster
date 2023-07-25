@@ -1,4 +1,4 @@
-import { Method, Request } from "./common.js";
+import { Method, Request } from "./common";
 
 export abstract class ContextCondition {
   abstract appliesTo(req: Request): boolean;
@@ -13,23 +13,19 @@ export abstract class ContextCondition {
     return req;
   }
 
-  abstract info(): ConditionInfo
+  abstract info(): ConditionInfo;
 
   abstract toJson(): any;
   abstract infoJson(): any;
-
-
 }
 
 export class ContextConditionAnd extends ContextCondition {
-  constructor(
-    readonly conditions: ContextCondition[],
-  ) {
+  constructor(readonly conditions: ContextCondition[]) {
     super();
   }
 
   appliesTo(req: Request): boolean {
-    return this.conditions.every(c => c.appliesTo(req));
+    return this.conditions.every((c) => c.appliesTo(req));
   }
 
   and(other: ContextCondition): ContextCondition {
@@ -41,13 +37,15 @@ export class ContextConditionAnd extends ContextCondition {
   }
 
   info(): ConditionInfo {
-    return this.conditions.map(c => c.info()).reduce((a, b) => ({ ...a, ...b }));
+    return this.conditions
+      .map((c) => c.info())
+      .reduce((a, b) => ({ ...a, ...b }));
   }
 
   toJson(): any {
     return {
       type: "and",
-      conditions: this.conditions.map(c => c.toJson()),
+      conditions: this.conditions.map((c) => c.toJson()),
     };
   }
 
@@ -63,9 +61,7 @@ export class ContextConditionAnd extends ContextCondition {
 }
 
 export class ContextConditionPath extends ContextCondition {
-  constructor(
-    readonly path: string,
-  ) {
+  constructor(readonly path: string) {
     super();
   }
 
@@ -101,9 +97,7 @@ export class ContextConditionPath extends ContextCondition {
 }
 
 export class ContextConditionPath2 extends ContextCondition {
-  constructor(
-    readonly path: RegExp,
-  ) {
+  constructor(readonly path: RegExp) {
     super();
   }
 
@@ -140,9 +134,7 @@ export class ContextConditionPath2 extends ContextCondition {
 }
 
 export class ContextConditionMethod extends ContextCondition {
-  constructor(
-    readonly method: Method,
-  ) {
+  constructor(readonly method: Method) {
     super();
   }
 
@@ -171,9 +163,7 @@ export class ContextConditionMethod extends ContextCondition {
 }
 
 export class ConditionChain {
-  constructor(
-    readonly conditions: ContextCondition[],
-  ) { }
+  constructor(readonly conditions: ContextCondition[]) {}
 
   appliesTo(req: Request): boolean {
     for (const c of this.conditions) {
@@ -188,7 +178,7 @@ export class ConditionChain {
   toJson(): any {
     return {
       type: "chain",
-      conditions: this.conditions.map(c => c.toJson()),
+      conditions: this.conditions.map((c) => c.toJson()),
     };
   }
 }
