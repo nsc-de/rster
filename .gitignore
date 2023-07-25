@@ -9,6 +9,7 @@ yarn-error.log*
 
 # compiled output
 /dist
+/lib
 /cli
 
 # generated documentation
