@@ -14,27 +14,27 @@ import {
   StringTypeInformation,
   TypeInformation,
   UndefinedTypeInformation,
-} from "../../shared/types.js";
+} from "../../shared/types";
 import {
   Declaration,
   collectDeclarations,
   requiresAuthentication,
-} from "./index.js";
-import { Context, Method } from "../index.js";
+} from "./index";
+import { Context, Method } from "../index";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 import { glob } from "glob";
 
-// fallback for __dirname and __filename
-if (!__dirname) {
-  // @ts-ignore
-  __dirname = path.dirname(fileURLToPath(import.meta.url));
-}
-if (!__filename) {
-  // @ts-ignore
-  __filename = path.basename(fileURLToPath(import.meta.url));
-}
+// // fallback for __dirname and __filename
+// if (!__dirname) {
+//   // @ts-ignore
+//   __dirname = path.dirname(fileURLToPath(import.meta.url));
+// }
+// if (!__filename) {
+//   // @ts-ignore
+//   __filename = path.basename(fileURLToPath(import.meta.url));
+// }
 
 const tsconfig = ts.readConfigFile(
   path.join(__dirname, "../../../tsconfig.generator.json"),

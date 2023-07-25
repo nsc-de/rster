@@ -1,6 +1,6 @@
-import { Request } from "./common.js";
-import { ContextCondition } from "./condition.js";
-import { HttpError } from "./error.js";
+import { Request } from "./common";
+import { ContextCondition } from "./condition";
+import { HttpError } from "./error";
 import debug from "debug";
 
 export function importer<T>(fn: () => Promise<T>): () => Promise<T> {
@@ -12,12 +12,11 @@ export function importer<T>(fn: () => Promise<T>): () => Promise<T> {
     _promise = fn();
     _result = await _promise;
     return _result;
-  }
+  };
 }
 
 export class ResterDebugger {
-
-  constructor() { }
+  constructor() {}
 
   public generalDebugger = debug("rster:general");
   public httpErrorDebugger = debug("rster:http-error");
@@ -32,6 +31,11 @@ export class ResterDebugger {
   }
 
   public async debugRoute(req: Request, condition: ContextCondition) {
-    this.routerDebugger("Route %s %s to %s", req.method, req.fullPath, condition.infoJson());
+    this.routerDebugger(
+      "Route %s %s to %s",
+      req.method,
+      req.fullPath,
+      condition.infoJson()
+    );
   }
 }

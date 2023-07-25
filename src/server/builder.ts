@@ -1,14 +1,14 @@
-import rest, { RestfulApi, action, description, when } from "./index.js";
-import { Method } from "./common.js";
-import { ContextConditionMethod, ContextConditionPath } from "./condition.js";
+import rest, { RestfulApi, action, description, when } from "./index";
+import { Method } from "./common";
+import { ContextConditionMethod, ContextConditionPath } from "./condition";
 import {
   MapToPrimitiveType,
   NoUndefined,
   PrimitiveType,
   TypeInformation,
   undefinedType,
-} from "../shared/types.js";
-import { declaration } from "./generator/index.js";
+} from "../shared/types";
+import { declaration } from "./generator/index";
 
 export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
   (
