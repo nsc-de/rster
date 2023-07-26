@@ -3,18 +3,6 @@ import { ContextCondition } from "./condition";
 import { HttpError } from "./error";
 import debug from "debug";
 
-export function importer<T>(fn: () => Promise<T>): () => Promise<T> {
-  let _result: T | undefined;
-  let _promise: Promise<T> | undefined;
-  return async () => {
-    if (_result) return _result;
-    if (_promise) return await _promise;
-    _promise = fn();
-    _result = await _promise;
-    return _result;
-  };
-}
-
 export class ResterDebugger {
   constructor() {}
 
