@@ -31,15 +31,15 @@ export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
  * @param returns - The return type.
  */
 export interface ParameterDeclaration<
-  RETURNS extends TypeInformation,
+  RETURNS extends TypeInformation<unknown>,
   EXPECT_BODY extends {
-    [key: string]: { type: TypeInformation; optional: boolean };
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
   },
   EXPECT_QUERY extends {
-    [key: string]: { type: TypeInformation; optional: boolean };
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
   },
   EXPECT_PARAMS extends {
-    [key: string]: { type: TypeInformation; optional: boolean };
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
   }
 > {
   expectBody?: EXPECT_BODY;

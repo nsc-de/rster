@@ -3,12 +3,16 @@ import { Context, data, setData } from "../context";
 
 export interface Declaration {
   name: string;
-  expectBody?: { [key: string]: { type: TypeInformation; optional: boolean } };
-  expectQuery?: { [key: string]: { type: TypeInformation; optional: boolean } };
-  expectParams?: {
-    [key: string]: { type: TypeInformation; optional: boolean };
+  expectBody?: {
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
   };
-  returnBody: TypeInformation;
+  expectQuery?: {
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+  };
+  expectParams?: {
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+  };
+  returnBody: TypeInformation<unknown>;
 }
 
 export function declaration(): Declaration;

@@ -613,10 +613,10 @@ export function or<
  * @param values - The rest of the type information's
  * @returns A type information that is the union of the type information's
  */
-export function or<T0 extends TypeInformation<any>, T extends TypeInformation>(
-  value0: T0,
-  ...values: T[]
-): Or<any, T0>;
+export function or<
+  T0 extends TypeInformation<any>,
+  T extends TypeInformation<unknown>
+>(value0: T0, ...values: T[]): Or<any, T0>;
 export function or<T0 extends TypeInformation<any>>(
   value0: T0,
   ...values: TypeInformation<any>[]
@@ -744,7 +744,7 @@ export type NoUndefined<TYPE, ALTERNATIVE> = TYPE extends undefined
  * @see TypeInformation.type
  * @see MapToPrimitiveType
  */
-export type PrimitiveType<TYPE extends TypeInformation> = TYPE["type"];
+export type PrimitiveType<TYPE extends TypeInformation<unknown>> = TYPE["type"];
 
 /**
  * Type utility for converting a map of type information to their typescript equivalents
@@ -754,7 +754,7 @@ export type PrimitiveType<TYPE extends TypeInformation> = TYPE["type"];
  * @see PrimitiveType
  */
 export type MapToPrimitiveType<
-  TYPE extends Record<string, { type: TypeInformation }>
+  TYPE extends Record<string, { type: TypeInformation<unknown> }>
 > = {
   [key in keyof TYPE]: PrimitiveType<TYPE[key]["type"]>;
 };
