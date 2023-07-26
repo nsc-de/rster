@@ -1,19 +1,26 @@
 // .eslintrc.js example
 module.exports = {
+  root: true,
+  parser: "@typescript-eslint/parser",
   env: {
     browser: true,
     node: true,
     es2021: true,
   },
-  extends: "eslint:recommended",
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+  ],
   parserOptions: {
     ecmaVersion: "latest",
-    sourceType: "commonjs",
+    sourceType: "module",
   },
+  ignorePatterns: ["node_modules/", "lib"],
 
   overrides: [
     {
-      files: ["**/*.test.[jt]s?(x)"],
+      files: ["**/*.test.js?(x)"],
       env: {
         jest: true,
       },

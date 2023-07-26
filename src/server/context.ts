@@ -179,7 +179,7 @@ export class Context {
   }
 
   async contextStack(req: Request, res: Response): Promise<ContextType[][]> {
-    let stack: ContextType[] = [];
+    const stack: ContextType[] = [];
     for (let i = 0; i < this.children.length; i++) {
       if (this.children[i].type === "condition") {
         if (await (this.children[i] as ContextTypeCondition).condition.appliesTo(req)) {

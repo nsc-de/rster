@@ -547,7 +547,7 @@ export function declarationsToApiInformation(
     const name = parts.splice(0, 1)[0];
     if (parts.length === 0) {
       let method = ctx.getMethod();
-      let call = ctx.getPath();
+      const call = ctx.getPath();
 
       if (method === "any") {
         method = "get";
@@ -646,12 +646,12 @@ export function createFile(classDeclaration: ts.ClassDeclaration) {
           ts.factory.createExportSpecifier(
             false,
             undefined,
-            ts.factory.createIdentifier(classDeclaration.name!!.text)
+            ts.factory.createIdentifier(classDeclaration.name!.text)
           ),
         ])
       ),
       ts.factory.createExportDefault(
-        ts.factory.createIdentifier(classDeclaration.name!!.text)
+        ts.factory.createIdentifier(classDeclaration.name!.text)
       ),
     ],
     ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
@@ -697,24 +697,24 @@ export async function generateDeclarations({
   console.log(`Generating api into ${path.resolve(outDir)}...`);
   console.log(`Found ${files.length} files to compile`);
 
-  let program = ts.createProgram(files, {
+  const program = ts.createProgram(files, {
     ...tsconfig.config.compilerOptions,
     outDir: path.resolve(outDir),
   });
 
-  let emitResult = program.emit();
+  const emitResult = program.emit();
 
-  let allDiagnostics = ts
+  const allDiagnostics = ts
     .getPreEmitDiagnostics(program)
     .concat(emitResult.diagnostics);
 
   allDiagnostics.forEach((diagnostic) => {
     if (diagnostic.file) {
-      let { line, character } = ts.getLineAndCharacterOfPosition(
+      const { line, character } = ts.getLineAndCharacterOfPosition(
         diagnostic.file,
         diagnostic.start!
       );
-      let message = ts.flattenDiagnosticMessageText(
+      const message = ts.flattenDiagnosticMessageText(
         diagnostic.messageText,
         "\n"
       );
