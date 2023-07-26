@@ -1,0 +1,31 @@
+# Run all the mocha tests on nodejs
+
+name: Lint using ESLint
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [v18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+        # remove yarn.lock to force yarn to install all dependencies
+      - run: rm package-lock.json
+      - run: npm install
+      - name: Cache
+        uses: actions/cache@v1.2.1
+        with:
+          path: /cache/ci/module_cache
+          key: /cache/ci/module_cache
+      - run: npm run lint

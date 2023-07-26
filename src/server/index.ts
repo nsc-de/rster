@@ -25,8 +25,8 @@ export class RestfulApi extends Context {
   }
 
   constructor(options?: RestfulApiOptionsInit) {
-    // @ts-ignore
-    super(undefined);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    super(undefined as any);
 
     const opts: RestfulApiOptions = {
       debug: options?.debug ?? false,
@@ -56,12 +56,12 @@ export class RestfulApi extends Context {
       }
       res.end();
       return;
-    } catch (err) {
-      // @ts-ignore
-      if (err.stack) console.error(err.stack);
+    } catch (err: unknown) {
+      if ((err as Error).stack) console.error((err as Error).stack);
       else console.error(err);
       try {
         await res.status(500).json({ message: "Internal Server Error" });
+        // eslint-disable-next-line no-empty
       } catch (err) {}
     }
   }
@@ -81,7 +81,7 @@ export interface RestfulApiOptionsInit {
   debug?: boolean;
 }
 
-export function rest(init: ContextHandler, options?: RestfulApiOptionsInit) {
+export function rest(init: ContextHandler) {
   return new RestfulApi().init(init);
 }
 

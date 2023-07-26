@@ -17,6 +17,11 @@ module.exports = {
     sourceType: "module",
   },
   ignorePatterns: ["node_modules/", "lib"],
+  rules: {
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "no-empty": "warn",
+  },
 
   overrides: [
     {

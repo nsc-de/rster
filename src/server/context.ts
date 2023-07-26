@@ -1,18 +1,30 @@
 import { Method, Request, Response } from "./common";
-import { ConditionInfo, ContextCondition, ContextConditionMethod, ContextConditionPath, ContextConditionPath2 } from "./condition";
+import {
+  ConditionInfo,
+  ContextCondition,
+  ContextConditionMethod,
+  ContextConditionPath,
+  ContextConditionPath2,
+} from "./condition";
 import { HttpError } from "./error";
 import { RestfulApi } from "./index";
 
-
-export type ContextTypeCondition = { type: "condition", condition: ContextCondition, context: Context };
-export type ContextTypeUse = { type: "use", func: UseFunction };
-export type ContextTypeAction = { type: "action", func: ActionFunction };
-export type ContextType = ContextTypeCondition | ContextTypeUse | ContextTypeAction;
+export type ContextTypeCondition = {
+  type: "condition";
+  condition: ContextCondition;
+  context: Context;
+};
+export type ContextTypeUse = { type: "use"; func: UseFunction };
+export type ContextTypeAction = { type: "action"; func: ActionFunction };
+export type ContextType =
+  | ContextTypeCondition
+  | ContextTypeUse
+  | ContextTypeAction;
 export class Context {
   private static _current: Context | undefined;
 
   static get current(): Context {
-    if (!Context._current) throw new Error('No context');
+    if (!Context._current) throw new Error("No context");
     return Context._current;
   }
 
@@ -26,8 +38,8 @@ export class Context {
   constructor(
     protected _api: RestfulApi,
     public readonly condition?: ContextCondition | undefined,
-    public readonly parent?: Context | undefined,
-  ) { }
+    public readonly parent?: Context | undefined
+  ) {}
 
   public get api() {
     return this._api;
@@ -42,24 +54,29 @@ export class Context {
   }
 
   when(condition: ContextCondition, handler: ContextHandler): this {
-    this.children.push({ type: "condition", condition: condition, context: new Context(this.api, condition, this).init(handler) });
+    this.children.push({
+      type: "condition",
+      condition: condition,
+      context: new Context(this.api, condition, this).init(handler),
+    });
     return this;
   }
 
-  describe(what: string, init: ContextHandler): this
-  describe(what: RegExp, init: ContextHandler): this
+  describe(what: string, init: ContextHandler): this;
+  describe(what: RegExp, init: ContextHandler): this;
   describe(what: string | RegExp, init: ContextHandler): this {
-    if (typeof what === 'string') {
+    if (typeof what === "string") {
       return this.when(new ContextConditionPath(what), init);
     } else {
       return this.when(new ContextConditionPath2(what), init);
     }
   }
 
-  any(what: string, nit: ContextHandler): this
-  any(what: RegExp, init: ContextHandler): this
+  any(what: string, nit: ContextHandler): this;
+  any(what: RegExp, init: ContextHandler): this;
   any(what: string | RegExp, init: ContextHandler): this {
-    //@ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return this.describe(what, init);
   }
 
@@ -67,114 +84,152 @@ export class Context {
   post(what: string, init: ContextHandler): Context;
   post(what: RegExp, init: ContextHandler): Context;
   post(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
-
-    if (typeof arg0 === 'string' && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('post').and(new ContextConditionPath(arg0)), arg1);
-    if (arg0 instanceof RegExp && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('post').and(new ContextConditionPath2(arg0)), arg1);
+    if (typeof arg0 === "string" && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("post").and(new ContextConditionPath(arg0)),
+        arg1
+      );
+    if (arg0 instanceof RegExp && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("post").and(new ContextConditionPath2(arg0)),
+        arg1
+      );
     else if (typeof arg0 === "function")
-      return this.when(new ContextConditionMethod('post'), arg0);
-    throw new Error('Invalid arguments');
-
+      return this.when(new ContextConditionMethod("post"), arg0);
+    throw new Error("Invalid arguments");
   }
 
   get(init: ContextHandler): Context;
   get(what: string, init: ContextHandler): Context;
   get(what: RegExp, init: ContextHandler): Context;
   get(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
-
-    if (typeof arg0 === 'string' && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('get').and(new ContextConditionPath(arg0)), arg1);
-    if (arg0 instanceof RegExp && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('get').and(new ContextConditionPath2(arg0)), arg1);
+    if (typeof arg0 === "string" && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("get").and(new ContextConditionPath(arg0)),
+        arg1
+      );
+    if (arg0 instanceof RegExp && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("get").and(new ContextConditionPath2(arg0)),
+        arg1
+      );
     else if (typeof arg0 === "function")
-      return this.when(new ContextConditionMethod('get'), arg0);
-    throw new Error('Invalid arguments');
-
+      return this.when(new ContextConditionMethod("get"), arg0);
+    throw new Error("Invalid arguments");
   }
 
   put(init: ContextHandler): Context;
   put(what: string, init: ContextHandler): Context;
   put(what: RegExp, init: ContextHandler): Context;
   put(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
-
-    if (typeof arg0 === 'string' && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('put').and(new ContextConditionPath(arg0)), arg1);
-    if (arg0 instanceof RegExp && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('put').and(new ContextConditionPath2(arg0)), arg1);
+    if (typeof arg0 === "string" && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("put").and(new ContextConditionPath(arg0)),
+        arg1
+      );
+    if (arg0 instanceof RegExp && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("put").and(new ContextConditionPath2(arg0)),
+        arg1
+      );
     else if (typeof arg0 === "function")
-      return this.when(new ContextConditionMethod('put'), arg0);
-    throw new Error('Invalid arguments');
-
+      return this.when(new ContextConditionMethod("put"), arg0);
+    throw new Error("Invalid arguments");
   }
 
   patch(init: ContextHandler): Context;
   patch(what: string, init: ContextHandler): Context;
   patch(what: RegExp, init: ContextHandler): Context;
   patch(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
-
-    if (typeof arg0 === 'string' && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('patch').and(new ContextConditionPath(arg0)), arg1);
-    if (arg0 instanceof RegExp && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('patch').and(new ContextConditionPath2(arg0)), arg1);
+    if (typeof arg0 === "string" && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("patch").and(new ContextConditionPath(arg0)),
+        arg1
+      );
+    if (arg0 instanceof RegExp && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("patch").and(
+          new ContextConditionPath2(arg0)
+        ),
+        arg1
+      );
     else if (typeof arg0 === "function")
-      return this.when(new ContextConditionMethod('patch'), arg0);
-    throw new Error('Invalid arguments');
-
+      return this.when(new ContextConditionMethod("patch"), arg0);
+    throw new Error("Invalid arguments");
   }
 
   delete(init: ContextHandler): Context;
   delete(what: string, init: ContextHandler): Context;
   delete(what: RegExp, init: ContextHandler): Context;
   delete(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
-
-    if (typeof arg0 === 'string' && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('delete').and(new ContextConditionPath(arg0)), arg1);
-    if (arg0 instanceof RegExp && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('delete').and(new ContextConditionPath2(arg0)), arg1);
+    if (typeof arg0 === "string" && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("delete").and(
+          new ContextConditionPath(arg0)
+        ),
+        arg1
+      );
+    if (arg0 instanceof RegExp && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("delete").and(
+          new ContextConditionPath2(arg0)
+        ),
+        arg1
+      );
     else if (typeof arg0 === "function")
-      return this.when(new ContextConditionMethod('delete'), arg0);
-    throw new Error('Invalid arguments');
-
+      return this.when(new ContextConditionMethod("delete"), arg0);
+    throw new Error("Invalid arguments");
   }
 
   options(init: ContextHandler): Context;
   options(what: string, init: ContextHandler): Context;
   options(what: RegExp, init: ContextHandler): Context;
   options(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
-
-    if (typeof arg0 === 'string' && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('options').and(new ContextConditionPath(arg0)), arg1);
-    if (arg0 instanceof RegExp && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('options').and(new ContextConditionPath2(arg0)), arg1);
+    if (typeof arg0 === "string" && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("options").and(
+          new ContextConditionPath(arg0)
+        ),
+        arg1
+      );
+    if (arg0 instanceof RegExp && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("options").and(
+          new ContextConditionPath2(arg0)
+        ),
+        arg1
+      );
     else if (typeof arg0 === "function")
-      return this.when(new ContextConditionMethod('options'), arg0);
-    throw new Error('Invalid arguments');
-
+      return this.when(new ContextConditionMethod("options"), arg0);
+    throw new Error("Invalid arguments");
   }
 
   head(init: ContextHandler): Context;
   head(what: string, init: ContextHandler): Context;
   head(what: RegExp, init: ContextHandler): Context;
   head(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
-
-    if (typeof arg0 === 'string' && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('head').and(new ContextConditionPath(arg0)), arg1);
-    if (arg0 instanceof RegExp && typeof arg1 === 'function')
-      return this.when(new ContextConditionMethod('head').and(new ContextConditionPath2(arg0)), arg1);
+    if (typeof arg0 === "string" && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("head").and(new ContextConditionPath(arg0)),
+        arg1
+      );
+    if (arg0 instanceof RegExp && typeof arg1 === "function")
+      return this.when(
+        new ContextConditionMethod("head").and(new ContextConditionPath2(arg0)),
+        arg1
+      );
     else if (typeof arg0 === "function")
-      return this.when(new ContextConditionMethod('head'), arg0);
-    throw new Error('Invalid arguments');
-
+      return this.when(new ContextConditionMethod("head"), arg0);
+    throw new Error("Invalid arguments");
   }
 
   action(fun: ActionFunction): this {
-    this.children.push({ type: 'action', func: fun });
+    this.children.push({ type: "action", func: fun });
     return this;
   }
 
   use(fun: UseFunction): this {
-    this.children.push({ type: 'use', func: fun });
+    this.children.push({ type: "use", func: fun });
     return this;
   }
 
@@ -182,16 +237,23 @@ export class Context {
     const stack: ContextType[] = [];
     for (let i = 0; i < this.children.length; i++) {
       if (this.children[i].type === "condition") {
-        if (await (this.children[i] as ContextTypeCondition).condition.appliesTo(req)) {
+        if (
+          await (this.children[i] as ContextTypeCondition).condition.appliesTo(
+            req
+          )
+        ) {
           stack.push(this.children[i]);
-          return [stack, ...await (this.children[i] as ContextTypeCondition).context.contextStack(req, res)];
+          return [
+            stack,
+            ...(await (
+              this.children[i] as ContextTypeCondition
+            ).context.contextStack(req, res)),
+          ];
         }
-      }
-      else if (this.children[i].type === "action") {
+      } else if (this.children[i].type === "action") {
         stack.push(this.children[i]);
         return [stack];
-      }
-      else if (this.children[i].type === "use") {
+      } else if (this.children[i].type === "use") {
         stack.push(this.children[i]);
       }
     }
@@ -207,18 +269,18 @@ export class Context {
           const { condition, context } = it;
           if (await condition.appliesTo(req)) {
             this.debugger.debugRoute(req, condition);
-            if (await context.execute(condition.subRequest(req), res)) return true;
+            if (await context.execute(condition.subRequest(req), res))
+              return true;
           }
-        }
-        else if (this.children[i].type === "action") {
+        } else if (this.children[i].type === "action") {
           await (this.children[i] as ContextTypeAction).func(req, res);
           return true;
-        }
-        else if (this.children[i].type === "use") {
+        } else if (this.children[i].type === "use") {
           let useNext = false;
           let error = undefined;
           const next = (err: any) => {
-            useNext = true; error = err;
+            useNext = true;
+            error = err;
           };
           await (this.children[i] as ContextTypeUse).func(req, res, next);
 
@@ -237,7 +299,7 @@ export class Context {
         console.error(e);
         try {
           res.status(500).json({ message: "Internal server error" });
-        } catch (e) { }
+        } catch (e) {}
       }
       return true;
     }
@@ -258,61 +320,78 @@ export class Context {
   }
 
   get map(): any {
-    return this.children.filter(c => c.type === 'condition').map(
-      // @ts-ignore
-      (c: ContextTypeCondition) => {
-        return {
-          condition: c.condition.toJson(),
-          context: c.context.map
-        }
-      })
+    return (
+      this.children.filter(
+        (c) => c.type === "condition"
+      ) as ContextTypeCondition[]
+    ).map((c) => {
+      return {
+        condition: c.condition.toJson(),
+        context: c.context.map,
+      };
+    });
   }
 
-  info(): { context: Context, condition: ConditionInfo }[] {
-    return this.children.filter(c => c.type === 'condition').flatMap(
-      // @ts-ignore
-      (c: ContextTypeCondition) => {
-        const children = c.context.info();
-        const info = c.condition.info();
-        return [
-          {
-            context: c.context,
-            condition: info
+  info(): { context: Context; condition: ConditionInfo }[] {
+    return (
+      this.children.filter(
+        (c) => c.type === "condition"
+      ) as ContextTypeCondition[]
+    ).flatMap((c: ContextTypeCondition) => {
+      const children = c.context.info();
+      const info = c.condition.info();
+      return [
+        {
+          context: c.context,
+          condition: info,
+        },
+        ...children.flatMap((f) => ({
+          context: f.context,
+          condition: {
+            method: info.method ?? f.condition.method,
+            path: (info.path ?? "") + (f.condition.path ?? ""),
           },
-          ...children.flatMap(f => ({
-            context: f.context,
-            condition: {
-              method: info.method ?? f.condition.method,
-              path: (info.path ?? "") + (f.condition.path ?? ""),
-            }
-          }))];
-      }
-    );
+        })),
+      ];
+    });
   }
 
   get flatMap(): any {
-    return this.children.filter(c => c.type === 'condition').map(
-      // @ts-ignore
-      (c: ContextTypeCondition) => {
-        return {
-          condition: c.condition.toJson(),
-          context: c.context
+    return this.children
+      .filter((c) => c.type === "condition")
+      .map(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        (c: ContextTypeCondition) => {
+          return {
+            condition: c.condition.toJson(),
+            context: c.context,
+          };
         }
-      })
+      );
   }
 
   toJson(): any {
     return {
-      children: this.children.map(c => {
-        if (c.type === 'condition') return { type: 'condition', condition: (c as ContextTypeCondition).condition.toJson(), context: (c as ContextTypeCondition).context.toJson() }
-        else if (c.type === 'action') return { type: 'action' }
-        else if (c.type === 'use') return { type: 'use' }
+      children: this.children.map((c) => {
+        if (c.type === "condition")
+          return {
+            type: "condition",
+            condition: (c as ContextTypeCondition).condition.toJson(),
+            context: (c as ContextTypeCondition).context.toJson(),
+          };
+        else if (c.type === "action") return { type: "action" };
+        else if (c.type === "use") return { type: "use" };
       }),
     };
   }
 
   collect() {
-    const map: Context[] = (this.children.filter(c => c.type === 'condition') as ContextTypeCondition[]).flatMap(e => e.context.collect());
+    const map: Context[] = (
+      this.children.filter(
+        (c) => c.type === "condition"
+      ) as ContextTypeCondition[]
+    ).flatMap((e) => e.context.collect());
     map.push(this);
     return map;
   }
@@ -322,13 +401,17 @@ export class Context {
     return (this.parent?.getPath() ?? "") + (info?.path ?? "");
   }
 
-  getMethod(): Method | 'any' {
+  getMethod(): Method | "any" {
     const info = this.condition?.info();
-    return info?.method ?? this.parent?.getMethod() ?? 'any';
+    return info?.method ?? this.parent?.getMethod() ?? "any";
   }
 }
 
-export function when(condition: ContextCondition, init: ContextHandler): Context {
+export function when(
+  condition: ContextCondition,
+  init: ContextHandler
+): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.when(condition, init);
 }
@@ -336,6 +419,7 @@ export function when(condition: ContextCondition, init: ContextHandler): Context
 export function describe(what: string, init: ContextHandler): Context;
 export function describe(what: RegExp, init: ContextHandler): Context;
 export function describe(what: string | RegExp, init: ContextHandler): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.describe(what, init);
 }
@@ -343,6 +427,7 @@ export function describe(what: string | RegExp, init: ContextHandler): Context {
 export function any(what: string, init: ContextHandler): Context;
 export function any(what: RegExp, init: ContextHandler): Context;
 export function any(what: string | RegExp, init: ContextHandler): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.any(what, init);
 }
@@ -350,7 +435,11 @@ export function any(what: string | RegExp, init: ContextHandler): Context {
 export function post(init: ContextHandler): Context;
 export function post(what: string, init: ContextHandler): Context;
 export function post(what: RegExp, init: ContextHandler): Context;
-export function post(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): Context {
+export function post(
+  arg0: string | RegExp | ContextHandler,
+  arg1?: ContextHandler
+): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.post(arg0, arg1);
 }
@@ -359,7 +448,11 @@ export function get(init: ContextHandler): Context;
 
 export function get(what: string, init: ContextHandler): Context;
 export function get(what: RegExp, init: ContextHandler): Context;
-export function get(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): Context {
+export function get(
+  arg0: string | RegExp | ContextHandler,
+  arg1?: ContextHandler
+): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.get(arg0, arg1);
 }
@@ -367,7 +460,11 @@ export function get(arg0: string | RegExp | ContextHandler, arg1?: ContextHandle
 export function put(init: ContextHandler): Context;
 export function put(what: string, init: ContextHandler): Context;
 export function put(what: RegExp, init: ContextHandler): Context;
-export function put(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): Context {
+export function put(
+  arg0: string | RegExp | ContextHandler,
+  arg1?: ContextHandler
+): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.put(arg0, arg1);
 }
@@ -375,7 +472,11 @@ export function put(arg0: string | RegExp | ContextHandler, arg1?: ContextHandle
 export function patch(init: ContextHandler): Context;
 export function patch(what: string, init: ContextHandler): Context;
 export function patch(what: RegExp, init: ContextHandler): Context;
-export function patch(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): Context {
+export function patch(
+  arg0: string | RegExp | ContextHandler,
+  arg1?: ContextHandler
+): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.patch(arg0, arg1);
 }
@@ -383,7 +484,11 @@ export function patch(arg0: string | RegExp | ContextHandler, arg1?: ContextHand
 export function delete_(init: ContextHandler): Context;
 export function delete_(what: string, init: ContextHandler): Context;
 export function delete_(what: RegExp, init: ContextHandler): Context;
-export function delete_(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): Context {
+export function delete_(
+  arg0: string | RegExp | ContextHandler,
+  arg1?: ContextHandler
+): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.delete(arg0, arg1);
 }
@@ -391,7 +496,11 @@ export function delete_(arg0: string | RegExp | ContextHandler, arg1?: ContextHa
 export function options(init: ContextHandler): Context;
 export function options(what: string, init: ContextHandler): Context;
 export function options(what: RegExp, init: ContextHandler): Context;
-export function options(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): Context {
+export function options(
+  arg0: string | RegExp | ContextHandler,
+  arg1?: ContextHandler
+): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.options(arg0, arg1);
 }
@@ -399,35 +508,41 @@ export function options(arg0: string | RegExp | ContextHandler, arg1?: ContextHa
 export function head(init: ContextHandler): Context;
 export function head(what: string, init: ContextHandler): Context;
 export function head(what: RegExp, init: ContextHandler): Context;
-export function head(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): Context {
+export function head(
+  arg0: string | RegExp | ContextHandler,
+  arg1?: ContextHandler
+): Context {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Context.current.head(arg0, arg1);
 }
 
 export function action(fun: ActionFunction): Context {
-  // @ts-ignore
-  return Context.current.action(fun);
+  return Context.current.action(fun!);
 }
 
 export function use(fun: UseFunction): Context {
-  // @ts-ignore
-  return Context.current.use(fun);
+  return Context.current.use(fun!);
 }
 
 export function data(): { [key: string]: any };
 export function data(identifier: string): any;
 export function data(identifier?: string): any {
-  // @ts-ignore
-  return Context.current.data(identifier);
+  return Context.current.data(identifier!);
 }
 
 export function setData(identifier: string, value: any) {
   return Context.current.setData(identifier, value);
 }
 
-
 export type ContextHandler = (context: Context) => any | Promise<any>;
-export type ActionFunction = (req: Request, res: Response) => any | Promise<any>;
-export type UseFunction = (req: Request, res: Response, next: NextFunction) => any | Promise<any>;
+export type ActionFunction = (
+  req: Request,
+  res: Response
+) => any | Promise<any>;
+export type UseFunction = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => any | Promise<any>;
 export type NextFunction = (err?: any) => void;
-

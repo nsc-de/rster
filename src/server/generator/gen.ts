@@ -69,47 +69,54 @@ interface ParameterInformation<T> {
   where: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare interface Array {
   zip<T>(other: T[]): [this, T][];
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 Array.prototype.zip = function <T>(other: T[]) {
   return this.map((e, i) => [e, other[i]]);
 };
 
 declare module "../../shared/types" {
-  interface TypeInformation<T = any> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ArrayTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ObjectTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
-  interface Or<
-    T0 extends TypeInformation<any>,
-    T1 extends TypeInformation<any>
-  > {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Or<T0, T1> {
     toTypeScript(): ts.TypeNode;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface StringTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface NumberTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface NumberRangeTypeInformation<MIN, MAX> {
     toTypeScript(): ts.TypeNode;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface BooleanTypeInformation<T> {
     toTypeScript(): ts.TypeNode;
   }

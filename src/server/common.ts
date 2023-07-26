@@ -1,3 +1,8 @@
+
+export interface ParsedQs {
+  [key: string]: undefined | string | string[] | ParsedQs | ParsedQs[];
+}
+
 export interface Request {
   readonly baseUrl: string;
   readonly body: any;
@@ -23,7 +28,7 @@ export interface Request {
   readonly acceptsCharsets: string[];
   readonly acceptsEncodings: string[];
   readonly acceptsLanguages: string[];
-  readonly query: { [key: string]: string | string[] | undefined; };
+  readonly query: ParsedQs;
 
   get(field: string): string | undefined;
   is(type: string | string[]): string | false | null;

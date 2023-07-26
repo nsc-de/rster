@@ -12,9 +12,9 @@ import { declaration } from "./generator/index";
 
 export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
   (
-    args: MapToPrimitiveType<NoUndefined<D["expectBody"], {}>> &
-      MapToPrimitiveType<NoUndefined<D["expectQuery"], {}>> &
-      MapToPrimitiveType<NoUndefined<D["expectParams"], {}>>
+    args: MapToPrimitiveType<NoUndefined<D["expectBody"], object>> &
+      MapToPrimitiveType<NoUndefined<D["expectQuery"], object>> &
+      MapToPrimitiveType<NoUndefined<D["expectParams"], object>>
   ) => PrimitiveType<D["returns"]>;
 
 /**
@@ -436,8 +436,8 @@ export class RsterApiBuilderContext<
     const context = new RsterApiModuleBuilderContext({
       name,
     }) as T;
-    // @ts-ignore
-    builder.call(context);
+
+    builder.call(context as NoNever<T, ModuleBuilderMap<any>>);
     this._modules.push(context);
   }
 
@@ -448,8 +448,7 @@ export class RsterApiBuilderContext<
     const context = new RsterApiMethodBuilderContext({
       name,
     }) as T;
-    // @ts-ignore
-    builder.call(context);
+    builder.call(context as NoNever<T, ModuleBuilderMap<any>>);
     this._methods.push(context);
   }
 
@@ -551,8 +550,7 @@ export class RsterApiModuleBuilderContext<
     const context = new RsterApiModuleBuilderContext({
       name,
     }) as Value<MODULES>;
-    // @ts-ignore
-    builder.call(context);
+    builder.call(context as NoNever<T, ModuleBuilderMap<any>>);
     this._modules.push(context);
   }
 
@@ -652,56 +650,59 @@ export class RsterApiMethodBuilderContext<
   }
 
   public declarationBody(body: {
-    [key: string]: { type: TypeInformation; optional: boolean };
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
   }) {
     this._declaration.expectBody = body;
   }
 
-  public declarationBodyParam(name: string, type: TypeInformation) {
+  public declarationBodyParam(name: string, type: TypeInformation<unknown>) {
     if (!this._declaration.expectBody) this._declaration.expectBody = {};
-    // @ts-ignore
     this._declaration.expectBody![name] = { type, optional: false };
   }
 
-  public declarationBodyParamOptional(name: string, type: TypeInformation) {
+  public declarationBodyParamOptional(
+    name: string,
+    type: TypeInformation<unknown>
+  ) {
     if (!this._declaration.expectBody) this._declaration.expectBody = {};
-    // @ts-ignore
     this._declaration.expectBody![name] = { type, optional: true };
   }
 
   public declarationQuery(query: {
-    [key: string]: { type: TypeInformation; optional: boolean };
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
   }) {
     this._declaration.expectQuery = query;
   }
 
-  public declarationQueryParam(name: string, type: TypeInformation) {
+  public declarationQueryParam(name: string, type: TypeInformation<unknown>) {
     if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
-    // @ts-ignore
     this._declaration.expectQuery![name] = { type, optional: false };
   }
 
-  public declarationQueryParamOptional(name: string, type: TypeInformation) {
+  public declarationQueryParamOptional(
+    name: string,
+    type: TypeInformation<unknown>
+  ) {
     if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
-    // @ts-ignore
     this._declaration.expectQuery![name] = { type, optional: true };
   }
 
   public declarationParams(params: {
-    [key: string]: { type: TypeInformation; optional: boolean };
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
   }) {
     this._declaration.expectParams = params;
   }
 
-  public declarationParam(name: string, type: TypeInformation) {
+  public declarationParam(name: string, type: TypeInformation<unknown>) {
     if (!this._declaration.expectParams) this._declaration.expectParams = {};
-    // @ts-ignore
     this._declaration.expectParams![name] = { type, optional: false };
   }
 
-  public declarationParamOptional(name: string, type: TypeInformation) {
+  public declarationParamOptional(
+    name: string,
+    type: TypeInformation<unknown>
+  ) {
     if (!this._declaration.expectParams) this._declaration.expectParams = {};
-    // @ts-ignore
     this._declaration.expectParams![name] = { type, optional: true };
   }
 
@@ -841,7 +842,6 @@ export function method<
     action,
   });
 
-  // @ts-ignore
   if (builder) builder.call(context);
   return context;
 }

@@ -22,6 +22,7 @@ export class ResterDebugger {
   public httpErrorDebugger = debug("rster:http-error");
   public routerDebugger = debug("rster:router");
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async debug(formatter: any, ...args: any[]) {
     this.generalDebugger(formatter, ...args);
   }

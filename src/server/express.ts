@@ -31,8 +31,6 @@ export function transformExpressRequest(req: ExpressRequest): Request {
     acceptsCharsets: req.acceptsCharsets(),
     acceptsEncodings: req.acceptsEncodings(),
     acceptsLanguages: req.acceptsLanguages(),
-
-    // @ts-ignore
     query: req.query,
 
     get(field: string): string | undefined {
@@ -49,6 +47,7 @@ export function transformExpressRequest(req: ExpressRequest): Request {
 
 export function transformExpressResponse(res: ExpressResponse): Response {
   return {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     __express_res: res,
     status(code: number): Response {
