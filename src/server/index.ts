@@ -10,10 +10,10 @@ import { ResterDebugger } from "./debug";
 export * from "./common";
 export * from "./condition";
 export * from "./context";
-export * from "./debug";
 export * from "./error";
 export * from "./express";
 export * from "./info";
+export * as types from "./types";
 export * as builder from "./builder";
 
 export class RestfulApi extends Context {

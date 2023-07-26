@@ -1,4 +1,4 @@
-import { TypeInformation } from "../../shared/types";
+import { TypeInformation } from "../types";
 import { Context, data, setData } from "../context";
 
 export interface Declaration {

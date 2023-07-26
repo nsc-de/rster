@@ -7,7 +7,7 @@ import {
   PrimitiveType,
   TypeInformation,
   undefinedType,
-} from "../shared/types";
+} from "./types";
 import { declaration } from "./generator/index";
 
 export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =

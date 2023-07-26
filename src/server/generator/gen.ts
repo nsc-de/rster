@@ -14,7 +14,7 @@ import {
   StringTypeInformation,
   TypeInformation,
   UndefinedTypeInformation,
-} from "../../shared/types";
+} from "../types";
 import {
   Declaration,
   collectDeclarations,
@@ -80,7 +80,7 @@ Array.prototype.zip = function <T>(other: T[]) {
   return this.map((e, i) => [e, other[i]]);
 };
 
-declare module "../../shared/types" {
+declare module "../types" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TypeInformation<T> {
     toTypeScript(): ts.TypeNode;
