@@ -23,7 +23,8 @@ type SendMethod = "param" | "body" | "query";
 
 export abstract class TypeInformation<T> {
   abstract check(value: any): value is T;
-  abstract readonly sendableVia: SendMethod[];
+  abstract sendableVia(): SendMethod[];
+  abstract sendableVia(m: SendMethod): boolean;
   abstract get type(): T;
 }
 
@@ -36,9 +37,16 @@ export class StringTypeInformation<
   check(value: any): value is T {
     return typeof value === "string" && value === this.value;
   }
-  get sendableVia(): SendMethod[] {
+
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
     return ["param", "body", "query"];
   }
+
   get type(): T {
     return this.value;
   }
@@ -55,8 +63,13 @@ export class NumberTypeInformation<
     return typeof value === "number" && value === this.value;
   }
 
-  get sendableVia(): SendMethod[] {
-    return ["body"];
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
+    return ["param", "body", "query"];
   }
   get type(): T {
     return this.value;
@@ -78,9 +91,16 @@ export class NumberRangeTypeInformation<
   includes(value: number) {
     return value >= this.min && value <= this.max;
   }
-  get sendableVia(): SendMethod[] {
-    return ["body"];
+
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
+    return ["param", "body", "query"];
   }
+
   get type(): IntRange<MIN, MAX> {
     return this.min as any;
   }
@@ -98,10 +118,13 @@ export class Or<
     return this.value0.check(value) || this.value1.check(value);
   }
 
-  get sendableVia(): SendMethod[] {
-    return [this.value0, this.value1]
-      .map((v) => v.sendableVia)
-      .reduce((a, b) => a.concat(b), []);
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
+    return this.value0.sendableVia().filter((v) => this.value1.sendableVia(v));
   }
 
   get type(): T0 | T1 {
@@ -113,7 +136,6 @@ export class ObjectTypeInformation<
 > extends TypeInformation<{ [key in keyof T]: T[key]["type"] }> {
   constructor(
     public readonly properties: {
-      // [key: string]: { required: boolean; type: TypeInformation };
       [key in keyof T]: { required: boolean; type: T[key] };
     }
   ) {
@@ -130,7 +152,12 @@ export class ObjectTypeInformation<
     );
   }
 
-  get sendableVia(): SendMethod[] {
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
     return ["body"];
   }
 
@@ -171,7 +198,12 @@ export class ArrayTypeInformation<
     );
   }
 
-  get sendableVia(): SendMethod[] {
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
     return ["body"];
   }
 
@@ -194,7 +226,12 @@ export class BooleanTypeInformation<
     return typeof value === "boolean" && value === this.value;
   }
 
-  get sendableVia(): SendMethod[] {
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
     return ["body"];
   }
 
@@ -215,8 +252,13 @@ export class NullTypeInformation extends TypeInformation<null> {
     return value === null;
   }
 
-  get sendableVia(): SendMethod[] {
-    return ["body"];
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
+    return ["param", "body", "query"];
   }
 
   get type(): null {
@@ -236,8 +278,13 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
     return value === undefined;
   }
 
-  get sendableVia(): SendMethod[] {
-    return ["body"];
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
+    return ["param", "body", "query"];
   }
 
   get type(): undefined {
@@ -256,7 +303,12 @@ export class AnyStringTypeInformation extends TypeInformation<string> {
     return typeof value === "string";
   }
 
-  get sendableVia(): SendMethod[] {
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
     return ["param", "body", "query"];
   }
 
@@ -276,8 +328,13 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
     return typeof value === "number";
   }
 
-  get sendableVia(): SendMethod[] {
-    return ["body"];
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
+    return ["param", "body", "query"];
   }
 
   get type(): number {
@@ -296,8 +353,13 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
     return typeof value === "boolean";
   }
 
-  get sendableVia(): SendMethod[] {
-    return ["body"];
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
+    return ["param", "body", "query"];
   }
 
   get type(): boolean {
@@ -315,8 +377,12 @@ export class AnyTypeInformation extends TypeInformation<any> {
   check(value: any): value is any {
     return true;
   }
-
-  get sendableVia(): SendMethod[] {
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(m?: SendMethod): SendMethod[] | boolean {
+    if (m) {
+      return this.sendableVia().includes(m);
+    }
     return ["body"];
   }
 
