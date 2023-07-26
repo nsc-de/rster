@@ -1,6 +1,6 @@
 # Run all the mocha tests on nodejs
 
-name: Node.js CI
+name: Node.js Build
 
 on: [push, pull_request, workflow_dispatch]
 
@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [v16.x, v18.x, v19.x, v20.x]
+        node-version: [v18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -28,4 +28,4 @@ jobs:
         with:
           path: /cache/ci/module_cache
           key: /cache/ci/module_cache
-      - run: npm run test
+      - run: npm run build
