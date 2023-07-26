@@ -1,7 +1,7 @@
 import { declaration } from "./generator/index";
 import {
   Context,
-  ContextTypeCondition,
+  ContextChildCondition,
   any,
   data,
   setData,
@@ -86,7 +86,7 @@ export function useInfo(options?: { path?: string }) {
       let context = (
         stack[stack.length - 2]?.filter(
           (e) => e.type === "condition"
-        )[0] as ContextTypeCondition
+        )[0] as ContextChildCondition
       )?.context;
 
       if (req.path == "/") {
