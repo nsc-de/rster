@@ -181,7 +181,7 @@ export class Context {
      * @memberof Context
      * @readonly
      */
-    protected readonly _api: RestfulApi,
+    protected _api: RestfulApi,
 
     /**
      * The condition for the context to be executed
@@ -226,7 +226,7 @@ export class Context {
   init(handler: ContextHandler): this {
     const current = Context._current;
     Context._current = this;
-    handler.call(this);
+    handler.call(this, this);
     Context._current = current;
     return this;
   }
@@ -1128,7 +1128,10 @@ export function setData(identifier: string, value: any) {
   return Context.current.setData(identifier, value);
 }
 
-export type ContextHandler = (this: Context) => any | Promise<any>;
+export type ContextHandler = (
+  this: Context,
+  ctx: Context
+) => any | Promise<any>;
 export type ActionFunction = (
   req: Request,
   res: Response

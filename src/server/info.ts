@@ -87,7 +87,7 @@ export function useInfo(options?: { path?: string }) {
         stack[stack.length - 2]?.filter(
           (e) => e.type === "condition"
         )[0] as ContextChildCondition
-      )?.context;
+      )?.context as Context;
 
       if (req.path == "/") {
         context = ctx.api;
