@@ -21,7 +21,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
         # remove yarn.lock to force yarn to install all dependencies
-      - run: npm install
+      - run: npm ci
       - name: Cache
         uses: actions/cache@v1.2.1
         with:
