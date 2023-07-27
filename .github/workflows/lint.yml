@@ -14,18 +14,27 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          
+          
+      - name: Use Node.js ${{ matrix.node-version }} 
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-        # remove yarn.lock to force yarn to install all dependencies
-      - run: rm package-lock.json
-      - run: npm install
-      - name: Cache
+          
+      - name: Install ⤵️ 
+        run: npm ci
+      
+      - name: Cache ♻️
         uses: actions/cache@v1.2.1
         with:
           path: /cache/ci/module_cache
           key: /cache/ci/module_cache
-      - run: npm run lint
+          
+          
+      - name: Run linter 🔬
+        run: npm run lint
