@@ -2,9 +2,11 @@ import {
   AnyBooleanTypeInformation,
   AnyNumberTypeInformation,
   AnyStringTypeInformation,
+  ArrayTypeInformation,
   BooleanTypeInformation,
   NumberRangeTypeInformation,
   NumberTypeInformation,
+  ObjectTypeInformation,
   StringTypeInformation,
 } from "../types";
 
@@ -104,14 +106,100 @@ export type ALL_OPTIONAL<T extends Record<string, any>> = {
   [key in keyof T]?: T[key] | undefined;
 };
 
+export type Level0TypeInformation =
+  | StringTypeInformation<string>
+  | AnyStringTypeInformation
+  | NumberTypeInformation<number>
+  | AnyNumberTypeInformation
+  | NumberRangeTypeInformation<number, number>
+  | BooleanTypeInformation<boolean>
+  | AnyBooleanTypeInformation;
+
+export type Level0TypeInformationNested =
+  | Level0TypeInformation
+  | ObjectTypeInformation<Record<string, Level0TypeInformationNested>>
+  | ArrayTypeInformation<Level0TypeInformationNested>;
+
 /**
  * Database Adapter
  * @see DatabaseLevel0
- * @see DatabaseLevel1
  */
 export interface DatabaseLevel0Adapter<> {
   readonly level: 0;
   readonly nested: false;
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  exists(table: string): Promise<boolean>;
+  create(
+    table: string,
+    options: {
+      ifNotExists?: boolean;
+      table: Record<
+        string,
+        | StringTypeInformation<string>
+        | AnyStringTypeInformation
+        | NumberTypeInformation<number>
+        | AnyNumberTypeInformation
+        | NumberRangeTypeInformation<number, number>
+        | BooleanTypeInformation<boolean>
+        | AnyBooleanTypeInformation
+      >;
+    }
+  ): Promise<void>;
+  drop(
+    table: string,
+    options: {
+      ifExists?: boolean;
+    }
+  ): Promise<void>;
+  get(
+    table: string,
+    search: DatabaseLevel0Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<DatabaseLevel0Object[]>;
+
+  insert(
+    table: string,
+    data: DatabaseLevel0Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<void>;
+
+  update(
+    table: string,
+    search: DatabaseLevel0Object,
+    data: DatabaseLevel0Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+
+  delete(
+    table: string,
+    search: DatabaseLevel0Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+
+  count(
+    table: string,
+    search: DatabaseLevel0Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+}
+
+/**
+ * Database Adapter Level 0 with nesting support
+ */
+export interface DatabaseLevel0AdapterNested<> {
+  readonly level: 0;
+  readonly nested: true;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   exists(table: string): Promise<boolean>;

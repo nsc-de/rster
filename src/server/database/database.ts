@@ -12,6 +12,7 @@ export interface DatabaseDefinition {
 
 class $Database {
   readonly definition: DatabaseDefinition;
+  readonly adapter: DatabaseLevel1Adapter;
   constructor(definition: DatabaseDefinition) {
     this.definition = definition;
   }
