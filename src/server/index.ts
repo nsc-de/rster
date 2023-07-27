@@ -1,5 +1,5 @@
 import { Request, Response } from "./common";
-import { Context, ContextHandler } from "./context";
+import { Context, ContextInitializer } from "./context";
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,
@@ -81,7 +81,7 @@ export interface RestfulApiOptionsInit {
   debug?: boolean;
 }
 
-export function rest(init: ContextHandler) {
+export function rest(init: ContextInitializer) {
   return new RestfulApi().init(init);
 }
 

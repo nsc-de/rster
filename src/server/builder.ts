@@ -1,4 +1,4 @@
-import rest, { RestfulApi, action, description, when } from "./index";
+import rest, { Context, RestfulApi, description } from "./index";
 import { Method } from "./common";
 import { ContextConditionMethod, ContextConditionPath } from "./condition";
 import {
@@ -339,16 +339,19 @@ export class RsterApiModule {
     };
 
     if (this.httpPath && this.httpMethod) {
-      when(
+      Context.current.when(
         new ContextConditionPath(this.httpPath).and(
           new ContextConditionMethod(this.httpMethod)
         ),
         contents
       );
     } else if (this.httpPath) {
-      when(new ContextConditionPath(this.httpPath), contents);
+      Context.current.when(new ContextConditionPath(this.httpPath), contents);
     } else if (this.httpMethod) {
-      when(new ContextConditionMethod(this.httpMethod), contents);
+      Context.current.when(
+        new ContextConditionMethod(this.httpMethod),
+        contents
+      );
     } else {
       contents();
     }
@@ -384,7 +387,7 @@ export class RsterApiMethod<
       expectQuery: this.declaration.expectQuery,
       expectParams: this.declaration.expectParams,
     });
-    action((req, res) => {
+    Context.current.action((req, res) => {
       res.status(200).send("Hello World!");
     });
   }

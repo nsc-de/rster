@@ -1,5 +1,5 @@
 import { TypeInformation } from "../types";
-import { Context, data, setData } from "../context";
+import { Context } from "../context";
 
 export interface Declaration {
   name: string;
@@ -23,18 +23,19 @@ export function declaration(
   context?: Context | Declaration,
   decl?: Declaration
 ): Context | Declaration | undefined | string[] {
-  if (typeof context === "undefined") return data("@info/declaration");
+  if (typeof context === "undefined")
+    return Context.current.data("@info/declaration");
 
   if (typeof context === "object" && context instanceof Context) {
     if (typeof decl === "undefined") {
       return context.data("@info/declaration");
     }
-    setData("@info/declaration", decl);
+    Context.current.setData("@info/declaration", decl);
     return context;
   }
 
   if (typeof context === "object") {
-    setData("@info/declaration", context);
+    Context.current.setData("@info/declaration", context);
     return Context.current;
   }
 
@@ -45,7 +46,7 @@ export function hasDeclaration(): boolean;
 export function hasDeclaration(context: Context): boolean;
 export function hasDeclaration(context?: Context): boolean {
   if (typeof context === "undefined")
-    return typeof data("@info/declaration") !== "undefined";
+    return typeof Context.current.data("@info/declaration") !== "undefined";
 
   return typeof context.data("@info/declaration") !== "undefined";
 }

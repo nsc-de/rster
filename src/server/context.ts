@@ -223,7 +223,7 @@ export class Context {
    * ```
    *
    */
-  init(handler: ContextHandler): this {
+  init(handler: ContextInitializer): this {
     const current = Context._current;
     Context._current = this;
     handler.call(this, this);
@@ -243,7 +243,7 @@ export class Context {
    *   // Do something
    * });
    */
-  when(condition: ContextCondition, handler: ContextHandler): this {
+  when(condition: ContextCondition, handler: ContextInitializer): this {
     this.children.push({
       type: "condition",
       condition: condition,
@@ -263,7 +263,7 @@ export class Context {
    *   // Do something
    * });
    */
-  describe(what: string, init: ContextHandler): this;
+  describe(what: string, init: ContextInitializer): this;
 
   /**
    * Search for paths matching the given regex. Is the same as {@link Condition.any}
@@ -276,8 +276,8 @@ export class Context {
    *   // Do something
    * });
    */
-  describe(what: RegExp, init: ContextHandler): this;
-  describe(what: string | RegExp, init: ContextHandler): this {
+  describe(what: RegExp, init: ContextInitializer): this;
+  describe(what: string | RegExp, init: ContextInitializer): this {
     if (typeof what === "string") {
       return this.when(new ContextConditionPath(what), init);
     } else {
@@ -296,7 +296,7 @@ export class Context {
    *   // Do something
    * });
    */
-  any(what: string, init: ContextHandler): this;
+  any(what: string, init: ContextInitializer): this;
 
   /**
    * Search for paths matching the given regex. Is the same as {@link Condition.describe}
@@ -309,8 +309,8 @@ export class Context {
    *   // Do something
    * });
    */
-  any(what: RegExp, init: ContextHandler): this;
-  any(what: string | RegExp, init: ContextHandler): this {
+  any(what: RegExp, init: ContextInitializer): this;
+  any(what: string | RegExp, init: ContextInitializer): this {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return this.describe(what, init);
@@ -326,7 +326,7 @@ export class Context {
    *   // Do something
    * });
    */
-  post(init: ContextHandler): Context;
+  post(init: ContextInitializer): Context;
 
   /**
    * Search for requests starting with the given path and requests with the method POST.
@@ -340,7 +340,7 @@ export class Context {
    * });
    * ```
    */
-  post(what: string, init: ContextHandler): Context;
+  post(what: string, init: ContextInitializer): Context;
 
   /**
    * Search for requests matching the given regex and requests with the method POST.
@@ -354,8 +354,11 @@ export class Context {
    * });
    * ```
    */
-  post(what: RegExp, init: ContextHandler): Context;
-  post(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
+  post(what: RegExp, init: ContextInitializer): Context;
+  post(
+    arg0: string | RegExp | ContextInitializer,
+    arg1?: ContextInitializer
+  ): this {
     if (typeof arg0 === "string" && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("post").and(new ContextConditionPath(arg0)),
@@ -382,7 +385,7 @@ export class Context {
    * });
    * ```
    */
-  get(init: ContextHandler): Context;
+  get(init: ContextInitializer): Context;
 
   /**
    * Search for requests starting with the given path and requests with the method GET.
@@ -396,7 +399,7 @@ export class Context {
    * });
    * ```
    */
-  get(what: string, init: ContextHandler): Context;
+  get(what: string, init: ContextInitializer): Context;
 
   /**
    * Search for requests matching the given regex and requests with the method GET.
@@ -410,8 +413,11 @@ export class Context {
    * });
    * ```
    */
-  get(what: RegExp, init: ContextHandler): Context;
-  get(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
+  get(what: RegExp, init: ContextInitializer): Context;
+  get(
+    arg0: string | RegExp | ContextInitializer,
+    arg1?: ContextInitializer
+  ): this {
     if (typeof arg0 === "string" && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("get").and(new ContextConditionPath(arg0)),
@@ -438,7 +444,7 @@ export class Context {
    * });
    * ```
    */
-  put(init: ContextHandler): Context;
+  put(init: ContextInitializer): Context;
 
   /**
    * Search for requests starting with the given path and requests with the method PUT.
@@ -452,7 +458,7 @@ export class Context {
    * });
    * ```
    */
-  put(what: string, init: ContextHandler): Context;
+  put(what: string, init: ContextInitializer): Context;
 
   /**
    * Search for requests matching the given regex and requests with the method PUT.
@@ -466,8 +472,11 @@ export class Context {
    * });
    * ```
    */
-  put(what: RegExp, init: ContextHandler): Context;
-  put(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
+  put(what: RegExp, init: ContextInitializer): Context;
+  put(
+    arg0: string | RegExp | ContextInitializer,
+    arg1?: ContextInitializer
+  ): this {
     if (typeof arg0 === "string" && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("put").and(new ContextConditionPath(arg0)),
@@ -494,7 +503,7 @@ export class Context {
    * });
    * ```
    */
-  patch(init: ContextHandler): Context;
+  patch(init: ContextInitializer): Context;
 
   /**
    * Search for requests starting with the given path and requests with the method PATCH.
@@ -508,7 +517,7 @@ export class Context {
    * });
    * ```
    */
-  patch(what: string, init: ContextHandler): Context;
+  patch(what: string, init: ContextInitializer): Context;
 
   /**
    * Search for requests matching the given regex and requests with the method PATCH.
@@ -522,8 +531,11 @@ export class Context {
    * });
    * ```
    */
-  patch(what: RegExp, init: ContextHandler): Context;
-  patch(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
+  patch(what: RegExp, init: ContextInitializer): Context;
+  patch(
+    arg0: string | RegExp | ContextInitializer,
+    arg1?: ContextInitializer
+  ): this {
     if (typeof arg0 === "string" && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("patch").and(new ContextConditionPath(arg0)),
@@ -552,7 +564,7 @@ export class Context {
    * });
    * ```
    */
-  delete(init: ContextHandler): Context;
+  delete(init: ContextInitializer): Context;
 
   /**
    * Search for requests starting with the given path and requests with the method DELETE.
@@ -566,7 +578,7 @@ export class Context {
    * });
    * ```
    */
-  delete(what: string, init: ContextHandler): Context;
+  delete(what: string, init: ContextInitializer): Context;
 
   /**
    * Search for requests matching the given regex and requests with the method DELETE.
@@ -580,8 +592,11 @@ export class Context {
    * });
    * ```
    */
-  delete(what: RegExp, init: ContextHandler): Context;
-  delete(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
+  delete(what: RegExp, init: ContextInitializer): Context;
+  delete(
+    arg0: string | RegExp | ContextInitializer,
+    arg1?: ContextInitializer
+  ): this {
     if (typeof arg0 === "string" && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("delete").and(
@@ -612,7 +627,7 @@ export class Context {
    * });
    * ```
    */
-  options(init: ContextHandler): Context;
+  options(init: ContextInitializer): Context;
 
   /**
    * Search for requests starting with the given path and requests with the method OPTIONS.
@@ -626,7 +641,7 @@ export class Context {
    * });
    * ```
    */
-  options(what: string, init: ContextHandler): Context;
+  options(what: string, init: ContextInitializer): Context;
 
   /**
    * Search for requests matching the given regex and requests with the method OPTIONS.
@@ -640,8 +655,11 @@ export class Context {
    * });
    * ```
    */
-  options(what: RegExp, init: ContextHandler): Context;
-  options(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
+  options(what: RegExp, init: ContextInitializer): Context;
+  options(
+    arg0: string | RegExp | ContextInitializer,
+    arg1?: ContextInitializer
+  ): this {
     if (typeof arg0 === "string" && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("options").and(
@@ -672,7 +690,7 @@ export class Context {
    * });
    * ```
    */
-  head(init: ContextHandler): Context;
+  head(init: ContextInitializer): Context;
 
   /**
    * Search for requests starting with the given path and requests with the method HEAD.
@@ -686,7 +704,7 @@ export class Context {
    * });
    * ```
    */
-  head(what: string, init: ContextHandler): Context;
+  head(what: string, init: ContextInitializer): Context;
 
   /**
    * Search for requests matching the given regex and requests with the method HEAD.
@@ -700,8 +718,11 @@ export class Context {
    * });
    * ```
    */
-  head(what: RegExp, init: ContextHandler): Context;
-  head(arg0: string | RegExp | ContextHandler, arg1?: ContextHandler): this {
+  head(what: RegExp, init: ContextInitializer): Context;
+  head(
+    arg0: string | RegExp | ContextInitializer,
+    arg1?: ContextInitializer
+  ): this {
     if (typeof arg0 === "string" && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("head").and(new ContextConditionPath(arg0)),
@@ -964,6 +985,15 @@ export class Context {
       );
   }
 
+  /**
+   * Return the json representation of the context
+   * @returns  {any} The json representation of the context
+   * @example
+   * ```typescript
+   * Context.current.toJson(); // The json representation of the context
+   * ```
+   * @see {@link ContextChild}
+   */
   toJson(): any {
     return {
       children: this.children.map((c) => {
@@ -979,6 +1009,10 @@ export class Context {
     };
   }
 
+  /**
+   * Collect all children of the context to a list of contexts
+   * @returns {Context[]} A list of all the contexts
+   */
   collect() {
     const map: Context[] = (
       this.children.filter(
@@ -989,156 +1023,79 @@ export class Context {
     return map;
   }
 
+  /**
+   * Get the request path to access this context
+   * @returns {string} The request path to access this context
+   */
   getPath(): string {
     const info = this.condition?.info();
     return (this.parent?.getPath() ?? "") + (info?.path ?? "");
   }
 
+  /**
+   * Get the request method to access this context
+   * @returns {Method | "any"} The request method to access this context
+   */
   getMethod(): Method | "any" {
     const info = this.condition?.info();
     return info?.method ?? this.parent?.getMethod() ?? "any";
   }
 }
 
-export function when(
-  condition: ContextCondition,
-  init: ContextHandler
-): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.when(condition, init);
-}
-
-export function describe(what: string, init: ContextHandler): Context;
-export function describe(what: RegExp, init: ContextHandler): Context;
-export function describe(what: string | RegExp, init: ContextHandler): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.describe(what, init);
-}
-
-export function any(what: string, init: ContextHandler): Context;
-export function any(what: RegExp, init: ContextHandler): Context;
-export function any(what: string | RegExp, init: ContextHandler): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.any(what, init);
-}
-
-export function post(init: ContextHandler): Context;
-export function post(what: string, init: ContextHandler): Context;
-export function post(what: RegExp, init: ContextHandler): Context;
-export function post(
-  arg0: string | RegExp | ContextHandler,
-  arg1?: ContextHandler
-): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.post(arg0, arg1);
-}
-
-export function get(init: ContextHandler): Context;
-
-export function get(what: string, init: ContextHandler): Context;
-export function get(what: RegExp, init: ContextHandler): Context;
-export function get(
-  arg0: string | RegExp | ContextHandler,
-  arg1?: ContextHandler
-): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.get(arg0, arg1);
-}
-
-export function put(init: ContextHandler): Context;
-export function put(what: string, init: ContextHandler): Context;
-export function put(what: RegExp, init: ContextHandler): Context;
-export function put(
-  arg0: string | RegExp | ContextHandler,
-  arg1?: ContextHandler
-): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.put(arg0, arg1);
-}
-
-export function patch(init: ContextHandler): Context;
-export function patch(what: string, init: ContextHandler): Context;
-export function patch(what: RegExp, init: ContextHandler): Context;
-export function patch(
-  arg0: string | RegExp | ContextHandler,
-  arg1?: ContextHandler
-): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.patch(arg0, arg1);
-}
-
-export function delete_(init: ContextHandler): Context;
-export function delete_(what: string, init: ContextHandler): Context;
-export function delete_(what: RegExp, init: ContextHandler): Context;
-export function delete_(
-  arg0: string | RegExp | ContextHandler,
-  arg1?: ContextHandler
-): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.delete(arg0, arg1);
-}
-
-export function options(init: ContextHandler): Context;
-export function options(what: string, init: ContextHandler): Context;
-export function options(what: RegExp, init: ContextHandler): Context;
-export function options(
-  arg0: string | RegExp | ContextHandler,
-  arg1?: ContextHandler
-): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.options(arg0, arg1);
-}
-
-export function head(init: ContextHandler): Context;
-export function head(what: string, init: ContextHandler): Context;
-export function head(what: RegExp, init: ContextHandler): Context;
-export function head(
-  arg0: string | RegExp | ContextHandler,
-  arg1?: ContextHandler
-): Context {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Context.current.head(arg0, arg1);
-}
-
-export function action(fun: ActionFunction): Context {
-  return Context.current.action(fun!);
-}
-
-export function use(fun: UseFunction): Context {
-  return Context.current.use(fun!);
-}
-
-export function data(): { [key: string]: any };
-export function data(identifier: string): any;
-export function data(identifier?: string): any {
-  return Context.current.data(identifier!);
-}
-
-export function setData(identifier: string, value: any) {
-  return Context.current.setData(identifier, value);
-}
-
-export type ContextHandler = (
+/**
+ * Initializer function for a context
+ * @param this The context to initialize
+ * @param ctx The context to initialize
+ * @returns {void | Promise<void>} The result of the initializer function
+ * @example
+ * ```typescript
+ * Context.current.init(function(ctx) {
+ *   // ctx is available here via [this] keyword
+ *   // Do something
+ * });
+ * ```
+ */
+export type ContextInitializer = (
   this: Context,
   ctx: Context
-) => any | Promise<any>;
+) => void | Promise<void>;
+
+/**
+ * Action function for a context
+ * Only one action function is allowed in a context.
+ * It does mark the request as handled and will not
+ * call any other anything after it.
+ * @param req The request to execute the action for
+ * @param res The response to execute the action for
+ * @returns {void | Promise<void>} The result of the action function
+ * @example
+ * ```typescript
+ * Context.current.action(function(req, res) {
+ *   // ctx is available here via [this] keyword
+ *   // Do something
+ * });
+ * ```
+ */
 export type ActionFunction = (
   req: Request,
   res: Response
 ) => any | Promise<any>;
+
+/**
+ * Use function for a context
+ * Use functions are called when the context is executed. They can be used to add middleware to the context.
+ * @param req The request to execute the use function for
+ * @param res The response to execute the use function for
+ * @param next The next function to call (if not called, this will be the final context to be executed)
+ */
 export type UseFunction = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => any | Promise<any>;
+
+/**
+ * Next function for a context
+ * @param err Pass an error to the next function to stop the execution of the context, it will be handled by the error handler
+ */
 export type NextFunction = (err?: any) => void;
