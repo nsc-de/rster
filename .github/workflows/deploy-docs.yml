@@ -35,10 +35,17 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install and Build 🔧
-        run: |
-          npm ci
-          npm run build:docs
+      - name: Install ⤵️ 
+        run: npm ci
+      
+      - name: Cache ♻️
+        uses: actions/cache@v1.2.1
+        with:
+          path: /cache/ci/module_cache
+          key: /cache/ci/module_cache
+          
+      - name: Build 🔧
+        run: npm run build:docs
           
       - name: Setup Pages 📄
         uses: actions/configure-pages@v3
