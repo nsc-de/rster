@@ -1,14 +1,12 @@
-import { ObjectTypeInformation, PrimitiveType } from "./types";
-
-/**
- * Define a Database
- */
-interface DatabaseDefinition {
-  /**
-   * The tables in the database
-   */
-  tables: Record<string, ObjectTypeInformation<Record<string, any>>>;
-}
+import {
+  AnyBooleanTypeInformation,
+  AnyNumberTypeInformation,
+  AnyStringTypeInformation,
+  BooleanTypeInformation,
+  NumberRangeTypeInformation,
+  NumberTypeInformation,
+  StringTypeInformation,
+} from "../types";
 
 /**
  * Level 0: string, number, boolean, null, undefined
@@ -18,7 +16,7 @@ interface DatabaseDefinition {
  * @see DatabaseLevel0NestedObject
  * @see DatabaseLevel0NestedArray
  */
-type DatabaseLevel0Value = string | number | boolean | null | undefined;
+export type DatabaseLevel0Value = string | number | boolean | null | undefined;
 
 /**
  * Level 0 Database Object: {@link { [key: string]: DatabaseLevel0Value }}
@@ -29,7 +27,7 @@ type DatabaseLevel0Value = string | number | boolean | null | undefined;
  * @see DatabaseLevel0NestedObject
  * @see DatabaseLevel0NestedArray
  */
-type DatabaseLevel0Object = Record<string, DatabaseLevel0Value>;
+export type DatabaseLevel0Object = Record<string, DatabaseLevel0Value>;
 
 /**
  * Level 0 Nested Object: {@link { [key: string]: DatabaseLevel0Value | DatabaseLevel0Object | DatabaseLevel0Object }}
@@ -39,7 +37,7 @@ type DatabaseLevel0Object = Record<string, DatabaseLevel0Value>;
  * @see DatabaseLevel0Object
  * @see DatabaseLevel0NestedArray
  */
-type DatabaseLevel0NestedObject = Record<
+export type DatabaseLevel0NestedObject = Record<
   string,
   DatabaseLevel0Value | DatabaseLevel0Object | DatabaseLevel0Object
 >;
@@ -52,7 +50,7 @@ type DatabaseLevel0NestedObject = Record<
  * @see DatabaseLevel0Object
  * @see DatabaseLevel0NestedObject
  */
-type DatabaseLevel0NestedArray = (
+export type DatabaseLevel0NestedArray = (
   | DatabaseLevel0Value
   | DatabaseLevel0Object
   | DatabaseLevel0NestedObject
@@ -64,14 +62,14 @@ type DatabaseLevel0NestedArray = (
  * Level 1 are databases like MongoDB
  * @see DatabaseLevel0Value
  */
-type DatabaseLevel1Value = DatabaseLevel0Value | Date;
+export type DatabaseLevel1Value = DatabaseLevel0Value | Date;
 
 /**
  * Level 1 Database Object: {@link { [key: string]: DatabaseLevel1Value }}
  * Level 1 Databases are databases like MongoDB
  * @see DatabaseLevel0Object
  */
-type DatabaseLevel1Object = Record<string, DatabaseLevel1Value>;
+export type DatabaseLevel1Object = Record<string, DatabaseLevel1Value>;
 
 /**
  * Level 1 Nested Object: {@link { [key: string]: DatabaseLevel1Value | DatabaseLevel1Object | DatabaseLevel1Object }}
@@ -82,7 +80,7 @@ type DatabaseLevel1Object = Record<string, DatabaseLevel1Value>;
  * @see DatabaseLevel1NestedArray
  * @see DatabaseLevel1NestedObject
  */
-type DatabaseLevel1NestedObject = Record<
+export type DatabaseLevel1NestedObject = Record<
   string,
   DatabaseLevel1Value | DatabaseLevel1Object | DatabaseLevel1Object
 >;
@@ -95,14 +93,14 @@ type DatabaseLevel1NestedObject = Record<
  * @see DatabaseLevel1Object
  * @see DatabaseLevel1NestedObject
  */
-type DatabaseLevel1NestedArray = (
+export type DatabaseLevel1NestedArray = (
   | DatabaseLevel1Value
   | DatabaseLevel1Object
   | DatabaseLevel1NestedObject
   | DatabaseLevel1NestedArray
 )[];
 
-type ALL_OPTIONAL<T extends Record<string, any>> = {
+export type ALL_OPTIONAL<T extends Record<string, any>> = {
   [key in keyof T]?: T[key] | undefined;
 };
 
@@ -111,90 +109,72 @@ type ALL_OPTIONAL<T extends Record<string, any>> = {
  * @see DatabaseLevel0
  * @see DatabaseLevel1
  */
-interface DatabaseAdapter<
-  LEVEL extends 0 | 1,
-  NESTED extends boolean = false,
-  VALUE extends LEVEL extends 0
-    ? DatabaseLevel0Value
-    : DatabaseLevel1Value = LEVEL extends 0
-    ? DatabaseLevel0Value
-    : DatabaseLevel1Value,
-  _$OBJECT extends LEVEL extends 0
-    ? DatabaseLevel0Object
-    : DatabaseLevel1Object = LEVEL extends 0
-    ? DatabaseLevel0Object
-    : DatabaseLevel1Object,
-  _$NESTED_OBJECT extends LEVEL extends 0
-    ? DatabaseLevel0NestedObject
-    : DatabaseLevel1NestedObject = LEVEL extends 0
-    ? DatabaseLevel0NestedObject
-    : DatabaseLevel1NestedObject,
-  _$NESTED_ARRAY extends LEVEL extends 0
-    ? DatabaseLevel0NestedArray
-    : DatabaseLevel1NestedArray = LEVEL extends 0
-    ? DatabaseLevel0NestedArray
-    : DatabaseLevel1NestedArray,
-  OBJECT extends NESTED extends true
-    ? _$NESTED_OBJECT
-    : _$OBJECT = NESTED extends true ? _$NESTED_OBJECT : _$OBJECT
-> {
-  readonly level: LEVEL;
-  readonly nested: NESTED;
+export interface DatabaseLevel0Adapter<> {
+  readonly level: 0;
+  readonly nested: false;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   exists(table: string): Promise<boolean>;
-  create(table: string): Promise<void>;
+  create(
+    table: string,
+    options: {
+      ifNotExists?: boolean;
+      table: Record<
+        string,
+        | StringTypeInformation<string>
+        | AnyStringTypeInformation
+        | NumberTypeInformation<number>
+        | AnyNumberTypeInformation
+        | NumberRangeTypeInformation<number, number>
+        | BooleanTypeInformation<boolean>
+        | AnyBooleanTypeInformation
+      >;
+    }
+  ): Promise<void>;
+  drop(
+    table: string,
+    options: {
+      ifExists?: boolean;
+    }
+  ): Promise<void>;
   get(
     table: string,
-    search: ALL_OPTIONAL<OBJECT>,
+    search: DatabaseLevel0Object,
     options: {
       limit?: number;
     }
-  ): Promise<OBJECT[]>;
+  ): Promise<DatabaseLevel0Object[]>;
 
   insert(
     table: string,
-    data: ALL_OPTIONAL<OBJECT>,
+    data: DatabaseLevel0Object,
     options: {
       limit?: number;
     }
-  ): Promise<OBJECT[]>;
+  ): Promise<void>;
 
   update(
     table: string,
-    search: ALL_OPTIONAL<OBJECT>,
-    data: ALL_OPTIONAL<OBJECT>,
+    search: DatabaseLevel0Object,
+    data: DatabaseLevel0Object,
     options: {
       limit?: number;
     }
-  ): Promise<OBJECT[]>;
+  ): Promise<number>;
+
+  delete(
+    table: string,
+    search: DatabaseLevel0Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+
+  count(
+    table: string,
+    search: DatabaseLevel0Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
 }
-
-class $Database {
-  readonly definition: DatabaseDefinition;
-  constructor(definition: DatabaseDefinition) {
-    this.definition = definition;
-  }
-}
-
-export class TableTool<
-  TD extends ObjectTypeInformation<Record<string, any>>,
-  DB extends Database<DatabaseDefinition>
-> {
-  constructor(
-    public readonly definition: TD,
-    public readonly name: string,
-    public readonly database: DB
-  ) {}
-
-  public async insert(data: PrimitiveType<TD>): Promise<void> {
-    throw new Error("Not Implemented");
-  }
-}
-
-export type Database<DEF extends DatabaseDefinition> = {
-  [key in keyof DEF["tables"]]: TableTool<DEF["tables"][key], Database<DEF>>;
-} & {
-  readonly definition: DEF;
-  readonly tables: DEF["tables"];
-};
