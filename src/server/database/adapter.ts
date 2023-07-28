@@ -1,4 +1,5 @@
 import {
+  AllowAnyTypeInformation,
   AnyBooleanTypeInformation,
   AnyNumberTypeInformation,
   AnyStringTypeInformation,
@@ -117,14 +118,14 @@ export type Level0TypeInformation =
 
 export type Level0TypeInformationNested =
   | Level0TypeInformation
-  | ObjectTypeInformation<Record<string, Level0TypeInformationNested>>
-  | ArrayTypeInformation<Level0TypeInformationNested>;
+  | ObjectTypeInformation<Record<string, AllowAnyTypeInformation>> // TODO: Is there a better way to do this?
+  | ArrayTypeInformation<AllowAnyTypeInformation>;
 
 /**
  * Database Adapter
  * @see DatabaseLevel0
  */
-export interface DatabaseLevel0Adapter<> {
+export interface DatabaseLevel0Adapter {
   readonly level: 0;
   readonly nested: false;
   connect(): Promise<void>;
@@ -197,7 +198,7 @@ export interface DatabaseLevel0Adapter<> {
 /**
  * Database Adapter Level 0 with nesting support
  */
-export interface DatabaseLevel0AdapterNested<> {
+export interface DatabaseLevel0AdapterNested {
   readonly level: 0;
   readonly nested: true;
   connect(): Promise<void>;

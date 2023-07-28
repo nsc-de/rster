@@ -1,4 +1,5 @@
 import { ObjectTypeInformation, PrimitiveType } from "../types";
+import { DatabaseLevel0Adapter } from "./adapter";
 
 /**
  * Define a Database
@@ -12,8 +13,10 @@ export interface DatabaseDefinition {
 
 class $Database {
   readonly definition: DatabaseDefinition;
-  readonly adapter: DatabaseLevel1Adapter;
-  constructor(definition: DatabaseDefinition) {
+  constructor(
+    definition: DatabaseDefinition,
+    readonly adapter: DatabaseLevel0Adapter
+  ) {
     this.definition = definition;
   }
 }

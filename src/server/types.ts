@@ -1,7 +1,7 @@
 /**
  * Shortcut for AllowAnyTypeInformation
  */
-type AllowAnyTypeInformation = TypeInformation<any>;
+export type AllowAnyTypeInformation = TypeInformation<any>;
 
 /**
  * Type for enumerating numbers (used to create a range of numbers)
