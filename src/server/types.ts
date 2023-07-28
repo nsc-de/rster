@@ -1,7 +1,7 @@
 /**
- * Shortcut for AnyTypeInformation
+ * Shortcut for AllowAnyTypeInformation
  */
-export type AllowAnyTypeInformation = AnyTypeInformation;
+type AllowAnyTypeInformation = TypeInformation<any>;
 
 /**
  * Type for enumerating numbers (used to create a range of numbers)
@@ -184,8 +184,8 @@ export class NumberRangeTypeInformation<
  * @typeParam T1 - Second type
  */
 export class Or<
-  T0 extends AnyTypeInformation,
-  T1 extends AnyTypeInformation
+  T0 extends AllowAnyTypeInformation,
+  T1 extends AllowAnyTypeInformation
 > extends TypeInformation<T0 | T1> {
   constructor(public readonly value0: T0, public readonly value1: T1) {
     super();
@@ -215,7 +215,7 @@ export class Or<
  * @typeParam T - The object type
  */
 export class ObjectTypeInformation<
-  T extends { [key: string]: AnyTypeInformation }
+  T extends { [key: string]: AllowAnyTypeInformation }
 > extends TypeInformation<{ [key in keyof T]: T[key]["type"] }> {
   constructor(
     public readonly properties: {
@@ -254,7 +254,7 @@ export class ObjectTypeInformation<
 }
 
 export class DeepObjectTypeInformation<
-  T extends { [key: string]: AnyTypeInformation }
+  T extends { [key: string]: AllowAnyTypeInformation }
 > extends TypeInformation<{ [key in keyof T]: T[key]["type"] }> {
   constructor(
     public readonly properties: {
@@ -298,7 +298,7 @@ export class DeepObjectTypeInformation<
  * @typeParam T - The array type
  */
 export class ArrayTypeInformation<
-  T extends AnyTypeInformation
+  T extends AllowAnyTypeInformation
 > extends TypeInformation<T["type"][]> {
   minItems?: number;
   maxItems?: number;
@@ -518,7 +518,7 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
 /**
  * Type for defining any value
  */
-export class AnyTypeInformation extends AnyTypeInformation {
+export class AnyTypeInformation extends TypeInformation<any> {
   static readonly instance = new AnyTypeInformation();
 
   constructor() {
@@ -619,8 +619,8 @@ export function numberRange<MIN extends number, MAX extends number>(
  * @param value1 - The second type information
  */
 export function or<
-  T0 extends AnyTypeInformation,
-  T1 extends AnyTypeInformation
+  T0 extends AllowAnyTypeInformation,
+  T1 extends AllowAnyTypeInformation
 >(value0: T0, value1: T1): Or<T0, T1>;
 
 /**
@@ -631,9 +631,9 @@ export function or<
  * @returns A type information that is the union of the three type information's
  */
 export function or<
-  T0 extends AnyTypeInformation,
-  T1 extends AnyTypeInformation,
-  T2 extends AnyTypeInformation
+  T0 extends AllowAnyTypeInformation,
+  T1 extends AllowAnyTypeInformation,
+  T2 extends AllowAnyTypeInformation
 >(value0: T0, value1: T1, value2: T2): Or<Or<T0, T1>, T2>;
 
 /**
@@ -645,10 +645,10 @@ export function or<
  * @returns A type information that is the union of the four type information's
  */
 export function or<
-  T0 extends AnyTypeInformation,
-  T1 extends AnyTypeInformation,
-  T2 extends AnyTypeInformation,
-  T3 extends AnyTypeInformation
+  T0 extends AllowAnyTypeInformation,
+  T1 extends AllowAnyTypeInformation,
+  T2 extends AllowAnyTypeInformation,
+  T3 extends AllowAnyTypeInformation
 >(value0: T0, value1: T1, value2: T2, value3: T3): Or<Or<Or<T0, T1>, T2>, T3>;
 
 /**
@@ -657,13 +657,13 @@ export function or<
  * @param values - The rest of the type information's
  * @returns A type information that is the union of the type information's
  */
-export function or<T0 extends AnyTypeInformation, T extends AnyTypeInformation>(
+export function or<
+  T0 extends AllowAnyTypeInformation,
+  T extends AllowAnyTypeInformation
+>(value0: T0, ...values: T[]): Or<any, T0>;
+export function or<T0 extends AllowAnyTypeInformation>(
   value0: T0,
-  ...values: T[]
-): Or<any, T0>;
-export function or<T0 extends AnyTypeInformation>(
-  value0: T0,
-  ...values: AnyTypeInformation[]
+  ...values: AllowAnyTypeInformation[]
 ): Or<any, T0> {
   return values.reduce((acc, value) => new Or(acc, value), value0) as any;
 }
@@ -674,11 +674,11 @@ export function or<T0 extends AnyTypeInformation>(
  * @returns A type information for an object with specific properties
  */
 export function object<
-  T extends { [key: string]: AnyTypeInformation }
+  T extends { [key: string]: AllowAnyTypeInformation }
 >(properties: {
   [key in keyof T]:
-    | AnyTypeInformation
-    | { required: boolean; type: AnyTypeInformation };
+    | AllowAnyTypeInformation
+    | { required: boolean; type: AllowAnyTypeInformation };
 }): ObjectTypeInformation<T> {
   return new ObjectTypeInformation(
     Object.keys(properties).reduce((acc, key) => {
@@ -698,7 +698,7 @@ export function object<
  * @param param1 - The minimum and maximum number of items in the array
  * @returns A type information for an array of specific types
  */
-export function array<T extends AnyTypeInformation>(
+export function array<T extends AllowAnyTypeInformation>(
   values: T[],
   {
     minItems,
@@ -788,7 +788,7 @@ export type NoUndefined<TYPE, ALTERNATIVE> = TYPE extends undefined
  * @see TypeInformation.type
  * @see MapToPrimitiveType
  */
-export type PrimitiveType<TYPE extends AnyTypeInformation> = TYPE["type"];
+export type PrimitiveType<TYPE extends AllowAnyTypeInformation> = TYPE["type"];
 
 /**
  * Type utility for converting a map of type information to their typescript equivalents
@@ -798,7 +798,7 @@ export type PrimitiveType<TYPE extends AnyTypeInformation> = TYPE["type"];
  * @see PrimitiveType
  */
 export type MapToPrimitiveType<
-  TYPE extends Record<string, { type: AnyTypeInformation }>
+  TYPE extends Record<string, { type: AllowAnyTypeInformation }>
 > = {
   [key in keyof TYPE]: PrimitiveType<TYPE[key]["type"]>;
 };
