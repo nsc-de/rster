@@ -253,45 +253,6 @@ export class ObjectTypeInformation<
   }
 }
 
-export class DeepObjectTypeInformation<
-  T extends { [key: string]: AllowAnyTypeInformation }
-> extends TypeInformation<{ [key in keyof T]: T[key]["type"] }> {
-  constructor(
-    public readonly properties: {
-      [key in keyof T]: { required: boolean; type: T[key] };
-    }
-  ) {
-    super();
-  }
-
-  check(value: any): value is { [key in keyof T]: T[key]["type"] } {
-    return (
-      typeof value === "object" &&
-      Object.keys(this.properties).every((key) => {
-        const property = this.properties[key];
-        return !property.required || property.type.check(value[key]);
-      })
-    );
-  }
-
-  sendableVia(): SendMethod[];
-  sendableVia(m: SendMethod): boolean;
-  sendableVia(m?: SendMethod): SendMethod[] | boolean {
-    if (m) {
-      return this.sendableVia().includes(m);
-    }
-    return ["body"];
-  }
-
-  get type(): { [key in keyof T]: T[key]["type"] } {
-    return Object.keys(this.properties).reduce((acc, key) => {
-      const value = this.properties[key];
-      acc[key] = value.type.type;
-      return acc;
-    }, {} as any);
-  }
-}
-
 /**
  * Type for defining an array of specific types
  *
