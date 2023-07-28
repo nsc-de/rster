@@ -15,6 +15,7 @@ export * from "./express";
 export * from "./info";
 export * as types from "./types";
 export * as builder from "./builder";
+export * as database from "./database";
 
 export class RestfulApi extends Context {
   private _options: RestfulApiOptions;
