@@ -267,3 +267,132 @@ export interface DatabaseLevel0AdapterNested {
     }
   ): Promise<number>;
 }
+
+/**
+ * Database Adapter Level 1
+ * @see DatabaseLevel1
+ */
+export interface DatabaseLevel1Adapter {
+  readonly level: 1;
+  readonly nested: false;
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  exists(table: string): Promise<boolean>;
+  create(
+    table: string,
+    options: {
+      ifNotExists?: boolean;
+      table: Record<string, Level0TypeInformationNested>;
+    }
+  ): Promise<void>;
+  drop(
+    table: string,
+    options: {
+      ifExists?: boolean;
+    }
+  ): Promise<void>;
+  get(
+    table: string,
+    search: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<DatabaseLevel1Object[]>;
+
+  insert(
+    table: string,
+    data: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<void>;
+
+  update(
+    table: string,
+    search: DatabaseLevel1Object,
+    data: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+
+  delete(
+    table: string,
+    search: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+
+  count(
+    table: string,
+    search: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+}
+
+/**
+ * Database Adapter Level 1 with nesting support
+ */
+export interface DatabaseLevel1AdapterNested {
+  readonly level: 1;
+  readonly nested: true;
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  exists(table: string): Promise<boolean>;
+  create(
+    table: string,
+    options: {
+      ifNotExists?: boolean;
+      table: Record<string, Level0TypeInformationNested>;
+    }
+  ): Promise<void>;
+  drop(
+    table: string,
+    options: {
+      ifExists?: boolean;
+    }
+  ): Promise<void>;
+  get(
+    table: string,
+    search: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<DatabaseLevel1Object[]>;
+
+  insert(
+    table: string,
+    data: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<void>;
+
+  update(
+    table: string,
+    search: DatabaseLevel1Object,
+    data: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+
+  delete(
+    table: string,
+    search: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+
+  count(
+    table: string,
+    search: DatabaseLevel1Object,
+    options: {
+      limit?: number;
+    }
+  ): Promise<number>;
+}
