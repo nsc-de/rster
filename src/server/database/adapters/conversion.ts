@@ -5,7 +5,7 @@ import {
   Level0TypeInformation,
   DatabaseLevel1Value,
 } from "../adapter";
-import { convertLevel1ToLevel0 } from "../converter";
+import { convertLevel0ToLevel1, convertLevel1ToLevel0 } from "../converter";
 
 /**
  * Conversion Adapter
