@@ -3,13 +3,37 @@ import {
   AnyBooleanTypeInformation,
   AnyNumberTypeInformation,
   AnyStringTypeInformation,
+  AnyTypeInformation,
   ArrayTypeInformation,
   BooleanTypeInformation,
+  NullTypeInformation,
   NumberRangeTypeInformation,
   NumberTypeInformation,
   ObjectTypeInformation,
   StringTypeInformation,
+  UndefinedTypeInformation,
 } from "../types";
+
+export type ALL_OPTIONAL<T extends Record<string, unknown>> = {
+  [key in keyof T]?: T[key] | undefined;
+};
+
+/**
+ * Type for {@link DatabaseLevel0Value}'s {@link TypeInformation}
+ * Level 0: string, number, boolean, null, undefined
+ * Level 0 are very primitive databases like a json file
+ *
+ */
+export type DatabaseLevel0ValueType =
+  | StringTypeInformation<string>
+  | AnyStringTypeInformation
+  | NumberTypeInformation<number>
+  | AnyNumberTypeInformation
+  | NumberRangeTypeInformation<number, number>
+  | BooleanTypeInformation<boolean>
+  | AnyBooleanTypeInformation
+  | NullTypeInformation
+  | UndefinedTypeInformation;
 
 /**
  * Level 0: string, number, boolean, null, undefined
@@ -19,7 +43,7 @@ import {
  * @see DatabaseLevel0NestedObject
  * @see DatabaseLevel0NestedArray
  */
-export type DatabaseLevel0Value = string | number | boolean | null | undefined;
+export type DatabaseLevel0Value = DatabaseLevel0ValueType["type"];
 
 /**
  * Level 0 Database Object: {@link { [key: string]: DatabaseLevel0Value }}
@@ -59,6 +83,10 @@ export type DatabaseLevel0NestedArray = (
   | DatabaseLevel0NestedObject
   | DatabaseLevel0NestedArray
 )[];
+
+export type DatabaseLevel1ValueType =
+  | DatabaseLevel0ValueType
+  | AnyTypeInformation<Date>;
 
 /**
  * Level 1: Level 0 | Date
@@ -103,23 +131,13 @@ export type DatabaseLevel1NestedArray = (
   | DatabaseLevel1NestedArray
 )[];
 
-export type ALL_OPTIONAL<T extends Record<string, any>> = {
-  [key in keyof T]?: T[key] | undefined;
-};
-
-export type Level0TypeInformation =
-  | StringTypeInformation<string>
-  | AnyStringTypeInformation
-  | NumberTypeInformation<number>
-  | AnyNumberTypeInformation
-  | NumberRangeTypeInformation<number, number>
-  | BooleanTypeInformation<boolean>
-  | AnyBooleanTypeInformation;
-
-export type Level0TypeInformationNested =
-  | Level0TypeInformation
+export type Level0TypeInformationNestedType =
+  | DatabaseLevel0ValueType
   | ObjectTypeInformation<Record<string, AllowAnyTypeInformation>> // TODO: Is there a better way to do this?
   | ArrayTypeInformation<AllowAnyTypeInformation>;
+
+export type Level0TypeInformationNested =
+  Level0TypeInformationNestedType["type"];
 
 /**
  * Database Adapter
@@ -135,16 +153,7 @@ export interface DatabaseLevel0Adapter {
     table: string,
     options: {
       ifNotExists?: boolean;
-      table: Record<
-        string,
-        | StringTypeInformation<string>
-        | AnyStringTypeInformation
-        | NumberTypeInformation<number>
-        | AnyNumberTypeInformation
-        | NumberRangeTypeInformation<number, number>
-        | BooleanTypeInformation<boolean>
-        | AnyBooleanTypeInformation
-      >;
+      definition: Record<string, DatabaseLevel0ValueType>;
     }
   ): Promise<void>;
   drop(
@@ -208,16 +217,7 @@ export interface DatabaseLevel0AdapterNested {
     table: string,
     options: {
       ifNotExists?: boolean;
-      table: Record<
-        string,
-        | StringTypeInformation<string>
-        | AnyStringTypeInformation
-        | NumberTypeInformation<number>
-        | AnyNumberTypeInformation
-        | NumberRangeTypeInformation<number, number>
-        | BooleanTypeInformation<boolean>
-        | AnyBooleanTypeInformation
-      >;
+      definition: Record<string, Level0TypeInformationNestedType>;
     }
   ): Promise<void>;
   drop(
@@ -282,7 +282,7 @@ export interface DatabaseLevel1Adapter {
     table: string,
     options: {
       ifNotExists?: boolean;
-      table: Record<string, Level0TypeInformationNested>;
+      definition: Record<string, Level0TypeInformationNested>;
     }
   ): Promise<void>;
   drop(
@@ -346,7 +346,7 @@ export interface DatabaseLevel1AdapterNested {
     table: string,
     options: {
       ifNotExists?: boolean;
-      table: Record<string, Level0TypeInformationNested>;
+      definition: Record<string, Level0TypeInformationNested>;
     }
   ): Promise<void>;
   drop(

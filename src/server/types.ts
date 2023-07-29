@@ -479,14 +479,14 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
 /**
  * Type for defining any value
  */
-export class AnyTypeInformation extends TypeInformation<any> {
+export class AnyTypeInformation<T = any> extends TypeInformation<T> {
   static readonly instance = new AnyTypeInformation();
 
   constructor() {
     super();
   }
 
-  check(value: any): value is any {
+  check(value: T): value is T {
     return true;
   }
   sendableVia(): SendMethod[];
@@ -498,8 +498,32 @@ export class AnyTypeInformation extends TypeInformation<any> {
     return ["body"];
   }
 
-  get type(): any {
-    return null;
+  get type(): T {
+    return null as T;
+  }
+}
+
+/**
+ * Type for defining a date
+ */
+export class DateTypeInformation extends TypeInformation<Date> {
+  static readonly instance = new DateTypeInformation();
+
+  constructor() {
+    super();
+  }
+
+  check(value: unknown): value is Date {
+    return value instanceof Date;
+  }
+  sendableVia(): SendMethod[];
+  sendableVia(m: SendMethod): boolean;
+  sendableVia(): SendMethod[] | boolean {
+    return ["body"];
+  }
+
+  get type(): Date {
+    return new Date();
   }
 }
 

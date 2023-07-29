@@ -1,4 +1,23 @@
-import { DatabaseLevel0Value, DatabaseLevel1Value } from "./adapter";
+import {
+  AnyBooleanTypeInformation,
+  AnyNumberTypeInformation,
+  AnyStringTypeInformation,
+  BooleanTypeInformation,
+  DateTypeInformation,
+  NullTypeInformation,
+  NumberRangeTypeInformation,
+  NumberTypeInformation,
+  ObjectTypeInformation,
+  StringTypeInformation,
+  UndefinedTypeInformation,
+  string,
+} from "../types";
+import {
+  DatabaseLevel0Value,
+  DatabaseLevel0ValueType,
+  DatabaseLevel1Value,
+  DatabaseLevel1ValueType,
+} from "./adapter";
 
 export class ConversionSupportError extends Error {
   constructor(message: string) {
@@ -100,6 +119,52 @@ export function convertLevel0ToLevelValue(
   return value;
 }
 
+export function convertLevel1ToLevel0Info(
+  info: DatabaseLevel1ValueType
+): DatabaseLevel0ValueType {
+  if (info instanceof UndefinedTypeInformation) {
+    return info;
+  }
+
+  if (info instanceof NullTypeInformation) {
+    return info;
+  }
+
+  if (info instanceof StringTypeInformation) {
+    return info;
+  }
+
+  if (info instanceof AnyStringTypeInformation) {
+    return info;
+  }
+
+  if (info instanceof BooleanTypeInformation) {
+    return info;
+  }
+
+  if (info instanceof AnyBooleanTypeInformation) {
+    return info;
+  }
+
+  if (info instanceof AnyNumberTypeInformation) {
+    return info;
+  }
+
+  if (info instanceof NumberTypeInformation) {
+    return info;
+  }
+
+  if (info instanceof NumberRangeTypeInformation) {
+    return info;
+  }
+
+  if (info instanceof DateTypeInformation) {
+    return string();
+  }
+
+  throw new Error("Unsupported type");
+}
+
 export function convertLevel1ToLevel0(
   value: Record<string, DatabaseLevel1Value>
 ): Record<string, DatabaseLevel0Value> {
@@ -118,4 +183,15 @@ export function convertLevel0ToLevel1(
     result[key] = convertLevel0ToLevelValue(value[key]);
   }
   return result;
+}
+
+export function convertLevel1ToLevel0InfoMap(
+  info: Record<string, DatabaseLevel1ValueType>
+): Record<string, DatabaseLevel0ValueType> {
+  return Object.fromEntries(
+    Object.entries(info).map(([key, value]) => [
+      key,
+      convertLevel1ToLevel0Info(value),
+    ])
+  );
 }

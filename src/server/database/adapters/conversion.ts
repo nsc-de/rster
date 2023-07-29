@@ -1,11 +1,9 @@
+import { DatabaseLevel1Adapter, DatabaseLevel0Adapter } from "../adapter";
 import {
-  DatabaseLevel1Adapter,
-  DatabaseLevel0Adapter,
-  DatabaseLevel0Value,
-  Level0TypeInformation,
-  DatabaseLevel1Value,
-} from "../adapter";
-import { convertLevel0ToLevel1, convertLevel1ToLevel0 } from "../converter";
+  convertLevel0ToLevel1,
+  convertLevel1ToLevel0,
+  convertLevel1ToLevel0InfoMap,
+} from "../converter";
 
 /**
  * Conversion Adapter
@@ -38,10 +36,13 @@ export class ConversionAdapter implements DatabaseLevel1Adapter {
   // Convert Level 1 input to Level 0 and call the Level 0 adapter's create method
   async create(
     table: string,
-    options: { ifNotExists?: boolean; table: Record<string, any> }
+    options: { ifNotExists?: boolean; definition: Record<string, any> }
   ): Promise<void> {
-    const level0Table = convertLevel1ToLevel0(options.table);
-    await this.level0Adapter.create(table, { ...options, table: level0Table });
+    const level0Table = convertLevel1ToLevel0InfoMap(options.definition);
+    await this.level0Adapter.create(table, {
+      ...options,
+      definition: level0Table,
+    });
   }
 
   // Convert Level 1 input to Level 0 and call the Level 0 adapter's drop method
