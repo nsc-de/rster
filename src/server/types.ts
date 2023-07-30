@@ -245,6 +245,21 @@ export type DestructedType =
 type SendMethod = "param" | "body" | "query";
 
 export abstract class TypeInformation<T> {
+  constructor() {
+    // Register the type in the conversion register
+    this.__registerType();
+  }
+
+  private __registerType() {
+    // Register the type in the conversion register
+    ConversionRegister.instance.register(
+      this,
+      this.identifier,
+      this.exportToString.bind(this),
+      this.importFromString.bind(this)
+    );
+  }
+
   /**
    * Checks if the given value is of the type defined by this type information
    *
