@@ -16,6 +16,72 @@ export type Enumerate<
   ? Acc[number]
   : Enumerate<N, [...Acc, Acc["length"]]>;
 
+export type ConversionRegisterEntry<T extends AllowAnyTypeInformation> = {
+  type: T;
+  identifier: string;
+  exportToString: (value: T["type"]) => string;
+  importFromString: (value: string) => T["type"];
+};
+
+export class ConversionRegister {
+  static readonly instance = new ConversionRegister([]);
+
+  constructor(
+    public readonly entries: ConversionRegisterEntry<AllowAnyTypeInformation>[]
+  ) {}
+
+  register<T extends AllowAnyTypeInformation>(
+    type: T,
+    identifier: string,
+    exportToString: (value: T["type"]) => string,
+    importFromString: (value: string) => T["type"]
+  ) {
+    // Check if the identifier is already registered
+    if (this.entries.some((e) => e.identifier === identifier)) {
+      return;
+    }
+    this.entries.push({
+      type,
+      identifier,
+      exportToString,
+      importFromString,
+    });
+  }
+
+  exportToString(value: AllowAnyTypeInformation["type"]): string {
+    const entry = this.entries.find((e) => e.type.check(value));
+    if (!entry) {
+      throw new Error("Unsupported type");
+    }
+    return `${entry.identifier}:${entry.exportToString(value)}`;
+  }
+
+  importFromString(value: string): AllowAnyTypeInformation["type"] {
+    const [identifier, stringValue] = value.split(":");
+    const entry = this.entries.find((e) => e.identifier === identifier);
+    if (!entry) {
+      throw new Error("Unsupported type");
+    }
+    return entry.importFromString(stringValue);
+  }
+}
+
+// Decorator for registering a type in the conversion register
+export function registerType<T extends AllowAnyTypeInformation>(
+  identifier: string,
+  exportToString: (value: T["type"]) => string,
+  importFromString: (value: string) => T["type"]
+) {
+  return (target: T) => {
+    ConversionRegister.instance.register(
+      target,
+      identifier,
+      exportToString,
+      importFromString
+    );
+  };
+}
+
 /**
  * Type for creating a range of numbers (from MIN to MAX)
  *
@@ -81,6 +147,10 @@ export abstract class TypeInformation<T> {
    * @memberof TypeInformation This is not a real property, but a hack to get the type of the type information
    */
   abstract readonly type: T;
+
+  abstract identifier: string;
+  abstract exportToString(value: T): string;
+  abstract importFromString(value: string): T;
 }
 
 /**
@@ -110,6 +180,22 @@ export class StringTypeInformation<
   get type(): T {
     return this.value;
   }
+
+  get identifier(): string {
+    return "string";
+  }
+
+  exportToString(value: T): string {
+    return value;
+  }
+
+  importFromString(value: string): T {
+    return value as T;
+  }
+
+  toString() {
+    return this.identifier;
+  }
 }
 
 /**
@@ -138,6 +224,15 @@ export class NumberTypeInformation<
   }
   get type(): T {
     return this.value;
+  }
+  get identifier(): string {
+    return "number";
+  }
+  exportToString(value: T): string {
+    return value.toString();
+  }
+  importFromString(value: string): T {
+    return Number(value) as T;
   }
 }
 
@@ -175,6 +270,18 @@ export class NumberRangeTypeInformation<
   get type(): IntRange<MIN, MAX> {
     return this.min as any;
   }
+
+  get identifier(): string {
+    return "number";
+  }
+
+  exportToString(value: IntRange<MIN, MAX>): string {
+    return (value as number).toString();
+  }
+
+  importFromString(value: string): IntRange<MIN, MAX> {
+    return Number(value) as any;
+  }
 }
 
 /**
@@ -206,6 +313,22 @@ export class Or<
 
   get type(): T0 | T1 {
     return this.value0.type ?? this.value1.type;
+  }
+
+  get identifier(): string {
+    return "or";
+  }
+
+  exportToString(value: T0 | T1): string {
+    throw new Error("Method not supported."); // TODO: Possible to implement?
+  }
+
+  importFromString(value: string): T0 | T1 {
+    throw new Error("Method not supported."); // TODO: Possible to implement?
+  }
+
+  toString() {
+    return `${this.value0.toString()}|${this.value1.toString()}`;
   }
 }
 
@@ -250,6 +373,37 @@ export class ObjectTypeInformation<
       acc[key] = value.type.type;
       return acc;
     }, {} as any);
+  }
+
+  get identifier(): string {
+    return "object";
+  }
+
+  exportToString(value: { [key in keyof T]: T[key]["type"] }): string {
+    return JSON.stringify(
+      Object.fromEntries(
+        Object.entries(value).map(([key, value]) => [
+          key,
+          value !== null &&
+          typeof value !== "number" &&
+          typeof value !== "string" &&
+          typeof value !== "boolean"
+            ? ConversionRegister.instance.exportToString(value)
+            : value,
+        ])
+      )
+    );
+  }
+
+  importFromString(value: string): { [key in keyof T]: T[key]["type"] } {
+    return Object.fromEntries(
+      Object.entries(JSON.parse(value)).map(([key, value]) => [
+        key,
+        typeof value === "string"
+          ? ConversionRegister.instance.importFromString(value)
+          : value,
+      ])
+    ) as any;
   }
 }
 
@@ -299,6 +453,31 @@ export class ArrayTypeInformation<
   get type(): T["type"][] {
     return this.values.map((v) => v.type);
   }
+
+  get identifier(): string {
+    return "array";
+  }
+
+  exportToString(value: T["type"][]): string {
+    return JSON.stringify(
+      value.map((v) =>
+        v !== null &&
+        typeof v !== "number" &&
+        typeof v !== "string" &&
+        typeof v !== "boolean"
+          ? ConversionRegister.instance.exportToString(v)
+          : v
+      )
+    );
+  }
+
+  importFromString(value: string): T["type"][] {
+    return JSON.parse(value).map((v: any) =>
+      typeof v === "string"
+        ? ConversionRegister.instance.importFromString(v)
+        : v
+    );
+  }
 }
 
 /**
@@ -332,6 +511,18 @@ export class BooleanTypeInformation<
   get type(): T {
     return this.value;
   }
+
+  get identifier(): string {
+    return "boolean";
+  }
+
+  exportToString(value: T): string {
+    return value.toString();
+  }
+
+  importFromString(value: string): T {
+    return (value === "true" ? true : false) as T;
+  }
 }
 
 /**
@@ -360,6 +551,22 @@ export class NullTypeInformation extends TypeInformation<null> {
 
   get type(): null {
     return null;
+  }
+
+  get identifier(): string {
+    return "null";
+  }
+
+  exportToString(): string {
+    return "null";
+  }
+
+  importFromString(): null {
+    return null;
+  }
+
+  toString() {
+    return this.identifier;
   }
 }
 
@@ -390,6 +597,22 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
   get type(): undefined {
     return undefined;
   }
+
+  get identifier(): string {
+    return "undefined";
+  }
+
+  exportToString(): string {
+    return "undefined";
+  }
+
+  importFromString(): undefined {
+    return undefined;
+  }
+
+  toString() {
+    return this.identifier;
+  }
 }
 
 /**
@@ -417,6 +640,18 @@ export class AnyStringTypeInformation extends TypeInformation<string> {
 
   get type(): string {
     return "";
+  }
+
+  get identifier(): string {
+    return "string";
+  }
+
+  exportToString(value: string): string {
+    return value;
+  }
+
+  importFromString(value: string): string {
+    return value;
   }
 }
 
@@ -446,6 +681,22 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
   get type(): number {
     return 0;
   }
+
+  get identifier(): string {
+    return "number";
+  }
+
+  exportToString(value: number): string {
+    return value.toString();
+  }
+
+  importFromString(value: string): number {
+    return Number(value);
+  }
+
+  toString() {
+    return this.identifier;
+  }
 }
 
 /**
@@ -474,6 +725,22 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
   get type(): boolean {
     return false;
   }
+
+  get identifier(): string {
+    return "boolean";
+  }
+
+  exportToString(value: boolean): string {
+    return value.toString();
+  }
+
+  importFromString(value: string): boolean {
+    return value === "true";
+  }
+
+  toString() {
+    return this.identifier;
+  }
 }
 
 /**
@@ -501,6 +768,22 @@ export class AnyTypeInformation<T = any> extends TypeInformation<T> {
   get type(): T {
     return null as T;
   }
+
+  get identifier(): string {
+    return "any";
+  }
+
+  exportToString(value: T): string {
+    throw new Error("Method not supported."); // TODO: Possible to implement?
+  }
+
+  importFromString(value: string): T {
+    throw new Error("Method not supported."); // TODO: Possible to implement?
+  }
+
+  toString() {
+    return this.identifier;
+  }
 }
 
 /**
@@ -524,6 +807,22 @@ export class DateTypeInformation extends TypeInformation<Date> {
 
   get type(): Date {
     return new Date();
+  }
+
+  get identifier(): string {
+    return "date";
+  }
+
+  exportToString(value: Date): string {
+    return value.toISOString();
+  }
+
+  importFromString(value: string): Date {
+    return new Date(value);
+  }
+
+  toString() {
+    return this.identifier;
   }
 }
 
