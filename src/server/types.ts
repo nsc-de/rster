@@ -64,6 +64,136 @@ export class ConversionRegister {
     }
     return entry.importFromString(stringValue);
   }
+
+  exportObjectToString(
+    value: Record<string, unknown>,
+    supportsValue: (it: unknown) => boolean = () => false
+  ): Record<string, any> {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, value]) => [
+        key,
+        supportsValue(value) ? value : this.exportToString(value),
+      ])
+    );
+  }
+
+  importObjectFromString(
+    value: Record<string, unknown>
+  ): Record<string, unknown> {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, value]) => [
+        key,
+        typeof value === "string" ? this.importFromString(value) : value,
+      ])
+    );
+  }
+
+  exportArrayToString(
+    value: unknown[],
+    supportsValue: (it: unknown) => boolean = () => false
+  ): unknown[] {
+    return value.map((v) => (supportsValue(v) ? v : this.exportToString(v)));
+  }
+
+  importArrayFromString(value: unknown[]): unknown[] {
+    return value.map((v) =>
+      typeof v === "string" ? this.importFromString(v) : v
+    );
+  }
+
+  deepExportObjectToString(
+    value: Record<string, unknown>,
+    supportsValue: (it: unknown) => boolean = () => false
+  ): Record<string, unknown> {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, value]) => [
+        key,
+        typeof value === "object"
+          ? value !== null
+            ? this.deepExportObjectToString(
+                value as Record<string, unknown>,
+                supportsValue
+              )
+            : null
+          : supportsValue(value)
+          ? value
+          : this.exportToString(value),
+      ])
+    );
+  }
+
+  deepImportObjectFromString(
+    value: Record<string, unknown>
+  ): Record<string, unknown> {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, value]) => [
+        key,
+        typeof value === "object"
+          ? value !== null
+            ? this.deepImportObjectFromString(value as Record<string, unknown>)
+            : null
+          : typeof value === "string"
+          ? this.importFromString(value)
+          : value,
+      ])
+    );
+  }
+
+  deepExportArrayToString(
+    value: unknown[],
+    supportsValue: (it: unknown) => boolean = () => false
+  ): unknown[] {
+    return value.map((v) =>
+      typeof v === "object"
+        ? v !== null
+          ? this.deepExportObjectToString(
+              v as Record<string, unknown>,
+              supportsValue
+            )
+          : null
+        : supportsValue(v)
+        ? v
+        : this.exportToString(v)
+    );
+  }
+
+  deepImportArrayFromString(value: unknown[]): unknown[] {
+    return value.map((v) =>
+      typeof v === "object"
+        ? v !== null
+          ? this.deepImportObjectFromString(v as Record<string, unknown>)
+          : null
+        : typeof v === "string"
+        ? this.importFromString(v)
+        : v
+    );
+  }
+
+  deepExportToString(
+    value: unknown[],
+    supportsValue: (it: unknown) => boolean
+  ): unknown[];
+  deepExportToString(
+    value: Record<string, unknown>,
+    supportsValue: (it: unknown) => boolean
+  ): Record<string, unknown>;
+  deepExportToString(
+    value: unknown[] | Record<string, unknown>,
+    supportsValue: (it: unknown) => boolean = () => false
+  ): unknown[] | Record<string, unknown> {
+    if (Array.isArray(value)) {
+      return this.deepExportArrayToString(value, supportsValue);
+    }
+
+    if (typeof value === "object") {
+      return this.deepExportObjectToString(
+        value as Record<string, unknown>,
+        supportsValue
+      );
+    }
+
+    throw new Error("Unsupported type");
+  }
 }
 
 // Decorator for registering a type in the conversion register
@@ -381,29 +511,21 @@ export class ObjectTypeInformation<
 
   exportToString(value: { [key in keyof T]: T[key]["type"] }): string {
     return JSON.stringify(
-      Object.fromEntries(
-        Object.entries(value).map(([key, value]) => [
-          key,
-          value !== null &&
-          typeof value !== "number" &&
-          typeof value !== "string" &&
-          typeof value !== "boolean"
-            ? ConversionRegister.instance.exportToString(value)
-            : value,
-        ])
+      ConversionRegister.instance.deepExportObjectToString(
+        value,
+        (it) =>
+          typeof it === "boolean" ||
+          typeof it === "number" ||
+          typeof it === "string" ||
+          it === "null"
       )
     );
   }
 
   importFromString(value: string): { [key in keyof T]: T[key]["type"] } {
-    return Object.fromEntries(
-      Object.entries(JSON.parse(value)).map(([key, value]) => [
-        key,
-        typeof value === "string"
-          ? ConversionRegister.instance.importFromString(value)
-          : value,
-      ])
-    ) as any;
+    return ConversionRegister.instance.deepImportObjectFromString(
+      JSON.parse(value)
+    ) as { [key in keyof T]: T[key]["type"] };
   }
 }
 
