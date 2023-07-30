@@ -244,6 +244,18 @@ export type DestructedType =
  */
 type SendMethod = "param" | "body" | "query";
 
+export type StringType =
+  | StringTypeInformation<string>
+  | AnyStringTypeInformation;
+export type NumberType =
+  | NumberTypeInformation<number>
+  | AnyNumberTypeInformation
+  | NumberRangeTypeInformation<number, number>;
+export type BooleanType =
+  | BooleanTypeInformation<true>
+  | BooleanTypeInformation<false>
+  | AnyBooleanTypeInformation;
+
 export abstract class TypeInformation<T> {
   constructor() {
     // Register the type in the conversion register

@@ -7,156 +7,157 @@
  */
 
 import {
-  StringTypeInformation,
-  AnyStringTypeInformation,
-  NumberTypeInformation,
-  AnyNumberTypeInformation,
-  NumberRangeTypeInformation,
-  BooleanTypeInformation,
-  AnyBooleanTypeInformation,
+  StringType,
+  NumberType,
+  BooleanType,
+  NullTypeInformation,
+  string,
+  number,
+  nullType,
+  boolean,
 } from "../../types";
-import { DatabaseLevel0Adapter, DatabaseLevel0Object } from "../adapter";
+import { createDatabaseAdapter } from "../adapter";
 
-function JSONAdapter(): DatabaseLevel0Adapter {
-  const data: Record<string, DatabaseLevel0Object[]> = {};
-  return {
-    level: 0,
-    nested: false,
+const JSONAdapter = createDatabaseAdapter<
+  { __data: Record<string, any[]> },
+  StringType | NumberType | BooleanType | NullTypeInformation
+>({
+  __data: {},
+  supportsNesting: true,
+  supports: [string(), number(), boolean(), nullType()],
+  connect() {
+    // Nothing to do
+    return Promise.resolve();
+  },
 
-    connect() {
-      // Nothing to do
-      return Promise.resolve();
-    },
+  disconnect() {
+    // Nothing to do
+    return Promise.resolve();
+  },
 
-    disconnect() {
-      // Nothing to do
-      return Promise.resolve();
-    },
+  exists(table) {
+    return Promise.resolve(this.__data[table] !== undefined);
+  },
 
-    exists(table) {
-      return Promise.resolve(data[table] !== undefined);
-    },
+  create(table: string, options) {
+    if (!this.__data[table]) {
+      this.__data[table] = [];
+    }
+    return Promise.resolve();
+  },
 
-    create(table: string, options) {
-      if (!data[table]) {
-        data[table] = [];
-      }
-      return Promise.resolve();
-    },
+  drop(table: string, options: { ifExists?: boolean | undefined }) {
+    if (this.__data[table]) {
+      delete this.__data[table];
+    }
+    return Promise.resolve();
+  },
 
-    drop(table: string, options: { ifExists?: boolean | undefined }) {
-      if (data[table]) {
-        delete data[table];
-      }
-      return Promise.resolve();
-    },
+  get(table, search, options) {
+    if (!this.__data[table]) {
+      throw new Error("Table does not exist");
+    }
 
-    get(table, search, options) {
-      if (!data[table]) {
-        throw new Error("Table does not exist");
-      }
-
-      const results: DatabaseLevel0Object[] = [];
-      for (const row of data[table]) {
-        let match = true;
-        for (const key in search) {
-          if (search[key] !== row[key]) {
-            match = false;
-            break;
-          }
-        }
-        if (match) {
-          results.push(row);
+    const results: any[] = [];
+    for (const row of this.__data[table]) {
+      let match = true;
+      for (const key in search) {
+        if (search[key] !== row[key]) {
+          match = false;
+          break;
         }
       }
-      return Promise.resolve(results);
-    },
-
-    insert(table, obj, options) {
-      if (!data[table]) {
-        throw new Error("Table does not exist");
+      if (match) {
+        results.push(row);
       }
+    }
+    return Promise.resolve(results);
+  },
 
-      data[table]?.push(obj);
-      return Promise.resolve();
-    },
+  insert(table, obj, options) {
+    if (!this.__data[table]) {
+      throw new Error("Table does not exist");
+    }
 
-    update(table, search, obj, { limit }) {
-      if (!data[table]) {
-        throw new Error("Table does not exist");
-      }
+    this.__data[table]?.push(obj);
+    return Promise.resolve();
+  },
 
-      let count = 0;
+  update(table, search, obj, { limit }) {
+    if (!this.__data[table]) {
+      throw new Error("Table does not exist");
+    }
 
-      for (const row of data[table]) {
-        // Break if we've reached the limit
-        if (limit && count >= limit) break;
+    let count = 0;
 
-        let match = true;
-        for (const key in search) {
-          if (search[key] !== row[key]) {
-            match = false;
-            break;
-          }
-        }
-        if (match) {
-          for (const key in data) {
-            row[key] = obj[key];
-          }
-          count++;
+    for (const row of this.__data[table]) {
+      // Break if we've reached the limit
+      if (limit && count >= limit) break;
+
+      let match = true;
+      for (const key in search) {
+        if (search[key] !== row[key]) {
+          match = false;
+          break;
         }
       }
-      return Promise.resolve(count);
-    },
-
-    delete(table, search, { limit }) {
-      if (!data[table]) {
-        throw new Error("Table does not exist");
-      }
-
-      let count = 0;
-
-      for (let i = 0; i < data[table].length; i++) {
-        // Break if we've reached the limit
-        if (limit && count >= limit) break;
-
-        const row = data[table][i];
-        let match = true;
-        for (const key in search) {
-          if (search[key] !== row[key]) {
-            match = false;
-            break;
-          }
+      if (match) {
+        for (const key in this.__data) {
+          row[key] = obj[key];
         }
-        if (match) {
-          data[table].splice(i, 1);
-          count++;
-        }
+        count++;
       }
-      return Promise.resolve(count);
-    },
+    }
+    return Promise.resolve(count);
+  },
 
-    count(table, search, { limit }) {
-      if (!data[table]) {
-        throw new Error("Table does not exist");
-      }
+  delete(table, search, { limit }) {
+    if (!this.__data[table]) {
+      throw new Error("Table does not exist");
+    }
 
-      let count = 0;
-      for (const row of data[table]) {
-        // Break if we've reached the limit
-        if (limit && count >= limit) break;
+    let count = 0;
 
-        let match = true;
-        for (const key in search) {
-          if (search[key] !== row[key]) {
-            match = false;
-          }
-        }
-        if (match) {
-          count++;
+    for (let i = 0; i < this.__data[table].length; i++) {
+      // Break if we've reached the limit
+      if (limit && count >= limit) break;
+
+      const row = this.__data[table][i];
+      let match = true;
+      for (const key in search) {
+        if (search[key] !== row[key]) {
+          match = false;
+          break;
         }
       }
-      return Promise.resolve(count);
-    },
-  };
-}
+      if (match) {
+        this.__data[table].splice(i, 1);
+        count++;
+      }
+    }
+    return Promise.resolve(count);
+  },
+
+  count(table, search, { limit }) {
+    if (!this.__data[table]) {
+      throw new Error("Table does not exist");
+    }
+
+    let count = 0;
+    for (const row of this.__data[table]) {
+      // Break if we've reached the limit
+      if (limit && count >= limit) break;
+
+      let match = true;
+      for (const key in search) {
+        if (search[key] !== row[key]) {
+          match = false;
+        }
+      }
+      if (match) {
+        count++;
+      }
+    }
+    return Promise.resolve(count);
+  },
+});
