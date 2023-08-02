@@ -153,14 +153,14 @@ ArrayTypeInformation.prototype.toTypeScript = function () {
 ObjectTypeInformation.prototype.toTypeScript = function () {
   return ts.factory.createTypeLiteralNode(
     Object.entries(this.properties).map(([key, value]) => {
-      const isOptional = !value.required;
+      const isOptional = !(value as any).required;
       return ts.factory.createPropertySignature(
         undefined,
         key,
         isOptional
           ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
           : undefined,
-        value.type.toTypeScript()
+          (value as any).type.toTypeScript()
       );
     })
   );
