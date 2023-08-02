@@ -495,12 +495,10 @@ export class Or<
  * @typeParam T - The object type
  */
 export class ObjectTypeInformation<
-  T extends { [key: string]: AllowAnyTypeInformation }
+  T extends { [key: string]: { required: boolean; type: AnyTypeInformation };}
 > extends TypeInformation<{ [key in keyof T]: T[key]["type"] }> {
   constructor(
-    public readonly properties: {
-      [key in keyof T]: { required: boolean; type: T[key] };
-    }
+    public readonly properties: T,
   ) {
     super();
   }
@@ -524,7 +522,7 @@ export class ObjectTypeInformation<
     return ["body"];
   }
 
-  get type(): { [key in keyof T]: T[key]["type"] } {
+  get type(): { [key in keyof T]: PrimitiveType<T[key]["type"]> } {
     return Object.keys(this.properties).reduce((acc, key) => {
       const value = this.properties[key];
       acc[key] = value.type.type;
@@ -1107,22 +1105,11 @@ export function or<T0 extends AllowAnyTypeInformation>(
  * @returns A type information for an object with specific properties
  */
 export function object<
-  T extends Record<string, AllowAnyTypeInformation>
->(properties: {
-  [key in keyof T]:
-    | AllowAnyTypeInformation
-    | { required: boolean; type: AllowAnyTypeInformation };
-}): ObjectTypeInformation<T> {
-  return new ObjectTypeInformation(
-    Object.keys(properties).reduce((acc, key) => {
-      const value = properties[key];
-      acc[key] = {
-        required: true,
-        type: value instanceof TypeInformation ? value : value.type,
-      };
-      return acc;
-    }, {} as any)
-  );
+  T extends { [key: string]: { required: boolean; type: AnyTypeInformation };}
+>(
+  properties: T,
+): ObjectTypeInformation<T> {
+  return new ObjectTypeInformation<T>(properties);
 }
 
 /**

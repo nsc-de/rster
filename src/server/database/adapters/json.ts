@@ -83,7 +83,7 @@ export const JSONAdapter = createDatabaseAdapter<
     return Promise.resolve();
   },
 
-  update(table, search, obj, { limit }) {
+  update(table, search, obj, { limit } = {}) {
     if (!this.__data[table]) {
       throw new Error("Table does not exist");
     }
@@ -111,7 +111,7 @@ export const JSONAdapter = createDatabaseAdapter<
     return Promise.resolve(count);
   },
 
-  delete(table, search, { limit }) {
+  delete(table, search, { limit } = {}) {
     if (!this.__data[table]) {
       throw new Error("Table does not exist");
     }
@@ -138,7 +138,7 @@ export const JSONAdapter = createDatabaseAdapter<
     return Promise.resolve(count);
   },
 
-  count(table, search, { limit }) {
+  count(table, search, { limit } = {}) {
     if (!this.__data[table]) {
       throw new Error("Table does not exist");
     }

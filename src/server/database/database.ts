@@ -9,7 +9,7 @@ import { DatabaseAdapter } from "./adapter";
  * Define a Database
  */
 export interface DatabaseDefinition<
-  T extends Record<string, AllowAnyTypeInformation>
+  T extends Record<string, { type: AllowAnyTypeInformation; required: boolean }>
 > {
   /**
    * The tables in the database
@@ -18,7 +18,7 @@ export interface DatabaseDefinition<
 }
 
 class $Database<
-  DEF extends DatabaseDefinition<Record<string, AllowAnyTypeInformation>>
+  DEF extends DatabaseDefinition<Record<string, { type: AllowAnyTypeInformation; required: boolean; }>>
 > {
   constructor(
     readonly definition: DEF,
@@ -38,7 +38,7 @@ class $Database<
     data: PrimitiveType<DEF["tables"][TABLE_NAME]>,
     options?: Record<string, never>
   ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
-    return this.adapter.get(table as string, data, options);
+    return this.adapter.get(table as string, data, options) as unknown as Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>>;
   }
 
   public async update<TABLE_NAME extends keyof DEF["tables"]>(
@@ -108,7 +108,7 @@ class $Database<
 
 export class TableTool<
   DATABASE_DEFINITION extends DatabaseDefinition<
-    Record<string, AllowAnyTypeInformation>
+    Record<string, { type: AllowAnyTypeInformation; required: boolean; }>
   >,
   TABLE_NAME extends keyof DATABASE_DEFINITION["tables"],
   DATABASE extends Database<DATABASE_DEFINITION>,
@@ -170,13 +170,13 @@ export class TableTool<
 }
 
 export type Database<
-  DEF extends DatabaseDefinition<Record<string, AllowAnyTypeInformation>>
+  DEF extends DatabaseDefinition<Record<string, { type: AllowAnyTypeInformation; required: boolean; }>>
 > = {
   [key in keyof DEF["tables"]]: TableTool<DEF, key, Database<DEF>>;
 } & $Database<DEF>;
 
 export function createDatabase<
-  DEF extends DatabaseDefinition<Record<string, AllowAnyTypeInformation>>
+  DEF extends DatabaseDefinition<Record<string, { type: AllowAnyTypeInformation; required: boolean; }>>
 >(
   definition: DEF,
   adapter: DatabaseAdapter<AllowAnyTypeInformation>
