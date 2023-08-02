@@ -18,7 +18,7 @@ import {
 } from "../../types";
 import { createDatabaseAdapter } from "../adapter";
 
-const JSONAdapter = createDatabaseAdapter<
+export const JSONAdapter = createDatabaseAdapter<
   { __data: Record<string, any[]> },
   StringType | NumberType | BooleanType | NullTypeInformation
 >({

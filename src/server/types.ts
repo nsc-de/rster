@@ -1107,7 +1107,7 @@ export function or<T0 extends AllowAnyTypeInformation>(
  * @returns A type information for an object with specific properties
  */
 export function object<
-  T extends { [key: string]: AllowAnyTypeInformation }
+  T extends Record<string, AllowAnyTypeInformation>
 >(properties: {
   [key in keyof T]:
     | AllowAnyTypeInformation
