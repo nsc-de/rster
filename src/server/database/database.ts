@@ -1,8 +1,20 @@
-import { api, buildRsterApi, method, module } from "../builder";
+import {
+  RsterApi,
+  RsterApiBuilder,
+  RsterApiBuilderContext,
+  RsterApiMethodBuilderContext,
+  RsterApiModuleBuilderContext,
+  api,
+  buildRsterApi,
+  method,
+  module,
+} from "../builder";
 import {
   AllowAnyTypeInformation,
+  AnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
+  TypeInformation,
   object,
 } from "../types";
 import { DatabaseAdapter } from "./adapter";
@@ -113,24 +125,20 @@ class $Database<
     return this.adapter.disconnect();
   }
 
-  public createRestApi({
+  public createRestApi<INCLUDE extends RsterDatabaseToApiInclude<DEF>>({
     name,
     description,
     include,
   }: {
     name: string;
     description: string[];
-    include: {
-      [key in keyof DEF["tables"]]: {
-        [key2 in keyof DEF["tables"][key]]: boolean;
-      };
-    };
-  }) {
+    include: INCLUDE;
+  }): RsterDatabaseToApiBuilder<this, INCLUDE> {
     return api({
       name,
       description,
       modules: Object.entries(include).map(([table, include]) => {
-        const types = Object.entries(include)
+        const types = Object.entries(include as Record<string, boolean>)
           .map(([key, value]) => [
             key,
             value
@@ -147,12 +155,12 @@ class $Database<
             method({
               name: "get",
               declaration: {
-                returns: object(Object.fromEntries(types)),
+                returns: object(Object.fromEntries(types) as any),
                 parameters: {
-                  query: object(Object.fromEntries(types)),
+                  query: object(Object.fromEntries(types) as any),
                 },
               },
-            }),
+            }) as any,
           ],
         });
       }),
@@ -253,3 +261,54 @@ export function createDatabase<
   }
   return Object.assign(database, tables);
 }
+
+export type RsterDatabaseToApiInclude<
+  DEF extends DatabaseDefinition<
+    Record<string, { type: AllowAnyTypeInformation; required: boolean }>
+  >
+> = {
+  [key in keyof DEF["tables"]]?: {
+    [key2 in keyof DEF["tables"][key]["properties"]]?: boolean;
+  };
+};
+
+export type RsterDatabaseToApiBuilder<
+  DB extends $Database<any>,
+  INCLUDE extends RsterDatabaseToApiInclude<DB["definition"]>
+> = RsterApiBuilderContext<
+  {
+    [key in keyof INCLUDE]: RsterApiModuleBuilderContext<
+      Record<string, never>,
+      {
+        get: RsterApiMethodBuilderContext<{
+          returns: {
+            [key2 in keyof INCLUDE[key]]: INCLUDE[key][key2] extends true
+              ? key extends keyof DB["definition"]["tables"] // This is a hack to make sure that the key is a valid table name. It should always be true.
+                ? key2 extends keyof DB["definition"]["tables"][key]["properties"] // This is a hack to make sure that the key2 is a valid property name. It should always be true.
+                  ? {
+                      type: DB["definition"]["tables"][key]["properties"][key2];
+                      required: true;
+                    }
+                  : never
+                : never
+              : never;
+          };
+
+          expectBody: {
+            [key2 in keyof INCLUDE[key]]: INCLUDE[key][key2] extends true
+              ? key extends keyof DB["definition"]["tables"] // This is a hack to make sure that the key is a valid table name. It should always be true.
+                ? key2 extends keyof DB["definition"]["tables"][key]["properties"] // This is a hack to make sure that the key2 is a valid property name. It should always be true.
+                  ? {
+                      type: DB["definition"]["tables"][key]["properties"][key2];
+                      required: false;
+                    }
+                  : never
+                : never
+              : never;
+          };
+        }>;
+      }
+    >;
+  },
+  Record<string, never>
+>;
