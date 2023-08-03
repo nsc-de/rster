@@ -1,7 +1,9 @@
+import { api, buildRsterApi, method, module } from "../builder";
 import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
+  object,
 } from "../types";
 import { DatabaseAdapter } from "./adapter";
 
@@ -109,6 +111,52 @@ class $Database<
 
   public disconnect(): Promise<void> {
     return this.adapter.disconnect();
+  }
+
+  public createRestApi({
+    name,
+    description,
+    include,
+  }: {
+    name: string;
+    description: string[];
+    include: {
+      [key in keyof DEF["tables"]]: {
+        [key2 in keyof DEF["tables"][key]]: boolean;
+      };
+    };
+  }) {
+    return api({
+      name,
+      description,
+      modules: Object.entries(include).map(([table, include]) => {
+        const types = Object.entries(include)
+          .map(([key, value]) => [
+            key,
+            value
+              ? this.definition.tables[table]["properties"][key]
+              : undefined,
+          ])
+          .filter(([_key, value]) => value !== undefined);
+
+        return module({
+          name: table,
+          description: [],
+          httpPath: `/${table}`,
+          methods: [
+            method({
+              name: "get",
+              declaration: {
+                returns: object(Object.fromEntries(types)),
+                parameters: {
+                  query: object(Object.fromEntries(types)),
+                },
+              },
+            }),
+          ],
+        });
+      }),
+    });
   }
 }
 
