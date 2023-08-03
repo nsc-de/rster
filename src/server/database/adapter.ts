@@ -72,10 +72,10 @@ export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation>(
 ): () => DatabaseAdapter<T> & S
 export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation, A extends DatabaseAdapter<T>, F extends (...args: unknown[]) => A>(
   adapter: F
+): F
+export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation, A extends DatabaseAdapter<T> & S, F extends (...args: unknown[]) => A>(
+  adapter: F | (A)
 ): (...args: unknown[]) => A
-export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation, A extends DatabaseAdapter<T>, F extends (...args: unknown[]) => A>(
-  adapter: F | (DatabaseAdapter<T> & S)
-): (...args: unknown[]) => A & S
  {
   return (...args: unknown[]) => {
     const instance =
