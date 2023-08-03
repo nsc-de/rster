@@ -12,11 +12,12 @@ const db = database.createDatabase(
       }),
     },
   },
-  JSONAdapter()
+  JSONAdapter("./test.json")
 );
 
 describe("database", () => {
   it("should create", async () => {
+    await db.connect();
     const create = await db.users.create();
     db.users.insert({ id: 1, name: "test" });
     expect(create).to.be.undefined;
