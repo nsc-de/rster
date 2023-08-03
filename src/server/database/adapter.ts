@@ -67,14 +67,14 @@ export interface DatabaseAdapter<T extends AllowAnyTypeInformation> {
   ): Promise<void>;
 }
 
-export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation>(
-  adapter: DatabaseAdapter<T> & S
-): () => DatabaseAdapter<T> & S
-export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation, A extends DatabaseAdapter<T>, F extends (...args: unknown[]) => A>(
-  adapter: F
-): F
-export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation, A extends DatabaseAdapter<T> & S, F extends (...args: unknown[]) => A>(
-  adapter: F | (A)
+export function createDatabaseAdapter<ADDITIONAL, SUPPORTED_TYPES extends AllowAnyTypeInformation>(
+  adapter: DatabaseAdapter<SUPPORTED_TYPES> & ADDITIONAL
+): () => DatabaseAdapter<SUPPORTED_TYPES> & ADDITIONAL
+export function createDatabaseAdapter<ADDITIONAL, SUPPORTED_TYPES extends AllowAnyTypeInformation, A extends DatabaseAdapter<SUPPORTED_TYPES> & ADDITIONAL, FACTORY extends (...args: any[]) => A>(
+  factory: FACTORY
+): FACTORY
+export function createDatabaseAdapter<ADDITIONAL, SUPPORTED_TYPES extends AllowAnyTypeInformation, A extends DatabaseAdapter<SUPPORTED_TYPES> & ADDITIONAL, FACTORY extends (...args: any[]) => A>(
+  adapter: FACTORY | (A)
 ): (...args: unknown[]) => A
  {
   return (...args: unknown[]) => {

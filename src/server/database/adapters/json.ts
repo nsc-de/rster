@@ -7,157 +7,233 @@
  */
 
 import {
-  StringType,
-  NumberType,
-  BooleanType,
-  NullTypeInformation,
   string,
   number,
   nullType,
   boolean,
+  NullTypeInformation,
+  NumberType,
+  StringType,
+  BooleanType,
 } from "../../types";
-import { createDatabaseAdapter } from "../adapter";
+import { DatabaseAdapter, createDatabaseAdapter } from "../adapter";
+import fs from "fs-extra";
+
+export type JsonAdapterTypes =
+  | StringType
+  | NumberType
+  | BooleanType
+  | NullTypeInformation;
+export interface JsonAdapterAdditionalData {
+  __data: Record<string, any[]>;
+  savePromise?: Promise<void>;
+  savedPromise?: Promise<void>;
+  waitingSaveProcess?: () => Promise<void>;
+  save(): Promise<void>;
+  doSave(): Promise<void>;
+  __conected: boolean;
+}
+export type JsonAdapter = DatabaseAdapter<JsonAdapterTypes> &
+  JsonAdapterAdditionalData;
+export type JsonAdapterFactory = (path: string) => JsonAdapter;
 
 export const JSONAdapter = createDatabaseAdapter<
-  { __data: Record<string, any[]> },
-  StringType | NumberType | BooleanType | NullTypeInformation
->({
-  __data: {},
-  supportsNesting: true,
-  supports: [string(), number(), boolean(), nullType()],
-  connect() {
-    // Nothing to do
-    return Promise.resolve();
-  },
+  JsonAdapterAdditionalData,
+  JsonAdapterTypes,
+  JsonAdapter,
+  JsonAdapterFactory
+>((path) => {
+  const fn: JsonAdapter = {
+    __conected: false,
+    __data: {},
+    supportsNesting: true,
+    supports: [string(), number(), boolean(), nullType()],
 
-  disconnect() {
-    // Nothing to do
-    return Promise.resolve();
-  },
+    savePromise: undefined,
+    savedPromise: undefined,
+    waitingSaveProcess: undefined,
 
-  exists(table) {
-    return Promise.resolve(this.__data[table] !== undefined);
-  },
+    async doSave() {
+      await fs.ensureFile(path);
+      await fs.writeJSON(path, this.__data);
 
-  create(table: string, options) {
-    if (!this.__data[table]) {
-      this.__data[table] = [];
-    }
-    return Promise.resolve();
-  },
+      if (this.waitingSaveProcess) {
+        this.savePromise = this.waitingSaveProcess();
+        this.waitingSaveProcess = undefined;
+      }
+    },
 
-  drop(table: string, options: { ifExists?: boolean | undefined }) {
-    if (this.__data[table]) {
-      delete this.__data[table];
-    }
-    return Promise.resolve();
-  },
+    async save() {
+      if (this.savePromise) {
+        if (this.waitingSaveProcess) {
+          return await this.waitingSaveProcess();
+        }
+        const savedPromise = new Promise<void>((resolve) => {
+          this.waitingSaveProcess = async () => {
+            await this.doSave();
+            resolve();
+          };
+        });
+        await savedPromise;
+        return;
+      }
 
-  get(table, search, options) {
-    if (!this.__data[table]) {
-      throw new Error("Table does not exist");
-    }
+      this.savePromise = this.doSave();
+      await this.savePromise;
+    },
 
-    const results: any[] = [];
-    for (const row of this.__data[table]) {
-      let match = true;
-      for (const key in search) {
-        if (search[key] !== row[key]) {
-          match = false;
-          break;
+    async connect() {
+      if (this.__conected) throw new Error("Already connected");
+      this.__conected = true;
+
+      if (await fs.pathExists(path)) {
+        this.__data = await fs.readJSON(path);
+        return;
+      }
+
+      this.__data = {};
+    },
+
+    async disconnect() {
+      if (!this.__conected) throw new Error("Not connected");
+      this.__conected = false;
+      await this.save();
+      this.__data = {};
+    },
+
+    exists(table) {
+      if (!this.__conected) throw new Error("Not connected");
+      return Promise.resolve(this.__data[table] !== undefined);
+    },
+
+    create(table: string, options) {
+      if (!this.__conected) throw new Error("Not connected");
+      if (!this.__data[table]) {
+        this.__data[table] = [];
+      }
+      return Promise.resolve();
+    },
+
+    drop(table: string, options: { ifExists?: boolean | undefined }) {
+      if (!this.__conected) throw new Error("Not connected");
+      if (this.__data[table]) {
+        delete this.__data[table];
+      }
+      return Promise.resolve();
+    },
+
+    get(table, search, options) {
+      if (!this.__conected) throw new Error("Not connected");
+      if (!this.__data[table]) {
+        throw new Error("Table does not exist");
+      }
+
+      const results: any[] = [];
+      for (const row of this.__data[table]) {
+        let match = true;
+        for (const key in search) {
+          if (search[key] !== row[key]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          results.push(row);
         }
       }
-      if (match) {
-        results.push(row);
+      return Promise.resolve(results);
+    },
+
+    insert(table, obj, options) {
+      if (!this.__conected) throw new Error("Not connected");
+      if (!this.__data[table]) {
+        throw new Error("Table does not exist");
       }
-    }
-    return Promise.resolve(results);
-  },
 
-  insert(table, obj, options) {
-    if (!this.__data[table]) {
-      throw new Error("Table does not exist");
-    }
+      this.__data[table]?.push(obj);
+      return Promise.resolve();
+    },
 
-    this.__data[table]?.push(obj);
-    return Promise.resolve();
-  },
+    update(table, search, obj, { limit } = {}) {
+      if (!this.__conected) throw new Error("Not connected");
+      if (!this.__data[table]) {
+        throw new Error("Table does not exist");
+      }
 
-  update(table, search, obj, { limit } = {}) {
-    if (!this.__data[table]) {
-      throw new Error("Table does not exist");
-    }
+      let count = 0;
 
-    let count = 0;
+      for (const row of this.__data[table]) {
+        // Break if we've reached the limit
+        if (limit && count >= limit) break;
 
-    for (const row of this.__data[table]) {
-      // Break if we've reached the limit
-      if (limit && count >= limit) break;
-
-      let match = true;
-      for (const key in search) {
-        if (search[key] !== row[key]) {
-          match = false;
-          break;
+        let match = true;
+        for (const key in search) {
+          if (search[key] !== row[key]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          for (const key in this.__data) {
+            row[key] = obj[key];
+          }
+          count++;
         }
       }
-      if (match) {
-        for (const key in this.__data) {
-          row[key] = obj[key];
+      return Promise.resolve(count);
+    },
+
+    delete(table, search, { limit } = {}) {
+      if (!this.__conected) throw new Error("Not connected");
+      if (!this.__data[table]) {
+        throw new Error("Table does not exist");
+      }
+
+      let count = 0;
+
+      for (let i = 0; i < this.__data[table].length; i++) {
+        // Break if we've reached the limit
+        if (limit && count >= limit) break;
+
+        const row = this.__data[table][i];
+        let match = true;
+        for (const key in search) {
+          if (search[key] !== row[key]) {
+            match = false;
+            break;
+          }
         }
-        count++;
-      }
-    }
-    return Promise.resolve(count);
-  },
-
-  delete(table, search, { limit } = {}) {
-    if (!this.__data[table]) {
-      throw new Error("Table does not exist");
-    }
-
-    let count = 0;
-
-    for (let i = 0; i < this.__data[table].length; i++) {
-      // Break if we've reached the limit
-      if (limit && count >= limit) break;
-
-      const row = this.__data[table][i];
-      let match = true;
-      for (const key in search) {
-        if (search[key] !== row[key]) {
-          match = false;
-          break;
-        }
-      }
-      if (match) {
-        this.__data[table].splice(i, 1);
-        count++;
-      }
-    }
-    return Promise.resolve(count);
-  },
-
-  count(table, search, { limit } = {}) {
-    if (!this.__data[table]) {
-      throw new Error("Table does not exist");
-    }
-
-    let count = 0;
-    for (const row of this.__data[table]) {
-      // Break if we've reached the limit
-      if (limit && count >= limit) break;
-
-      let match = true;
-      for (const key in search) {
-        if (search[key] !== row[key]) {
-          match = false;
+        if (match) {
+          this.__data[table].splice(i, 1);
+          count++;
         }
       }
-      if (match) {
-        count++;
+      return Promise.resolve(count);
+    },
+
+    count(table, search, { limit } = {}) {
+      if (!this.__conected) throw new Error("Not connected");
+      if (!this.__data[table]) {
+        throw new Error("Table does not exist");
       }
-    }
-    return Promise.resolve(count);
-  },
+
+      let count = 0;
+      for (const row of this.__data[table]) {
+        // Break if we've reached the limit
+        if (limit && count >= limit) break;
+
+        let match = true;
+        for (const key in search) {
+          if (search[key] !== row[key]) {
+            match = false;
+          }
+        }
+        if (match) {
+          count++;
+        }
+      }
+      return Promise.resolve(count);
+    },
+  };
+  return fn;
 });
