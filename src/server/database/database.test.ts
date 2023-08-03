@@ -24,3 +24,14 @@ describe("database", () => {
     expect(await db.users.exists()).to.be.true;
   });
 });
+
+db.createRestApi({
+  name: "Test Database",
+  description: ["This is a test database."],
+  include: {
+    users: {
+      id: true,
+      name: true,
+    },
+  },
+}).modules;
