@@ -69,6 +69,17 @@ export interface DatabaseAdapter<T extends AllowAnyTypeInformation> {
 
 export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation>(
   adapter: DatabaseAdapter<T> & S
-) {
-  return () => adapter;
+): () => DatabaseAdapter<T> & S
+export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation, A extends DatabaseAdapter<T>, F extends (...args: unknown[]) => A>(
+  adapter: F
+): (...args: unknown[]) => A
+export function createDatabaseAdapter<S, T extends AllowAnyTypeInformation, A extends DatabaseAdapter<T>, F extends (...args: unknown[]) => A>(
+  adapter: F | (DatabaseAdapter<T> & S)
+): (...args: unknown[]) => A & S
+ {
+  return (...args: unknown[]) => {
+    const instance =
+      typeof adapter === "function" ? adapter(...args) : adapter;
+    return instance;
+  }
 }
