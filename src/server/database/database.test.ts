@@ -1,6 +1,6 @@
 import * as database from "./database";
 import { JSONAdapter } from "./adapters/json";
-import { PrimitiveType, number, object, string } from "../types";
+import { PrimitiveType, number, object, string } from "../basic/types";
 import { expect } from "chai";
 
 const db = database.createDatabase(

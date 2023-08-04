@@ -1,13 +1,16 @@
-import rest, { Context, RestfulApi, description } from "./index";
-import { Method } from "./common";
-import { ContextConditionMethod, ContextConditionPath } from "./condition";
+import rest, { Context, RestfulApi, description } from "./basic/index";
+import { Method } from "./basic/common";
+import {
+  ContextConditionMethod,
+  ContextConditionPath,
+} from "./basic/condition";
 import {
   MapToPrimitiveType,
   NoUndefined,
   PrimitiveType,
   TypeInformation,
   undefinedType,
-} from "./types";
+} from "./basic/types";
 import { declaration } from "./generator/index";
 
 export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =

@@ -15,7 +15,7 @@ import {
   NumberType,
   StringType,
   BooleanType,
-} from "../../types";
+} from "../../basic/types";
 import { DatabaseAdapter, createDatabaseAdapter } from "../adapter";
 import fs from "fs-extra";
 

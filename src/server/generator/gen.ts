@@ -14,13 +14,13 @@ import {
   StringTypeInformation,
   TypeInformation,
   UndefinedTypeInformation,
-} from "../types";
+} from "../basic/types";
 import {
   Declaration,
   collectDeclarations,
   requiresAuthentication,
 } from "./index";
-import { Context, Method } from "../index";
+import { Context, Method } from "../basic/index";
 import path from "path";
 import fs from "fs";
 // import { fileURLToPath } from "url";
@@ -80,7 +80,7 @@ Array.prototype.zip = function <T>(other: T[]) {
   return this.map((e, i) => [e, other[i]]);
 };
 
-declare module "../types" {
+declare module "../basic/types" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TypeInformation<T> {
     toTypeScript(): ts.TypeNode;
@@ -160,7 +160,7 @@ ObjectTypeInformation.prototype.toTypeScript = function () {
         isOptional
           ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
           : undefined,
-          (value as any).type.toTypeScript()
+        (value as any).type.toTypeScript()
       );
     })
   );

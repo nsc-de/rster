@@ -1,5 +1,5 @@
-import { TypeInformation } from "../types";
-import { Context } from "../context";
+import { TypeInformation } from "../basic/types";
+import { Context } from "../basic/context";
 
 export interface Declaration {
   name: string;

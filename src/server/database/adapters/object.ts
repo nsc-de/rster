@@ -6,10 +6,7 @@
  * A very primitive database adapter that just stores the database as jsobject in memory.
  */
 
-import {
-  AnyTypeInformation,
-  any,
-} from "../../types";
+import { AnyTypeInformation, any } from "../../basic/types";
 import { createDatabaseAdapter } from "../adapter";
 
 export const JsObject = createDatabaseAdapter<

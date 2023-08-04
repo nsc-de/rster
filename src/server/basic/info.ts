@@ -1,4 +1,4 @@
-import { declaration } from "./generator/index";
+import { declaration } from "../generator/index";
 import { Context, ContextChildCondition } from "./context";
 
 export function description(): string[];
