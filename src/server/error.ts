@@ -21,10 +21,22 @@ export const HTTP_ERROR_MESSAGES = {
   500: "Internal Server Error",
 };
 
-export type ErrorFunction<T extends number> = (message: string) => HttpError;
+export type ErrorFunction<T extends number> = (
+  message?: string
+) => HttpError<T>;
 
-export function $<T extends number>(status: number): ErrorFunction<T> {
-  return (message: string) => new HttpError(status, message);
+export function $<T extends number>(status: T): ErrorFunction<T> {
+  return (message?: string) =>
+    new HttpError(
+      status,
+      message ??
+        HTTP_ERROR_MESSAGES[
+          // @eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          status.toString() as keyof typeof HTTP_ERROR_MESSAGES
+        ] ??
+        "Unknown Error"
+    );
 }
 
 export const ErrorFunctions = new Proxy(
