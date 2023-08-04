@@ -279,9 +279,19 @@ export class RsterApi<MODULES extends ModuleMap, METHODS extends MethodMap> {
     public readonly version: string,
     public readonly name: string,
     public readonly description: string[],
-    private readonly moduleList: Values<MODULES>,
-    private readonly methodList: Values<METHODS>
+    public readonly moduleList: Values<MODULES>,
+    public readonly methodList: Values<METHODS>
   ) {}
+
+  public readonly modules: MODULES = ArrayFinder(
+    this.moduleList,
+    "name"
+  ) as unknown as MODULES;
+
+  public readonly methods: METHODS = ArrayFinder(
+    this.methodList,
+    "name"
+  ) as unknown as METHODS;
 
   public json(): RsterApiJson {
     return {
@@ -320,6 +330,16 @@ export class RsterApiModule<
     public readonly httpPath?: string,
     public readonly httpMethod?: Method
   ) {}
+
+  public readonly modules: MODULES = ArrayFinder(
+    this.moduleList,
+    "name"
+  ) as unknown as MODULES;
+
+  public readonly methods: METHODS = ArrayFinder(
+    this.methodList,
+    "name"
+  ) as unknown as METHODS;
 
   public json(): RsterApiModuleJson {
     return {
@@ -405,18 +425,18 @@ export class RsterApiBuilderContext<
   private _version?: string;
   private _name?: string;
   private _description: string[] = [];
-  private readonly _modules: Values<MODULES> = [];
-  private readonly _methods: Values<METHODS> = [];
+  public readonly moduleList: Values<MODULES> = [];
+  public readonly methodList: Values<METHODS> = [];
 
   public readonly modules: MODULES = ArrayFinder(
-    this._modules,
-    "name" as any
-  ) as any;
+    this.moduleList,
+    "name"
+  ) as unknown as MODULES;
 
   public readonly methods: METHODS = ArrayFinder(
-    this._methods,
-    "name" as any
-  ) as any;
+    this.methodList,
+    "name"
+  ) as unknown as METHODS;
 
   constructor({
     version,
@@ -434,8 +454,8 @@ export class RsterApiBuilderContext<
     this._version = version;
     this._name = name;
     this._description = description;
-    this._modules.push(...modules);
-    this._methods.push(...methods);
+    this.moduleList.push(...modules);
+    this.methodList.push(...methods);
   }
 
   public module<T extends Value<MODULES>>(
@@ -447,7 +467,7 @@ export class RsterApiBuilderContext<
     }) as T;
 
     builder.call(context as NoNever<T, ModuleBuilderMap<any>>);
-    this._modules.push(context);
+    this.moduleList.push(context);
   }
 
   public method<T extends Value<METHODS>>(
@@ -458,7 +478,7 @@ export class RsterApiBuilderContext<
       name,
     }) as T;
     builder.call(context as NoNever<T, ModuleBuilderMap<any>>);
-    this._methods.push(context);
+    this.methodList.push(context);
   }
 
   public getVersion() {
@@ -498,11 +518,11 @@ export class RsterApiBuilderContext<
   }
 
   public getModules() {
-    return this._modules;
+    return this.moduleList;
   }
 
   public getMethods() {
-    return this._methods;
+    return this.methodList;
   }
 
   public generate() {
@@ -510,8 +530,8 @@ export class RsterApiBuilderContext<
       this._version!,
       this._name!,
       this._description,
-      this._modules.map((m) => m.generate()),
-      this._methods.map((m) => m.generate())
+      this.moduleList.map((m) => m.generate()),
+      this.methodList.map((m) => m.generate())
     ) as RsterApiBuilderContextToRsterApi<this>;
   }
 }
@@ -524,8 +544,8 @@ export class RsterApiModuleBuilderContext<
   private _description: string[] = [];
   private _httpPath?: string;
   private _httpMethod?: Method;
-  private readonly _modules: Values<MODULES> = [];
-  private readonly _methods: Values<METHODS> = [];
+  public readonly moduleList: Values<MODULES> = [];
+  public readonly methodList: Values<METHODS> = [];
 
   constructor({
     name,
@@ -544,16 +564,16 @@ export class RsterApiModuleBuilderContext<
     this._description = description ?? [];
     this._httpPath = httpPath;
     this._httpMethod = httpMethod;
-    this._modules = [];
-    this._methods = [];
+    this.moduleList = [];
+    this.methodList = [];
   }
 
   public get modules() {
-    return ArrayFinder(this._modules, "name" as any) as MODULES;
+    return ArrayFinder(this.moduleList, "name" as any) as MODULES;
   }
 
   public get methods() {
-    return ArrayFinder(this._methods, "name" as any) as METHODS;
+    return ArrayFinder(this.methodList, "name" as any) as METHODS;
   }
 
   public get name() {
@@ -568,7 +588,7 @@ export class RsterApiModuleBuilderContext<
       name,
     }) as Value<MODULES>;
     builder.call(context as NoNever<T, ModuleBuilderMap<any>>);
-    this._modules.push(context);
+    this.moduleList.push(context);
   }
 
   public method(name: string, builder: RsterApiMethodBuilder<Value<METHODS>>) {
@@ -576,7 +596,7 @@ export class RsterApiModuleBuilderContext<
       name,
     }) as Value<METHODS>;
     builder.call(context);
-    this._methods.push(context);
+    this.methodList.push(context);
   }
 
   public description(...description: string[]) {
@@ -595,8 +615,8 @@ export class RsterApiModuleBuilderContext<
     return new RsterApiModule(
       this._name,
       this._description,
-      this._modules.map((m) => m.generate()),
-      this._methods.map((m) => m.generate()),
+      this.moduleList.map((m) => m.generate()),
+      this.methodList.map((m) => m.generate()),
       this._httpPath,
       this._httpMethod
     ) as RsterApiModuleBuilderContextToRsterApiModule<this>;

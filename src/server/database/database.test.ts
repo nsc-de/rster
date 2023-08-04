@@ -25,13 +25,15 @@ describe("database", () => {
   });
 });
 
-db.createRestApi({
-  name: "Test Database",
-  description: ["This is a test database."],
-  include: {
-    users: {
-      id: true,
-      name: true,
+db
+  .createRestApi({
+    name: "Test Database",
+    description: ["This is a test database."],
+    include: {
+      users: {
+        id: true,
+        name: true,
+      },
     },
-  },
-}).modules;
+  })
+  .generate().modules.users.methods.get;
