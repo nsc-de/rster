@@ -8,7 +8,6 @@
 [![NPM][version-shield]][npm-url]
 [![Downloads][downloads-shield]][npm-url]
 [![Coverage][coverage-shield]][coverage-url]
-[![Code quality][quality-shield]][quality-url]
 [![Dependencies][dependencies-shield]][dependencies-url]
 
 <!-- PROJECT LOGO -->
@@ -220,8 +219,6 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 [downloads-url]: https://www.npmjs.com/package/rster/
 [coverage-shield]: https://img.shields.io/codecov/c/github/nsc-de/rster?style=for-the-badge
 [coverage-url]: https://codecov.io/gh/nsc-de/rster
-[quality-shield]: https://img.shields.io/lgtm/grade/javascript/github/nsc-de/rster?style=for-the-badge
-[quality-url]: https://lgtm.com/projects/g/nsc-de/rster/
 [dependencies-shield]: https://img.shields.io/librariesio/github/nsc-de/rster?style=for-the-badge
 [dependencies-url]: https://libraries.io/github/nsc-de/rster
 
