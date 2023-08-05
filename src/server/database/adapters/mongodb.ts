@@ -1,9 +1,11 @@
 /**
  * @file MongoDB Adapter
- * @module rster/database/adapters/json
+ * @module rster/database/adapters/mongodb
  * @version 0.1.0
  *
- * A very primitive database adapter that just stores the database as JSON in memory.
+ * An adapter to use rster database with MongoDB.
+ * @see {@link https://www.mongodb.com/}
+ * @see {@link https://www.npmjs.com/package/mongodb}
  */
 
 import {
@@ -54,7 +56,7 @@ export type MongoDBAdapterFactory = (
   connection: MongoDBConnectionOptions
 ) => MongoDBAdapter;
 
-export const JSONAdapter = createDatabaseAdapter<
+export const MongoDBAdapterFactory = createDatabaseAdapter<
   MongoDBAdapterAdditionalData,
   MongoDBAdapterTypes,
   MongoDBAdapter,
@@ -259,3 +261,5 @@ export const JSONAdapter = createDatabaseAdapter<
   };
   return fn;
 });
+
+export default MongoDBAdapterFactory;
