@@ -16,20 +16,87 @@ export type Enumerate<
   ? Acc[number]
   : Enumerate<N, [...Acc, Acc["length"]]>;
 
-export type ConversionRegisterEntry<T extends AllowAnyTypeInformation> = {
-  type: T;
-  identifier: string;
+/**
+ * Entry for a type in the conversion register. The Identifier is used to identify the type in the string representation of the value and then to
+ * reconstruct the value from the string. It has to be unique.
+ *
+ * @typeParam T - Type information
+ */
+export interface ConversionRegisterEntry<T extends AllowAnyTypeInformation> {
+  /**
+   * Type information
+   * @readonly
+   * @typeParam T - Type information
+   */
+  readonly type: T;
+
+  /**
+   * Identifier for the type. Is used to identify the type in the string representation of the value and then to reconstruct the value from the string. It has to be unique.
+   * @readonly
+   */
+  readonly identifier: string;
+
+  /**
+   * Function to convert the value to a string
+   * @readonly
+   */
   exportToString: (value: T["type"]) => string;
+
+  /**
+   * Function to convert the value from a string
+   * @readonly
+   */
   importFromString: (value: string) => T["type"];
-};
+}
 
+/**
+ * Error thrown when a type is not supported by the conversion register
+ */
+class ConversionRegisterUnsupportedTypeError extends Error {
+  /**
+   * Constructor for {@link ConversionRegisterUnsupportedTypeError}
+   * @param message - Message for the error
+   */
+  constructor(message: string) {
+    super(message);
+    this.name = "ConversionRegisterUnsupportedTypeError";
+  }
+}
+
+/**
+ * Conversion register for converting values to and from strings
+ * Used to store values in a database that does not support the type of the value
+ */
 export class ConversionRegister {
-  static readonly instance = new ConversionRegister([]);
+  /**
+   * The instance of the conversion register
+   * @readonly
+   */
+  public static readonly instance = new ConversionRegister([]);
 
+  /**
+   * Constructor for {@link ConversionRegister}
+   * @param entries - Entries for the conversion register
+   */
   constructor(
+    /**
+     * Entries for the conversion register
+     * @readonly
+     *
+     * @see {@link ConversionRegisterEntry}
+     */
     public readonly entries: ConversionRegisterEntry<AllowAnyTypeInformation>[]
   ) {}
 
+  /**
+   * Register a type in the conversion register
+   *
+   * @param type the type to register
+   * @param identifier the identifier for the type
+   * @param exportToString export to string function
+   * @param importFromString import from string function
+   * @returns {void}
+   */
   register<T extends AllowAnyTypeInformation>(
     type: T,
     identifier: string,
@@ -48,14 +115,30 @@ export class ConversionRegister {
     });
   }
 
+  /**
+   * Export a value to a string
+   *
+   * @param value - Value to export
+   * @returns {string} - String representation of the value
+   *
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   exportToString(value: AllowAnyTypeInformation["type"]): string {
     const entry = this.entries.find((e) => e.type.check(value));
     if (!entry) {
-      throw new Error("Unsupported type");
+      throw new ConversionRegisterUnsupportedTypeError(
+        `Unsupported type: ${value?.constructor?.name ?? typeof value}`
+      );
     }
     return `${entry.identifier}:${entry.exportToString(value)}`;
   }
 
+  /**
+   * Import a value from a string
+   * @param value - String representation of the value
+   * @returns {AllowAnyTypeInformation["type"]} - Imported value
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   importFromString(value: string): AllowAnyTypeInformation["type"] {
     const [identifier, stringValue] = value.split(":");
     const entry = this.entries.find((e) => e.identifier === identifier);
@@ -65,18 +148,32 @@ export class ConversionRegister {
     return entry.importFromString(stringValue);
   }
 
+  /**
+   * Export an object of values to an object of strings
+   *
+   * @param object Object of values to export
+   * @param supportsValue Function to check if a value is supported and therefore should not be converted to a string
+   * @returns Object of strings
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   exportObjectToString(
-    value: Record<string, unknown>,
+    object: Record<string, unknown>,
     supportsValue: (it: unknown) => boolean = () => false
   ): Record<string, any> {
     return Object.fromEntries(
-      Object.entries(value).map(([key, value]) => [
+      Object.entries(object).map(([key, value]) => [
         key,
         supportsValue(value) ? value : this.exportToString(value),
       ])
     );
   }
 
+  /**
+   * Import an object of values from an object of strings
+   * @param value Object of strings
+   * @returns Object of values
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   importObjectFromString(
     value: Record<string, unknown>
   ): Record<string, unknown> {
@@ -88,6 +185,12 @@ export class ConversionRegister {
     );
   }
 
+  /**
+   * Export an array of values to an array of strings
+   * @param value the array of values to export
+   * @param supportsValue Function to check if a value is supported and therefore should not be converted to a string
+   * @returns Array of strings
+   */
   exportArrayToString(
     value: unknown[],
     supportsValue: (it: unknown) => boolean = () => false
@@ -95,12 +198,25 @@ export class ConversionRegister {
     return value.map((v) => (supportsValue(v) ? v : this.exportToString(v)));
   }
 
+  /**
+   * Import an array of values from an array of strings
+   * @param value Array of strings
+   * @returns Array of values
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   importArrayFromString(value: unknown[]): unknown[] {
     return value.map((v) =>
       typeof v === "string" ? this.importFromString(v) : v
     );
   }
 
+  /**
+   * Deep-Export an object of values to an object of strings
+   * @param value Object of values to export
+   * @param supportsValue Function to check if a value is supported and therefore should not be converted to a string
+   * @returns Object of strings
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   deepExportObjectToString(
     value: Record<string, unknown>,
     supportsValue: (it: unknown) => boolean = () => false
@@ -122,6 +238,12 @@ export class ConversionRegister {
     );
   }
 
+  /**
+   * Deep-Import an object of values from an object of strings
+   * @param value Object of strings
+   * @returns Object of values
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   deepImportObjectFromString(
     value: Record<string, unknown>
   ): Record<string, unknown> {
@@ -139,6 +261,13 @@ export class ConversionRegister {
     );
   }
 
+  /**
+   * Deep-Export an array of values to an array of strings
+   * @param value the array of values to export
+   * @param supportsValue  Function to check if a value is supported and therefore should not be converted to a string
+   * @returns Array of strings
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   deepExportArrayToString(
     value: unknown[],
     supportsValue: (it: unknown) => boolean = () => false
@@ -157,6 +286,12 @@ export class ConversionRegister {
     );
   }
 
+  /**
+   * Deep-Import an array of values from an array of strings
+   * @param value Array of strings to import
+   * @returns Array of values
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   deepImportArrayFromString(value: unknown[]): unknown[] {
     return value.map((v) =>
       typeof v === "object"
@@ -169,6 +304,13 @@ export class ConversionRegister {
     );
   }
 
+  /**
+   * Deep-Export a value to a string
+   * @param value Value to export
+   * @param supportsValue Function to check if a value is supported and therefore should not be converted to a string
+   * @returns String
+   * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
+   */
   deepExportToString(
     value: unknown[],
     supportsValue: (it: unknown) => boolean
@@ -195,23 +337,6 @@ export class ConversionRegister {
     throw new Error("Unsupported type");
   }
 }
-
-// Decorator for registering a type in the conversion register
-export function registerType<T extends AllowAnyTypeInformation>(
-  identifier: string,
-  exportToString: (value: T["type"]) => string,
-  importFromString: (value: string) => T["type"]
-) {
-  return (target: T) => {
-    ConversionRegister.instance.register(
-      target,
-      identifier,
-      exportToString,
-      importFromString
-    );
-  };
-}
-
 /**
  * Type for creating a range of numbers (from MIN to MAX)
  *
@@ -244,13 +369,24 @@ export type DestructedType =
  */
 type SendMethod = "param" | "body" | "query";
 
+/**
+ * Type for all the different string-ish type information
+ */
 export type StringType =
   | StringTypeInformation<string>
   | AnyStringTypeInformation;
+
+/**
+ * Type for all the different number-ish type information
+ */
 export type NumberType =
   | NumberTypeInformation<number>
   | AnyNumberTypeInformation
   | NumberRangeTypeInformation<number, number>;
+
+/**
+ * Type for all the different boolean-ish type information
+ */
 export type BooleanType =
   | BooleanTypeInformation<true>
   | BooleanTypeInformation<false>
