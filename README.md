@@ -1,14 +1,18 @@
 <a name="readme-top"></a>
+[![Github Shield][github-shield]][github-url]
+[![NPM Shield][npm-shield]][npm-url]
+[![Documentation][documentation-shield]][documentation-url]
+[![TypeDoc][typedoc-shield]][typedoc-url]
+
+[![Build Status][build-shield]][build-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![BSD-3-Clause][license-shield]][license-url]
-[![Documentation][documentation-shield]][documentation-url]
 [![NPM][version-shield]][npm-url]
 [![Downloads][downloads-shield]][npm-url]
 [![Coverage][coverage-shield]][coverage-url]
-[![Dependencies][dependencies-shield]][dependencies-url]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -191,10 +195,19 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-<!-- Top Shields -->
+<!-- link shields -->
 
-[contributors-shield]: https://img.shields.io/github/contributors/nsc-de/rster.svg?style=for-the-badge
-[contributors-url]: https://github.com/nsc-de/rster/graphs/contributors
+[github-shield]: https://img.shields.io/badge/github-grey?style=for-the-badge&logo=github
+[github-url]: https://github.com/nsc-de/rster
+[npm-shield]: https://img.shields.io/badge/npm-red?style=for-the-badge&logo=npm
+[npm-url]: https://www.npmjs.com/package/rster
+[typedoc-shield]: https://img.shields.io/badge/typedoc-darkblue?style=for-the-badge&logo=typescript
+[typedoc-url]: https://nsc-de.github.io/rster/
+[documentation-shield]: https://img.shields.io/badge/documentation-blue.svg?style=for-the-badge&logo=github
+[documentation-url]: https://nsc-de.github.io/rster/
+
+<!-- Info Shields -->
+
 [forks-shield]: https://img.shields.io/github/forks/nsc-de/rster.svg?style=for-the-badge
 [forks-url]: https://github.com/nsc-de/rster/network/members
 [stars-shield]: https://img.shields.io/github/stars/nsc-de/rster.svg?style=for-the-badge
@@ -203,24 +216,17 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 [issues-url]: https://github.com/nsc-de/rster/issues
 [license-shield]: https://img.shields.io/github/license/nsc-de/rster.svg?style=for-the-badge
 [license-url]: https://github.com/nsc-de/rster/blob/master/LICENSE.txt
-[documentation-shield]: https://img.shields.io/badge/documentation-yes-brightgreen.svg?style=for-the-badge&logo=github
-[documentation-url]: https://nsc-de.github.io/rster/
 [product-screenshot]: images/screenshot.png
 [build-shield]: https://img.shields.io/github/actions/workflow/status/nsc-de/rster/build.yml?style=for-the-badge
 [build-url]: https://github.com/nsc-de/rster/actions/workflows/build.yml
 [contributors-shield]: https://img.shields.io/github/contributors/nsc-de/rster.svg?style=for-the-badge
-[forks-shield]: https://img.shields.io/github/forks/nsc-de/rster.svg?style=for-the-badge
-[stars-shield]: https://img.shields.io/github/stars/nsc-de/rster.svg?style=for-the-badge
-[issues-shield]: https://img.shields.io/github/issues/nsc-de/rster.svg?style=for-the-badge
-[stars-url]: https://github.com/nsc-de/rster/stargazers
+[contributors-url]: https://github.com/nsc-de/rster/graphs/contributors
 [version-shield]: https://img.shields.io/npm/v/rster.svg?style=for-the-badge
 [version-url]: https://www.npmjs.com/package/rster/
 [downloads-shield]: https://img.shields.io/npm/dt/rster.svg?style=for-the-badge
 [downloads-url]: https://www.npmjs.com/package/rster/
 [coverage-shield]: https://img.shields.io/codecov/c/github/nsc-de/rster?style=for-the-badge
 [coverage-url]: https://codecov.io/gh/nsc-de/rster
-[dependencies-shield]: https://img.shields.io/librariesio/github/nsc-de/rster?style=for-the-badge
-[dependencies-url]: https://libraries.io/github/nsc-de/rster
 
 <!--Build With-->
 
