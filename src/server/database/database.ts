@@ -17,43 +17,120 @@ import { DatabaseAdapter } from "./adapter";
 /**
  * Define a Database
  */
-export interface DatabaseDefinition<
-  T extends Record<string, { type: AllowAnyTypeInformation; required: boolean }>
-> {
+export interface DatabaseDefinition {
   /**
    * The tables in the database
    */
-  tables: Record<string, ObjectTypeInformation<T>>;
+  tables: Record<
+    string,
+    ObjectTypeInformation<
+      Record<
+        string,
+        {
+          type: AllowAnyTypeInformation;
+          required: boolean;
+        }
+      >
+    >
+  >;
 }
 
-class $Database<
-  DEF extends DatabaseDefinition<
-    Record<string, { type: AllowAnyTypeInformation; required: boolean }>
+export interface DatabaseTransformer<
+  DATA_TYPE extends ObjectTypeInformation<
+    Record<
+      string,
+      {
+        type: AllowAnyTypeInformation;
+        required: boolean;
+      }
+    >
+  >,
+  INPUT_TYPE = PrimitiveType<DATA_TYPE>,
+  OUTPUT_TYPE = INPUT_TYPE,
+  DATA extends PrimitiveType<DATA_TYPE> = PrimitiveType<DATA_TYPE>
+> {
+  transformInput(data: INPUT_TYPE): Promise<DATA> | DATA;
+  transformOutput(data: DATA): Promise<OUTPUT_TYPE> | OUTPUT_TYPE;
+}
+
+export type NoTransformer<
+  DATA_TYPE extends ObjectTypeInformation<
+    Record<
+      string,
+      {
+        type: AllowAnyTypeInformation;
+        required: boolean;
+      }
+    >
   >
+> = DatabaseTransformer<DATA_TYPE>;
+
+export type DatabaseTransformerMap<
+  DATABASE_DEFINITION extends DatabaseDefinition
+> = {
+  [TABLE_NAME in keyof DATABASE_DEFINITION["tables"]]: DatabaseTransformer<
+    DATABASE_DEFINITION["tables"][TABLE_NAME]
+  >;
+};
+
+class $Database<
+  DEF extends DatabaseDefinition,
+  TRANSFORMER extends DatabaseTransformerMap<DEF> = DatabaseTransformerMap<DEF>
 > {
   constructor(
-    readonly definition: DEF,
-    readonly adapter: DatabaseAdapter<AllowAnyTypeInformation>
+    public readonly definition: DEF,
+    public readonly adapter: DatabaseAdapter<AllowAnyTypeInformation>,
+    public transformer: TRANSFORMER = {} as TRANSFORMER
   ) {}
+
+  private getTransformer<TABLE_NAME extends keyof DEF["tables"]>(
+    table: TABLE_NAME
+  ): TRANSFORMER[TABLE_NAME] {
+    return this.transformer[table] as TRANSFORMER[TABLE_NAME];
+  }
+
+  private async transformInput<TABLE_NAME extends keyof DEF["tables"]>(
+    table: TABLE_NAME,
+    data: Parameters<TRANSFORMER[TABLE_NAME]["transformInput"]>[0]
+  ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
+    const fn = await this.getTransformer(table)?.transformInput;
+    if (fn) return await fn(data);
+    else return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
+  }
+
+  private async transformOutput<TABLE_NAME extends keyof DEF["tables"]>(
+    table: TABLE_NAME,
+    data: PrimitiveType<DEF["tables"][TABLE_NAME]>
+  ): Promise<Parameters<TRANSFORMER[TABLE_NAME]["transformOutput"]>[0]> {
+    const fn = await this.getTransformer(table)?.transformOutput;
+    if (fn) return await fn(data);
+    else
+      return data as Parameters<TRANSFORMER[TABLE_NAME]["transformOutput"]>[0];
+  }
 
   public async insert<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: PrimitiveType<DEF["tables"][TABLE_NAME]>,
+    data: Parameters<TRANSFORMER[TABLE_NAME]["transformInput"]>[0],
     options?: Record<string, never>
   ): Promise<void> {
-    this.adapter.insert(table as string, data, options);
+    this.adapter.insert(
+      table as string,
+      await this.transformInput(table, data),
+      options
+    );
   }
 
   public async get<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: PrimitiveType<DEF["tables"][TABLE_NAME]>,
+    data: Parameters<TRANSFORMER[TABLE_NAME]["transformInput"]>[0],
     options?: Record<string, never>
-  ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
-    return this.adapter.get(
+  ): Promise<Parameters<TRANSFORMER[TABLE_NAME]["transformOutput"]>[0]> {
+    const result = (await this.adapter.get(
       table as string,
-      data,
+      await this.transformInput(table, data),
       options
-    ) as unknown as Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>>;
+    )) as unknown as Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>>;
+    return await this.transformOutput(table, result);
   }
 
   public async update<TABLE_NAME extends keyof DEF["tables"]>(
@@ -62,7 +139,12 @@ class $Database<
     data: PrimitiveType<DEF["tables"][TABLE_NAME]>,
     options?: { limit?: number }
   ): Promise<number> {
-    return this.adapter.update(table as string, search, data, options);
+    return this.adapter.update(
+      table as string,
+      await this.transformInput(table, search),
+      await this.transformInput(table, data),
+      options
+    );
   }
 
   public async delete<TABLE_NAME extends keyof DEF["tables"]>(
@@ -70,7 +152,11 @@ class $Database<
     data: PrimitiveType<DEF["tables"][TABLE_NAME]>,
     options?: { limit?: number }
   ): Promise<number> {
-    return this.adapter.delete(table as string, data, options);
+    return this.adapter.delete(
+      table as string,
+      await this.transformInput(table, data),
+      options
+    );
   }
 
   public async count<TABLE_NAME extends keyof DEF["tables"]>(
@@ -78,7 +164,11 @@ class $Database<
     data: PrimitiveType<DEF["tables"][TABLE_NAME]>,
     options?: { limit?: number }
   ): Promise<number> {
-    return this.adapter.count(table as string, data, options);
+    return this.adapter.count(
+      table as string,
+      await this.transformInput(table, data),
+      options
+    );
   }
 
   public async create<TABLE_NAME extends keyof DEF["tables"]>(
@@ -164,9 +254,7 @@ class $Database<
 }
 
 export class TableTool<
-  DATABASE_DEFINITION extends DatabaseDefinition<
-    Record<string, { type: AllowAnyTypeInformation; required: boolean }>
-  >,
+  DATABASE_DEFINITION extends DatabaseDefinition,
   TABLE_NAME extends keyof DATABASE_DEFINITION["tables"],
   DATABASE extends Database<DATABASE_DEFINITION>,
   TABLE_DEFINITION extends DATABASE_DEFINITION["tables"][TABLE_NAME] = DATABASE_DEFINITION["tables"][TABLE_NAME]
@@ -226,19 +314,11 @@ export class TableTool<
   }
 }
 
-export type Database<
-  DEF extends DatabaseDefinition<
-    Record<string, { type: AllowAnyTypeInformation; required: boolean }>
-  >
-> = {
+export type Database<DEF extends DatabaseDefinition> = {
   [key in keyof DEF["tables"]]: TableTool<DEF, key, Database<DEF>>;
 } & $Database<DEF>;
 
-export function createDatabase<
-  DEF extends DatabaseDefinition<
-    Record<string, { type: AllowAnyTypeInformation; required: boolean }>
-  >
->(
+export function createDatabase<DEF extends DatabaseDefinition>(
   definition: DEF,
   adapter: DatabaseAdapter<AllowAnyTypeInformation>
 ): Database<DEF> {
@@ -257,11 +337,7 @@ export function createDatabase<
   return Object.assign(database, tables);
 }
 
-export type RsterDatabaseToApiInclude<
-  DEF extends DatabaseDefinition<
-    Record<string, { type: AllowAnyTypeInformation; required: boolean }>
-  >
-> = {
+export type RsterDatabaseToApiInclude<DEF extends DatabaseDefinition> = {
   [key in keyof DEF["tables"]]?: {
     [key2 in keyof DEF["tables"][key]["properties"]]?: boolean;
   };
