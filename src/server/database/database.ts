@@ -195,11 +195,7 @@ class $Database<
   public async exists<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME
   ): Promise<boolean> {
-    return this.adapter
-      .count(table as string, {}, { limit: 1 })
-      .then((count) => {
-        return count > 0;
-      });
+    return this.adapter.exists(table as string);
   }
 
   public connect(): Promise<void> {
