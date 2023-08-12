@@ -80,7 +80,9 @@ export type DatabaseTransformerMap<
 export type GetTransformerInput<
   TRANSFORMER extends DatabaseTransformer<any> | undefined,
   ALT = never
-> = TRANSFORMER extends DatabaseTransformer<infer DATA_TYPE> ? DATA_TYPE : ALT;
+> = TRANSFORMER extends DatabaseTransformer<any, infer DATA_TYPE>
+  ? DATA_TYPE
+  : ALT;
 
 export type GetTransformerOutput<
   TRANSFORMER extends DatabaseTransformer<any> | undefined,
@@ -302,7 +304,10 @@ export class TableTool<
   DATABASE_DEFINITION extends DatabaseDefinition,
   TABLE_NAME extends keyof DATABASE_DEFINITION["tables"],
   DATABASE extends Database<DATABASE_DEFINITION>,
-  TABLE_DEFINITION extends DATABASE_DEFINITION["tables"][TABLE_NAME] = DATABASE_DEFINITION["tables"][TABLE_NAME]
+  TABLE_DEFINITION extends DATABASE_DEFINITION["tables"][TABLE_NAME] = DATABASE_DEFINITION["tables"][TABLE_NAME],
+  TRANSFORMER extends
+    | DatabaseTransformer<DATABASE_DEFINITION["tables"][TABLE_NAME]>
+    | undefined = DatabaseTransformer<DATABASE_DEFINITION["tables"][TABLE_NAME]>
 > {
   constructor(
     public readonly definition: TABLE_DEFINITION,
@@ -311,54 +316,36 @@ export class TableTool<
   ) {}
 
   public async insert(
-    data: GetTransformerInput<
-      DATABASE["transformer"][TABLE_NAME],
-      PrimitiveType<TABLE_DEFINITION>
-    >,
+    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
     options?: Record<string, never>
   ) {
     return this.database.insert(this.name, data, options);
   }
 
   public async get(
-    data: GetTransformerInput<
-      DATABASE["transformer"][TABLE_NAME],
-      PrimitiveType<TABLE_DEFINITION>
-    >,
+    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
     options?: Record<string, never>
   ) {
     return this.database.get(this.name, data, options);
   }
 
   public async update(
-    search: GetTransformerInput<
-      DATABASE["transformer"][TABLE_NAME],
-      PrimitiveType<TABLE_DEFINITION>
-    >,
-    data: GetTransformerInput<
-      DATABASE["transformer"][TABLE_NAME],
-      PrimitiveType<TABLE_DEFINITION>
-    >,
+    search: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
+    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
     options?: { limit?: number }
   ) {
     return this.database.update(this.name, search, data, options);
   }
 
   public async delete(
-    data: GetTransformerInput<
-      DATABASE["transformer"][TABLE_NAME],
-      PrimitiveType<TABLE_DEFINITION>
-    >,
+    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
     options?: { limit?: number }
   ) {
     return this.database.delete(this.name, data, options);
   }
 
   public async count(
-    data: GetTransformerInput<
-      DATABASE["transformer"][TABLE_NAME],
-      PrimitiveType<TABLE_DEFINITION>
-    >,
+    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
     options?: { limit?: number }
   ) {
     return this.database.count(this.name, data, options);
@@ -381,7 +368,13 @@ export type Database<
   DEF extends DatabaseDefinition,
   TRANSFORMER extends DatabaseTransformerMap<DEF> = DatabaseTransformerMap<DEF>
 > = {
-  [key in keyof DEF["tables"]]: TableTool<DEF, key, Database<DEF>>;
+  [key in keyof DEF["tables"]]: TableTool<
+    DEF,
+    key,
+    Database<DEF>,
+    DEF["tables"][key],
+    TRANSFORMER[key]
+  >;
 } & $Database<DEF, TRANSFORMER>;
 
 export function createDatabase<

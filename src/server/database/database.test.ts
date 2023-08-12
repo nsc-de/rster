@@ -53,12 +53,29 @@ const db = database.createDatabase(
   }
 );
 
+db.insert("users", {
+  id: 1,
+  name: "test",
+  password: "test",
+});
+
+await db.connect();
+
 describe("database", () => {
-  it("should create", async () => {
-    await db.connect();
+  it("should create table", async () => {
     const create = await db.users.create();
     db.users.insert({ id: 1, name: "test", password: "test" });
     expect(create).to.be.undefined;
+    expect(await db.users.exists()).to.be.true;
+  });
+  it("should insert into table", async () => {
+    const insert = await db.users.insert({
+      id: 2,
+      name: "test2",
+      password: "test2",
+      salt: "test",
+    });
+    expect(insert).to.be.undefined;
     expect(await db.users.exists()).to.be.true;
   });
 });
