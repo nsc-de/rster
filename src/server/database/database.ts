@@ -10,6 +10,7 @@ import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
+  TypeInformation,
   object,
 } from "../basic/types";
 import { DatabaseAdapter } from "./adapter";
@@ -55,9 +56,11 @@ export interface DatabaseTransformer<
 > {
   input?: {
     transform(data: INPUT_TYPE): Promise<DATA> | DATA;
+    type: TypeInformation<INPUT_TYPE>;
   };
   output?: {
     transform(data: DATA): Promise<OUTPUT_TYPE> | OUTPUT_TYPE;
+    type: TypeInformation<OUTPUT_TYPE>;
   };
 }
 

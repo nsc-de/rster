@@ -1,6 +1,12 @@
 import * as database from "./database";
 import { JSONAdapter } from "./adapters/json";
-import { PrimitiveType, number, object, string } from "../basic/types";
+import {
+  PrimitiveType,
+  TypeInformation,
+  number,
+  object,
+  string,
+} from "../basic/types";
 import { expect } from "chai";
 import crypto from "crypto";
 
@@ -39,6 +45,12 @@ const db = database.createDatabase(
                 .digest("hex"),
           };
         },
+        type: object({
+          id: { type: number(), required: true },
+          name: { type: string(), required: true },
+          password: { type: string(), required: true },
+          salt: { type: string(), required: false },
+        }),
       },
 
       output: {
@@ -52,6 +64,12 @@ const db = database.createDatabase(
             salt: atob(salt),
           };
         },
+        type: object({
+          id: { type: number(), required: true },
+          name: { type: string(), required: true },
+          password: { type: string(), required: true },
+          salt: { type: string(), required: true },
+        }),
       },
     },
   }
