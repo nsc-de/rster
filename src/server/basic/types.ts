@@ -1341,8 +1341,21 @@ export type NoUndefined<TYPE, ALTERNATIVE> = TYPE extends undefined
  * @see TypeInformation
  * @see TypeInformation.type
  * @see MapToPrimitiveType
+ * @see TypeInformationFor
  */
 export type PrimitiveType<TYPE extends AllowAnyTypeInformation> = TYPE["type"];
+
+/**
+ * Type utility for converting typescript types to type information
+ * @typeParam TYPE - The type to convert
+ * @see TypeInformation
+ * @see TypeInformation.type
+ * @see PrimitiveType
+ */
+export type TypeInformationFor<TYPE> = AllowAnyTypeInformation & {
+  type: TYPE;
+  check: (value: unknown) => value is TYPE;
+};
 
 /**
  * Type utility for converting a map of type information to their typescript equivalents
