@@ -176,9 +176,13 @@ Distributed under the BSD-3-Clause License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - [@nsc_dev](https://twitter.com/@nsc_dev) - email@email_client.com
+Nicolas Schmidt
+
+[![twitter][contact-twitter-shield]][contact-twitter-url] [![github][contact-github-shield]][contact-github-url]
 
 Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
+
+[![GitHub][github-shield]][github-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -242,3 +246,10 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 [nodejs-url]: https://nodejs.org/en/
 [eslint-shield]: https://img.shields.io/badge/eslint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white
 [eslint-url]: https://eslint.org/
+
+<!-- Contact Shields -->
+
+[contact-twitter-shield]: https://img.shields.io/badge/@nsc_dev-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white
+[contact-twitter-url]: https://twitter.com/nsc_dev
+[contact-github-shield]: https://img.shields.io/badge/@nsc--de-100000?style=for-the-badge&logo=github&logoColor=white
+[contact-github-url]: github.com/nsc-de
