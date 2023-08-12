@@ -14,6 +14,10 @@ import {
 } from "../basic/types";
 import { DatabaseAdapter } from "./adapter";
 
+export type NoNever<TYPE, ALTERNATIVE> = TYPE extends never
+  ? ALTERNATIVE
+  : TYPE;
+
 /**
  * Define a Database
  */
@@ -49,8 +53,8 @@ export interface DatabaseTransformer<
   OUTPUT_TYPE = INPUT_TYPE,
   DATA extends PrimitiveType<DATA_TYPE> = PrimitiveType<DATA_TYPE>
 > {
-  transformInput(data: INPUT_TYPE): Promise<DATA> | DATA;
-  transformOutput(data: DATA): Promise<OUTPUT_TYPE> | OUTPUT_TYPE;
+  transformInput?(data: INPUT_TYPE): Promise<DATA> | DATA;
+  transformOutput?(data: DATA): Promise<OUTPUT_TYPE> | OUTPUT_TYPE;
 }
 
 export type NoTransformer<
@@ -68,10 +72,22 @@ export type NoTransformer<
 export type DatabaseTransformerMap<
   DATABASE_DEFINITION extends DatabaseDefinition
 > = {
-  [TABLE_NAME in keyof DATABASE_DEFINITION["tables"]]: DatabaseTransformer<
+  [TABLE_NAME in keyof DATABASE_DEFINITION["tables"]]?: DatabaseTransformer<
     DATABASE_DEFINITION["tables"][TABLE_NAME]
   >;
 };
+
+export type GetTransformerInput<
+  TRANSFORMER extends DatabaseTransformer<any> | undefined,
+  ALT = never
+> = TRANSFORMER extends DatabaseTransformer<infer DATA_TYPE> ? DATA_TYPE : ALT;
+
+export type GetTransformerOutput<
+  TRANSFORMER extends DatabaseTransformer<any> | undefined,
+  ALT = never
+> = TRANSFORMER extends DatabaseTransformer<any, any, infer OUTPUT_TYPE>
+  ? OUTPUT_TYPE
+  : ALT;
 
 class $Database<
   DEF extends DatabaseDefinition,
@@ -91,7 +107,10 @@ class $Database<
 
   private async transformInput<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: Parameters<TRANSFORMER[TABLE_NAME]["transformInput"]>[0]
+    data: GetTransformerInput<
+      TRANSFORMER[TABLE_NAME],
+      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    >
   ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
     const fn = await this.getTransformer(table)?.transformInput;
     if (fn) return await fn(data);
@@ -101,19 +120,34 @@ class $Database<
   private async transformOutput<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
     data: PrimitiveType<DEF["tables"][TABLE_NAME]>
-  ): Promise<Parameters<TRANSFORMER[TABLE_NAME]["transformOutput"]>[0]> {
+  ): Promise<
+    GetTransformerOutput<
+      TRANSFORMER[TABLE_NAME],
+      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    >
+  > {
     const fn = await this.getTransformer(table)?.transformOutput;
-    if (fn) return await fn(data);
+    if (fn)
+      return (await fn(data)) as GetTransformerOutput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >;
     else
-      return data as Parameters<TRANSFORMER[TABLE_NAME]["transformOutput"]>[0];
+      return data as GetTransformerOutput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >;
   }
 
   public async insert<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: Parameters<TRANSFORMER[TABLE_NAME]["transformInput"]>[0],
+    data: GetTransformerInput<
+      TRANSFORMER[TABLE_NAME],
+      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    >,
     options?: Record<string, never>
   ): Promise<void> {
-    this.adapter.insert(
+    await this.adapter.insert(
       table as string,
       await this.transformInput(table, data),
       options
@@ -122,9 +156,12 @@ class $Database<
 
   public async get<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: Parameters<TRANSFORMER[TABLE_NAME]["transformInput"]>[0],
+    data: GetTransformerInput<
+      TRANSFORMER[TABLE_NAME],
+      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    >,
     options?: Record<string, never>
-  ): Promise<Parameters<TRANSFORMER[TABLE_NAME]["transformOutput"]>[0]> {
+  ) {
     const result = (await this.adapter.get(
       table as string,
       await this.transformInput(table, data),
@@ -135,11 +172,17 @@ class $Database<
 
   public async update<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    search: PrimitiveType<DEF["tables"][TABLE_NAME]>,
-    data: PrimitiveType<DEF["tables"][TABLE_NAME]>,
+    search: GetTransformerInput<
+      TRANSFORMER[TABLE_NAME],
+      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    >,
+    data: GetTransformerInput<
+      TRANSFORMER[TABLE_NAME],
+      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    >,
     options?: { limit?: number }
   ): Promise<number> {
-    return this.adapter.update(
+    return await this.adapter.update(
       table as string,
       await this.transformInput(table, search),
       await this.transformInput(table, data),
@@ -149,10 +192,13 @@ class $Database<
 
   public async delete<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: PrimitiveType<DEF["tables"][TABLE_NAME]>,
+    data: GetTransformerInput<
+      TRANSFORMER[TABLE_NAME],
+      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    >,
     options?: { limit?: number }
   ): Promise<number> {
-    return this.adapter.delete(
+    return await this.adapter.delete(
       table as string,
       await this.transformInput(table, data),
       options
@@ -161,10 +207,13 @@ class $Database<
 
   public async count<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: PrimitiveType<DEF["tables"][TABLE_NAME]>,
+    data: GetTransformerInput<
+      TRANSFORMER[TABLE_NAME],
+      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    >,
     options?: { limit?: number }
   ): Promise<number> {
-    return this.adapter.count(
+    return await this.adapter.count(
       table as string,
       await this.transformInput(table, data),
       options
@@ -262,38 +311,56 @@ export class TableTool<
   ) {}
 
   public async insert(
-    data: PrimitiveType<TABLE_DEFINITION>,
+    data: GetTransformerInput<
+      DATABASE["transformer"][TABLE_NAME],
+      PrimitiveType<TABLE_DEFINITION>
+    >,
     options?: Record<string, never>
-  ): Promise<void> {
+  ) {
     return this.database.insert(this.name, data, options);
   }
 
   public async get(
-    data: PrimitiveType<TABLE_DEFINITION>,
+    data: GetTransformerInput<
+      DATABASE["transformer"][TABLE_NAME],
+      PrimitiveType<TABLE_DEFINITION>
+    >,
     options?: Record<string, never>
-  ): Promise<PrimitiveType<TABLE_DEFINITION>> {
+  ) {
     return this.database.get(this.name, data, options);
   }
 
   public async update(
-    search: PrimitiveType<TABLE_DEFINITION>,
-    data: PrimitiveType<TABLE_DEFINITION>,
+    search: GetTransformerInput<
+      DATABASE["transformer"][TABLE_NAME],
+      PrimitiveType<TABLE_DEFINITION>
+    >,
+    data: GetTransformerInput<
+      DATABASE["transformer"][TABLE_NAME],
+      PrimitiveType<TABLE_DEFINITION>
+    >,
     options?: { limit?: number }
-  ): Promise<number> {
+  ) {
     return this.database.update(this.name, search, data, options);
   }
 
   public async delete(
-    data: PrimitiveType<TABLE_DEFINITION>,
+    data: GetTransformerInput<
+      DATABASE["transformer"][TABLE_NAME],
+      PrimitiveType<TABLE_DEFINITION>
+    >,
     options?: { limit?: number }
-  ): Promise<number> {
+  ) {
     return this.database.delete(this.name, data, options);
   }
 
   public async count(
-    data: PrimitiveType<TABLE_DEFINITION>,
+    data: GetTransformerInput<
+      DATABASE["transformer"][TABLE_NAME],
+      PrimitiveType<TABLE_DEFINITION>
+    >,
     options?: { limit?: number }
-  ): Promise<number> {
+  ) {
     return this.database.count(this.name, data, options);
   }
 
@@ -310,17 +377,25 @@ export class TableTool<
   }
 }
 
-export type Database<DEF extends DatabaseDefinition> = {
+export type Database<
+  DEF extends DatabaseDefinition,
+  TRANSFORMER extends DatabaseTransformerMap<DEF> = DatabaseTransformerMap<DEF>
+> = {
   [key in keyof DEF["tables"]]: TableTool<DEF, key, Database<DEF>>;
-} & $Database<DEF>;
+} & $Database<DEF, TRANSFORMER>;
 
-export function createDatabase<DEF extends DatabaseDefinition>(
+export function createDatabase<
+  DEF extends DatabaseDefinition,
+  TRANSFORMER extends DatabaseTransformerMap<DEF>
+>(
   definition: DEF,
-  adapter: DatabaseAdapter<AllowAnyTypeInformation>
-): Database<DEF> {
-  const database = new $Database(
+  adapter: DatabaseAdapter<AllowAnyTypeInformation>,
+  transformer?: TRANSFORMER
+): Database<DEF, TRANSFORMER> {
+  const database = new $Database<DEF, TRANSFORMER>(
     definition,
-    adapter
+    adapter,
+    transformer
   ) as unknown as Database<DEF>;
   const tables = {} as Record<string, TableTool<DEF, string, Database<DEF>>>;
   for (const key in definition.tables) {
@@ -330,7 +405,7 @@ export function createDatabase<DEF extends DatabaseDefinition>(
       database
     );
   }
-  return Object.assign(database, tables);
+  return Object.assign(database, tables) as Database<DEF, TRANSFORMER>;
 }
 
 export type RsterDatabaseToApiInclude<DEF extends DatabaseDefinition> = {
