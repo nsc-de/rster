@@ -128,6 +128,20 @@ class $Database<
     else return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
 
+  public readonly inputTypes = Object.fromEntries(
+    Object.entries(this.transformer).map(([key, value]) => [
+      key,
+      value?.input?.type ?? this.definition.tables[key],
+    ])
+  );
+
+  public readonly outputTypes = Object.fromEntries(
+    Object.entries(this.transformer).map(([key, value]) => [
+      key,
+      value?.output?.type ?? this.definition.tables[key],
+    ])
+  );
+
   private async transformOutput<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
     data: PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -296,7 +310,7 @@ class $Database<
             method({
               name: "get",
               declaration: {
-                returns: object(Object.fromEntries(types) as any),
+                returns: object(Object.fromEntries(types)),
                 parameters: {
                   query: object(Object.fromEntries(types) as any),
                 },
