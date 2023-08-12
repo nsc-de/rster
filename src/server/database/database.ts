@@ -133,14 +133,28 @@ class $Database<
       key,
       value?.input?.type ?? this.definition.tables[key],
     ])
-  );
+  ) as {
+    [key in keyof DEF["tables"]]: {
+      [key2 in keyof DEF["tables"][key]]: GetTransformerInput<
+        TRANSFORMER[key],
+        PrimitiveType<DEF["tables"][key]>
+      >[key2];
+    };
+  };
 
   public readonly outputTypes = Object.fromEntries(
     Object.entries(this.transformer).map(([key, value]) => [
       key,
       value?.output?.type ?? this.definition.tables[key],
     ])
-  );
+  ) as {
+    [key in keyof DEF["tables"]]: {
+      [key2 in keyof DEF["tables"][key]]: GetTransformerOutput<
+        TRANSFORMER[key],
+        PrimitiveType<DEF["tables"][key]>
+      >[key2];
+    };
+  };
 
   private async transformOutput<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
@@ -289,18 +303,38 @@ class $Database<
     description: string[];
     include: INCLUDE;
   }): RsterDatabaseToApiBuilder<this, INCLUDE> {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const db = this;
     return api({
       name,
       description,
       modules: Object.entries(include).map(([table, include]) => {
-        const types = Object.entries(include as Record<string, boolean>)
-          .map(([key, value]) => [
-            key,
-            value
-              ? this.definition.tables[table]["properties"][key]
-              : undefined,
-          ])
-          .filter(([_key, value]) => value !== undefined);
+        const tableInputTypes = db.inputTypes[table as keyof DEF["tables"]];
+        const tableOutputTypes = db.outputTypes[table as keyof DEF["tables"]];
+
+        const inputTypes = Object.fromEntries(
+          Object.entries(include as Record<string, boolean>)
+            .map(([key, value]) => {
+              return [
+                key,
+                value
+                  ? tableInputTypes[key as keyof typeof tableInputTypes]
+                  : undefined,
+              ];
+            })
+            .filter(([_key, value]) => value !== undefined)
+        );
+
+        const outputTypes = Object.fromEntries(
+          Object.entries(include)
+            .map(([key, value]) => [
+              key,
+              value
+                ? tableOutputTypes[key as keyof typeof tableOutputTypes]
+                : undefined,
+            ])
+            .filter(([_key, value]) => value !== undefined)
+        );
 
         return module({
           name: table,
@@ -310,10 +344,13 @@ class $Database<
             method({
               name: "get",
               declaration: {
-                returns: object(Object.fromEntries(types)),
+                returns: object(inputTypes),
                 parameters: {
-                  query: object(Object.fromEntries(types) as any),
+                  query: object(outputTypes),
                 },
+              },
+              async action(args) {
+                return await db.get(table, args.query);
               },
             }) as any,
           ],
