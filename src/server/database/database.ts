@@ -53,8 +53,12 @@ export interface DatabaseTransformer<
   OUTPUT_TYPE = INPUT_TYPE,
   DATA extends PrimitiveType<DATA_TYPE> = PrimitiveType<DATA_TYPE>
 > {
-  transformInput?(data: INPUT_TYPE): Promise<DATA> | DATA;
-  transformOutput?(data: DATA): Promise<OUTPUT_TYPE> | OUTPUT_TYPE;
+  input?: {
+    transform(data: INPUT_TYPE): Promise<DATA> | DATA;
+  };
+  output?: {
+    transform(data: DATA): Promise<OUTPUT_TYPE> | OUTPUT_TYPE;
+  };
 }
 
 export type NoTransformer<
@@ -114,7 +118,7 @@ class $Database<
       PrimitiveType<DEF["tables"][TABLE_NAME]>
     >
   ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
-    const fn = await this.getTransformer(table)?.transformInput;
+    const fn = await this.getTransformer(table)?.input?.transform;
     if (fn) return await fn(data);
     else return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
@@ -128,7 +132,7 @@ class $Database<
       PrimitiveType<DEF["tables"][TABLE_NAME]>
     >
   > {
-    const fn = await this.getTransformer(table)?.transformOutput;
+    const fn = await this.getTransformer(table)?.output?.transform;
     if (fn)
       return (await fn(data)) as GetTransformerOutput<
         TRANSFORMER[TABLE_NAME],

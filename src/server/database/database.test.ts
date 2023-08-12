@@ -17,37 +17,41 @@ const db = database.createDatabase(
   JSONAdapter("./test.json"),
   {
     users: {
-      transformInput(data: {
-        id: number;
-        name: string;
-        password: string;
-        salt?: string;
-      }) {
-        const salt = data.salt ?? crypto.randomBytes(16).toString("hex");
+      input: {
+        transform(data: {
+          id: number;
+          name: string;
+          password: string;
+          salt?: string;
+        }) {
+          const salt = data.salt ?? crypto.randomBytes(16).toString("hex");
 
-        return {
-          id: data.id,
-          name: data.name,
-          password:
-            btoa(salt) +
-            ":" +
-            crypto
-              .createHash("sha512", {})
-              .update(data.password)
-              .update(salt)
-              .digest("hex"),
-        };
+          return {
+            id: data.id,
+            name: data.name,
+            password:
+              btoa(salt) +
+              ":" +
+              crypto
+                .createHash("sha512", {})
+                .update(data.password)
+                .update(salt)
+                .digest("hex"),
+          };
+        },
       },
 
-      transformOutput(data: { id: number; name: string; password: string }) {
-        const [salt, hash] = data.password.split(":");
+      output: {
+        transform(data: { id: number; name: string; password: string }) {
+          const [salt, hash] = data.password.split(":");
 
-        return {
-          id: data.id,
-          name: data.name,
-          password: hash,
-          salt: atob(salt),
-        };
+          return {
+            id: data.id,
+            name: data.name,
+            password: hash,
+            salt: atob(salt),
+          };
+        },
       },
     },
   }
