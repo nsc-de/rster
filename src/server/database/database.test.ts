@@ -53,16 +53,9 @@ const db = database.createDatabase(
   }
 );
 
-db.insert("users", {
-  id: 1,
-  name: "test",
-  password: "test",
-});
-
-await db.connect();
-
 describe("database", () => {
   it("should create table", async () => {
+    await db.connect();
     const create = await db.users.create();
     db.users.insert({ id: 1, name: "test", password: "test" });
     expect(create).to.be.undefined;
