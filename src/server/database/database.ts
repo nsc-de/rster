@@ -10,7 +10,7 @@ import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
-  TypeInformation,
+  TypeInformationFor,
   object,
 } from "../basic/types";
 import { DatabaseAdapter } from "./adapter";
@@ -50,17 +50,17 @@ export interface DatabaseTransformer<
       }
     >
   >,
-  INPUT_TYPE = PrimitiveType<DATA_TYPE>,
-  OUTPUT_TYPE = INPUT_TYPE,
+  INPUT_TYPE,
+  OUTPUT_TYPE,
   DATA extends PrimitiveType<DATA_TYPE> = PrimitiveType<DATA_TYPE>
 > {
   input?: {
     transform(data: INPUT_TYPE): Promise<DATA> | DATA;
-    type: TypeInformation<INPUT_TYPE>;
+    type: TypeInformationFor<INPUT_TYPE>;
   };
   output?: {
     transform(data: DATA): Promise<OUTPUT_TYPE> | OUTPUT_TYPE;
-    type: TypeInformation<OUTPUT_TYPE>;
+    type: TypeInformationFor<OUTPUT_TYPE>;
   };
 }
 
@@ -74,25 +74,27 @@ export type NoTransformer<
       }
     >
   >
-> = DatabaseTransformer<DATA_TYPE>;
+> = DatabaseTransformer<DATA_TYPE, DATA_TYPE, DATA_TYPE>;
 
 export type DatabaseTransformerMap<
   DATABASE_DEFINITION extends DatabaseDefinition
 > = {
   [TABLE_NAME in keyof DATABASE_DEFINITION["tables"]]?: DatabaseTransformer<
-    DATABASE_DEFINITION["tables"][TABLE_NAME]
+    DATABASE_DEFINITION["tables"][TABLE_NAME],
+    any,
+    any
   >;
 };
 
 export type GetTransformerInput<
-  TRANSFORMER extends DatabaseTransformer<any> | undefined,
+  TRANSFORMER extends DatabaseTransformer<any, any, any> | undefined,
   ALT = never
-> = TRANSFORMER extends DatabaseTransformer<any, infer DATA_TYPE>
+> = TRANSFORMER extends DatabaseTransformer<any, infer DATA_TYPE, any>
   ? DATA_TYPE
   : ALT;
 
 export type GetTransformerOutput<
-  TRANSFORMER extends DatabaseTransformer<any> | undefined,
+  TRANSFORMER extends DatabaseTransformer<any, any, any> | undefined,
   ALT = never
 > = TRANSFORMER extends DatabaseTransformer<any, any, infer OUTPUT_TYPE>
   ? OUTPUT_TYPE
@@ -313,8 +315,12 @@ export class TableTool<
   DATABASE extends Database<DATABASE_DEFINITION>,
   TABLE_DEFINITION extends DATABASE_DEFINITION["tables"][TABLE_NAME] = DATABASE_DEFINITION["tables"][TABLE_NAME],
   TRANSFORMER extends
-    | DatabaseTransformer<DATABASE_DEFINITION["tables"][TABLE_NAME]>
-    | undefined = DatabaseTransformer<DATABASE_DEFINITION["tables"][TABLE_NAME]>
+    | DatabaseTransformer<DATABASE_DEFINITION["tables"][TABLE_NAME], any, any>
+    | undefined = DatabaseTransformer<
+    DATABASE_DEFINITION["tables"][TABLE_NAME],
+    any,
+    any
+  >
 > {
   constructor(
     public readonly definition: TABLE_DEFINITION,
