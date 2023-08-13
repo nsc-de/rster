@@ -341,18 +341,25 @@ class $Database<
           description: [],
           httpPath: `/${table}`,
           methods: [
-            method({
-              name: "get",
-              declaration: {
-                returns: object(inputTypes),
-                parameters: {
-                  query: object(outputTypes),
+            method(
+              {
+                name: "get",
+                declaration: {
+                  returns: object(outputTypes),
+                  expectBody: {
+                    query: object(inputTypes),
+                  },
+                },
+                async action(args) {
+                  return await db.get(table, args.query);
                 },
               },
-              async action(args) {
-                return await db.get(table, args.query);
-              },
-            }) as any,
+              function () {
+                this.action((e) => {
+                  return {};
+                });
+              }
+            ) as any,
           ],
         });
       }),

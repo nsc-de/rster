@@ -746,13 +746,7 @@ export class RsterApiMethodBuilderContext<
     this._declaration.expectParams![name] = { type, optional: true };
   }
 
-  public action(
-    action: (
-      args: typeof this._declaration.expectBody &
-        typeof this._declaration.expectQuery &
-        typeof this._declaration.expectParams
-    ) => typeof this._declaration.returns
-  ) {
+  public action(action: ActionFunction<DECLARATION>) {
     this._action = action;
   }
 
@@ -901,8 +895,8 @@ export function method<
     declaration: DECLARATION;
     action?: ActionFunction<DECLARATION>;
   },
-  builder?: RsterApiMethodBuilder // TODO: Add builder type
-) {
+  builder?: RsterApiMethodBuilder<RsterApiMethodBuilderContext<DECLARATION>>
+): RsterApiMethodBuilderContext<DECLARATION> {
   const context = new RsterApiMethodBuilderContext<DECLARATION>({
     name,
     description,
