@@ -35,15 +35,22 @@ export type MongoDBAdapterTypes =
   | NullTypeInformation
   | DateTypeInformation;
 
-export interface MongoDBConnectionOptions {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  database: string;
-  tablePrefix?: string;
-  options?: MongoClientOptions;
-}
+export type MongoDBConnectionOptions =
+  | {
+      host: string;
+      port?: number;
+      user: string;
+      password: string;
+      database: string;
+      tablePrefix?: string;
+      options?: MongoClientOptions;
+    }
+  | {
+      url: string;
+      database: string;
+      tablePrefix?: string;
+      options?: MongoClientOptions;
+    };
 
 export interface MongoDBAdapterAdditionalData {
   __db?: MongoClient;
@@ -77,16 +84,26 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
     async connect() {
       if (this.__db) throw new Error("Already connected");
 
+      if ("url" in connection) {
+        log("Connecting to MongoDB server %s", connection.url);
+
+        this.__db = new MongoClient(connection.url, connection.options);
+        this.__db.connect();
+        return;
+      }
+
       log(
         "Connecting to MongoDB server %s:%s",
         connection.host,
-        connection.port
+        connection.port ?? 27017
       );
       log("Database %s with user %s", connection.database, connection.user);
       log("Options: %O", connection.options);
 
       this.__db = new MongoClient(
-        `mongodb://${connection.host}:${connection.port}`,
+        `mongodb://${connection.host}${
+          connection.port ? `:${connection.port}` : ""
+        }`,
         {
           auth: {
             username: connection.user,
@@ -103,11 +120,15 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
     async disconnect() {
       if (!this.__db) throw new Error("Not connected");
 
-      log(
-        "Disconnecting from MongoDB server %s:%s",
-        connection.host,
-        connection.port
-      );
+      if ("url" in connection) {
+        log("Disconnecting from MongoDB server %s", connection.url);
+      } else {
+        log(
+          "Disconnecting from MongoDB server %s:%s",
+          connection.host,
+          connection.port
+        );
+      }
 
       await this.__db.close();
       this.__db = undefined;
@@ -162,7 +183,7 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
 
       log("Inserting data into table %s %O", table, obj);
 
-      this.__db.db(connection.database).collection(table).insertOne(obj);
+      await this.__db.db(connection.database).collection(table).insertOne(obj);
     },
 
     async update(table, search, obj, { limit } = {}) {
