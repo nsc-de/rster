@@ -394,7 +394,8 @@ export class RsterApiMethod<
     public readonly description: string[],
     public readonly declaration: DECLARATION,
     public readonly httpPath?: string,
-    public readonly httpMethod?: Method
+    public readonly httpMethod?: Method,
+    public readonly action?: ActionFunction<DECLARATION>
   ) {}
 
   public json(): RsterApiMethodJson {
@@ -415,8 +416,13 @@ export class RsterApiMethod<
       expectQuery: this.declaration.expectQuery,
       expectParams: this.declaration.expectParams,
     });
-    Context.current.action((req, res) => {
-      res.status(200).send("Hello World!"); // TODO: Implement
+    Context.current.action(async (req, res) => {
+      const result = this.action?.({
+        ...req.body,
+        ...req.query,
+        ...req.params,
+      });
+      res.json(result); // TODO: Handle export of non-json-compatible types
     });
   }
 }
@@ -758,7 +764,8 @@ export class RsterApiMethodBuilderContext<
       this._description,
       this._declaration,
       this._httpPath,
-      this._httpMethod
+      this._httpMethod,
+      this._action!
     ) as RsterApiMethodBuilderContextToRsterApiMethod<this>;
   }
 }
