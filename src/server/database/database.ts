@@ -312,54 +312,65 @@ class $Database<
         const tableInputTypes = db.inputTypes[table as keyof DEF["tables"]];
         const tableOutputTypes = db.outputTypes[table as keyof DEF["tables"]];
 
-        const inputTypes = Object.fromEntries(
-          Object.entries(include as Record<string, boolean>)
-            .map(([key, value]) => {
-              return [
-                key,
-                value
-                  ? tableInputTypes[key as keyof typeof tableInputTypes]
-                  : undefined,
-              ];
-            })
-            .filter(([_key, value]) => value !== undefined)
-        );
-
-        const outputTypes = Object.fromEntries(
-          Object.entries(include)
-            .map(([key, value]) => [
+        const inputTypes = Object.entries(include as Record<string, boolean>)
+          .map(([key, value]) => {
+            return [
               key,
               value
-                ? tableOutputTypes[key as keyof typeof tableOutputTypes]
+                ? tableInputTypes[key as keyof typeof tableInputTypes]
                 : undefined,
-            ])
-            .filter(([_key, value]) => value !== undefined)
-        );
+            ];
+          })
+          .map(([key, value]) => [key, value])
+          .filter(([_key, value]) => value !== undefined) as [
+          string,
+          (typeof tableInputTypes)[keyof typeof tableInputTypes]
+        ][];
+
+        const outputTypes = Object.entries(include)
+          .map(([key, value]) => [
+            key,
+            value
+              ? tableOutputTypes[key as keyof typeof tableOutputTypes]
+              : undefined,
+          ])
+          .filter(([_key, value]) => value !== undefined) as [
+          string,
+          (typeof tableOutputTypes)[keyof typeof tableOutputTypes]
+        ][];
 
         return module({
           name: table,
           description: [],
           httpPath: `/${table}`,
           methods: [
-            method(
-              {
-                name: "get",
-                declaration: {
-                  returns: object(outputTypes),
-                  expectBody: {
-                    query: object(inputTypes),
-                  },
-                },
-                async action(args) {
-                  return await db.get(table, args.query);
+            method({
+              name: "get",
+              declaration: {
+                returns: object(
+                  Object.fromEntries(
+                    outputTypes.map(([key, value]) => [
+                      key,
+                      { type: value, required: true },
+                    ])
+                  )
+                ),
+                expectBody: {
+                  query: object(
+                    Object.fromEntries(
+                      inputTypes.map(([key, value]) => [
+                        key,
+                        { type: value, required: false },
+                      ])
+                    )
+                  ),
                 },
               },
-              function () {
-                this.action((e) => {
-                  return {};
-                });
-              }
-            ) as any,
+              httpPath: "/get",
+              action: async ({ query }) => {
+                return await db.get(table, query);
+              },
+            }) as any,
           ],
         });
       }),

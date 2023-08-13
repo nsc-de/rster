@@ -18,7 +18,7 @@ export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
     args: MapToPrimitiveType<NoUndefined<D["expectBody"], object>> &
       MapToPrimitiveType<NoUndefined<D["expectQuery"], object>> &
       MapToPrimitiveType<NoUndefined<D["expectParams"], object>>
-  ) => PrimitiveType<D["returns"]>;
+  ) => PrimitiveType<D["returns"]> | Promise<PrimitiveType<D["returns"]>>;
 
 /**
  * Declaration for method parameters.
@@ -416,7 +416,7 @@ export class RsterApiMethod<
       expectParams: this.declaration.expectParams,
     });
     Context.current.action((req, res) => {
-      res.status(200).send("Hello World!");
+      res.status(200).send("Hello World!"); // TODO: Implement
     });
   }
 }
