@@ -52,7 +52,7 @@ export interface MongoDBAdapterAdditionalData {
 
 export type MongoDBAdapter = DatabaseAdapter<MongoDBAdapterTypes> &
   MongoDBAdapterAdditionalData;
-export type MongoDBAdapterFactory = (
+export type MongoDBAdapterFactoryType = (
   connection: MongoDBConnectionOptions
 ) => MongoDBAdapter;
 
@@ -60,7 +60,7 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
   MongoDBAdapterAdditionalData,
   MongoDBAdapterTypes,
   MongoDBAdapter,
-  MongoDBAdapterFactory
+  MongoDBAdapterFactoryType
 >((connection: MongoDBConnectionOptions) => {
   const fn: MongoDBAdapter = {
     connection: connection,
