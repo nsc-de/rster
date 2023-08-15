@@ -1,4 +1,12 @@
+/**
+ * PassThrough is a special value that can be used in the schema to indicate that the value should be passed through to the next layer.
+ * PassThrough is only valid if the next layer is an object and the key exists in the next layer.
+ */
 export const PassThrough = "$__passThrough__";
+
+/**
+ * Type for {@link PassThrough}
+ */
 export type PassThroughType = typeof PassThrough;
 
 export type DeepMap<T, U> = {
@@ -31,8 +39,8 @@ export type Shift<T extends any[]> = ((...args: T) => void) extends (
 export type RemoveThisParam<T> = T extends (
   this: any,
   ...args: infer Args
-) => any
-  ? (...args: Shift<Args>) => any
+) => infer R
+  ? (...args: Args) => R
   : T;
 
 export type DataProcessingFunctionToExternal<
@@ -77,15 +85,27 @@ export type DeepMapDataProcessingSchema<
     : undefined;
 } & DataProcessingBaseSchema<NEXT_LAYER>;
 
-export type DataProcessingSchemaExternal<> = {
+export type DataProcessingSchemaExternal = {
   [key: string]: DataProcessingSchemaExternal | DataProcessingFunctionExternal;
 };
+
+export type DeepMapRemoveThisParam<T> = T extends object
+  ? {
+      [P in keyof T]: T[P] extends (...args: any) => any
+        ? RemoveThisParam<T[P]>
+        : T[P] extends object
+        ? DeepMapRemoveThisParam<T[P]>
+        : T[P];
+    }
+  : T;
 
 export type DataProcessingSchemaToExternal<
   T extends DataProcessingSchema<any>,
   EQUIVALENT,
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
-> = DeepMap<T, DeepMapDataProcessingSchema<T, EQUIVALENT, NEXT_LAYER>>;
+> = DeepMapRemoveThisParam<
+  DeepMapDataProcessingSchema<T, EQUIVALENT, NEXT_LAYER>
+>;
 
 export class DataProcessingLayer<
   INPUT_SCHEMA extends DataProcessingSchema<NEXT_LAYER>,
@@ -159,3 +179,7 @@ export class DataProcessingLayer<
     return functions;
   }
 }
+
+// Example usage
+type OriginalFunction = (this: any, a: number, b: string) => void;
+type ModifiedFunction = RemoveThisParam<OriginalFunction>; //
