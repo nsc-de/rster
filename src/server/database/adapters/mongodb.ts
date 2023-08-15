@@ -55,6 +55,7 @@ export type MongoDBConnectionOptions =
 export interface MongoDBAdapterAdditionalData {
   __db?: MongoClient;
   connection: MongoDBConnectionOptions;
+  resolveTableName(table: string): string;
 }
 
 export type MongoDBAdapter = DatabaseAdapter<MongoDBAdapterTypes> &
@@ -80,6 +81,13 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
       nullType(),
       new DateTypeInformation(),
     ],
+
+    resolveTableName(table) {
+      if ("tablePrefix" in connection) {
+        return connection.tablePrefix + table;
+      }
+      return table;
+    },
 
     async connect() {
       if (this.__db) throw new Error("Already connected");
@@ -137,43 +145,51 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
     exists(table) {
       if (!this.__db) throw new Error("Not connected");
 
-      log("Checking if table %s exists", table);
+      const tableName = this.resolveTableName(table);
+
+      log("Checking if table %s exists", tableName);
 
       return this.__db
         .db(connection.database)
-        .listCollections({ name: table })
+        .listCollections({ name: tableName })
         .hasNext();
     },
 
     async create(table: string) {
       if (!this.__db) throw new Error("Not connected");
 
-      log("Creating table %s", table);
+      const tableName = this.resolveTableName(table);
 
-      await this.__db.db(connection.database).createCollection(table);
+      log("Creating table %s", tableName);
+
+      await this.__db.db(connection.database).createCollection(tableName);
       return;
     },
 
     async drop(table: string) {
       if (!this.__db) throw new Error("Not connected");
 
-      log("Dropping table %s", table);
+      const tableName = this.resolveTableName(table);
 
-      await this.__db.db(connection.database).dropCollection(table);
+      log("Dropping table %s", tableName);
+
+      await this.__db.db(connection.database).dropCollection(tableName);
       return;
     },
 
     async get(table, search, { limit } = {}) {
       if (!this.__db) throw new Error("Not connected");
 
-      log("Getting data from table %s %O", table, {
+      const tableName = this.resolveTableName(table);
+
+      log("Getting data from table %s %O", tableName, {
         search,
         limit,
       });
 
       const response = await this.__db
         .db(connection.database)
-        .collection(table)
+        .collection(tableName)
         .find(search, { limit });
       return response.toArray();
     },
@@ -181,15 +197,22 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
     async insert(table, obj) {
       if (!this.__db) throw new Error("Not connected");
 
-      log("Inserting data into table %s %O", table, obj);
+      const tableName = this.resolveTableName(table);
 
-      await this.__db.db(connection.database).collection(table).insertOne(obj);
+      log("Inserting data into table %s %O", tableName, obj);
+
+      await this.__db
+        .db(connection.database)
+        .collection(tableName)
+        .insertOne(obj);
     },
 
     async update(table, search, obj, { limit } = {}) {
       if (!this.__db) throw new Error("Not connected");
 
-      log("Updating data in table %s %O", table, {
+      const tableName = this.resolveTableName(table);
+
+      log("Updating data in table %s %O", tableName, {
         search,
         obj,
         limit,
@@ -205,7 +228,7 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
 
         const result = await this.__db
           .db(connection.database)
-          .collection(table)
+          .collection(tableName)
           .find(search, { limit });
 
         const ids = await result.map((item) => item._id).toArray();
@@ -213,14 +236,14 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
         return (
           await this.__db
             .db(connection.database)
-            .collection(table)
+            .collection(tableName)
             .updateMany({ _id: { $in: ids } }, { $set: obj })
         ).modifiedCount;
       }
 
       const result = await this.__db
         .db(connection.database)
-        .collection(table)
+        .collection(tableName)
         .updateMany(search, { $set: obj });
 
       return result.modifiedCount;
@@ -229,7 +252,9 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
     async delete(table, search, { limit } = {}) {
       if (!this.__db) throw new Error("Not connected");
 
-      log("Deleting data from table %s %O", table, {
+      const tableName = this.resolveTableName(table);
+
+      log("Deleting data from table %s %O", tableName, {
         search,
         limit,
       });
@@ -244,7 +269,7 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
 
         const result = await this.__db
           .db(connection.database)
-          .collection(table)
+          .collection(tableName)
           .find(search, { limit });
 
         const ids = await result.map((item) => item._id).toArray();
@@ -252,14 +277,14 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
         return (
           await this.__db
             .db(connection.database)
-            .collection(table)
+            .collection(tableName)
             .deleteMany({ _id: { $in: ids } })
         ).deletedCount;
       }
 
       const result = await this.__db
         .db(connection.database)
-        .collection(table)
+        .collection(tableName)
         .deleteMany(search, {});
 
       return result.deletedCount;
@@ -268,14 +293,16 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
     async count(table, search, { limit } = {}) {
       if (!this.__db) throw new Error("Not connected");
 
-      log("Counting data in table %s %O", table, {
+      const tableName = this.resolveTableName(table);
+
+      log("Counting data in table %s %O", tableName, {
         search,
         limit,
       });
 
       const result = await this.__db
         .db(connection.database)
-        .collection(table)
+        .collection(tableName)
         .countDocuments(search, { limit });
       return result;
     },
