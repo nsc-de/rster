@@ -27,7 +27,7 @@ export type DataProcessingFunction<NEXT_LAYER> = (
   this: DataProcessingThis<NEXT_LAYER>,
   ...data: any
 ) => any;
-export type DataProcessingFunctionExternal<> = (...data: any) => any;
+export type DataProcessingFunctionExternal = (...data: any) => any;
 
 export type Shift<T extends any[]> = ((...args: T) => void) extends (
   arg: any,
