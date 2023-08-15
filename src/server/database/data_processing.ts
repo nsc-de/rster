@@ -73,13 +73,12 @@ export type DeepMapDataProcessingSchema<
     ? P extends keyof EQUIVALENT
       ? EQUIVALENT[P]
       : never
-    : // eslint-disable-next-line @typescript-eslint/ban-types
-    T[P] extends Function
-    ? T
+    : T[P] extends (...args: any) => any
+    ? T[P]
     : T[P] extends object
     ? DeepMapDataProcessingSchema<
         T[P],
-        P extends keyof EQUIVALENT ? EQUIVALENT[P] : undefined,
+        P extends keyof EQUIVALENT ? EQUIVALENT[P] : never,
         NEXT_LAYER
       >
     : undefined;
@@ -149,8 +148,7 @@ export class DataProcessingLayer<
         continue;
       }
       if (typeof value === "function") {
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        ((func: Function) => {
+        ((func: (...args: any) => any) => {
           functions[key] = (...data: any) => {
             return func.apply(functionThis, data);
           };
