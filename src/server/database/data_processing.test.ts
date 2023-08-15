@@ -10,7 +10,7 @@ const layer0 = new DataProcessingLayer(undefined, {
 const layer1 = new DataProcessingLayer(layer0.functions, {
   test: {
     test2() {
-      this.nextLayer.test.
+      this.nextLayer.test.test2;
     },
   },
 });

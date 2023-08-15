@@ -15,12 +15,36 @@ export type DataProcessingThis<
   nextLayer: NEXT_LAYER;
 };
 
+export type DataProcessingFunction<NEXT_LAYER> = (
+  this: DataProcessingThis<NEXT_LAYER>,
+  ...data: any
+) => any;
+export type DataProcessingFunctionExternal<> = (...data: any) => any;
+
+export type Shift<T extends any[]> = ((...args: T) => void) extends (
+  arg: any,
+  ...rest: infer U
+) => void
+  ? U
+  : never;
+
+export type RemoveThisParam<T> = T extends (
+  this: any,
+  ...args: infer Args
+) => any
+  ? (...args: Shift<Args>) => any
+  : T;
+
+export type DataProcessingFunctionToExternal<
+  T extends DataProcessingFunction<any>
+> = RemoveThisParam<T>;
+
 export type DataProcessingBaseSchema<
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
 > = {
   [key: string]:
     | DataProcessingBaseSchema<NEXT_LAYER>
-    | ((this: DataProcessingThis<NEXT_LAYER>, ...data: any) => any);
+    | DataProcessingFunction<NEXT_LAYER>;
 };
 
 export type DataProcessingSchema<
@@ -53,6 +77,16 @@ export type DeepMapDataProcessingSchema<
     : undefined;
 } & DataProcessingBaseSchema<NEXT_LAYER>;
 
+export type DataProcessingSchemaExternal<> = {
+  [key: string]: DataProcessingSchemaExternal | DataProcessingFunctionExternal;
+};
+
+export type DataProcessingSchemaToExternal<
+  T extends DataProcessingSchema<any>,
+  EQUIVALENT,
+  NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
+> = DeepMap<T, DeepMapDataProcessingSchema<T, EQUIVALENT, NEXT_LAYER>>;
+
 export class DataProcessingLayer<
   INPUT_SCHEMA extends DataProcessingSchema<NEXT_LAYER>,
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
@@ -62,7 +96,7 @@ export class DataProcessingLayer<
     public readonly inputSchema: INPUT_SCHEMA
   ) {}
 
-  public functions: DeepMapDataProcessingSchema<
+  public functions: DataProcessingSchemaToExternal<
     INPUT_SCHEMA,
     NEXT_LAYER,
     NEXT_LAYER
