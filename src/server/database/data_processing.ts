@@ -58,11 +58,12 @@ export type DataProcessingBaseSchema<
 export type DataProcessingSchema<
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown,
   NEXT_SCHEMA extends DataProcessingBaseSchema<NEXT_LAYER> = DataProcessingBaseSchema<NEXT_LAYER>
-> = DataProcessingBaseSchema<NEXT_LAYER> &
-  DeepMapOptional<
-    NEXT_SCHEMA,
-    PassThroughType | DataProcessingBaseSchema<NEXT_LAYER>
-  >;
+> =
+  | DeepMapOptional<
+      NEXT_SCHEMA,
+      PassThroughType | DataProcessingBaseSchema<NEXT_LAYER> //TODO
+    >
+  | DataProcessingBaseSchema<NEXT_LAYER>;
 
 export type DeepMapDataProcessingSchema<
   T,
