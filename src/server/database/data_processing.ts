@@ -44,9 +44,13 @@ export type DataProcessingFunctionExternal = (...data: any) => any;
  * @returns the converted function
  */
 export type DataProcessingFunctionToExternal<
-  T extends DataProcessingFunction<any>
-> = RemoveThisParam<T>;
+  func extends DataProcessingFunction<any>
+> = RemoveThisParam<func>;
 
+/**
+ * The base schema for data processing. It does not contain PassThrough, so it can be used for the base layer.
+ * @param NEXT_LAYER the next layer of the data processing schema. Available as `this.nextLayer`.
+ */
 export type DataProcessingBaseSchema<
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
 > = {
