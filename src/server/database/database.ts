@@ -14,6 +14,10 @@ import {
   object,
 } from "../basic/types";
 import { DatabaseAdapter } from "./adapter";
+import {
+  DataProcessingSchema,
+  createDataProcessingLayer,
+} from "./data_processing";
 
 export type NoNever<TYPE, ALTERNATIVE> = TYPE extends never
   ? ALTERNATIVE
@@ -389,6 +393,12 @@ class $Database<
         });
       }),
     });
+  }
+
+  public layer<INPUT_SCHEMA extends DataProcessingSchema<typeof this>>(
+    inputSchema: INPUT_SCHEMA
+  ) {
+    return createDataProcessingLayer(this, inputSchema);
   }
 }
 
