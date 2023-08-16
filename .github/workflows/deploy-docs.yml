@@ -1,6 +1,6 @@
 # Build and Deploy TypeDoc to GitHub Pages
 
-name: Build and Deploy TypeDoc to GitHub Pages
+name: Build and Deploy Documentation to GitHub Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -35,27 +35,27 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install ⤵️ 
+      - name: Install ⤵️
         run: npm ci
-      
+
       - name: Cache ♻️
         uses: actions/cache@v1.2.1
         with:
           path: /cache/ci/module_cache
           key: /cache/ci/module_cache
-          
+
       - name: Build 🔧
         run: npm run build:docs
-          
+
       - name: Setup Pages 📄
         uses: actions/configure-pages@v3
-        
+
       - name: Upload artifact ☁️
         uses: actions/upload-pages-artifact@v2
         with:
           # Upload entire repository
-          path: './docs'
-          
+          path: "./docs/build"
+
       - name: Deploy to GitHub Pages 🚀
         id: deployment
         uses: actions/deploy-pages@v2

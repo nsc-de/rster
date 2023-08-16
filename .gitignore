@@ -13,5 +13,4 @@ yarn-error.log*
 /cli
 
 # generated documentation / reports
-/docs
 /coverage

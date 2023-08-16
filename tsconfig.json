@@ -21,6 +21,6 @@
   ],
   "typedocOptions": {
     "entryPoints": ["src/server/index.ts"],
-    "out": "docs"
+    "out": "docs/typedoc/typedoc"
   }
 }
