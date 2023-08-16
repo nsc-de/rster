@@ -1,3 +1,5 @@
+import { DeepMapOptional, RemoveThisParam } from "../util";
+
 /**
  * PassThrough is a special value that can be used in the schema to indicate that the value should be passed through to the next layer.
  * PassThrough is only valid if the next layer is an object and the key exists in the next layer.
@@ -8,14 +10,6 @@ export const PassThrough = "$__passThrough__";
  * Type for {@link PassThrough}
  */
 export type PassThroughType = typeof PassThrough;
-
-export type DeepMap<T, U> = {
-  [P in keyof T]: T[P] extends object ? DeepMap<T[P], U> : U;
-};
-
-export type DeepMapOptional<T, U> = {
-  [P in keyof T]?: T[P] extends object ? DeepMap<T[P], U> : U;
-};
 
 export type DataProcessingThis<
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
@@ -28,20 +22,6 @@ export type DataProcessingFunction<NEXT_LAYER> = (
   ...data: any
 ) => any;
 export type DataProcessingFunctionExternal = (...data: any) => any;
-
-export type Shift<T extends any[]> = ((...args: T) => void) extends (
-  arg: any,
-  ...rest: infer U
-) => void
-  ? U
-  : never;
-
-export type RemoveThisParam<T> = T extends (
-  this: any,
-  ...args: infer Args
-) => infer R
-  ? (...args: Args) => R
-  : T;
 
 export type DataProcessingFunctionToExternal<
   T extends DataProcessingFunction<any>
