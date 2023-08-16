@@ -177,8 +177,17 @@ export class DataProcessingLayer<
 
     return functions;
   }
+
+  public layer<
+    INPUT_SCHEMA extends DataProcessingSchema<typeof this.functions>
+  >(inputSchema: INPUT_SCHEMA) {
+    return new DataProcessingLayer(this.functions, inputSchema);
+  }
 }
 
-// Example usage
-type OriginalFunction = (this: any, a: number, b: string) => void;
-type ModifiedFunction = RemoveThisParam<OriginalFunction>; //
+export function createDataProcessingLayer<
+  INPUT_SCHEMA extends DataProcessingSchema<NEXT_LAYER>,
+  NEXT_LAYER
+>(nextLayer: NEXT_LAYER, inputSchema: INPUT_SCHEMA) {
+  return new DataProcessingLayer(nextLayer, inputSchema);
+}

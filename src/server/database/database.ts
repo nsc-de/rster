@@ -100,6 +100,10 @@ export type GetTransformerOutput<
   ? OUTPUT_TYPE
   : ALT;
 
+export type AllOptional<TYPE extends object> = {
+  [key in keyof TYPE]?: TYPE[key];
+};
+
 class $Database<
   DEF extends DatabaseDefinition,
   TRANSFORMER extends DatabaseTransformerMap<DEF> = DatabaseTransformerMap<DEF>
@@ -118,9 +122,11 @@ class $Database<
 
   private async transformInput<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: GetTransformerInput<
-      TRANSFORMER[TABLE_NAME],
-      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    data: AllOptional<
+      GetTransformerInput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >
     >
   ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
     const fn = await this.getTransformer(table)?.input?.transform;
@@ -195,9 +201,11 @@ class $Database<
 
   public async get<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: GetTransformerInput<
-      TRANSFORMER[TABLE_NAME],
-      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    data: AllOptional<
+      GetTransformerInput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >
     >,
     options?: Record<string, never>
   ) {
@@ -211,9 +219,11 @@ class $Database<
 
   public async update<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    search: GetTransformerInput<
-      TRANSFORMER[TABLE_NAME],
-      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    search: AllOptional<
+      GetTransformerInput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >
     >,
     data: GetTransformerInput<
       TRANSFORMER[TABLE_NAME],
@@ -231,9 +241,11 @@ class $Database<
 
   public async delete<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: GetTransformerInput<
-      TRANSFORMER[TABLE_NAME],
-      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    data: AllOptional<
+      GetTransformerInput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >
     >,
     options?: { limit?: number }
   ): Promise<number> {
@@ -246,9 +258,11 @@ class $Database<
 
   public async count<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: GetTransformerInput<
-      TRANSFORMER[TABLE_NAME],
-      PrimitiveType<DEF["tables"][TABLE_NAME]>
+    data: AllOptional<
+      GetTransformerInput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >
     >,
     options?: { limit?: number }
   ): Promise<number> {
@@ -405,14 +419,18 @@ export class TableTool<
   }
 
   public async get(
-    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
+    data: AllOptional<
+      GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
+    >,
     options?: Record<string, never>
   ) {
     return this.database.get(this.name, data, options);
   }
 
   public async update(
-    search: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
+    search: AllOptional<
+      GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
+    >,
     data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
     options?: { limit?: number }
   ) {
@@ -420,14 +438,18 @@ export class TableTool<
   }
 
   public async delete(
-    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
+    data: AllOptional<
+      GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
+    >,
     options?: { limit?: number }
   ) {
     return this.database.delete(this.name, data, options);
   }
 
   public async count(
-    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
+    data: AllOptional<
+      GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
+    >,
     options?: { limit?: number }
   ) {
     return this.database.count(this.name, data, options);
