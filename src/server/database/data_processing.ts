@@ -11,18 +11,38 @@ export const PassThrough = "$__passThrough__";
  */
 export type PassThroughType = typeof PassThrough;
 
+/**
+ * The this object provided to the data processing functions.
+ *
+ * {@link NEXT_LAYER} is the next layer of the data processing schema. Available as `this.nextLayer`.
+ */
 export type DataProcessingThis<
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
 > = {
   nextLayer: NEXT_LAYER;
 };
 
+/**
+ * A data processing function.
+ * @param this The this object provided to the data processing functions.
+ * @param args the arguments passed to the function.
+ */
 export type DataProcessingFunction<NEXT_LAYER> = (
   this: DataProcessingThis<NEXT_LAYER>,
-  ...data: any
+  ...args: any
 ) => any;
+
+/**
+ * A data processing function in external form. It's the same as {@link DataProcessingFunction} but without the this parameter.
+ * The this parameter would cause issues on calling because typescript would find that the this parameter will not match it's type.
+ */
 export type DataProcessingFunctionExternal = (...data: any) => any;
 
+/**
+ * Converts a {@link DataProcessingFunction} to a {@link DataProcessingFunctionExternal}
+ * @param func the function to convert
+ * @returns the converted function
+ */
 export type DataProcessingFunctionToExternal<
   T extends DataProcessingFunction<any>
 > = RemoveThisParam<T>;
