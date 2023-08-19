@@ -750,6 +750,11 @@ export class Context {
    * @returns {Context} The context itself
    */
   action(fun: ActionFunction): this {
+    if (this.children.find((c) => c.type === "action"))
+      throw new Error("Only one action function is allowed in a context");
+    if (!fun) throw new Error("No callback provided");
+    if (!(fun instanceof Function))
+      throw new Error("Callback is not a function");
     this.children.push({ type: "action", func: fun });
     return this;
   }
@@ -768,6 +773,9 @@ export class Context {
    * ```
    */
   use(fun: UseFunction): this {
+    if (!fun) throw new Error("No callback provided");
+    if (!(fun instanceof Function))
+      throw new Error("Callback is not a function");
     this.children.push({ type: "use", func: fun });
     return this;
   }
