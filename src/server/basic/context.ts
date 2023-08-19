@@ -112,7 +112,7 @@ export class Context {
    * @see {@link Context}
    */
   static get current(): Context {
-    if (!Context._current) throw new Error("No context");
+    if (!Context._current) throw new Error("No context is currently executing");
     return Context._current;
   }
 
@@ -224,6 +224,9 @@ export class Context {
    *
    */
   init(handler: ContextInitializer): this {
+    if (!handler) throw new Error("No callback provided");
+    if (!(handler instanceof Function))
+      throw new Error("Callback is not a function");
     const current = Context._current;
     Context._current = this;
     handler.call(this, this);
