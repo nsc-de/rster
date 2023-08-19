@@ -817,8 +817,12 @@ describe("Context", () => {
     it("Test on complex context", async () => {
       const context = new Context().init(function () {
         this.any("/test", function () {
-          this.get(function () {});
-          this.post(function () {});
+          this.get(function () {
+            this.action(function () {});
+          });
+          this.post(function () {
+            this.action(function () {});
+          });
         });
 
         this.use(function () {});
@@ -851,7 +855,12 @@ describe("Context", () => {
       expect(r[1][0].condition).to.be.an.instanceOf(ContextConditionMethod);
       expect(r[1][0].context).to.be.an.instanceOf(Context);
 
-      // TODO : Test the last one
+      expect(r[2]).to.be.an("array");
+      expect(r[2]).to.have.length(1);
+      expect(r[2][0]).to.be.an("object");
+      expect(r[2][0].type).to.equal("action");
+      expect(r[2][0].condition).to.be.undefined;
+      expect(r[2][0].func).to.be.a("function");
     });
   });
 });
