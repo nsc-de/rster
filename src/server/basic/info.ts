@@ -1,43 +1,53 @@
 import { declaration } from "../generator/index";
 import { Context, ContextChildCondition } from "./context";
 
-export function description(): string[];
-export function description(...description: string[]): Context;
-export function description(context: Context): string[];
-export function description(...description: any[]): any {
-  if (description.length == 0) return Context.current.data("@info/description");
-  if (description[0] instanceof Context) {
-    if (description.length !== 1)
-      throw new Error("Invalid number of arguments");
-    return description[0].data("@info/description") ?? [];
-  }
+declare module "./context" {
+  interface Context {
+    description(): string[];
+    description(...description: string[]): Context;
+    description(context: Context): string[];
 
-  Context.current.setData("@info/description", [
-    ...(Context.current.data("@info/description") ?? []),
-    ...description,
-  ]);
+    field(name: string): any;
+    field(name: string, value: any): Context;
+    field(ctx: Context, name: string): any;
+    field(ctx: Context, name: string, value: any): Context;
+
+    fields(): FieldMap;
+    fields(ctx: Context): FieldMap;
+    useInfo(options?: { path?: string }): void;
+  }
 }
 
 export interface FieldMap {
   [key: string]: any;
 }
 
-export function field(ctx: Context, name: string): any;
-export function field(ctx: Context, name: string, value: any): Context;
-export function field(name: string): any;
-export function field(name: string, value: any): Context;
-export function field(arg0: any, arg1?: any, arg2?: any): any {
+Context.prototype.description = function (...description: any[]): any {
+  if (description.length == 0) return this.data("@info/description");
+  if (description[0] instanceof Context) {
+    if (description.length !== 1)
+      throw new Error("Invalid number of arguments");
+    return description[0].data("@info/description") ?? [];
+  }
+
+  this.setData("@info/description", [
+    ...(this.data("@info/description") ?? []),
+    ...description,
+  ]);
+};
+
+Context.prototype.field = function (arg0: any, arg1?: any, arg2?: any): any {
   if (typeof arg0 === "string") {
     if (typeof arg1 === "undefined") {
-      const fields = Context.current.data(`@info/fields`);
+      const fields = this.data(`@info/fields`);
       if (!fields) return undefined;
       return fields[arg0];
     }
 
-    const fields = Context.current.data(`@info/fields`) ?? {};
+    const fields = this.data(`@info/fields`) ?? {};
     fields[arg0] = arg1;
-    Context.current.setData(`@info/fields`, fields);
-    return Context.current;
+    this.setData(`@info/fields`, fields);
+    return this;
   }
 
   if (typeof arg1 === "string") {
@@ -54,28 +64,29 @@ export function field(arg0: any, arg1?: any, arg2?: any): any {
   }
 
   throw new Error("Invalid arguments");
-}
+};
 
-export function fields(): FieldMap;
-export function fields(ctx: Context): FieldMap;
-export function fields(ctx?: Context): FieldMap {
-  if (typeof ctx === "undefined")
-    return Context.current.data("@info/fields") ?? {};
+Context.prototype.fields = function (ctx?: Context): FieldMap {
+  if (typeof ctx === "undefined") return this.data("@info/fields") ?? {};
 
   return ctx.data("@info/fields") ?? {};
-}
+};
 
-export function useInfo(options?: { path?: string }) {
+Context.prototype.useInfo = function (options?: { path?: string }) {
   options = options ?? {};
   const path = options.path ?? "/info";
 
-  Context.current.any(path, async (ctx) => {
-    description("This module can be used to get information about the API");
-    description("Just call /info/[path] to get information about this module");
+  this.any(path, async (ctx) => {
+    this.description(
+      "This module can be used to get information about the API"
+    );
+    this.description(
+      "Just call /info/[path] to get information about this module"
+    );
 
-    field("version", "0.1.0");
+    this.field("version", "0.1.0");
 
-    Context.current.use(async (req, res, next) => {
+    this.use(async (req, res, next) => {
       const stack = await ctx.api.contextStack(req, res);
       let context = (
         stack[stack.length - 2]?.filter(
@@ -99,21 +110,21 @@ export function useInfo(options?: { path?: string }) {
 
       res.status(200).json({
         path: req.path,
-        description: context ? description(context) : undefined,
+        description: context ? this.description(context) : undefined,
         map: context?.info().map((e) => ({
           path: e.condition.path,
           method: e.condition.method ?? "any",
-          description: description(e.context),
+          description: this.description(e.context),
         })),
         fields: context
           ? ((fields) =>
               Object.keys(fields).map((field) => ({
                 name: field,
                 value: fields[field],
-              })))(fields(context))
+              })))(this.fields(context))
           : undefined,
         declaration: decl,
       });
     });
   });
-}
+};
