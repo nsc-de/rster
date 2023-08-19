@@ -15,6 +15,7 @@ import {
 } from "../basic/types";
 import { DatabaseAdapter } from "./adapter";
 import {
+  DataProcessingLayer,
   DataProcessingSchema,
   createDataProcessingLayer,
 } from "./data_processing";
@@ -117,6 +118,26 @@ class $Database<
     public readonly adapter: DatabaseAdapter<AllowAnyTypeInformation>,
     public transformer: TRANSFORMER = {} as TRANSFORMER
   ) {}
+
+  public readonly tables = Object.fromEntries(
+    Object.entries(this.definition.tables).map(([name, table]) => {
+      return [
+        name,
+        new TableTool<DEF, string, $Database<DEF>>(
+          table as DEF["tables"][typeof name],
+          name,
+          this
+        ),
+      ];
+    })
+  ) as {
+    [key in keyof DEF["tables"]]: TableTool<
+      DEF,
+      key,
+      $Database<DEF>,
+      DEF["tables"][key]
+    >;
+  };
 
   private getTransformer<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME
@@ -398,14 +419,14 @@ class $Database<
   public layer<INPUT_SCHEMA extends DataProcessingSchema<typeof this>>(
     inputSchema: INPUT_SCHEMA
   ) {
-    return createDataProcessingLayer(this, inputSchema);
+    return createDataProcessingLayer(this.tables, inputSchema);
   }
 }
 
 export class TableTool<
   DATABASE_DEFINITION extends DatabaseDefinition,
   TABLE_NAME extends keyof DATABASE_DEFINITION["tables"],
-  DATABASE extends Database<DATABASE_DEFINITION>,
+  DATABASE extends $Database<DATABASE_DEFINITION>,
   TABLE_DEFINITION extends DATABASE_DEFINITION["tables"][TABLE_NAME] = DATABASE_DEFINITION["tables"][TABLE_NAME],
   TRANSFORMER extends
     | DatabaseTransformer<DATABASE_DEFINITION["tables"][TABLE_NAME], any, any>
@@ -489,7 +510,20 @@ export type Database<
     DEF["tables"][key],
     TRANSFORMER[key]
   >;
-} & $Database<DEF, TRANSFORMER>;
+} & $Database<DEF, TRANSFORMER> & {
+    layer<INPUT_SCHEMA extends DataProcessingSchema<Database<DEF>>>(
+      inputSchema: INPUT_SCHEMA
+    ): DataProcessingLayer<INPUT_SCHEMA, Database<DEF>>;
+    tables: {
+      [key in keyof DEF["tables"]]: TableTool<
+        DEF,
+        key,
+        Database<DEF>,
+        DEF["tables"][key],
+        TRANSFORMER[key]
+      >;
+    };
+  };
 
 export function createDatabase<
   DEF extends DatabaseDefinition,
@@ -504,14 +538,8 @@ export function createDatabase<
     adapter,
     transformer
   ) as unknown as Database<DEF>;
-  const tables = {} as Record<string, TableTool<DEF, string, Database<DEF>>>;
-  for (const key in definition.tables) {
-    tables[key] = new TableTool<DEF, string, Database<DEF>>(
-      definition.tables[key] as any,
-      key,
-      database
-    );
-  }
+  const tables = database.tables;
+  console.log(tables);
   return Object.assign(database, tables) as Database<DEF, TRANSFORMER>;
 }
 
