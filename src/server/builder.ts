@@ -1,4 +1,4 @@
-import rest, { Context, RestfulApi, description } from "./basic/index";
+import rest, { Context, RestfulApi } from "./basic/index";
 import { Method } from "./basic/common";
 import {
   ContextConditionMethod,
@@ -308,7 +308,7 @@ export class RsterApi<MODULES extends ModuleMap, METHODS extends MethodMap> {
 
   public rest(): RestfulApi {
     return rest(() => {
-      description(...this.description);
+      Context.current.description(...this.description);
 
       this.moduleList.forEach((m) => {
         m.rest();
@@ -357,7 +357,7 @@ export class RsterApiModule<
 
   public rest() {
     const contents = () => {
-      description(...this.description);
+      Context.current.description(...this.description);
       this.moduleList.forEach((m) => {
         m.rest();
       });
@@ -408,7 +408,7 @@ export class RsterApiMethod<
   }
 
   public rest() {
-    description(...this.description);
+    Context.current.description(...this.description);
     declaration({
       name: this.name,
       returnBody: this.declaration.returns,
