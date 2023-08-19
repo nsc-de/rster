@@ -539,7 +539,6 @@ export function createDatabase<
     transformer
   ) as unknown as Database<DEF>;
   const tables = database.tables;
-  console.log(tables);
   return Object.assign(database, tables) as Database<DEF, TRANSFORMER>;
 }
 
