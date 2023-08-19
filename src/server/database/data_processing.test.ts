@@ -79,7 +79,7 @@ const exitLayer = createDataProcessingLayer(db, {
 }).layer({
   users: {
     get: PassThrough,
-    a: PassThrough,
+    // a: PassThrough,
   },
 }).functions.users.get;
 
