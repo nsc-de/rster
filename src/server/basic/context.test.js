@@ -862,5 +862,60 @@ describe("Context", () => {
       expect(r[2][0].condition).to.be.undefined;
       expect(r[2][0].func).to.be.a("function");
     });
+
+    it("Test on another complex context", async () => {
+      const context = new Context().init(function () {
+        this.any("/test", function () {
+          this.get(function () {
+            this.use(function () {});
+            this.action(function () {});
+          });
+          this.post(function () {
+            this.use(function () {});
+            this.action(function () {});
+          });
+        });
+
+        this.use(function () {});
+      });
+
+      const req = {
+          method: "get",
+          path: "/test",
+        },
+        res = {
+          test: "test",
+        };
+
+      const r = await context.contextStack(req, res);
+
+      expect(r).to.be.an("array");
+      expect(r).to.have.length(3);
+
+      expect(r[0]).to.be.an("array");
+      expect(r[0]).to.have.length(1);
+      expect(r[0][0]).to.be.an("object");
+      expect(r[0][0].type).to.equal("condition");
+      expect(r[0][0].condition).to.be.an.instanceOf(ContextConditionPath);
+      expect(r[0][0].context).to.be.an.instanceOf(Context);
+
+      expect(r[1]).to.be.an("array");
+      expect(r[1]).to.have.length(1);
+      expect(r[1][0]).to.be.an("object");
+      expect(r[1][0].type).to.equal("condition");
+      expect(r[1][0].condition).to.be.an.instanceOf(ContextConditionMethod);
+      expect(r[1][0].context).to.be.an.instanceOf(Context);
+
+      expect(r[2]).to.be.an("array");
+      expect(r[2]).to.have.length(2);
+      expect(r[2][0]).to.be.an("object");
+      expect(r[2][0].type).to.equal("use");
+      expect(r[2][0].condition).to.be.undefined;
+      expect(r[2][0].func).to.be.a("function");
+      expect(r[2][1]).to.be.an("object");
+      expect(r[2][1].type).to.equal("action");
+      expect(r[2][1].condition).to.be.undefined;
+      expect(r[2][1].func).to.be.a("function");
+    });
   });
 });
