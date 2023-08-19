@@ -776,6 +776,7 @@ export class Context {
     if (!fun) throw new Error("No callback provided");
     if (!(fun instanceof Function))
       throw new Error("Callback is not a function");
+
     this.children.push({ type: "use", func: fun });
     return this;
   }

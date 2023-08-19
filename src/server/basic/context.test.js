@@ -291,6 +291,12 @@ describe("Context", () => {
       );
       expect(context.children[0].context).not.to.be.undefined;
     });
+
+    it("Test with wrong parameters", () => {
+      const context = new Context();
+      expect(() => context.post("")).to.throw("Invalid arguments");
+      expect(() => context.post("", "")).to.throw("Invalid arguments");
+    });
   });
 
   describe("put", () => {
@@ -790,6 +796,62 @@ describe("Context", () => {
     it("Should throw an error if the callback is not a function", () => {
       const context = new Context();
       expect(() => context.use("test")).to.throw("Callback is not a function");
+    });
+  });
+
+  describe("contextStack", () => {
+    it("Test on empty context", async () => {
+      const context = new Context();
+      const req = {
+          method: "get",
+          path: "/test",
+        },
+        res = {
+          test: "test",
+        };
+
+      expect(await context.contextStack(req, res)).to.be.an("array");
+      expect(await context.contextStack(req, res)).to.deep.equal([[]]);
+    });
+
+    it("Test on complex context", async () => {
+      const context = new Context().init(function () {
+        this.any("/test", function () {
+          this.get(function () {});
+          this.post(function () {});
+        });
+
+        this.use(function () {});
+      });
+
+      const req = {
+          method: "get",
+          path: "/test",
+        },
+        res = {
+          test: "test",
+        };
+
+      const r = await context.contextStack(req, res);
+
+      expect(r).to.be.an("array");
+      expect(r).to.have.length(3);
+
+      expect(r[0]).to.be.an("array");
+      expect(r[0]).to.have.length(1);
+      expect(r[0][0]).to.be.an("object");
+      expect(r[0][0].type).to.equal("condition");
+      expect(r[0][0].condition).to.be.an.instanceOf(ContextConditionPath);
+      expect(r[0][0].context).to.be.an.instanceOf(Context);
+
+      expect(r[1]).to.be.an("array");
+      expect(r[1]).to.have.length(1);
+      expect(r[1][0]).to.be.an("object");
+      expect(r[1][0].type).to.equal("condition");
+      expect(r[1][0].condition).to.be.an.instanceOf(ContextConditionMethod);
+      expect(r[1][0].context).to.be.an.instanceOf(Context);
+
+      // TODO : Test the last one
     });
   });
 });
