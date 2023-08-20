@@ -848,18 +848,20 @@ export class Context {
     const do_execute = async (collected: typeof this.children) => {
       try {
         for (let i = 0; i < collected.length; i++) {
-          if (this.children[i].type === "condition") {
-            const it = this.children[i] as ContextChildCondition;
+          if (collected[i].type === "condition") {
+            const it = collected[i] as ContextChildCondition;
             const { condition, context } = it;
             if (await condition.appliesTo(req)) {
               this.debugger.debugRoute(req, condition);
               if (await context.execute(condition.subRequest(req), res))
                 return true;
             }
-          } else if (this.children[i].type === "action") {
-            await (this.children[i] as ContextChildAction).func(req, res);
+          }
+          if (collected[i].type === "action") {
+            await (collected[i] as ContextChildAction).func(req, res);
             return true;
-          } else if (this.children[i].type === "use") {
+          }
+          if (collected[i].type === "use") {
             const new_collect = collected.slice(i + 1);
             return new Promise<boolean>((resolve, reject) => {
               (async () => {
@@ -870,9 +872,9 @@ export class Context {
 
                   do_execute(new_collect).then(resolve).catch(reject);
                 };
-                await (this.children[i] as ContextChildUse)
+                await (collected[i] as ContextChildUse)
                   .func(req, res, next)
-                  ?.catch((e: any) => next);
+                  ?.catch(next);
               })();
             });
           }

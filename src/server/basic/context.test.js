@@ -976,6 +976,17 @@ describe("Context", () => {
           .should.be.rejectedWith("test");
     });
 
+    it("Test middleware not throwing error if true is passed to next", async () => {
+      const context = new Context();
+      context.use(async (req, res, next) => {
+        await next(true);
+      });
+      await context.execute({
+        method: "get",
+        path: "test",
+      });
+    });
+
     it("Test middleware without next called not activating next middleware", async () => {
       const context = new Context();
       let executed = false;
@@ -988,6 +999,99 @@ describe("Context", () => {
       context.execute({
         method: "get",
         path: "test",
+      });
+
+      expect(executed).to.be.true;
+    });
+
+    it("Test middleware without next called not activating next action", async () => {
+      const context = new Context();
+      let executed = false;
+      context.use(async (req, res, next) => {
+        executed = true;
+        await next();
+      });
+      context.action(async (req, res, next) => {
+        fail("Should not execute next action");
+      });
+      context.execute({
+        method: "get",
+        path: "test",
+      });
+
+      expect(executed).to.be.true;
+    });
+
+    it("Test middleware without next called not activating next condition", async () => {
+      const context = new Context();
+      let executed = false;
+      context.use(async (req, res, next) => {
+        executed = true;
+        await next();
+      });
+      context.get(async function (req, res, next) {
+        this.action(() => {
+          fail("Should not execute next condition");
+        });
+      });
+      context.execute({
+        method: "get",
+        path: "test",
+      });
+
+      expect(executed).to.be.true;
+    });
+
+    it("Test middleware with next called activating next middleware", async () => {
+      const context = new Context();
+      let executed = false;
+      let called = 0;
+      context.use(async (req, res, next) => {
+        next();
+      });
+      context.use(async (req, res, next) => {
+        executed = true;
+        next();
+      });
+      await context.execute({
+        method: "get",
+        path: "test",
+      });
+
+      expect(executed).to.be.true;
+    });
+
+    it("Test middleware with next called activating next action", async () => {
+      const context = new Context();
+      let executed = false;
+      context.use(async (req, res, next) => {
+        await next();
+      });
+      context.action(async (req, res, next) => {
+        executed = true;
+      });
+      await context.execute({
+        method: "get",
+        path: "test",
+      });
+
+      expect(executed).to.be.true;
+    });
+
+    it("Test middleware with next called activating next condition", async () => {
+      const context = new Context();
+      let executed = false;
+      context.use(async (req, res, next) => {
+        next();
+      });
+      context.get(async function (req, res, next) {
+        this.action(() => {
+          executed = true;
+        });
+      });
+      await context.execute({
+        method: "get",
+        path: "/test",
       });
 
       expect(executed).to.be.true;
