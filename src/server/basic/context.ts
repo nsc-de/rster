@@ -836,49 +836,64 @@ export class Context {
    * @see {@link ContextChildUse}
    */
   async execute(req: Request, res: Response): Promise<boolean> {
-    try {
-      for (let i = 0; i < this.children.length; i++) {
-        if (this.children[i].type === "condition") {
-          const it = this.children[i] as ContextChildCondition;
-          const { condition, context } = it;
-          if (await condition.appliesTo(req)) {
-            this.debugger.debugRoute(req, condition);
-            if (await context.execute(condition.subRequest(req), res))
-              return true;
-          }
-        } else if (this.children[i].type === "action") {
-          await (this.children[i] as ContextChildAction).func(req, res);
-          return true;
-        } else if (this.children[i].type === "use") {
-          let useNext = false;
-          let error = undefined;
-          const next = (err: any) => {
-            useNext = true;
-            error = err;
-          };
-          await (this.children[i] as ContextChildUse).func(req, res, next);
+    const collected = this.children.filter(
+      (c) =>
+        (c.type === "condition" &&
+          c.condition instanceof ContextCondition &&
+          c.condition.appliesTo(req)) ||
+        c.type === "action" ||
+        c.type === "use"
+    );
 
-          if (error === true) return true;
-          if (error) throw error;
-          if (!useNext) {
+    const do_execute = async (collected: typeof this.children) => {
+      try {
+        for (let i = 0; i < collected.length; i++) {
+          if (this.children[i].type === "condition") {
+            const it = this.children[i] as ContextChildCondition;
+            const { condition, context } = it;
+            if (await condition.appliesTo(req)) {
+              this.debugger.debugRoute(req, condition);
+              if (await context.execute(condition.subRequest(req), res))
+                return true;
+            }
+          } else if (this.children[i].type === "action") {
+            await (this.children[i] as ContextChildAction).func(req, res);
             return true;
+          } else if (this.children[i].type === "use") {
+            const new_collect = collected.slice(i + 1);
+            return new Promise<boolean>((resolve, reject) => {
+              (async () => {
+                const next = (err: any) => {
+                  if (err !== true && err) {
+                    reject(err);
+                  }
+
+                  do_execute(new_collect).then(resolve).catch(reject);
+                };
+                await (this.children[i] as ContextChildUse)
+                  .func(req, res, next)
+                  ?.catch((e: any) => next);
+              })();
+            });
           }
         }
+      } catch (e) {
+        if (e instanceof HttpError) {
+          this.debugger.debugHttpError(e);
+          res.status(e.status).json({ message: e.message }).end();
+        } else {
+          console.error(e);
+          try {
+            res.status(500).json({ message: "Internal server error" });
+          } catch (e) {}
+        }
+        return true;
       }
-    } catch (e) {
-      if (e instanceof HttpError) {
-        this.debugger.debugHttpError(e);
-        res.status(e.status).json({ message: e.message }).end();
-      } else {
-        console.error(e);
-        try {
-          res.status(500).json({ message: "Internal server error" });
-        } catch (e) {}
-      }
-      return true;
-    }
 
-    return false;
+      return false;
+    };
+
+    return await do_execute(collected);
   }
 
   /**
