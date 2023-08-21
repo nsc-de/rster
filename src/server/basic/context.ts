@@ -2,6 +2,7 @@
  * @fileOverview Context class and types / functions related to it
  * The context class is used to describe a route. Context can be nested using {@link ContextChildCondition} as children (generated using the when function).
  */
+import debug from "debug";
 import { Method, Request, Response } from "./common";
 import {
   ConditionInfo,
@@ -12,6 +13,9 @@ import {
 } from "./condition";
 import { HttpError } from "./error";
 import { RestfulApi } from "./index";
+
+const debugHttpError = debug("rster:http-error");
+const debugRoute = debug("rster:router");
 
 /**
  * Context child for containing a context and a condition (for nested routing)
@@ -149,23 +153,6 @@ export class Context {
    * @see {@link Context._data}
    */
   private _data: { [key: string]: any } = {};
-
-  /**
-   * The debugger of the context, used for debug logging
-   * @type {ResterDebugger} The debugger of the context
-   * @memberof Context
-   * @readonly
-   * @example
-   * ```typescript
-   * Context.current.debugger; // The debugger of the current context
-   * ```
-   * @see {@link Context}
-   * @see {@link Context.current}
-   * @see {@link ResterDebugger}
-   */
-  public get debugger() {
-    return this.api.debugger;
-  }
 
   /**
    * {@link Context}'s constructor
@@ -852,7 +839,7 @@ export class Context {
             const it = collected[i] as ContextChildCondition;
             const { condition, context } = it;
             if (await condition.appliesTo(req)) {
-              this.debugger.debugRoute(req, condition);
+              debugRoute(req, condition);
               if (await context.execute(condition.subRequest(req), res))
                 return true;
             }
@@ -881,7 +868,7 @@ export class Context {
         }
       } catch (e) {
         if (e instanceof HttpError) {
-          this.debugger.debugHttpError(e);
+          debugHttpError(e);
           res.status(e.status).json({ message: e.message }).end();
         } else {
           console.error(e);

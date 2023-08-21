@@ -950,7 +950,6 @@ describe("Context", () => {
     it("Test middleware with error passed to next", () => {
       const context = new Context();
       context.use(async (req, res, next) => {
-        console.log("aaaaaaaaaa");
         await next(new Error("test"));
       });
       async () =>
@@ -1081,18 +1080,19 @@ describe("Context", () => {
     it("Test middleware with next called activating next condition", async () => {
       const context = new Context();
       let executed = false;
+      const req = {
+        method: "get",
+        path: "/test",
+      };
       context.use(async (req, res, next) => {
         next();
       });
-      context.get(async function (req, res, next) {
+      context.get("/test", async function (req, res, next) {
         this.action(() => {
           executed = true;
         });
       });
-      await context.execute({
-        method: "get",
-        path: "/test",
-      });
+      await context.execute(req);
 
       expect(executed).to.be.true;
     });
