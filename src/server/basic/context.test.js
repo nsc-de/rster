@@ -1,3 +1,4 @@
+import { fail } from "assert";
 import {
   ContextConditionAnd,
   ContextConditionMethod,
@@ -989,11 +990,12 @@ describe("Context", () => {
     it("Test middleware without next called not activating next middleware", async () => {
       const context = new Context();
       let executed = false;
+      let executed2 = false;
       context.use(async (req, res, next) => {
         executed = true;
       });
       context.use(async (req, res, next) => {
-        fail("Should not execute next middleware");
+        executed2 = true;
       });
       context.execute({
         method: "get",
@@ -1001,17 +1003,19 @@ describe("Context", () => {
       });
 
       expect(executed).to.be.true;
+      expect(executed2).to.be.false;
     });
 
     it("Test middleware without next called not activating next action", async () => {
       const context = new Context();
       let executed = false;
+      let executed2 = false;
       context.use(async (req, res, next) => {
         executed = true;
         await next();
       });
       context.action(async (req, res, next) => {
-        fail("Should not execute next action");
+        let executed2 = true;
       });
       context.execute({
         method: "get",
@@ -1019,18 +1023,20 @@ describe("Context", () => {
       });
 
       expect(executed).to.be.true;
+      expect(executed2).to.be.false;
     });
 
     it("Test middleware without next called not activating next condition", async () => {
       const context = new Context();
       let executed = false;
+      let executed2 = false;
       context.use(async (req, res, next) => {
         executed = true;
         await next();
       });
       context.get(async function (req, res, next) {
         this.action(() => {
-          fail("Should not execute next condition");
+          executed2 = true;
         });
       });
       context.execute({
@@ -1039,6 +1045,7 @@ describe("Context", () => {
       });
 
       expect(executed).to.be.true;
+      expect(executed2).to.be.false;
     });
 
     it("Test middleware with next called activating next middleware", async () => {
