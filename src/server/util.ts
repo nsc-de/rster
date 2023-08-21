@@ -93,3 +93,24 @@ export type RemoveThisParam<T> = T extends (
 ) => infer R
   ? (...args: Args) => R
   : T;
+
+/**
+ * Utility type to make all properties of an object optional.
+ *
+ * @example
+ * ```ts
+ * type Foo = {
+ *   a: string;
+ *   b: number;
+ * };
+ *
+ * type Bar = AllOptional<Foo>;
+ * // Bar = {
+ * //   a?: string;
+ * //   b?: number;
+ * // };
+ * ```
+ */
+export type AllOptional<TYPE extends object> = {
+  [key in keyof TYPE]?: TYPE[key];
+};

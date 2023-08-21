@@ -3,6 +3,10 @@
  * @module common
  */
 
+import { error } from "console";
+import { AllOptional } from "../util";
+import os from "os";
+
 /**
  * @interface ParsedQs - Parsed query string.
  */
@@ -819,3 +823,162 @@ export type Method =
   | "head"
   | "options"
   | "trace";
+
+export function createSyntheticRequest(info: AllOptional<Request>): Request {
+  return {
+    accepts: info.accepts ?? ["application/json"],
+    acceptsCharsets: info.acceptsCharsets ?? ["utf-8"],
+    acceptsEncodings: info.acceptsEncodings ?? ["identity"],
+    acceptsLanguages: info.acceptsLanguages ?? ["en"],
+    body: info.body ?? {},
+    cookies: info.cookies ?? {},
+    fresh: info.fresh ?? false,
+    hostname: info.hostname ?? "localhost",
+    ip: info.ip ?? getLocalIP(),
+    ips: info.ips ?? [getLocalIP()],
+    method: info.method ?? "get",
+    originalUrl: info.originalUrl ?? "/",
+    params: info.params ?? {},
+    path: info.path ?? "/",
+    protocol: info.protocol ?? "http",
+    query: info.query ?? {},
+    baseUrl: info.baseUrl ?? "/",
+    fullApiPath: info.fullApiPath ?? "/",
+    fullPath: info.fullPath ?? "/",
+    get: info.get ?? (() => ""),
+    header(name: string): string {
+      if (info.header) {
+        return info.header(name);
+      }
+      return (
+        Object.entries(this.headers).find(
+          ([key, value]) => key.toLowerCase() === name.toLowerCase()
+        )?.[1] ?? ""
+      );
+    },
+    headers: info.headers ?? {},
+    is: info.is ?? (() => false),
+    secure: info.secure ?? false,
+    signedCookies: info.signedCookies ?? {},
+    stale: info.stale ?? false,
+    subdomains: info.subdomains ?? [],
+    xhr: info.xhr ?? false,
+  };
+}
+
+export function getLocalIP() {
+  const interfaces = os.networkInterfaces();
+  const addresses = Object.values(interfaces)
+    .flat()
+    .filter((iface) => iface?.family === "IPv4" && !iface.internal)
+    .map((iface) => iface?.address);
+  return addresses[0] ?? "";
+}
+
+export function createSyntheticResponse(info: AllOptional<Response>): {
+  response: Response;
+  promise: Promise<{
+    code: number;
+    data: string;
+    headers: Record<string, string>;
+    sendFile?: string;
+    redirect?: string;
+  }>;
+} {
+  let resolver: (value: {
+    code: number;
+    data: string;
+    headers: Record<string, string>;
+    sendFile?: string;
+    redirect?: string;
+  }) => void;
+
+  let rejecter: (reason?: any) => void;
+
+  const promise = new Promise<{
+    code: number;
+    data: string;
+    headers: Record<string, string>;
+    sendFile?: string;
+    redirect?: string;
+  }>((resolve, reject) => {
+    resolver = resolve;
+    rejecter = reject;
+  });
+
+  let statusCode = 200;
+  let data = "";
+  const headers: Record<string, string> = {};
+  let redirect: string | undefined;
+  let sendFile: string | undefined;
+
+  return {
+    response: {
+      end() {
+        resolver({
+          code: statusCode,
+          data,
+          headers,
+          sendFile,
+          redirect,
+        });
+        return this;
+      },
+      error(code: number, message: string) {
+        statusCode = code;
+        if (data === "") {
+          data = message;
+        }
+        return this;
+      },
+      header(field: string, value: string) {
+        headers[field] = value;
+        return this;
+      },
+      json(body: any) {
+        data = JSON.stringify(body);
+        return this;
+      },
+      status(code: number) {
+        statusCode = code;
+        return this;
+      },
+      send(body: any) {
+        data = body;
+        return this;
+      },
+      sendFile(path: string) {
+        sendFile = path;
+        return this;
+      },
+      redirect(path: string) {
+        redirect = path;
+        return this;
+      },
+    },
+    promise,
+  };
+}
+
+export function createSyntheticContext(info: AllOptional<Request>): {
+  request: Request;
+  response: Response;
+  pass: [Request, Response];
+  promise: Promise<{
+    code: number;
+    data: string;
+    headers: Record<string, string>;
+    sendFile?: string;
+    redirect?: string;
+  }>;
+} {
+  const { response, promise } = createSyntheticResponse({});
+  const request = createSyntheticRequest(info);
+  const pass: [Request, Response] = [request, response];
+  return {
+    request,
+    response,
+    pass,
+    promise,
+  };
+}

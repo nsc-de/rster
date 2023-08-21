@@ -19,6 +19,7 @@ import {
   DataProcessingSchema,
   createDataProcessingLayer,
 } from "./data_processing";
+import { AllOptional } from "../util";
 
 export type NoNever<TYPE, ALTERNATIVE> = TYPE extends never
   ? ALTERNATIVE
@@ -104,10 +105,6 @@ export type GetTransformerOutput<
 > = TRANSFORMER extends DatabaseTransformer<any, any, infer OUTPUT_TYPE>
   ? OUTPUT_TYPE
   : ALT;
-
-export type AllOptional<TYPE extends object> = {
-  [key in keyof TYPE]?: TYPE[key];
-};
 
 class $Database<
   DEF extends DatabaseDefinition,
