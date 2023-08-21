@@ -1103,5 +1103,39 @@ describe("Context", () => {
 
       expect(executed).to.be.true;
     });
+
+    describe("Test conditions", () => {
+      it("Test condition with true", async () => {
+        const context = new Context();
+        let executed = false;
+        context.get("/test", async function (req, res, next) {
+          this.action(() => {
+            executed = true;
+          });
+        });
+        await context.execute({
+          method: "get",
+          path: "/test",
+        });
+
+        expect(executed).to.be.true;
+      });
+
+      it("Test condition with false", async () => {
+        const context = new Context();
+        let executed = false;
+        context.get("/test", async function (req, res, next) {
+          this.action(() => {
+            executed = true;
+          });
+        });
+        await context.execute({
+          method: "get",
+          path: "/tes2",
+        });
+
+        expect(executed).to.be.false;
+      });
+    });
   });
 });
