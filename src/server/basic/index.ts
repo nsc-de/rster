@@ -5,7 +5,6 @@ import {
   Response as ExpressResponse,
 } from "express";
 import { ExpressMixin, ExpressOptions } from "./express";
-import { ResterDebugger } from "./debug";
 
 export * from "./common";
 export * from "./condition";
@@ -17,11 +16,6 @@ export * as types from "./types";
 
 export class RestfulApi extends Context {
   private _options: RestfulApiOptions;
-  public readonly _debugger = new ResterDebugger();
-
-  get debugger() {
-    return this._debugger;
-  }
 
   constructor(options?: RestfulApiOptionsInit) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
