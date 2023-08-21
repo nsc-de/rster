@@ -869,7 +869,7 @@ export class Context {
       } catch (e) {
         if (e instanceof HttpError) {
           debugHttpError(e);
-          res.status(e.status).json({ message: e.message }).end();
+          res.status(e.status).json({ error: e.toJson() }).end();
         } else {
           console.error(e);
           try {

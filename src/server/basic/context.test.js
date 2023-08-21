@@ -7,6 +7,7 @@ import {
 } from "./condition";
 import { Context } from "./context";
 import { expect, should } from "chai";
+import { $404 } from "./error";
 
 describe("Context", () => {
   describe("constructor", () => {
@@ -1135,6 +1136,43 @@ describe("Context", () => {
         });
 
         expect(executed).to.be.false;
+      });
+
+      it("Test HTTP error", async () => {
+        const context = new Context();
+        let executed = false;
+        context.get("/test", async function (req, res, next) {
+          this.action(() => {
+            throw $404("test");
+          });
+        });
+
+        let body_result = null;
+        let status = null;
+
+        const res = await context.execute(
+          {
+            method: "get",
+            path: "/test",
+          },
+          {
+            json(body) {
+              body_result = body;
+              return this;
+            },
+            status(code) {
+              status = code;
+              return this;
+            },
+
+            end() {},
+          }
+        );
+
+        expect(status).to.equal(404);
+        expect(body_result).to.deep.equal({
+          error: { message: "test", status: 404 },
+        });
       });
     });
   });

@@ -7,6 +7,18 @@ export class HttpError<T extends number = number> extends Error {
   constructor(public readonly status: T, message: string) {
     super(message);
   }
+
+  /**
+   * Get a json representation of the error.
+   *
+   * @returns the json representation of the error
+   */
+  toJson() {
+    return {
+      status: this.status,
+      message: this.message,
+    };
+  }
 }
 
 export const HTTP_ERROR_MESSAGES = {
