@@ -7,6 +7,7 @@ import { Method, Request, Response } from "./common";
 import {
   ConditionInfo,
   ContextCondition,
+  ContextConditionJson,
   ContextConditionMethod,
   ContextConditionPath,
   ContextConditionPath2,
@@ -988,19 +989,18 @@ export class Context {
    * Context.current.toJson(); // The json representation of the context
    * ```
    */
-  get flatMap(): any {
+  get flatMap(): {
+    condition: ContextConditionJson;
+    context: Context;
+  }[] {
     return this.children
       .filter((c) => c.type === "condition")
-      .map(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        (c: ContextChildCondition) => {
-          return {
-            condition: c.condition.toJson(),
-            context: c.context,
-          };
-        }
-      );
+      .map((c) => {
+        return {
+          condition: (c as ContextChildCondition).condition.toJson(),
+          context: (c as ContextChildCondition).context,
+        };
+      });
   }
 
   /**
