@@ -29,6 +29,7 @@ export abstract class ContextCondition {
 
   abstract toJson(): ContextConditionJson;
   abstract infoJson(): ContextConditionInfoJson;
+  abstract equals(other: ContextCondition): boolean;
 }
 
 export class ContextConditionAnd extends ContextCondition {
@@ -70,6 +71,24 @@ export class ContextConditionAnd extends ContextCondition {
 
     return it;
   }
+
+  equals(other: ContextCondition): boolean {
+    if (!(other instanceof ContextConditionAnd)) {
+      return false;
+    }
+
+    if (this.conditions.length !== other.conditions.length) {
+      return false;
+    }
+
+    for (let i = 0; i < this.conditions.length; i++) {
+      if (!this.conditions[i].equals(other.conditions[i])) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }
 
 export class ContextConditionPath extends ContextCondition {
@@ -105,6 +124,14 @@ export class ContextConditionPath extends ContextCondition {
     return {
       path: this.path,
     };
+  }
+
+  equals(other: ContextCondition): boolean {
+    if (!(other instanceof ContextConditionPath)) {
+      return false;
+    }
+
+    return this.path === other.path;
   }
 }
 
@@ -143,6 +170,14 @@ export class ContextConditionPath2 extends ContextCondition {
       path2: this.path.source,
     };
   }
+
+  equals(other: ContextCondition): boolean {
+    if (!(other instanceof ContextConditionPath2)) {
+      return false;
+    }
+
+    return this.path.source === other.path.source;
+  }
 }
 
 export class ContextConditionMethod extends ContextCondition {
@@ -171,6 +206,14 @@ export class ContextConditionMethod extends ContextCondition {
     return {
       method: this.method,
     };
+  }
+
+  equals(other: ContextCondition): boolean {
+    if (!(other instanceof ContextConditionMethod)) {
+      return false;
+    }
+
+    return this.method === other.method;
   }
 }
 
