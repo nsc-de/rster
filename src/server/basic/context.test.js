@@ -1320,4 +1320,111 @@ describe("Context", () => {
       ]);
     });
   });
+
+  describe("info", () => {
+    it("test on empty context", () => {
+      const context = new Context();
+      expect(context.info()).to.deep.equal([]);
+    });
+
+    it("test with action", () => {
+      const context = new Context();
+      context.action(() => {});
+      expect(context.info()).to.deep.equal([]);
+    });
+
+    it("test with use", () => {
+      const context = new Context();
+      context.use(() => {});
+      expect(context.info()).to.deep.equal([]);
+    });
+
+    it("test on context with one child", () => {
+      const context = new Context();
+      context.get("/test", () => {});
+
+      expect(context.info()).to.deep.equal([
+        {
+          condition: { method: "get", path: "/test" },
+          context: context.children[0].context,
+        },
+      ]);
+    });
+
+    it("test on context with multiple children", () => {
+      const context = new Context();
+      context.get("/test", () => {});
+      context.post("/test", () => {});
+
+      expect(context.info()).to.deep.equal([
+        {
+          condition: { method: "get", path: "/test" },
+          context: context.children[0].context,
+        },
+        {
+          condition: { method: "post", path: "/test" },
+          context: context.children[1].context,
+        },
+      ]);
+    });
+
+    it("test on deep context", () => {
+      const context = new Context();
+      context.get("/test", function () {
+        this.get("/testtttt", () => {});
+      });
+
+      expect(context.info()).to.deep.equal([
+        {
+          condition: { method: "get", path: "/test" },
+          context: context.children[0].context,
+        },
+        {
+          condition: { method: "get", path: "/test/testtttt" },
+          context: context.children[0].context.children[0].context,
+        },
+      ]);
+    });
+
+    it("test on deep context (inner anonymous get)", () => {
+      const context = new Context();
+      context.any("/test", function () {
+        this.get(() => {});
+        this.post(() => {});
+      });
+
+      expect(context.info()).to.deep.equal([
+        {
+          condition: { path: "/test" },
+          context: context.children[0].context,
+        },
+        {
+          condition: { method: "get", path: "/test" },
+          context: context.children[0].context.children[0].context,
+        },
+        {
+          condition: { method: "post", path: "/test" },
+          context: context.children[0].context.children[1].context,
+        },
+      ]);
+    });
+
+    it("test on deep context (outer anonymous get)", () => {
+      const context = new Context();
+      context.get(function () {
+        this.any("/test", function () {});
+      });
+
+      expect(context.info()).to.deep.equal([
+        {
+          condition: { method: "get" },
+          context: context.children[0].context,
+        },
+        {
+          condition: { method: "get", path: "/test" },
+          context: context.children[0].context.children[0].context,
+        },
+      ]);
+    });
+  });
 });
