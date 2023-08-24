@@ -1,5 +1,17 @@
 import { Method, Request } from "./common";
 
+export type ContextConditionJson =
+  | { type: "and"; conditions: ContextConditionJson[] }
+  | { type: "path"; path: string }
+  | { type: "path2"; path: string; flags: string }
+  | { type: "method"; method: Method };
+
+export type ContextConditionInfoJson = {
+  path?: string;
+  path2?: string;
+  method?: Method;
+};
+
 export abstract class ContextCondition {
   abstract appliesTo(req: Request): boolean;
   and(other: ContextCondition): ContextCondition {
@@ -15,8 +27,8 @@ export abstract class ContextCondition {
 
   abstract info(): ConditionInfo;
 
-  abstract toJson(): any;
-  abstract infoJson(): any;
+  abstract toJson(): ContextConditionJson;
+  abstract infoJson(): ContextConditionInfoJson;
 }
 
 export class ContextConditionAnd extends ContextCondition {
@@ -42,14 +54,14 @@ export class ContextConditionAnd extends ContextCondition {
       .reduce((a, b) => ({ ...a, ...b }));
   }
 
-  toJson(): any {
+  toJson(): ContextConditionJson {
     return {
       type: "and",
       conditions: this.conditions.map((c) => c.toJson()),
     };
   }
 
-  infoJson(): any {
+  infoJson(): ContextConditionInfoJson {
     let it = {};
 
     for (const c of this.conditions) {
@@ -76,7 +88,7 @@ export class ContextConditionPath extends ContextCondition {
     };
   }
 
-  toJson(): any {
+  toJson(): ContextConditionJson {
     return {
       type: "path",
       path: this.path,
@@ -89,7 +101,7 @@ export class ContextConditionPath extends ContextCondition {
     };
   }
 
-  infoJson(): any {
+  infoJson(): ContextConditionInfoJson {
     return {
       path: this.path,
     };
@@ -118,7 +130,7 @@ export class ContextConditionPath2 extends ContextCondition {
     };
   }
 
-  toJson(): any {
+  toJson(): ContextConditionJson {
     return {
       type: "path2",
       path: this.path.source,
@@ -126,7 +138,7 @@ export class ContextConditionPath2 extends ContextCondition {
     };
   }
 
-  infoJson(): any {
+  infoJson(): ContextConditionInfoJson {
     return {
       path2: this.path.source,
     };
@@ -142,7 +154,7 @@ export class ContextConditionMethod extends ContextCondition {
     return req.method.toLowerCase() === this.method.toLocaleLowerCase();
   }
 
-  toJson(): any {
+  toJson(): ContextConditionJson {
     return {
       type: "method",
       method: this.method,
@@ -155,7 +167,7 @@ export class ContextConditionMethod extends ContextCondition {
     };
   }
 
-  infoJson(): any {
+  infoJson(): ContextConditionInfoJson {
     return {
       method: this.method,
     };
@@ -175,7 +187,7 @@ export class ConditionChain {
     return true;
   }
 
-  toJson(): any {
+  toJson() {
     return {
       type: "chain",
       conditions: this.conditions.map((c) => c.toJson()),
