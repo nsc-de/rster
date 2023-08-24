@@ -1602,4 +1602,88 @@ describe("Context", () => {
       });
     });
   });
+
+  describe("collect", () => {
+    it("test on empty context", () => {
+      const context = new Context();
+      expect(context.collect()).to.deep.equal([context]);
+    });
+
+    it("test with action", () => {
+      const context = new Context();
+      context.action(() => {});
+      expect(context.collect()).to.deep.equal([context]);
+    });
+
+    it("test with use", () => {
+      const context = new Context();
+      context.use(() => {});
+      expect(context.collect()).to.deep.equal([context]);
+    });
+
+    it("test on context with one child", () => {
+      const context = new Context();
+      context.get("/test", () => {});
+
+      const collect = context.collect();
+      expect(collect).to.have.length(2);
+      expect(context.collect()).to.have.members([
+        context.children[0].context,
+        context,
+      ]);
+    });
+
+    it("test on context with multiple children", () => {
+      const context = new Context();
+      context.get("/test", () => {});
+      context.post("/test", () => {});
+
+      const collect = context.collect();
+      expect(collect).to.have.length(3);
+      expect(context.collect()).to.have.members([
+        context.children[0].context,
+        context.children[1].context,
+        context,
+      ]);
+    });
+
+    it("test on deep context", () => {
+      const context = new Context();
+      context.get("/test", function () {
+        this.get("/testtttt", () => {});
+      });
+
+      const collect = context.collect();
+      expect(collect).to.have.length(3);
+      expect(context.collect()).to.have.members([
+        context.children[0].context.children[0].context,
+        context.children[0].context,
+        context,
+      ]);
+    });
+
+    it("test on deep context with multiple children", () => {
+      const context = new Context();
+      context.any("/test", function () {
+        this.get("/testtttt", () => {});
+        this.post("/testtttt", () => {});
+      });
+      context.any("/test2", function () {
+        this.get("/test3", () => {});
+        this.post("/testtttt", () => {});
+      });
+
+      const collect = context.collect();
+      expect(collect).to.have.length(7);
+      expect(collect).to.have.have.members([
+        context.children[0].context.children[0].context,
+        context.children[0].context.children[1].context,
+        context.children[0].context,
+        context.children[1].context.children[0].context,
+        context.children[1].context.children[1].context,
+        context.children[1].context,
+        context,
+      ]);
+    });
+  });
 });
