@@ -167,6 +167,44 @@ describe("ContextConditionAnd", () => {
       });
     });
   });
+
+  describe("equals()", () => {
+    it("should return false if condition is not an instance of ContextConditionAnd", () => {
+      const condition1 = new ContextConditionPath("/users");
+      const condition2 = new ContextConditionMethod("GET");
+      const andCondition = new ContextConditionAnd([condition1, condition2]);
+
+      expect(andCondition.equals(condition1)).to.be.false;
+    });
+
+    it("should return false if length of conditions is not equal", () => {
+      const condition1 = new ContextConditionPath("/users");
+      const condition2 = new ContextConditionMethod("GET");
+      const andCondition1 = new ContextConditionAnd([condition1, condition2]);
+      const andCondition2 = new ContextConditionAnd([condition1]);
+
+      expect(andCondition1.equals(andCondition2)).to.be.false;
+    });
+
+    it("should return true if the conditions are equal", () => {
+      const condition1 = new ContextConditionPath("/users");
+      const condition2 = new ContextConditionMethod("GET");
+      const andCondition1 = new ContextConditionAnd([condition1, condition2]);
+      const andCondition2 = new ContextConditionAnd([condition1, condition2]);
+
+      expect(andCondition1.equals(andCondition2)).to.be.true;
+    });
+
+    it("should return false if the conditions are not equal", () => {
+      const condition1 = new ContextConditionPath("/users");
+      const condition2 = new ContextConditionMethod("GET");
+      const condition3 = new ContextConditionPath2(/^\/products\/\d+$/);
+      const andCondition1 = new ContextConditionAnd([condition1, condition2]);
+      const andCondition2 = new ContextConditionAnd([condition1, condition3]);
+
+      expect(andCondition1.equals(andCondition2)).to.be.false;
+    });
+  });
 });
 
 describe("ContextConditionPath", () => {
@@ -242,6 +280,29 @@ describe("ContextConditionPath", () => {
       });
     });
   });
+
+  describe("equals()", () => {
+    it("should return false if condition is not an instance of ContextConditionPath", () => {
+      const condition1 = new ContextConditionPath("/users");
+      const condition2 = new ContextConditionMethod("GET");
+
+      expect(condition1.equals(condition2)).to.be.false;
+    });
+
+    it("should return true if the paths are equal", () => {
+      const condition1 = new ContextConditionPath("/users");
+      const condition2 = new ContextConditionPath("/users");
+
+      expect(condition1.equals(condition2)).to.be.true;
+    });
+
+    it("should return false if the paths are not equal", () => {
+      const condition1 = new ContextConditionPath("/users");
+      const condition2 = new ContextConditionPath("/products");
+
+      expect(condition1.equals(condition2)).to.be.false;
+    });
+  });
 });
 
 describe("ContextConditionPath2", () => {
@@ -295,27 +356,57 @@ describe("ContextConditionPath2", () => {
         path: "[^\\/users\\/\\d+$]",
       });
     });
+  });
 
-    describe("toJson()", () => {
-      it("should return a JSON representation of the condition", () => {
-        const condition = new ContextConditionPath2(/^\/users\/\d+$/);
+  describe("toJson()", () => {
+    it("should return a JSON representation of the condition", () => {
+      const condition = new ContextConditionPath2(/^\/users\/\d+$/);
 
-        expect(condition.toJson()).to.deep.equal({
-          flags: "",
-          path: "^\\/users\\/\\d+$",
-          type: "path2",
-        });
+      expect(condition.toJson()).to.deep.equal({
+        flags: "",
+        path: "^\\/users\\/\\d+$",
+        type: "path2",
       });
     });
+  });
 
-    describe("infoJson()", () => {
-      it("should return a JSON representation of the condition", () => {
-        const condition = new ContextConditionPath2(/^\/users\/\d+$/);
+  describe("infoJson()", () => {
+    it("should return a JSON representation of the condition", () => {
+      const condition = new ContextConditionPath2(/^\/users\/\d+$/);
 
-        expect(condition.infoJson()).to.deep.equal({
-          path2: "^\\/users\\/\\d+$",
-        });
+      expect(condition.infoJson()).to.deep.equal({
+        path2: "^\\/users\\/\\d+$",
       });
+    });
+  });
+
+  describe("equals()", () => {
+    it("should return false if condition is not an instance of ContextConditionPath2", () => {
+      const condition1 = new ContextConditionPath2(/^\/users\/\d+$/);
+      const condition2 = new ContextConditionMethod("GET");
+
+      expect(condition1.equals(condition2)).to.be.false;
+    });
+
+    it("should return true if the paths are equal", () => {
+      const condition1 = new ContextConditionPath2(/^\/users\/\d+$/);
+      const condition2 = new ContextConditionPath2(/^\/users\/\d+$/);
+
+      expect(condition1.equals(condition2)).to.be.true;
+    });
+
+    it("should return false if the paths are not equal", () => {
+      const condition1 = new ContextConditionPath2(/^\/users\/\d+$/);
+      const condition2 = new ContextConditionPath2(/^\/products\/\d+$/);
+
+      expect(condition1.equals(condition2)).to.be.false;
+    });
+
+    it("should return true if the flags are equal", () => {
+      const condition1 = new ContextConditionPath2(/^\/users\/\d+$/);
+      const condition2 = new ContextConditionPath2(/^\/users\/\d+$/, "i");
+
+      expect(condition1.equals(condition2)).to.be.true;
     });
   });
 });

@@ -73,6 +73,7 @@ export class ContextConditionAnd extends ContextCondition {
   }
 
   equals(other: ContextCondition): boolean {
+    // TODO: Add checking if conditions are equal but in different order
     if (!(other instanceof ContextConditionAnd)) {
       return false;
     }
