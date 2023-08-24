@@ -18,6 +18,22 @@ import { RestfulApi } from "./index";
 const debugHttpError = debug("rster:http-error");
 const debugRoute = debug("rster:router");
 
+export type ContextJson = {
+  children: (
+    | {
+        type: "condition";
+        condition: ContextConditionJson;
+        context: ContextJson;
+      }
+    | {
+        type: "use";
+      }
+    | {
+        type: "action";
+      }
+  )[];
+};
+
 /**
  * Context child for containing a context and a condition (for nested routing)
  */
@@ -990,7 +1006,7 @@ export class Context {
    * ```
    * @see {@link ContextChild}
    */
-  toJson(): any {
+  toJson(): ContextJson {
     return {
       children: this.children.map((c) => {
         if (c.type === "condition")
@@ -999,8 +1015,8 @@ export class Context {
             condition: (c as ContextChildCondition).condition.toJson(),
             context: (c as ContextChildCondition).context.toJson(),
           };
-        else if (c.type === "action") return { type: "action" };
-        else if (c.type === "use") return { type: "use" };
+        if (c.type === "action") return { type: "action" };
+        return { type: "use" };
       }),
     };
   }

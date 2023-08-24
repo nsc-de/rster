@@ -1488,4 +1488,118 @@ describe("Context", () => {
       ]);
     });
   });
+
+  describe("toJson", () => {
+    it("test on empty context", () => {
+      const context = new Context();
+      expect(context.toJson()).to.deep.equal({ children: [] });
+    });
+
+    it("test with action", () => {
+      const context = new Context();
+      context.action(() => {});
+      expect(context.toJson()).to.deep.equal({
+        children: [{ type: "action" }],
+      });
+    });
+
+    it("test with use", () => {
+      const context = new Context();
+      context.use(() => {});
+      expect(context.toJson()).to.deep.equal({
+        children: [{ type: "use" }],
+      });
+    });
+
+    it("test on context with one child", () => {
+      const context = new Context();
+      context.get("/test", () => {});
+
+      expect(context.toJson()).to.deep.equal({
+        children: [
+          {
+            type: "condition",
+            condition: {
+              type: "and",
+              conditions: [
+                { type: "method", method: "get" },
+                { type: "path", path: "/test" },
+              ],
+            },
+            context: { children: [] },
+          },
+        ],
+      });
+    });
+
+    it("test on context with multiple children", () => {
+      const context = new Context();
+      context.get("/test", () => {});
+      context.post("/test", () => {});
+
+      expect(context.toJson()).to.deep.equal({
+        children: [
+          {
+            type: "condition",
+            condition: {
+              type: "and",
+              conditions: [
+                { type: "method", method: "get" },
+                { type: "path", path: "/test" },
+              ],
+            },
+            context: { children: [] },
+          },
+          {
+            type: "condition",
+            condition: {
+              type: "and",
+              conditions: [
+                { type: "method", method: "post" },
+                { type: "path", path: "/test" },
+              ],
+            },
+            context: { children: [] },
+          },
+        ],
+      });
+    });
+
+    it("test on deep context", () => {
+      const context = new Context();
+      context.get("/test", function () {
+        this.get("/testtttt", () => {});
+      });
+
+      expect(context.toJson()).to.deep.equal({
+        children: [
+          {
+            type: "condition",
+            condition: {
+              type: "and",
+              conditions: [
+                { type: "method", method: "get" },
+                { type: "path", path: "/test" },
+              ],
+            },
+            context: {
+              children: [
+                {
+                  type: "condition",
+                  condition: {
+                    type: "and",
+                    conditions: [
+                      { type: "method", method: "get" },
+                      { type: "path", path: "/testtttt" },
+                    ],
+                  },
+                  context: { children: [] },
+                },
+              ],
+            },
+          },
+        ],
+      });
+    });
+  });
 });
