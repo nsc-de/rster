@@ -908,6 +908,7 @@ export class Context {
   data(arg0?: string): any {
     if (typeof arg0 == "undefined") return this._data;
     if (typeof arg0 == "string") return this._data[arg0];
+    throw new Error("Invalid arguments");
   }
 
   /**
@@ -921,6 +922,7 @@ export class Context {
    * ```
    */
   setData(key: string, value: any): this {
+    if (!key) throw new Error("No key provided");
     this._data[key] = value;
     return this;
   }

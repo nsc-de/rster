@@ -1176,4 +1176,148 @@ describe("Context", () => {
       });
     });
   });
+
+  describe("data / setData", () => {
+    it("test storing data", () => {
+      const context = new Context();
+      context.setData("test", "test");
+      expect(context.data("test")).to.equal("test");
+    });
+
+    it("test storing data with object", () => {
+      const context = new Context();
+      context.setData("test", { test: "test" });
+      expect(context.data("test")).to.deep.equal({ test: "test" });
+    });
+
+    it("test multiple data", () => {
+      const context = new Context();
+      context.setData("test", "test");
+      context.setData("test2", "test2");
+      expect(context.data("test")).to.equal("test");
+      expect(context.data("test2")).to.equal("test2");
+    });
+
+    it("test multiple data with object", () => {
+      const context = new Context();
+      context.setData("test", { test: "test" });
+      context.setData("test2", { test2: "test2" });
+      expect(context.data("test")).to.deep.equal({ test: "test" });
+      expect(context.data("test2")).to.deep.equal({ test2: "test2" });
+    });
+
+    it("test data object", () => {
+      const context = new Context();
+      context.setData("test", "test");
+      context.setData("test2", "test2323");
+      expect(context.data()).to.deep.equal({
+        test: "test",
+        test2: "test2323",
+      });
+    });
+
+    it("test with wrong parameters", () => {
+      const context = new Context();
+      expect(() => context.setData()).to.throw("No key provided");
+      expect(() => context.setData("")).to.throw("No key provided");
+      expect(() => context.data(null)).to.throw("Invalid arguments");
+    });
+  });
+
+  describe("map", () => {
+    it("test on empty context", () => {
+      const context = new Context();
+      expect(context.map).to.deep.equal([]);
+    });
+
+    it("test with action", () => {
+      const context = new Context();
+      context.action(() => {});
+      expect(context.map).to.deep.equal([]);
+    });
+
+    it("test with use", () => {
+      const context = new Context();
+      context.use(() => {});
+      expect(context.map).to.deep.equal([]);
+    });
+
+    it("test on context with one child", () => {
+      const context = new Context();
+      context.get("/test", () => {});
+
+      expect(context.map).to.deep.equal([
+        {
+          condition: {
+            conditions: [
+              { method: "get", type: "method" },
+              { path: "/test", type: "path" },
+            ],
+            type: "and",
+          },
+          context: [],
+        },
+      ]);
+    });
+
+    it("test on context with multiple children", () => {
+      const context = new Context();
+      context.get("/test", () => {});
+      context.post("/test", () => {});
+
+      expect(context.map).to.deep.equal([
+        {
+          condition: {
+            conditions: [
+              { method: "get", type: "method" },
+              { path: "/test", type: "path" },
+            ],
+            type: "and",
+          },
+          context: [],
+        },
+        {
+          condition: {
+            conditions: [
+              { method: "post", type: "method" },
+              { path: "/test", type: "path" },
+            ],
+            type: "and",
+          },
+          context: [],
+        },
+      ]);
+    });
+
+    it("test on deep context", () => {
+      const context = new Context();
+      context.get("/test", function () {
+        this.get("/testtttt", () => {});
+      });
+
+      expect(context.map).to.deep.equal([
+        {
+          condition: {
+            conditions: [
+              { method: "get", type: "method" },
+              { path: "/test", type: "path" },
+            ],
+            type: "and",
+          },
+          context: [
+            {
+              condition: {
+                conditions: [
+                  { method: "get", type: "method" },
+                  { path: "/testtttt", type: "path" },
+                ],
+                type: "and",
+              },
+              context: [],
+            },
+          ],
+        },
+      ]);
+    });
+  });
 });
