@@ -1686,4 +1686,30 @@ describe("Context", () => {
       ]);
     });
   });
+
+  describe("getMethod", () => {
+    it("test on empty context", () => {
+      const context = new Context();
+      expect(context.getMethod()).to.equal("any");
+    });
+
+    it("test with method defined", () => {
+      const context = new Context();
+      context.get(() => {});
+      expect(context.children[0].context.getMethod()).to.equal("get");
+    });
+  });
+
+  describe("getPath", () => {
+    it("test on empty context", () => {
+      const context = new Context();
+      expect(context.getPath()).to.equal("");
+    });
+
+    it("test with path defined", () => {
+      const context = new Context();
+      context.get("/test", () => {});
+      expect(context.children[0].context.getPath()).to.equal("/test");
+    });
+  });
 });
