@@ -1426,5 +1426,66 @@ describe("Context", () => {
         },
       ]);
     });
+
+    it("test on 2-layer deep context", () => {
+      const context = new Context();
+      context.get("/test", function () {
+        this.get("/testtttt", function () {
+          this.get("/testtttttttt", () => {});
+        });
+      });
+
+      expect(context.info()).to.deep.equal([
+        {
+          condition: { method: "get", path: "/test" },
+          context: context.children[0].context,
+        },
+        {
+          condition: { method: "get", path: "/test/testtttt" },
+          context: context.children[0].context.children[0].context,
+        },
+        {
+          condition: { method: "get", path: "/test/testtttt/testtttttttt" },
+          context:
+            context.children[0].context.children[0].context.children[0].context,
+        },
+      ]);
+    });
+
+    it("test on 3-layer deep context", () => {
+      const context = new Context();
+      context.get("/test", function () {
+        this.get("/testtttt", function () {
+          this.get("/testtttttttt", function () {
+            this.get("/testtttttttttttt", () => {});
+          });
+        });
+      });
+
+      expect(context.info()).to.deep.equal([
+        {
+          condition: { method: "get", path: "/test" },
+          context: context.children[0].context,
+        },
+        {
+          condition: { method: "get", path: "/test/testtttt" },
+          context: context.children[0].context.children[0].context,
+        },
+        {
+          condition: { method: "get", path: "/test/testtttt/testtttttttt" },
+          context:
+            context.children[0].context.children[0].context.children[0].context,
+        },
+        {
+          condition: {
+            method: "get",
+            path: "/test/testtttt/testtttttttt/testtttttttttttt",
+          },
+          context:
+            context.children[0].context.children[0].context.children[0].context
+              .children[0].context,
+        },
+      ]);
+    });
   });
 });

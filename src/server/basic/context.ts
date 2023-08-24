@@ -982,28 +982,6 @@ export class Context {
   }
 
   /**
-   * Get the json representation of the context
-   * @returns {any} The json representation of the context
-   * @example
-   * ```typescript
-   * Context.current.toJson(); // The json representation of the context
-   * ```
-   */
-  get flatMap(): {
-    condition: ContextConditionJson;
-    context: Context;
-  }[] {
-    return this.children
-      .filter((c) => c.type === "condition")
-      .map((c) => {
-        return {
-          condition: (c as ContextChildCondition).condition.toJson(),
-          context: (c as ContextChildCondition).context,
-        };
-      });
-  }
-
-  /**
    * Return the json representation of the context
    * @returns  {any} The json representation of the context
    * @example
