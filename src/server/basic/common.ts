@@ -824,7 +824,9 @@ export type Method =
   | "options"
   | "trace";
 
-export function createSyntheticRequest(info: AllOptional<Request>): Request {
+export function createSyntheticRequest(
+  info: AllOptional<Request> = {}
+): Request {
   return {
     accepts: info.accepts ?? ["application/json"],
     acceptsCharsets: info.acceptsCharsets ?? ["utf-8"],
@@ -836,7 +838,7 @@ export function createSyntheticRequest(info: AllOptional<Request>): Request {
     hostname: info.hostname ?? "localhost",
     ip: info.ip ?? getLocalIP(),
     ips: info.ips ?? [getLocalIP()],
-    method: info.method ?? "get",
+    method: info.method ?? "GET",
     originalUrl: info.originalUrl ?? "/",
     params: info.params ?? {},
     path: info.path ?? "/",
@@ -845,7 +847,16 @@ export function createSyntheticRequest(info: AllOptional<Request>): Request {
     baseUrl: info.baseUrl ?? "/",
     fullApiPath: info.fullApiPath ?? "/",
     fullPath: info.fullPath ?? "/",
-    get: info.get ?? (() => ""),
+    get(field: string): string | undefined {
+      if (info.get) {
+        return info.get(field);
+      }
+      return (
+        Object.entries(this.headers).find(
+          ([key, value]) => key.toLowerCase() === field.toLowerCase()
+        )?.[1] ?? ""
+      );
+    },
     header(name: string): string {
       if (info.header) {
         return info.header(name);
@@ -856,7 +867,10 @@ export function createSyntheticRequest(info: AllOptional<Request>): Request {
         )?.[1] ?? ""
       );
     },
-    headers: info.headers ?? {},
+    headers: info.headers ?? {
+      accept: "application/json",
+      host: "localhost",
+    },
     is: info.is ?? (() => false),
     secure: info.secure ?? false,
     signedCookies: info.signedCookies ?? {},
