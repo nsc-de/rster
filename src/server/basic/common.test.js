@@ -391,7 +391,7 @@ describe("createSyntheticContext", () => {
   });
 
   it("test with parameters", () => {
-    const request = createSyntheticRequest({
+    const { request, pass, promise, response } = createSyntheticContext({
       accepts: ["text/html"],
       acceptsCharsets: ["utf-8", "utf-16"],
       acceptsEncodings: ["identity", "gzip", "deflate"],
@@ -487,6 +487,17 @@ describe("createSyntheticContext", () => {
     expect(request.is("html")).toEqual("html");
     expect(request.is("json")).toEqual("json");
     expect(request.is("application/json")).toEqual("application/json");
+
+    expect(promise).toBeInstanceOf(Promise);
+
+    expect(response.end).toBeInstanceOf(Function);
+    expect(response.error).toBeInstanceOf(Function);
+    expect(response.header).toBeInstanceOf(Function);
+    expect(response.json).toBeInstanceOf(Function);
+    expect(response.redirect).toBeInstanceOf(Function);
+    expect(response.send).toBeInstanceOf(Function);
+    expect(response.sendFile).toBeInstanceOf(Function);
+    expect(response.status).toBeInstanceOf(Function);
 
     expect(pass).toEqual([request, response]);
   });
