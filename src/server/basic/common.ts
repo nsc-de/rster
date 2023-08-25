@@ -984,7 +984,7 @@ export function createSyntheticContext(info: AllOptional<Request>): {
     redirect?: string;
   }>;
 } {
-  const { response, promise } = createSyntheticResponse({});
+  const { response, promise } = createSyntheticResponse();
   const request = createSyntheticRequest(info);
   const pass: [Request, Response] = [request, response];
   return {
