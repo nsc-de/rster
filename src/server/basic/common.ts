@@ -889,14 +889,13 @@ export function getLocalIP() {
   return addresses[0] ?? "";
 }
 
-export function createSyntheticResponse(info: AllOptional<Response>): {
+export function createSyntheticResponse(): {
   response: Response;
   promise: Promise<{
     code: number;
     data: string;
     headers: Record<string, string>;
     sendFile?: string;
-    redirect?: string;
   }>;
 } {
   let resolver: (value: {
@@ -914,7 +913,6 @@ export function createSyntheticResponse(info: AllOptional<Response>): {
     data: string;
     headers: Record<string, string>;
     sendFile?: string;
-    redirect?: string;
   }>((resolve, reject) => {
     resolver = resolve;
     rejecter = reject;
@@ -923,7 +921,6 @@ export function createSyntheticResponse(info: AllOptional<Response>): {
   let statusCode = 200;
   let data = "";
   const headers: Record<string, string> = {};
-  let redirect: string | undefined;
   let sendFile: string | undefined;
 
   return {
@@ -934,7 +931,6 @@ export function createSyntheticResponse(info: AllOptional<Response>): {
           data,
           headers,
           sendFile,
-          redirect,
         });
         return this;
       },
@@ -951,6 +947,7 @@ export function createSyntheticResponse(info: AllOptional<Response>): {
       },
       json(body: any) {
         data = JSON.stringify(body);
+        this.header("Content-Type", "application/json");
         return this;
       },
       status(code: number) {
@@ -966,7 +963,8 @@ export function createSyntheticResponse(info: AllOptional<Response>): {
         return this;
       },
       redirect(path: string) {
-        redirect = path;
+        this.header("Location", path);
+        this.status(302);
         return this;
       },
     },

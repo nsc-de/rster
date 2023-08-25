@@ -1,4 +1,8 @@
-import { createSyntheticRequest, getLocalIP } from "./common";
+import {
+  createSyntheticRequest,
+  getLocalIP,
+  createSyntheticResponse,
+} from "./common";
 
 describe("createSyntheticRequest", () => {
   it("should create a synthetic with all default parameters", () => {
@@ -199,5 +203,131 @@ describe("createSyntheticRequest", () => {
     expect(request.is("html")).toEqual("html");
     expect(request.is("json")).toEqual("json");
     expect(request.is("application/json")).toEqual("application/json");
+  });
+});
+
+describe("createSyntheticResponse", () => {
+  it("should create a synthetic with all default parameters", () => {
+    const { promise, response } = createSyntheticResponse();
+    expect(promise).toBeInstanceOf(Promise);
+    expect(response.end).toBeInstanceOf(Function);
+    expect(response.error).toBeInstanceOf(Function);
+    expect(response.header).toBeInstanceOf(Function);
+    expect(response.json).toBeInstanceOf(Function);
+    expect(response.redirect).toBeInstanceOf(Function);
+    expect(response.send).toBeInstanceOf(Function);
+    expect(response.sendFile).toBeInstanceOf(Function);
+    expect(response.status).toBeInstanceOf(Function);
+  });
+
+  it("end should resolve the promise", async () => {
+    const { promise, response } = createSyntheticResponse();
+    response.end();
+    await promise;
+  });
+
+  it("error should add an error to the response", async () => {
+    const { promise, response } = createSyntheticResponse();
+    response.error(404, "error");
+    response.end();
+    const result = await promise;
+    expect(result).toEqual({
+      code: 404,
+      data: "error",
+      headers: {},
+      sendFile: undefined,
+    });
+  });
+
+  it("header should add a header to the response", async () => {
+    const { promise, response } = createSyntheticResponse();
+    response.header("header", "value");
+    response.end();
+    const result = await promise;
+    expect(result).toEqual({
+      code: 200,
+      data: "",
+      headers: { header: "value" },
+      sendFile: undefined,
+    });
+  });
+
+  it("json should add a json to the response", async () => {
+    const { promise, response } = createSyntheticResponse();
+    response.json({ name: "John Doe" });
+    response.end();
+    const result = await promise;
+    expect(result).toEqual({
+      code: 200,
+      data: '{"name":"John Doe"}',
+      headers: { "Content-Type": "application/json" },
+      sendFile: undefined,
+    });
+  });
+
+  it("redirect should add a redirect to the response", async () => {
+    const { promise, response } = createSyntheticResponse();
+    response.redirect("/aaa");
+    response.end();
+    const result = await promise;
+    expect(result).toEqual({
+      code: 302,
+      data: "",
+      headers: { Location: "/aaa" },
+      sendFile: undefined,
+    });
+  });
+
+  it("send should add a send to the response", async () => {
+    const { promise, response } = createSyntheticResponse();
+    response.send("send");
+    response.end();
+    const result = await promise;
+    expect(result).toEqual({
+      code: 200,
+      data: "send",
+      headers: {},
+      sendFile: undefined,
+    });
+  });
+
+  it("sendFile should add a sendFile to the response", async () => {
+    const { promise, response } = createSyntheticResponse();
+    response.sendFile("sendFile");
+    response.end();
+    const result = await promise;
+    expect(result).toEqual({
+      code: 200,
+      data: "",
+      headers: {},
+      sendFile: "sendFile",
+    });
+  });
+
+  it("test status should set code", async () => {
+    const { promise, response } = createSyntheticResponse();
+    response.status(404);
+    response.end();
+    const result = await promise;
+    expect(result).toEqual({
+      code: 404,
+      data: "",
+      headers: {},
+      sendFile: undefined,
+    });
+  });
+
+  it("test error with message sent before", async () => {
+    const { promise, response } = createSyntheticResponse();
+    response.send("send");
+    response.error(404, "error");
+    response.end();
+    const result = await promise;
+    expect(result).toEqual({
+      code: 404,
+      data: "send",
+      headers: {},
+      sendFile: undefined,
+    });
   });
 });
