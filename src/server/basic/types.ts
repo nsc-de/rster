@@ -130,7 +130,7 @@ export class ConversionRegister {
         `Unsupported type: ${value?.constructor?.name ?? typeof value}`
       );
     }
-    return `${entry.identifier}:${entry.exportToString(value)}`;
+    return `@${entry.identifier}:${entry.exportToString(value)}`;
   }
 
   /**
@@ -140,12 +140,21 @@ export class ConversionRegister {
    * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
    */
   importFromString(value: string): AllowAnyTypeInformation["type"] {
-    const [identifier, stringValue] = value.split(":");
-    const entry = this.entries.find((e) => e.identifier === identifier);
-    if (!entry) {
-      throw new Error("Unsupported type");
+    if (value.startsWith("@")) {
+      const [identifier, stringValue] = value.substring(1).split(":");
+      const entry = this.entries.find((e) => e.identifier === identifier);
+      if (!entry) {
+        throw new Error(`Unsupported type for identifier: ${identifier}`);
+      }
+      return entry.importFromString(stringValue);
+    } else if (value.startsWith("\\")) {
+      // TODO: Escape characters for normal strings
+      if (value.charAt(1) === "@" || value.charAt(1) === "\\") {
+        return value.substring(1);
+      }
     }
-    return entry.importFromString(stringValue);
+
+    return value;
   }
 
   /**
@@ -439,9 +448,9 @@ export abstract class TypeInformation<T> {
    * @type {T} This is the important part, it should represent the typescript type of the type information
    * @memberof TypeInformation This is not a real property, but a hack to get the type of the type information
    */
-  abstract readonly type: T;
+  abstract get type(): T;
 
-  abstract identifier: string;
+  abstract get identifier(): string;
   abstract exportToString(value: T): string;
   abstract importFromString(value: string): T;
 }
@@ -487,7 +496,7 @@ export class StringTypeInformation<
   }
 
   toString() {
-    return this.identifier;
+    return `StringTypeInformation{${this.value}}`;
   }
 }
 
@@ -526,6 +535,10 @@ export class NumberTypeInformation<
   }
   importFromString(value: string): T {
     return Number(value) as T;
+  }
+
+  toString() {
+    return `NumberTypeInformation{${this.value}}`;
   }
 }
 
@@ -575,6 +588,10 @@ export class NumberRangeTypeInformation<
   importFromString(value: string): IntRange<MIN, MAX> {
     return Number(value) as any;
   }
+
+  toString() {
+    return `NumberRangeTypeInformation{${this.min}, ${this.max}}`;
+  }
 }
 
 /**
@@ -621,7 +638,7 @@ export class Or<
   }
 
   toString() {
-    return `${this.value0.toString()}|${this.value1.toString()}`;
+    return `Or{${this.value0}, ${this.value1}}`;
   }
 }
 
@@ -685,6 +702,15 @@ export class ObjectTypeInformation<
     return ConversionRegister.instance.deepImportObjectFromString(
       JSON.parse(value)
     ) as { [key in keyof T]: T[key]["type"] };
+  }
+
+  toString() {
+    return `ObjectTypeInformation{${Object.entries(this.properties)
+      .map(
+        ([key, value]) =>
+          `${key}: {required: ${value.required}, type: ${value.type}}`
+      )
+      .join(", ")}}`;
   }
 }
 
@@ -847,7 +873,7 @@ export class NullTypeInformation extends TypeInformation<null> {
   }
 
   toString() {
-    return this.identifier;
+    return "NullTypeInformation{}";
   }
 }
 
@@ -892,7 +918,7 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
   }
 
   toString() {
-    return this.identifier;
+    return "UndefinedTypeInformation{}";
   }
 }
 
@@ -933,6 +959,10 @@ export class AnyStringTypeInformation extends TypeInformation<string> {
 
   importFromString(value: string): string {
     return value;
+  }
+
+  toString() {
+    return "AnyStringTypeInformation{}";
   }
 }
 
@@ -976,7 +1006,7 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
   }
 
   toString() {
-    return this.identifier;
+    return "AnyNumberTypeInformation{}";
   }
 }
 
@@ -1020,7 +1050,7 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
   }
 
   toString() {
-    return this.identifier;
+    return "AnyBooleanTypeInformation{}";
   }
 }
 
@@ -1063,7 +1093,7 @@ export class AnyTypeInformation<T = any> extends TypeInformation<T> {
   }
 
   toString() {
-    return this.identifier;
+    return "AnyTypeInformation{}";
   }
 }
 
@@ -1082,7 +1112,10 @@ export class DateTypeInformation extends TypeInformation<Date> {
   }
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
-  sendableVia(): SendMethod[] | boolean {
+  sendableVia(n?: SendMethod): SendMethod[] | boolean {
+    if (n) {
+      return this.sendableVia().includes(n);
+    }
     return ["body"];
   }
 
@@ -1103,7 +1136,7 @@ export class DateTypeInformation extends TypeInformation<Date> {
   }
 
   toString() {
-    return this.identifier;
+    return "DateTypeInformation{}";
   }
 }
 
