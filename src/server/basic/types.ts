@@ -127,7 +127,9 @@ export class ConversionRegister {
     const entry = this.entries.find((e) => e.type.check(value));
     if (!entry) {
       throw new ConversionRegisterUnsupportedTypeError(
-        `Unsupported type: ${value?.constructor?.name ?? typeof value}`
+        `Unsupported type: ${
+          value?.constructor?.name ?? (value === null ? "Null" : typeof value)
+        }`
       );
     }
     return `@${entry.identifier}:${entry.exportToString(value)}`;

@@ -28,6 +28,7 @@ const {
   trueType,
   falseType,
   date,
+  ConversionRegister,
 } = require("./types");
 
 describe("TypeInformation", () => {
@@ -860,6 +861,117 @@ describe("Creation Shortcuts", () => {
   describe("date()", () => {
     it("test date type creation", () => {
       expect(date()).be.instanceOf(DateTypeInformation);
+    });
+  });
+});
+
+describe("ConversionRegister", () => {
+  describe("instance", () => {
+    it("test instance contains instance of ConversionRegister", () => {
+      expect(ConversionRegister.instance).to.be.instanceOf(ConversionRegister);
+    });
+  });
+
+  describe("constructor", () => {
+    it("test constructor", () => {
+      const conversionRegister = new ConversionRegister([]);
+      expect(conversionRegister).to.be.instanceOf(ConversionRegister);
+    });
+  });
+
+  describe("register", () => {
+    it("register should register a new conversion", () => {
+      const conversionRegister = new ConversionRegister([]);
+      const type = new StringTypeInformation("hello");
+
+      conversionRegister.register(
+        type,
+        "hello",
+        (value) => JSON.stringify(value),
+        (value) => JSON.parse(value)
+      );
+
+      expect(conversionRegister.entries).to.have.lengthOf(1);
+      expect(conversionRegister.entries[0].type).to.equal(type);
+      expect(conversionRegister.entries[0].identifier).to.equal("hello");
+      expect(conversionRegister.entries[0].exportToString("hello")).to.equal(
+        '"hello"'
+      );
+      expect(
+        conversionRegister.entries[0].importFromString('"hello"')
+      ).to.equal("hello");
+    });
+  });
+
+  describe("exportToString", () => {
+    it("exportToString should export a value to string using the given conversion", () => {
+      const typeInfo = new StringTypeInformation("hello");
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "hello",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(conversionRegister.exportToString("hello")).to.equal(
+        '@hello:"hello"'
+      );
+    });
+
+    it("exportToString with multiple conversations", () => {
+      const typeInfo = string("hello");
+      const typeInfo2 = string("world");
+      const typeInfo3 = number();
+
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "hello",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "world",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo3,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(conversionRegister.exportToString("hello")).to.equal(
+        '@hello:"hello"'
+      );
+      expect(conversionRegister.exportToString("world")).to.equal(
+        '@world:"world"'
+      );
+      expect(conversionRegister.exportToString(42)).to.equal("@number:42");
+    });
+
+    it("exportToString should throw an error if no conversion is found", () => {
+      const conversionRegister = new ConversionRegister([]);
+      expect(() => conversionRegister.exportToString("hello")).to.throw(
+        "Unsupported type: String"
+      );
+
+      expect(() => conversionRegister.exportToString(42)).to.throw(
+        "Unsupported type: Number"
+      );
+
+      expect(() => conversionRegister.exportToString(null)).to.throw(
+        "Unsupported type: Null"
+      );
+
+      expect(() => conversionRegister.exportToString(undefined)).to.throw(
+        "Unsupported type: undefined"
+      );
     });
   });
 });
