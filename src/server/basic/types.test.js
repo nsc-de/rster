@@ -132,6 +132,48 @@ describe("TypeInformation", () => {
     });
   });
 
+  describe("BooleanTypeInformation", () => {
+    it("check", () => {
+      const typeInfo = new BooleanTypeInformation(true);
+      expect(typeInfo.check(true)).to.be.true;
+      expect(typeInfo.check(false)).to.be.false;
+      expect(typeInfo.check(0)).to.be.false;
+      expect(typeInfo.check("true")).to.be.false;
+    });
+
+    it("sendableVia", () => {
+      const typeInfo = new BooleanTypeInformation(true);
+      expect(typeInfo.sendableVia()).to.include("body");
+      expect(typeInfo.sendableVia()).not.to.include("query");
+      expect(typeInfo.sendableVia()).not.to.include("param");
+      expect(typeInfo.sendableVia("body")).to.be.true;
+      expect(typeInfo.sendableVia("query")).to.be.false;
+      expect(typeInfo.sendableVia("param")).to.be.false;
+    });
+
+    it("identifier", () => {
+      const typeInfo = new BooleanTypeInformation(true);
+      expect(typeInfo.identifier).to.equal("boolean");
+    });
+
+    it("exportToString", () => {
+      const typeInfo = new BooleanTypeInformation(true);
+      expect(typeInfo.exportToString(true)).to.equal("true");
+      expect(typeInfo.exportToString(false)).to.equal("false");
+    });
+
+    it("importFromString", () => {
+      const typeInfo = new BooleanTypeInformation(true);
+      expect(typeInfo.importFromString("true")).to.equal(true);
+      expect(typeInfo.importFromString("false")).to.equal(false);
+    });
+
+    it("toString", () => {
+      const typeInfo = new BooleanTypeInformation(true);
+      expect(typeInfo.toString()).to.equal("BooleanTypeInformation{true}");
+    });
+  });
+
   describe("NumberRangeTypeInformation", () => {
     it("check", () => {
       const typeInfo = new NumberRangeTypeInformation(1, 10);

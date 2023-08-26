@@ -834,6 +834,10 @@ export class BooleanTypeInformation<
   importFromString(value: string): T {
     return (value === "true" ? true : false) as T;
   }
+
+  toString() {
+    return `BooleanTypeInformation{${this.value}}`;
+  }
 }
 
 /**
