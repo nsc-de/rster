@@ -6,14 +6,13 @@ import {
   ContextConditionPath2,
 } from "./condition";
 import { Context } from "./context";
-import { expect, should } from "chai";
 import { $404 } from "./error";
 
 describe("Context", () => {
   describe("constructor", () => {
     it("Should create a new context", () => {
       const context = new Context();
-      expect(context).not.to.be.undefined;
+      expect(context).not.toBeUndefined();
     });
   });
 
@@ -21,13 +20,13 @@ describe("Context", () => {
     it("Should return the currently executing context", () => {
       const context = new Context();
       context.init(() => {
-        expect(Context.current).not.to.be.undefined;
-        expect(Context.current).to.equal(context);
+        expect(Context.current).not.toBeUndefined();
+        expect(Context.current).toEqual(context);
       });
     });
 
     it("Should throw an error if no context is executing", () => {
-      expect(() => Context.current).to.throw(
+      expect(() => Context.current).toThrow(
         "No context is currently executing"
       );
     });
@@ -35,28 +34,28 @@ describe("Context", () => {
     it("Test with multiple contexts", () => {
       const context = new Context();
       context.init(() => {
-        expect(Context.current).not.to.be.undefined;
-        expect(Context.current).to.equal(context);
+        expect(Context.current).not.toBeUndefined();
+        expect(Context.current).toEqual(context);
       });
 
       const context2 = new Context();
       context2.init(() => {
-        expect(Context.current).not.to.be.undefined;
-        expect(Context.current).to.equal(context2);
-        expect(Context.current).not.to.equal(context);
+        expect(Context.current).not.toBeUndefined();
+        expect(Context.current).toBe(context2);
+        expect(Context.current).not.toBe(context);
       });
     });
 
     it("Test with nested contexts", () => {
       const context = new Context();
       context.init(() => {
-        expect(Context.current).not.to.be.undefined;
-        expect(Context.current).to.equal(context);
+        expect(Context.current).not.toBeUndefined();
+        expect(Context.current).toEqual(context);
         const context2 = new Context();
         context2.init(() => {
-          expect(Context.current).not.to.be.undefined;
-          expect(Context.current).to.equal(context2);
-          expect(Context.current).not.to.equal(context);
+          expect(Context.current).not.toBeUndefined();
+          expect(Context.current).toBe(context2);
+          expect(Context.current).not.toBe(context);
         });
       });
     });
@@ -69,25 +68,25 @@ describe("Context", () => {
       context.init(() => {
         executed = true;
       });
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Should initialize context.current", () => {
       const context = new Context();
       context.init(() => {
-        expect(Context.current).not.to.be.undefined;
-        expect(Context.current).to.equal(context);
+        expect(Context.current).not.toBeUndefined();
+        expect(Context.current).toEqual(context);
       });
     });
 
     it("Should throw an error if no callback is provided", () => {
       const context = new Context();
-      expect(() => context.init()).to.throw("No callback provided");
+      expect(() => context.init()).toThrow("No callback provided");
     });
 
     it("Should throw an error if the callback is not a function", () => {
       const context = new Context();
-      expect(() => context.init("test")).to.throw("Callback is not a function");
+      expect(() => context.init("test")).toThrow("Callback is not a function");
     });
 
     it("Should throw an error if the callback throws an error", () => {
@@ -96,22 +95,22 @@ describe("Context", () => {
         context.init(() => {
           throw new Error("test");
         })
-      ).to.throw("test");
+      ).toThrow("test");
     });
 
     it("Should initialize this parameter with the context", () => {
       const context = new Context();
       context.init(function () {
-        expect(this).not.to.be.undefined;
-        expect(this).to.equal(context);
+        expect(this).not.toBeUndefined();
+        expect(this).toEqual(context);
       });
     });
 
     it("Should initialize Context.current with the context", () => {
       const context = new Context();
       context.init(function () {
-        expect(Context.current).not.to.be.undefined;
-        expect(Context.current).to.equal(context);
+        expect(Context.current).not.toBeUndefined();
+        expect(Context.current).toEqual(context);
       });
     });
   });
@@ -120,12 +119,12 @@ describe("Context", () => {
     it("Should add a context condition clause to the context's children", () => {
       const context = new Context();
       context.when(new ContextConditionPath("test"), () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionPath
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Should execute the callback in the context", () => {
@@ -134,7 +133,7 @@ describe("Context", () => {
       context.when(new ContextConditionPath("test"), () => {
         executed = true;
       });
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
   });
 
@@ -142,23 +141,23 @@ describe("Context", () => {
     it("Should add a route using a Path condition if called with a string", () => {
       const context = new Context();
       context.describe("test", () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionPath
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Should add a route using a Path2 condition if called with a RegExp", () => {
       const context = new Context();
       context.describe(/test/, () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionPath2
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
   });
 
@@ -167,23 +166,23 @@ describe("Context", () => {
     it("Should add a route using a Path condition if called with a string", () => {
       const context = new Context();
       context.any("test", () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionPath
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Should add a route using a Path2 condition if called with a RegExp", () => {
       const context = new Context();
       context.any(/test/, () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionPath2
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
   });
 
@@ -193,16 +192,14 @@ describe("Context", () => {
     it("Should add a route using a Path condition if called with a string", () => {
       const context = new Context();
       context.get("test", () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "get",
         path: "test",
       });
@@ -211,16 +208,14 @@ describe("Context", () => {
     it("Should add a route using a Path2 condition if called with a RegExp", () => {
       const context = new Context();
       context.get(/test/, () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "get",
         path: "[test]",
       });
@@ -229,18 +224,18 @@ describe("Context", () => {
     it("Test without a path", () => {
       const context = new Context();
       context.get(() => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionMethod
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Test with wrong parameters", () => {
       const context = new Context();
-      expect(() => context.get("")).to.throw("Invalid arguments");
-      expect(() => context.get("", "")).to.throw("Invalid arguments");
+      expect(() => context.get("")).toThrow("Invalid arguments");
+      expect(() => context.get("", "")).toThrow("Invalid arguments");
     });
   });
 
@@ -250,16 +245,14 @@ describe("Context", () => {
     it("Should add a route using a Path condition if called with a string", () => {
       const context = new Context();
       context.post("test", () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "post",
         path: "test",
       });
@@ -268,16 +261,14 @@ describe("Context", () => {
     it("Should add a route using a Path2 condition if called with a RegExp", () => {
       const context = new Context();
       context.post(/test/, () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "post",
         path: "[test]",
       });
@@ -286,18 +277,18 @@ describe("Context", () => {
     it("Test without a path", () => {
       const context = new Context();
       context.post(() => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionMethod
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Test with wrong parameters", () => {
       const context = new Context();
-      expect(() => context.post("")).to.throw("Invalid arguments");
-      expect(() => context.post("", "")).to.throw("Invalid arguments");
+      expect(() => context.post("")).toThrow("Invalid arguments");
+      expect(() => context.post("", "")).toThrow("Invalid arguments");
     });
   });
 
@@ -307,16 +298,14 @@ describe("Context", () => {
     it("Should add a route using a Path condition if called with a string", () => {
       const context = new Context();
       context.put("test", () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "put",
         path: "test",
       });
@@ -325,16 +314,14 @@ describe("Context", () => {
     it("Should add a route using a Path2 condition if called with a RegExp", () => {
       const context = new Context();
       context.put(/test/, () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "put",
         path: "[test]",
       });
@@ -343,18 +330,18 @@ describe("Context", () => {
     it("Test without a path", () => {
       const context = new Context();
       context.put(() => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionMethod
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Test with wrong parameters", () => {
       const context = new Context();
-      expect(() => context.put("")).to.throw("Invalid arguments");
-      expect(() => context.put("", "")).to.throw("Invalid arguments");
+      expect(() => context.put("")).toThrow("Invalid arguments");
+      expect(() => context.put("", "")).toThrow("Invalid arguments");
     });
   });
 
@@ -364,16 +351,14 @@ describe("Context", () => {
     it("Should add a route using a Path condition if called with a string", () => {
       const context = new Context();
       context.patch("test", () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "patch",
         path: "test",
       });
@@ -382,16 +367,14 @@ describe("Context", () => {
     it("Should add a route using a Path2 condition if called with a RegExp", () => {
       const context = new Context();
       context.patch(/test/, () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "patch",
         path: "[test]",
       });
@@ -400,18 +383,18 @@ describe("Context", () => {
     it("Test without a path", () => {
       const context = new Context();
       context.patch(() => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionMethod
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Test with wrong parameters", () => {
       const context = new Context();
-      expect(() => context.patch("")).to.throw("Invalid arguments");
-      expect(() => context.patch("", "")).to.throw("Invalid arguments");
+      expect(() => context.patch("")).toThrow("Invalid arguments");
+      expect(() => context.patch("", "")).toThrow("Invalid arguments");
     });
   });
 
@@ -421,16 +404,14 @@ describe("Context", () => {
     it("Should add a route using a Path condition if called with a string", () => {
       const context = new Context();
       context.delete("test", () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "delete",
         path: "test",
       });
@@ -439,16 +420,14 @@ describe("Context", () => {
     it("Should add a route using a Path2 condition if called with a RegExp", () => {
       const context = new Context();
       context.delete(/test/, () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].context).not.toBeUndefined();
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "delete",
         path: "[test]",
       });
@@ -457,18 +436,18 @@ describe("Context", () => {
     it("Test without a path", () => {
       const context = new Context();
       context.delete(() => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionMethod
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Test with wrong parameters", () => {
       const context = new Context();
-      expect(() => context.delete("")).to.throw("Invalid arguments");
-      expect(() => context.delete("", "")).to.throw("Invalid arguments");
+      expect(() => context.delete("")).toThrow("Invalid arguments");
+      expect(() => context.delete("", "")).toThrow("Invalid arguments");
     });
   });
 
@@ -478,48 +457,44 @@ describe("Context", () => {
     it("Should add a route using a Path condition if called with a string", () => {
       const context = new Context();
       context.head("test", () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].condition.info()).to.deep.equal({
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].condition.info()).toEqual({
         method: "head",
         path: "test",
       });
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Should add a route using a Path2 condition if called with a RegExp", () => {
       const context = new Context();
       context.head(/test/, () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
-      expect(context.children[0].condition.info()).to.deep.equal({
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
+      expect(context.children[0].condition.info()).toEqual({
         method: "head",
         path: "[test]",
       });
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Test without a path", () => {
       const context = new Context();
       context.head(() => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionMethod
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Test with wrong parameters", () => {
       const context = new Context();
-      expect(() => context.head("")).to.throw("Invalid arguments");
-      expect(() => context.head("", "")).to.throw("Invalid arguments");
+      expect(() => context.head("")).toThrow("Invalid arguments");
+      expect(() => context.head("", "")).toThrow("Invalid arguments");
     });
   });
 
@@ -529,54 +504,50 @@ describe("Context", () => {
     it("Should add a route using a Path condition if called with a string", () => {
       const context = new Context();
       context.options("test", () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "options",
         path: "test",
       });
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Should add a route using a Path2 condition if called with a RegExp", () => {
       const context = new Context();
       context.options(/test/, () => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
-        ContextConditionAnd
-      );
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(ContextConditionAnd);
 
       /** @type {ContextConditionAnd} */
       const andCondition = context.children[0].condition;
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "options",
         path: "[test]",
       });
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Test without a path", () => {
       const context = new Context();
       context.options(() => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("condition");
-      expect(context.children[0].condition).to.be.an.instanceOf(
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(context.children[0].condition).toBeInstanceOf(
         ContextConditionMethod
       );
-      expect(context.children[0].context).not.to.be.undefined;
+      expect(context.children[0].context).not.toBeUndefined();
     });
 
     it("Test with wrong parameters", () => {
       const context = new Context();
-      expect(() => context.options("")).to.throw("Invalid arguments");
-      expect(() => context.options("", "")).to.throw("Invalid arguments");
+      expect(() => context.options("")).toThrow("Invalid arguments");
+      expect(() => context.options("", "")).toThrow("Invalid arguments");
     });
   });
 
@@ -584,10 +555,10 @@ describe("Context", () => {
     it("Should add an action as a child", () => {
       const context = new Context();
       context.action(() => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("action");
-      expect(context.children[0].condition).to.be.undefined;
-      expect(context.children[0].func).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("action");
+      expect(context.children[0].condition).toBeUndefined();
+      expect(context.children[0].func).not.toBeUndefined();
     });
 
     it("Function should not be executed directly", () => {
@@ -606,7 +577,7 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Should be executed with the correct parameters", () => {
@@ -624,12 +595,12 @@ describe("Context", () => {
 
       context.action((reqq, ress, next) => {
         executed = true;
-        expect(reqq).to.equal(req);
-        expect(ress).to.equal(res);
+        expect(reqq).toEqual(req);
+        expect(ress).toEqual(res);
       });
       context.execute(req, res);
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Everything after the action should not be executed", () => {
@@ -646,17 +617,17 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Should throw an error if no callback is provided", () => {
       const context = new Context();
-      expect(() => context.action()).to.throw("No callback provided");
+      expect(() => context.action()).toThrow("No callback provided");
     });
 
     it("Should throw an error if the callback is not a function", () => {
       const context = new Context();
-      expect(() => context.action("test")).to.throw(
+      expect(() => context.action("test")).toThrow(
         "Callback is not a function"
       );
     });
@@ -664,7 +635,7 @@ describe("Context", () => {
     it("Should throw an error if two actions are added", () => {
       const context = new Context();
       context.action(() => {});
-      expect(() => context.action(() => {})).to.throw(
+      expect(() => context.action(() => {})).toThrow(
         "Only one action function is allowed in a context"
       );
     });
@@ -674,10 +645,10 @@ describe("Context", () => {
     it("Should add a middleware as a child", () => {
       const context = new Context();
       context.use(() => {});
-      expect(context.children).to.have.length(1);
-      expect(context.children[0].type).to.equal("use");
-      expect(context.children[0].condition).to.be.undefined;
-      expect(context.children[0].func).not.to.be.undefined;
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("use");
+      expect(context.children[0].condition).toBeUndefined();
+      expect(context.children[0].func).not.toBeUndefined();
     });
 
     it("Function should not be executed directly", () => {
@@ -696,7 +667,7 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Should be executed with the correct parameters", () => {
@@ -714,12 +685,12 @@ describe("Context", () => {
 
       context.use((reqq, ress, next) => {
         executed = true;
-        expect(reqq).to.equal(req);
-        expect(ress).to.equal(res);
+        expect(reqq).toEqual(req);
+        expect(ress).toEqual(res);
       });
       context.execute(req, res);
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Everything after the middleware should be executed", () => {
@@ -736,7 +707,7 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Should provide a next function", () => {
@@ -744,15 +715,15 @@ describe("Context", () => {
       let executed = false;
       context.use((req, res, next) => {
         executed = true;
-        expect(next).not.to.be.undefined;
-        expect(next).to.be.a("function");
+        expect(next).not.toBeUndefined();
+        expect(typeof next).toBe("function");
       });
       context.execute({
         method: "get",
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Should execute the next middleware if next is called", () => {
@@ -770,7 +741,7 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Should not execute the next middleware if next not is called", () => {
@@ -787,17 +758,17 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Should throw an error if no callback is provided", () => {
       const context = new Context();
-      expect(() => context.use()).to.throw("No callback provided");
+      expect(() => context.use()).toThrow("No callback provided");
     });
 
     it("Should throw an error if the callback is not a function", () => {
       const context = new Context();
-      expect(() => context.use("test")).to.throw("Callback is not a function");
+      expect(() => context.use("test")).toThrow("Callback is not a function");
     });
   });
 
@@ -812,8 +783,8 @@ describe("Context", () => {
           test: "test",
         };
 
-      expect(await context.contextStack(req, res)).to.be.an("array");
-      expect(await context.contextStack(req, res)).to.deep.equal([[]]);
+      expect(Array.isArray(await context.contextStack(req, res))).toBe(true);
+      expect(await context.contextStack(req, res)).toEqual([[]]);
     });
 
     it("Test on complex context", async () => {
@@ -840,29 +811,29 @@ describe("Context", () => {
 
       const r = await context.contextStack(req, res);
 
-      expect(r).to.be.an("array");
-      expect(r).to.have.length(3);
+      expect(Array.isArray(r)).toBe(true);
+      expect(r).toHaveLength(3);
 
-      expect(r[0]).to.be.an("array");
-      expect(r[0]).to.have.length(1);
-      expect(r[0][0]).to.be.an("object");
-      expect(r[0][0].type).to.equal("condition");
-      expect(r[0][0].condition).to.be.an.instanceOf(ContextConditionPath);
-      expect(r[0][0].context).to.be.an.instanceOf(Context);
+      expect(Array.isArray(r[0])).toBe(true);
+      expect(r[0]).toHaveLength(1);
+      expect(typeof r[0][0]).toBe("object");
+      expect(r[0][0].type).toEqual("condition");
+      expect(r[0][0].condition).toBeInstanceOf(ContextConditionPath);
+      expect(r[0][0].context).toBeInstanceOf(Context);
 
-      expect(r[1]).to.be.an("array");
-      expect(r[1]).to.have.length(1);
-      expect(r[1][0]).to.be.an("object");
-      expect(r[1][0].type).to.equal("condition");
-      expect(r[1][0].condition).to.be.an.instanceOf(ContextConditionMethod);
-      expect(r[1][0].context).to.be.an.instanceOf(Context);
+      expect(Array.isArray(r[1])).toBe(true);
+      expect(r[1]).toHaveLength(1);
+      expect(typeof r[1][0]).toBe("object");
+      expect(r[1][0].type).toEqual("condition");
+      expect(r[1][0].condition).toBeInstanceOf(ContextConditionMethod);
+      expect(r[1][0].context).toBeInstanceOf(Context);
 
-      expect(r[2]).to.be.an("array");
-      expect(r[2]).to.have.length(1);
-      expect(r[2][0]).to.be.an("object");
-      expect(r[2][0].type).to.equal("action");
-      expect(r[2][0].condition).to.be.undefined;
-      expect(r[2][0].func).to.be.a("function");
+      expect(Array.isArray(r[2])).toBe(true);
+      expect(r[2]).toHaveLength(1);
+      expect(typeof r[2][0]).toBe("object");
+      expect(r[2][0].type).toEqual("action");
+      expect(r[2][0].condition).toBeUndefined();
+      expect(typeof r[2][0].func).toBe("function");
     });
 
     it("Test on another complex context", async () => {
@@ -891,33 +862,33 @@ describe("Context", () => {
 
       const r = await context.contextStack(req, res);
 
-      expect(r).to.be.an("array");
-      expect(r).to.have.length(3);
+      expect(Array.isArray(r)).toBe(true);
+      expect(r).toHaveLength(3);
 
-      expect(r[0]).to.be.an("array");
-      expect(r[0]).to.have.length(1);
-      expect(r[0][0]).to.be.an("object");
-      expect(r[0][0].type).to.equal("condition");
-      expect(r[0][0].condition).to.be.an.instanceOf(ContextConditionPath);
-      expect(r[0][0].context).to.be.an.instanceOf(Context);
+      expect(Array.isArray(r[0])).toBe(true);
+      expect(r[0]).toHaveLength(1);
+      expect(typeof r[0][0]).toBe("object");
+      expect(r[0][0].type).toEqual("condition");
+      expect(r[0][0].condition).toBeInstanceOf(ContextConditionPath);
+      expect(r[0][0].context).toBeInstanceOf(Context);
 
-      expect(r[1]).to.be.an("array");
-      expect(r[1]).to.have.length(1);
-      expect(r[1][0]).to.be.an("object");
-      expect(r[1][0].type).to.equal("condition");
-      expect(r[1][0].condition).to.be.an.instanceOf(ContextConditionMethod);
-      expect(r[1][0].context).to.be.an.instanceOf(Context);
+      expect(Array.isArray(r[1])).toBe(true);
+      expect(r[1]).toHaveLength(1);
+      expect(typeof r[1][0]).toBe("object");
+      expect(r[1][0].type).toEqual("condition");
+      expect(r[1][0].condition).toBeInstanceOf(ContextConditionMethod);
+      expect(r[1][0].context).toBeInstanceOf(Context);
 
-      expect(r[2]).to.be.an("array");
-      expect(r[2]).to.have.length(2);
-      expect(r[2][0]).to.be.an("object");
-      expect(r[2][0].type).to.equal("use");
-      expect(r[2][0].condition).to.be.undefined;
-      expect(r[2][0].func).to.be.a("function");
-      expect(r[2][1]).to.be.an("object");
-      expect(r[2][1].type).to.equal("action");
-      expect(r[2][1].condition).to.be.undefined;
-      expect(r[2][1].func).to.be.a("function");
+      expect(Array.isArray(r[2])).toBe(true);
+      expect(r[2]).toHaveLength(2);
+      expect(typeof r[2][0]).toBe("object");
+      expect(r[2][0].type).toEqual("use");
+      expect(r[2][0].condition).toBeUndefined();
+      expect(typeof r[2][0].func).toBe("function");
+      expect(typeof r[2][1]).toBe("object");
+      expect(r[2][1].type).toEqual("action");
+      expect(r[2][1].condition).toBeUndefined();
+      expect(typeof r[2][1].func).toBe("function");
     });
   });
 
@@ -933,7 +904,7 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
     it("Should execute middleware", () => {
       const context = new Context();
@@ -946,7 +917,7 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Test middleware with error passed to next", () => {
@@ -1003,8 +974,8 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
-      expect(executed2).to.be.false;
+      expect(executed).toBe(true);
+      expect(executed2).toBe(false);
     });
 
     it("Test middleware without next called not activating next action", async () => {
@@ -1023,8 +994,8 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
-      expect(executed2).to.be.false;
+      expect(executed).toBe(true);
+      expect(executed2).toBe(false);
     });
 
     it("Test middleware without next called not activating next condition", async () => {
@@ -1045,8 +1016,8 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
-      expect(executed2).to.be.false;
+      expect(executed).toBe(true);
+      expect(executed2).toBe(false);
     });
 
     it("Test middleware with next called activating next middleware", async () => {
@@ -1065,7 +1036,7 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Test middleware with next called activating next action", async () => {
@@ -1082,7 +1053,7 @@ describe("Context", () => {
         path: "test",
       });
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     it("Test middleware with next called activating next condition", async () => {
@@ -1102,7 +1073,7 @@ describe("Context", () => {
       });
       await context.execute(req);
 
-      expect(executed).to.be.true;
+      expect(executed).toBe(true);
     });
 
     describe("Test conditions", () => {
@@ -1119,7 +1090,7 @@ describe("Context", () => {
           path: "/test",
         });
 
-        expect(executed).to.be.true;
+        expect(executed).toBe(true);
       });
 
       it("Test condition with false", async () => {
@@ -1135,7 +1106,7 @@ describe("Context", () => {
           path: "/tes2",
         });
 
-        expect(executed).to.be.false;
+        expect(executed).toBe(false);
       });
 
       it("Test HTTP error", async () => {
@@ -1150,29 +1121,26 @@ describe("Context", () => {
         let body_result = null;
         let status = null;
 
-        const res = await context.execute(
-          {
-            method: "get",
-            path: "/test",
-          },
-          {
-            json(body) {
-              body_result = body;
-              return this;
+        await expect(() =>
+          context.execute(
+            {
+              method: "get",
+              path: "/test",
             },
-            status(code) {
-              status = code;
-              return this;
-            },
+            {
+              json(body) {
+                body_result = body;
+                return this;
+              },
+              status(code) {
+                status = code;
+                return this;
+              },
 
-            end() {},
-          }
-        );
-
-        expect(status).to.equal(404);
-        expect(body_result).to.deep.equal({
-          error: { message: "test", status: 404 },
-        });
+              end() {},
+            }
+          )
+        ).rejects.toThrow($404("test"));
       });
     });
   });
@@ -1181,36 +1149,36 @@ describe("Context", () => {
     it("test storing data", () => {
       const context = new Context();
       context.setData("test", "test");
-      expect(context.data("test")).to.equal("test");
+      expect(context.data("test")).toEqual("test");
     });
 
     it("test storing data with object", () => {
       const context = new Context();
       context.setData("test", { test: "test" });
-      expect(context.data("test")).to.deep.equal({ test: "test" });
+      expect(context.data("test")).toEqual({ test: "test" });
     });
 
     it("test multiple data", () => {
       const context = new Context();
       context.setData("test", "test");
       context.setData("test2", "test2");
-      expect(context.data("test")).to.equal("test");
-      expect(context.data("test2")).to.equal("test2");
+      expect(context.data("test")).toEqual("test");
+      expect(context.data("test2")).toEqual("test2");
     });
 
     it("test multiple data with object", () => {
       const context = new Context();
       context.setData("test", { test: "test" });
       context.setData("test2", { test2: "test2" });
-      expect(context.data("test")).to.deep.equal({ test: "test" });
-      expect(context.data("test2")).to.deep.equal({ test2: "test2" });
+      expect(context.data("test")).toEqual({ test: "test" });
+      expect(context.data("test2")).toEqual({ test2: "test2" });
     });
 
     it("test data object", () => {
       const context = new Context();
       context.setData("test", "test");
       context.setData("test2", "test2323");
-      expect(context.data()).to.deep.equal({
+      expect(context.data()).toEqual({
         test: "test",
         test2: "test2323",
       });
@@ -1218,35 +1186,35 @@ describe("Context", () => {
 
     it("test with wrong parameters", () => {
       const context = new Context();
-      expect(() => context.setData()).to.throw("No key provided");
-      expect(() => context.setData("")).to.throw("No key provided");
-      expect(() => context.data(null)).to.throw("Invalid arguments");
+      expect(() => context.setData()).toThrow("No key provided");
+      expect(() => context.setData("")).toThrow("No key provided");
+      expect(() => context.data(null)).toThrow("Invalid arguments");
     });
   });
 
   describe("map", () => {
     it("test on empty context", () => {
       const context = new Context();
-      expect(context.map).to.deep.equal([]);
+      expect(context.map).toEqual([]);
     });
 
     it("test with action", () => {
       const context = new Context();
       context.action(() => {});
-      expect(context.map).to.deep.equal([]);
+      expect(context.map).toEqual([]);
     });
 
     it("test with use", () => {
       const context = new Context();
       context.use(() => {});
-      expect(context.map).to.deep.equal([]);
+      expect(context.map).toEqual([]);
     });
 
     it("test on context with one child", () => {
       const context = new Context();
       context.get("/test", () => {});
 
-      expect(context.map).to.deep.equal([
+      expect(context.map).toEqual([
         {
           condition: {
             conditions: [
@@ -1265,7 +1233,7 @@ describe("Context", () => {
       context.get("/test", () => {});
       context.post("/test", () => {});
 
-      expect(context.map).to.deep.equal([
+      expect(context.map).toEqual([
         {
           condition: {
             conditions: [
@@ -1295,7 +1263,7 @@ describe("Context", () => {
         this.get("/testtttt", () => {});
       });
 
-      expect(context.map).to.deep.equal([
+      expect(context.map).toEqual([
         {
           condition: {
             conditions: [
@@ -1324,26 +1292,26 @@ describe("Context", () => {
   describe("info", () => {
     it("test on empty context", () => {
       const context = new Context();
-      expect(context.info()).to.deep.equal([]);
+      expect(context.info()).toEqual([]);
     });
 
     it("test with action", () => {
       const context = new Context();
       context.action(() => {});
-      expect(context.info()).to.deep.equal([]);
+      expect(context.info()).toEqual([]);
     });
 
     it("test with use", () => {
       const context = new Context();
       context.use(() => {});
-      expect(context.info()).to.deep.equal([]);
+      expect(context.info()).toEqual([]);
     });
 
     it("test on context with one child", () => {
       const context = new Context();
       context.get("/test", () => {});
 
-      expect(context.info()).to.deep.equal([
+      expect(context.info()).toEqual([
         {
           condition: { method: "get", path: "/test" },
           context: context.children[0].context,
@@ -1356,7 +1324,7 @@ describe("Context", () => {
       context.get("/test", () => {});
       context.post("/test", () => {});
 
-      expect(context.info()).to.deep.equal([
+      expect(context.info()).toEqual([
         {
           condition: { method: "get", path: "/test" },
           context: context.children[0].context,
@@ -1374,7 +1342,7 @@ describe("Context", () => {
         this.get("/testtttt", () => {});
       });
 
-      expect(context.info()).to.deep.equal([
+      expect(context.info()).toEqual([
         {
           condition: { method: "get", path: "/test" },
           context: context.children[0].context,
@@ -1393,7 +1361,7 @@ describe("Context", () => {
         this.post(() => {});
       });
 
-      expect(context.info()).to.deep.equal([
+      expect(context.info()).toEqual([
         {
           condition: { path: "/test" },
           context: context.children[0].context,
@@ -1415,7 +1383,7 @@ describe("Context", () => {
         this.any("/test", function () {});
       });
 
-      expect(context.info()).to.deep.equal([
+      expect(context.info()).toEqual([
         {
           condition: { method: "get" },
           context: context.children[0].context,
@@ -1435,7 +1403,7 @@ describe("Context", () => {
         });
       });
 
-      expect(context.info()).to.deep.equal([
+      expect(context.info()).toEqual([
         {
           condition: { method: "get", path: "/test" },
           context: context.children[0].context,
@@ -1462,7 +1430,7 @@ describe("Context", () => {
         });
       });
 
-      expect(context.info()).to.deep.equal([
+      expect(context.info()).toEqual([
         {
           condition: { method: "get", path: "/test" },
           context: context.children[0].context,
@@ -1492,13 +1460,13 @@ describe("Context", () => {
   describe("toJson", () => {
     it("test on empty context", () => {
       const context = new Context();
-      expect(context.toJson()).to.deep.equal({ children: [] });
+      expect(context.toJson()).toEqual({ children: [] });
     });
 
     it("test with action", () => {
       const context = new Context();
       context.action(() => {});
-      expect(context.toJson()).to.deep.equal({
+      expect(context.toJson()).toEqual({
         children: [{ type: "action" }],
       });
     });
@@ -1506,7 +1474,7 @@ describe("Context", () => {
     it("test with use", () => {
       const context = new Context();
       context.use(() => {});
-      expect(context.toJson()).to.deep.equal({
+      expect(context.toJson()).toEqual({
         children: [{ type: "use" }],
       });
     });
@@ -1515,7 +1483,7 @@ describe("Context", () => {
       const context = new Context();
       context.get("/test", () => {});
 
-      expect(context.toJson()).to.deep.equal({
+      expect(context.toJson()).toEqual({
         children: [
           {
             type: "condition",
@@ -1537,7 +1505,7 @@ describe("Context", () => {
       context.get("/test", () => {});
       context.post("/test", () => {});
 
-      expect(context.toJson()).to.deep.equal({
+      expect(context.toJson()).toEqual({
         children: [
           {
             type: "condition",
@@ -1571,7 +1539,7 @@ describe("Context", () => {
         this.get("/testtttt", () => {});
       });
 
-      expect(context.toJson()).to.deep.equal({
+      expect(context.toJson()).toEqual({
         children: [
           {
             type: "condition",
@@ -1606,19 +1574,19 @@ describe("Context", () => {
   describe("collect", () => {
     it("test on empty context", () => {
       const context = new Context();
-      expect(context.collect()).to.deep.equal([context]);
+      expect(context.collect()).toEqual([context]);
     });
 
     it("test with action", () => {
       const context = new Context();
       context.action(() => {});
-      expect(context.collect()).to.deep.equal([context]);
+      expect(context.collect()).toEqual([context]);
     });
 
     it("test with use", () => {
       const context = new Context();
       context.use(() => {});
-      expect(context.collect()).to.deep.equal([context]);
+      expect(context.collect()).toEqual([context]);
     });
 
     it("test on context with one child", () => {
@@ -1626,11 +1594,10 @@ describe("Context", () => {
       context.get("/test", () => {});
 
       const collect = context.collect();
-      expect(collect).to.have.length(2);
-      expect(context.collect()).to.have.members([
-        context.children[0].context,
-        context,
-      ]);
+      expect(collect).toHaveLength(2);
+      expect(context.collect()).toEqual(
+        expect.arrayContaining([context.children[0].context, context])
+      );
     });
 
     it("test on context with multiple children", () => {
@@ -1639,12 +1606,14 @@ describe("Context", () => {
       context.post("/test", () => {});
 
       const collect = context.collect();
-      expect(collect).to.have.length(3);
-      expect(context.collect()).to.have.members([
-        context.children[0].context,
-        context.children[1].context,
-        context,
-      ]);
+      expect(collect).toHaveLength(3);
+      expect(context.collect()).toEqual(
+        expect.arrayContaining([
+          context.children[0].context,
+          context.children[1].context,
+          context,
+        ])
+      );
     });
 
     it("test on deep context", () => {
@@ -1654,12 +1623,14 @@ describe("Context", () => {
       });
 
       const collect = context.collect();
-      expect(collect).to.have.length(3);
-      expect(context.collect()).to.have.members([
-        context.children[0].context.children[0].context,
-        context.children[0].context,
-        context,
-      ]);
+      expect(collect).toHaveLength(3);
+      expect(context.collect()).toEqual(
+        expect.arrayContaining([
+          context.children[0].context.children[0].context,
+          context.children[0].context,
+          context,
+        ])
+      );
     });
 
     it("test on deep context with multiple children", () => {
@@ -1674,42 +1645,44 @@ describe("Context", () => {
       });
 
       const collect = context.collect();
-      expect(collect).to.have.length(7);
-      expect(collect).to.have.have.members([
-        context.children[0].context.children[0].context,
-        context.children[0].context.children[1].context,
-        context.children[0].context,
-        context.children[1].context.children[0].context,
-        context.children[1].context.children[1].context,
-        context.children[1].context,
-        context,
-      ]);
+      expect(collect).toHaveLength(7);
+      expect(collect).toEqual(
+        expect.arrayContaining([
+          context.children[0].context.children[0].context,
+          context.children[0].context.children[1].context,
+          context.children[0].context,
+          context.children[1].context.children[0].context,
+          context.children[1].context.children[1].context,
+          context.children[1].context,
+          context,
+        ])
+      );
     });
   });
 
   describe("getMethod", () => {
     it("test on empty context", () => {
       const context = new Context();
-      expect(context.getMethod()).to.equal("any");
+      expect(context.getMethod()).toEqual("any");
     });
 
     it("test with method defined", () => {
       const context = new Context();
       context.get(() => {});
-      expect(context.children[0].context.getMethod()).to.equal("get");
+      expect(context.children[0].context.getMethod()).toEqual("get");
     });
   });
 
   describe("getPath", () => {
     it("test on empty context", () => {
       const context = new Context();
-      expect(context.getPath()).to.equal("");
+      expect(context.getPath()).toEqual("");
     });
 
     it("test with path defined", () => {
       const context = new Context();
       context.get("/test", () => {});
-      expect(context.children[0].context.getPath()).to.equal("/test");
+      expect(context.children[0].context.getPath()).toEqual("/test");
     });
   });
 });

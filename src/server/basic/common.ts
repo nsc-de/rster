@@ -845,8 +845,8 @@ export function createSyntheticRequest(
     protocol: info.protocol ?? "http",
     query: info.query ?? {},
     baseUrl: info.baseUrl ?? "/",
-    fullApiPath: info.fullApiPath ?? "/",
-    fullPath: info.fullPath ?? "/",
+    fullApiPath: info.fullApiPath ?? info.path ?? "/",
+    fullPath: info.fullPath ?? info.path ?? "/",
     get(field: string): string | undefined {
       if (info.get) {
         return info.get(field);

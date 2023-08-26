@@ -15,7 +15,6 @@ import {
 import { HttpError } from "./error";
 import { RestfulApi } from "./index";
 
-const debugHttpError = debug("rster:http-error");
 const debugRoute = debug("rster:router");
 
 export type ContextJson = {
@@ -850,50 +849,37 @@ export class Context {
     );
 
     const do_execute = async (collected: typeof this.children) => {
-      try {
-        for (let i = 0; i < collected.length; i++) {
-          if (collected[i].type === "condition") {
-            const it = collected[i] as ContextChildCondition;
-            const { condition, context } = it;
-            if (await condition.appliesTo(req)) {
-              debugRoute(req, condition);
-              if (await context.execute(condition.subRequest(req), res))
-                return true;
-            }
+      for (let i = 0; i < collected.length; i++) {
+        if (collected[i].type === "condition") {
+          const it = collected[i] as ContextChildCondition;
+          const { condition, context } = it;
+          if (await condition.appliesTo(req)) {
+            debugRoute(req, condition);
+            if (await context.execute(condition.subRequest(req), res))
+              return true;
           }
-          if (collected[i].type === "action") {
-            await (collected[i] as ContextChildAction).func(req, res);
-            return true;
-          }
-          if (collected[i].type === "use") {
-            const new_collect = collected.slice(i + 1);
-            return new Promise<boolean>((resolve, reject) => {
-              (async () => {
-                const next = (err: any) => {
-                  if (err !== true && err) {
-                    reject(err);
-                  }
+        }
+        if (collected[i].type === "action") {
+          await (collected[i] as ContextChildAction).func(req, res);
+          return true;
+        }
+        if (collected[i].type === "use") {
+          const new_collect = collected.slice(i + 1);
+          return new Promise<boolean>((resolve, reject) => {
+            (async () => {
+              const next = (err: any) => {
+                if (err !== true && err) {
+                  reject(err);
+                }
 
-                  do_execute(new_collect).then(resolve).catch(reject);
-                };
-                await (collected[i] as ContextChildUse)
-                  .func(req, res, next)
-                  ?.catch(next);
-              })();
-            });
-          }
+                do_execute(new_collect).then(resolve).catch(reject);
+              };
+              await (collected[i] as ContextChildUse)
+                .func(req, res, next)
+                ?.catch(next);
+            })();
+          });
         }
-      } catch (e) {
-        if (e instanceof HttpError) {
-          debugHttpError(e);
-          res.status(e.status).json({ error: e.toJson() }).end();
-        } else {
-          console.error(e);
-          try {
-            res.status(500).json({ message: "Internal server error" });
-          } catch (e) {}
-        }
-        return true;
       }
 
       return false;
