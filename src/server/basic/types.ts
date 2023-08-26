@@ -288,7 +288,9 @@ export class ConversionRegister {
     supportsValue: (it: unknown) => boolean = () => false
   ): unknown[] {
     return value.map((v) =>
-      typeof v === "object"
+      Array.isArray(v)
+        ? this.deepExportArrayToString(v, supportsValue)
+        : typeof v === "object"
         ? v !== null
           ? this.deepExportObjectToString(
               v as Record<string, unknown>,
@@ -309,7 +311,9 @@ export class ConversionRegister {
    */
   deepImportArrayFromString(value: unknown[]): unknown[] {
     return value.map((v) =>
-      typeof v === "object"
+      Array.isArray(v)
+        ? this.deepImportArrayFromString(v)
+        : typeof v === "object"
         ? v !== null
           ? this.deepImportObjectFromString(v as Record<string, unknown>)
           : null
