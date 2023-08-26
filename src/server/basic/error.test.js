@@ -177,3 +177,45 @@ describe("Function shortcuts", () => {
     });
   });
 });
+
+describe("ErrorFunctions", () => {
+  it("create", () => {
+    // should return $
+    expect(ErrorFunctions.create).to.equal($);
+  });
+
+  it("$", () => {
+    // should return $
+    expect(ErrorFunctions.$).to.equal($);
+  });
+
+  it("$ errors [should test 200 functions]", () => {
+    for (let i = 400; i < 600; i++) {
+      const fn = ErrorFunctions[`$${i}`];
+      expect(fn).to.be.an.instanceOf(Function);
+      const httpError = fn();
+      expect(httpError).to.be.an.instanceOf(HttpError);
+      expect(httpError.status).to.equal(i);
+      expect(httpError.message).to.equal(
+        HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
+      );
+    }
+
+    expect(() => ErrorFunctions.$aaa).to.throw("Unknown error function $aaa");
+  });
+
+  it("direct errors [should test 200 functions]", () => {
+    for (let i = 400; i < 600; i++) {
+      const fn = ErrorFunctions[i];
+      expect(fn).to.be.an.instanceOf(Function);
+      const httpError = fn();
+      expect(httpError).to.be.an.instanceOf(HttpError);
+      expect(httpError.status).to.equal(i);
+      expect(httpError.message).to.equal(
+        HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
+      );
+    }
+
+    expect(() => ErrorFunctions.aaa).to.throw("Unknown error function aaa");
+  });
+});
