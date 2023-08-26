@@ -1844,4 +1844,109 @@ describe("ConversionRegister", () => {
       ).to.deep.equal(["John", 42, null]);
     });
   });
+
+  describe("deepExportToString", () => {
+    it("Test with object", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => {
+            return value;
+          },
+          importFromString: (value) => value,
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => {
+            return value;
+          },
+          importFromString: (value) => value,
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepExportToString({
+          name: "John",
+          age: 42,
+          address: {
+            street: "street",
+            number: 42,
+          },
+        })
+      ).to.deep.equal({
+        name: "@string:John",
+        age: "@number:42",
+        address: {
+          street: "@string:street",
+          number: "@number:42",
+        },
+      });
+    });
+
+    it("Test with array", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => {
+            return value;
+          },
+          importFromString: (value) => value,
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => {
+            return value;
+          },
+          importFromString: (value) => value,
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepExportToString(["John", 42, ["street", 42]])
+      ).to.deep.equal([
+        "@string:John",
+        "@number:42",
+        ["@string:street", "@number:42"],
+      ]);
+    });
+
+    it("Test with unsupported type", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const typeInfo3 = boolean();
+
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => {
+            return value;
+          },
+          importFromString: (value) => value,
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => {
+            return value;
+          },
+          importFromString: (value) => value,
+        },
+      ]);
+
+      expect(() => conversionRegister.deepExportToString(true)).to.throw(
+        "Unsupported type"
+      );
+    });
+  });
 });
