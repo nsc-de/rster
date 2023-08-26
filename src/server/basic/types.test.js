@@ -974,4 +974,99 @@ describe("ConversionRegister", () => {
       );
     });
   });
+
+  describe("importFromString", () => {
+    it("importFromString should import a value from string using the given conversion", () => {
+      const typeInfo = new StringTypeInformation("hello");
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "hello",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.importFromString('@hello:"hello"')
+      ).to.deep.equal("hello");
+    });
+
+    it("importFromString with multiple conversations", () => {
+      const typeInfo = string("hello");
+      const typeInfo2 = string("world");
+      const typeInfo3 = number();
+
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "hello",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "world",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo3,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.importFromString('@hello:"hello"')
+      ).to.deep.equal("hello");
+      expect(
+        conversionRegister.importFromString('@world:"world"')
+      ).to.deep.equal("world");
+      expect(conversionRegister.importFromString("@number:42")).to.deep.equal(
+        42
+      );
+    });
+
+    it("importFromString should throw an error if no conversion is found", () => {
+      const conversionRegister = new ConversionRegister([]);
+      expect(() =>
+        conversionRegister.importFromString('@hello:"hello"')
+      ).to.throw("Unsupported type for identifier: hello");
+
+      expect(() =>
+        conversionRegister.importFromString('@world:"world"')
+      ).to.throw("Unsupported type for identifier: world");
+
+      expect(() => conversionRegister.importFromString("@number:42")).to.throw(
+        "Unsupported type for identifier: number"
+      );
+    });
+
+    it("should passthrough if no @identifier is declared", () => {
+      const conversionRegister = new ConversionRegister([]);
+      expect(conversionRegister.importFromString("hello")).to.deep.equal(
+        "hello"
+      );
+      expect(conversionRegister.importFromString("world")).to.deep.equal(
+        "world"
+      );
+      expect(conversionRegister.importFromString("42")).to.deep.equal("42");
+    });
+
+    it("test escaped @identifier", () => {
+      const conversionRegister = new ConversionRegister([]);
+      expect(
+        conversionRegister.importFromString('\\@hello:"hello"')
+      ).to.deep.equal('@hello:"hello"');
+    });
+
+    it("test escaped \\ character at begining", () => {
+      const conversionRegister = new ConversionRegister([]);
+      expect(conversionRegister.importFromString("\\\\@hello")).to.deep.equal(
+        "\\@hello"
+      );
+    });
+  });
 });
