@@ -221,8 +221,8 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 [license-shield]: https://img.shields.io/github/license/nsc-de/rster.svg?style=for-the-badge
 [license-url]: https://github.com/nsc-de/rster/blob/master/LICENSE.txt
 [product-screenshot]: images/screenshot.png
-[build-shield]: https://img.shields.io/github/actions/workflow/status/nsc-de/rster/build.yml?style=for-the-badge
-[build-url]: https://github.com/nsc-de/rster/actions/workflows/build.yml
+[build-shield]: https://img.shields.io/github/actions/workflow/status/nsc-de/rster/ci.yml?style=for-the-badge
+[build-url]: https://github.com/nsc-de/rster/actions/workflows/ci.yml
 [contributors-shield]: https://img.shields.io/github/contributors/nsc-de/rster.svg?style=for-the-badge
 [contributors-url]: https://github.com/nsc-de/rster/graphs/contributors
 [version-shield]: https://img.shields.io/npm/v/rster.svg?style=for-the-badge
