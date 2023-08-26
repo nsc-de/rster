@@ -1132,4 +1132,117 @@ describe("ConversionRegister", () => {
       });
     });
   });
+
+  describe("importObjectFromString", () => {
+    it("importObjectFromString should import an object's contents from string using the given conversion", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.importObjectFromString({
+          name: '@string:"John"',
+          age: "@number:42",
+          age2: 42,
+        })
+      ).to.deep.equal({
+        name: "John",
+        age: 42,
+        age2: 42,
+      });
+    });
+  });
+
+  describe("exportArrayToString", () => {
+    it("exportArrayToString should export an array's contents to string using the given conversion", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.exportArrayToString(["John", 42])
+      ).to.deep.equal(['@string:"John"', "@number:42"]);
+    });
+
+    it("Don't export if value is compatible with conversion", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.exportArrayToString(
+          ["John", 42],
+          (it) => typeof it === "string"
+        )
+      ).to.deep.equal(["John", "@number:42"]);
+    });
+  });
+
+  describe("importArrayFromString", () => {
+    it("importArrayFromString should import an array's contents from string using the given conversion", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.importArrayFromString([
+          '@string:"John"',
+          "@number:42",
+          42,
+        ])
+      ).to.deep.equal(["John", 42, 42]);
+    });
+  });
 });
