@@ -6,3 +6,7 @@ export * from "./express";
 export * from "./info";
 export * from "./rster";
 export * as types from "./types";
+
+import rest from "./rster";
+
+export default rest;
