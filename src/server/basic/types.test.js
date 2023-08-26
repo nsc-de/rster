@@ -1,17 +1,18 @@
 const { expect } = require("chai");
 const {
-  StringTypeInformation,
-  NumberTypeInformation,
-  NumberRangeTypeInformation,
-  Or,
-  ObjectTypeInformation,
-  NullTypeInformation,
-  UndefinedTypeInformation,
-  AnyStringTypeInformation,
-  AnyNumberTypeInformation,
   AnyBooleanTypeInformation,
+  AnyNumberTypeInformation,
+  AnyStringTypeInformation,
   AnyTypeInformation,
+  ArrayTypeInformation,
   DateTypeInformation,
+  NullTypeInformation,
+  NumberRangeTypeInformation,
+  NumberTypeInformation,
+  ObjectTypeInformation,
+  Or,
+  StringTypeInformation,
+  UndefinedTypeInformation,
 } = require("./types");
 
 describe("TypeInformation", () => {
@@ -69,7 +70,6 @@ describe("TypeInformation", () => {
   describe("NumberTypeInformation", () => {
     it("check", () => {
       const typeInfo = new NumberTypeInformation(42);
-      console.log(typeInfo);
       expect(typeInfo.check(42)).to.be.true;
       expect(typeInfo.check("42")).to.be.false;
     });
@@ -321,6 +321,71 @@ describe("TypeInformation", () => {
       });
       expect(typeInfo2.toString()).to.equal(
         "ObjectTypeInformation{name: {required: true, type: StringTypeInformation{Jane}}, age: {required: false, type: NumberTypeInformation{25}}}"
+      );
+    });
+  });
+
+  describe("ArrayTypeInformation", () => {
+    it("check", () => {
+      const typeInfo = new ArrayTypeInformation(
+        new StringTypeInformation("hello")
+      );
+      expect(typeInfo.check(["hello"])).to.be.true;
+      expect(typeInfo.check(["world"])).to.be.false;
+      expect(typeInfo.check([123])).to.be.false;
+    });
+
+    it("sendableVia", () => {
+      const typeInfo = new ArrayTypeInformation(
+        new StringTypeInformation("hello")
+      );
+      expect(typeInfo.sendableVia()).to.include("body");
+      expect(typeInfo.sendableVia()).not.to.include("query");
+      expect(typeInfo.sendableVia()).not.to.include("param");
+      expect(typeInfo.sendableVia("body")).to.be.true;
+      expect(typeInfo.sendableVia("query")).not.to.be.true;
+      expect(typeInfo.sendableVia("param")).not.to.be.true;
+    });
+
+    it("identifier", () => {
+      const typeInfo = new ArrayTypeInformation(
+        new StringTypeInformation("hello")
+      );
+      expect(typeInfo.identifier).to.equal("array");
+
+      const typeInfo2 = new ArrayTypeInformation(
+        new StringTypeInformation("world")
+      );
+      expect(typeInfo2.identifier).to.equal("array");
+    });
+
+    it("exportToString", () => {
+      const typeInfo = new ArrayTypeInformation(
+        new StringTypeInformation("hello")
+      );
+      expect(typeInfo.exportToString(["hello"])).to.deep.equal('["hello"]');
+    });
+
+    it("importFromString", () => {
+      const typeInfo = new ArrayTypeInformation(
+        new StringTypeInformation("hello")
+      );
+      expect(typeInfo.importFromString('["hello"]')).to.deep.equal(["hello"]);
+    });
+
+    it("toString", () => {
+      const typeInfo = new ArrayTypeInformation(
+        new StringTypeInformation("hello")
+      );
+      expect(typeInfo.toString()).to.equal(
+        "ArrayTypeInformation{StringTypeInformation{hello}}"
+      );
+
+      const typeInfo2 = new ArrayTypeInformation(
+        new StringTypeInformation("world")
+      );
+      expect(typeInfo2.toString()).to.equal(
+        "ArrayTypeInformation{StringTypeInformation{world}}"
       );
     });
   });

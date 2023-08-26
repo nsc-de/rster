@@ -725,14 +725,14 @@ export class ArrayTypeInformation<
   minItems?: number;
   maxItems?: number;
   constructor(
-    public readonly values: T[],
+    public readonly values: T,
     {
       minItems,
       maxItems,
     }: {
       minItems?: number;
       maxItems?: number;
-    }
+    } = {}
   ) {
     super();
     this.minItems = minItems;
@@ -744,7 +744,7 @@ export class ArrayTypeInformation<
       Array.isArray(value) &&
       value.length >= (this.minItems ?? 0) &&
       value.length <= (this.maxItems ?? Infinity) &&
-      value.every((v) => this.values.some((t) => t.check(v)))
+      value.every((v) => this.values.check(v))
     );
   }
 
@@ -758,7 +758,7 @@ export class ArrayTypeInformation<
   }
 
   get type(): T["type"][] {
-    return this.values.map((v) => v.type);
+    return [this.values.type];
   }
 
   get identifier(): string {
@@ -784,6 +784,10 @@ export class ArrayTypeInformation<
         ? ConversionRegister.instance.importFromString(v)
         : v
     );
+  }
+
+  toString() {
+    return `ArrayTypeInformation{${this.values}}`;
   }
 }
 
@@ -1286,7 +1290,7 @@ export function object<
  * @returns A type information for an array of specific types
  */
 export function array<T extends AllowAnyTypeInformation>(
-  values: T[],
+  values: T,
   {
     minItems,
     maxItems,
