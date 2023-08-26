@@ -1069,4 +1069,67 @@ describe("ConversionRegister", () => {
       );
     });
   });
+
+  describe("exportObjectToString", () => {
+    it("exportObjectToString should export an object's contents to string using the given conversion", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.exportObjectToString({
+          name: "John",
+          age: 42,
+        })
+      ).to.deep.equal({
+        name: '@string:"John"',
+        age: "@number:42",
+      });
+    });
+
+    it("Don't export if value is compatible with conversion", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.exportObjectToString(
+          {
+            name: "John",
+            age: 42,
+          },
+          (it) => typeof it === "string"
+        )
+      ).to.deep.equal({
+        name: "John",
+        age: "@number:42",
+      });
+    });
+  });
 });
