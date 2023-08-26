@@ -13,6 +13,21 @@ const {
   Or,
   StringTypeInformation,
   UndefinedTypeInformation,
+
+  string,
+  any,
+  number,
+  numberRange,
+  object,
+  array,
+  or,
+  nullType,
+  undefinedType,
+  boolean,
+  BooleanTypeInformation,
+  trueType,
+  falseType,
+  date,
 } = require("./types");
 
 describe("TypeInformation", () => {
@@ -674,6 +689,135 @@ describe("TypeInformation", () => {
     it("toString", () => {
       const typeInfo = new DateTypeInformation();
       expect(typeInfo.toString()).to.equal("DateTypeInformation{}");
+    });
+  });
+});
+
+describe("Creation Shortcuts", () => {
+  describe("string()", () => {
+    it("test any string type creation", () => {
+      expect(string()).be.instanceOf(AnyStringTypeInformation);
+    });
+
+    it("test specific string type creation", () => {
+      expect(string("hello")).be.instanceOf(StringTypeInformation);
+      expect(string("hello").value).to.equal("hello");
+    });
+  });
+
+  describe("number()", () => {
+    it("test any number type creation", () => {
+      expect(number()).be.instanceOf(AnyNumberTypeInformation);
+    });
+
+    it("test specific number type creation", () => {
+      expect(number(42)).be.instanceOf(NumberTypeInformation);
+      expect(number(42).value).to.equal(42);
+    });
+
+    it("test number range type creation", () => {
+      expect(number(1, 10)).be.instanceOf(NumberRangeTypeInformation);
+      expect(number(1, 10).min).to.equal(1);
+      expect(number(1, 10).max).to.equal(10);
+    });
+  });
+
+  describe("numberRange()", () => {
+    it("test number range type creation", () => {
+      expect(numberRange(1, 10)).be.instanceOf(NumberRangeTypeInformation);
+      expect(numberRange(1, 10).min).to.equal(1);
+      expect(numberRange(1, 10).max).to.equal(10);
+    });
+  });
+
+  describe("object()", () => {
+    it("test object type creation", () => {
+      expect(object({})).be.instanceOf(ObjectTypeInformation);
+      expect(object({}).properties).to.deep.equal({});
+    });
+  });
+
+  describe("array()", () => {
+    it("test array type creation", () => {
+      expect(array(string())).be.instanceOf(ArrayTypeInformation);
+      expect(array(string()).values).to.be.instanceOf(AnyStringTypeInformation);
+    });
+  });
+
+  describe("or()", () => {
+    it("test or type creation", () => {
+      const typeInfo = or(string(), number());
+      expect(typeInfo).be.instanceOf(Or);
+      expect(typeInfo.value0).to.be.instanceOf(AnyStringTypeInformation);
+      expect(typeInfo.value1).to.be.instanceOf(AnyNumberTypeInformation);
+    });
+
+    it("test or type creation with 3 arguments", () => {
+      const typeInfo = or(string(), number(), object({}));
+      expect(typeInfo).be.instanceOf(Or);
+      expect(typeInfo.value0).to.be.instanceOf(Or);
+      expect(typeInfo.value0.value0).to.be.instanceOf(AnyStringTypeInformation);
+      expect(typeInfo.value0.value1).to.be.instanceOf(AnyNumberTypeInformation);
+      expect(typeInfo.value1).to.be.instanceOf(ObjectTypeInformation);
+    });
+
+    it("test or type creation with 4 arguments", () => {
+      const typeInfo = or(string(), number(), string(), object({}));
+      expect(typeInfo).be.instanceOf(Or);
+      expect(typeInfo.value0).to.be.instanceOf(Or);
+      expect(typeInfo.value0.value0).to.be.instanceOf(Or);
+      expect(typeInfo.value0.value0.value0).to.be.instanceOf(
+        AnyStringTypeInformation
+      );
+      expect(typeInfo.value0.value0.value1).to.be.instanceOf(
+        AnyNumberTypeInformation
+      );
+      expect(typeInfo.value0.value1).to.be.instanceOf(AnyStringTypeInformation);
+      expect(typeInfo.value1).to.be.instanceOf(ObjectTypeInformation);
+    });
+  });
+
+  describe("any()", () => {
+    it("test any type creation", () => {
+      expect(any()).be.instanceOf(AnyTypeInformation);
+    });
+  });
+
+  describe("nullType()", () => {
+    it("test null type creation", () => {
+      expect(nullType()).be.instanceOf(NullTypeInformation);
+    });
+  });
+
+  describe("undefinedType()", () => {
+    it("test undefined type creation", () => {
+      expect(undefinedType()).be.instanceOf(UndefinedTypeInformation);
+    });
+  });
+
+  describe("boolean()", () => {
+    it("test any boolean type creation", () => {
+      expect(boolean()).be.instanceOf(AnyBooleanTypeInformation);
+    });
+  });
+
+  describe("trueType()", () => {
+    it("test true type creation", () => {
+      expect(trueType()).be.instanceOf(BooleanTypeInformation);
+      expect(trueType().value).to.be.true;
+    });
+  });
+
+  describe("falseType()", () => {
+    it("test false type creation", () => {
+      expect(falseType()).be.instanceOf(BooleanTypeInformation);
+      expect(falseType().value).to.be.false;
+    });
+  });
+
+  describe("date()", () => {
+    it("test date type creation", () => {
+      expect(date()).be.instanceOf(DateTypeInformation);
     });
   });
 });

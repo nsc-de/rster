@@ -1366,6 +1366,14 @@ export function any(): AnyTypeInformation {
 }
 
 /**
+ * Create a type information for a date
+ * @returns A type information for a date
+ */
+export function date(): DateTypeInformation {
+  return DateTypeInformation.instance;
+}
+
+/**
  * Type utility for converting a type to not include undefined
  */
 export type NoUndefined<TYPE, ALTERNATIVE> = TYPE extends undefined
