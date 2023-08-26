@@ -114,3 +114,19 @@ export type RemoveThisParam<T> = T extends (
 export type AllOptional<TYPE extends object> = {
   [key in keyof TYPE]?: TYPE[key];
 };
+
+export type SubString<
+  T extends string,
+  U extends string
+> = T extends `${U}${infer R}` ? R : never;
+
+export type MapNumberKeysToString<T extends { [key: number]: typeof key }> = {
+  [key in keyof T & number as `${key}`]: T[key];
+};
+
+export type StringToNumberHelper = MapNumberKeysToString<{
+  [key: number]: typeof key;
+}>;
+
+export type StringToNumber<T extends string> =
+  T extends keyof StringToNumberHelper ? StringToNumberHelper[T] : never;

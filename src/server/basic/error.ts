@@ -1,3 +1,5 @@
+import { StringToNumber, SubString } from "../util";
+
 /**
  * Throw this error to return an HTTP error response.
  *
@@ -42,15 +44,10 @@ export function $<T extends number>(status: T): ErrorFunction<T> {
     new HttpError(
       status,
       message ??
-        HTTP_ERROR_MESSAGES[
-          // @eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          status.toString() as keyof typeof HTTP_ERROR_MESSAGES
-        ] ??
+        HTTP_ERROR_MESSAGES[status as keyof typeof HTTP_ERROR_MESSAGES] ??
         "Unknown Error"
     );
 }
-
 export const ErrorFunctions = new Proxy(
   {},
   {
@@ -78,6 +75,9 @@ export const ErrorFunctions = new Proxy(
 ) as {
   create: <T extends number>(status: number) => ErrorFunction<T>;
   $: <T extends number>(status: number) => ErrorFunction<T>;
+  [key: `$${number}`]: ErrorFunction<
+    StringToNumber<SubString<typeof key, "$">>
+  >;
   [key: number]: ErrorFunction<number>;
   $400: ErrorFunction<400>;
   $401: ErrorFunction<401>;
