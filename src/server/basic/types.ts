@@ -235,7 +235,9 @@ export class ConversionRegister {
     return Object.fromEntries(
       Object.entries(value).map(([key, value]) => [
         key,
-        typeof value === "object"
+        Array.isArray(value)
+          ? this.deepExportArrayToString(value, supportsValue)
+          : typeof value === "object"
           ? value !== null
             ? this.deepExportObjectToString(
                 value as Record<string, unknown>,
@@ -261,7 +263,9 @@ export class ConversionRegister {
     return Object.fromEntries(
       Object.entries(value).map(([key, value]) => [
         key,
-        typeof value === "object"
+        Array.isArray(value)
+          ? this.deepImportArrayFromString(value)
+          : typeof value === "object"
           ? value !== null
             ? this.deepImportObjectFromString(value as Record<string, unknown>)
             : null

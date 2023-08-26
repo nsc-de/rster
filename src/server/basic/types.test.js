@@ -1245,4 +1245,307 @@ describe("ConversionRegister", () => {
       ).to.deep.equal(["John", 42, 42]);
     });
   });
+
+  describe("deepExportObjectToString", () => {
+    it("deepExportObjectToString should export an object's contents to string using the given conversion", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepExportObjectToString({
+          name: "John",
+          age: 42,
+        })
+      ).to.deep.equal({
+        name: '@string:"John"',
+        age: "@number:42",
+      });
+    });
+
+    it("Don't export if value is compatible with conversion", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepExportObjectToString(
+          {
+            name: "John",
+            age: 42,
+          },
+          (it) => typeof it === "string"
+        )
+      ).to.deep.equal({
+        name: "John",
+        age: "@number:42",
+      });
+    });
+
+    it("test with nested objects", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepExportObjectToString({
+          name: "John",
+          age: 42,
+          address: {
+            street: "street",
+            number: 42,
+          },
+        })
+      ).to.deep.equal({
+        name: '@string:"John"',
+        age: "@number:42",
+        address: {
+          street: '@string:"street"',
+          number: "@number:42",
+        },
+      });
+    });
+
+    it("test with nested arrays", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepExportObjectToString({
+          name: "John",
+          age: 42,
+          address: ["street", 42],
+        })
+      ).to.deep.equal({
+        name: '@string:"John"',
+        age: "@number:42",
+        address: ['@string:"street"', "@number:42"],
+      });
+    });
+
+    it("test with null values (they should be ignored)", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepExportObjectToString({
+          name: "John",
+          age: 42,
+          address: null,
+        })
+      ).to.deep.equal({
+        name: '@string:"John"',
+        age: "@number:42",
+        address: null,
+      });
+    });
+  });
+
+  describe("deepImportObjectFromString", () => {
+    it("deepImportObjectFromString should import an object's contents from string using the given conversion", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepImportObjectFromString({
+          name: '@string:"John"',
+          age: "@number:42",
+          age2: 42,
+        })
+      ).to.deep.equal({
+        name: "John",
+        age: 42,
+        age2: 42,
+      });
+    });
+
+    it("test with nested objects", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => JSON.stringify(value),
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepImportObjectFromString({
+          name: '@string:"John"',
+          age: "@number:42",
+          address: {
+            street: '@string:"street"',
+            number: "@number:42",
+          },
+        })
+      ).to.deep.equal({
+        name: "John",
+        age: 42,
+        address: {
+          street: "street",
+          number: 42,
+        },
+      });
+    });
+
+    it("test with nested arrays", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => {
+            return JSON.stringify(value);
+          },
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => {
+            return JSON.stringify(value);
+          },
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepImportObjectFromString({
+          name: '@string:"John"',
+          age: "@number:42",
+          address: ['@string:"street"', "@number:42"],
+        })
+      ).to.deep.equal({
+        name: "John",
+        age: 42,
+        address: ["street", 42],
+      });
+    });
+
+    it("test with null values (they should be ignored)", () => {
+      const typeInfo = string();
+      const typeInfo2 = number();
+
+      const conversionRegister = new ConversionRegister([
+        {
+          type: typeInfo,
+          identifier: "string",
+          exportToString: (value) => {
+            return JSON.stringify(value);
+          },
+          importFromString: (value) => JSON.parse(value),
+        },
+        {
+          type: typeInfo2,
+          identifier: "number",
+          exportToString: (value) => {
+            return JSON.stringify(value);
+          },
+          importFromString: (value) => JSON.parse(value),
+        },
+      ]);
+
+      expect(
+        conversionRegister.deepImportObjectFromString({
+          name: '@string:"John"',
+          age: "@number:42",
+          address: null,
+        })
+      ).to.deep.equal({
+        name: "John",
+        age: 42,
+        address: null,
+      });
+    });
+  });
 });
