@@ -23,10 +23,10 @@ export interface FieldMap {
 }
 
 Context.prototype.description = function (...description: any[]): any {
-  if (description.length == 0) return this.data("@info/description");
+  if (description.length == 0) return this.data("@info/description") ?? [];
   if (description[0] instanceof Context) {
     if (description.length !== 1)
-      throw new Error("Invalid number of arguments");
+      throw new Error("Cannot add description to another context");
     return description[0].data("@info/description") ?? [];
   }
 
@@ -68,7 +68,6 @@ Context.prototype.field = function (arg0: any, arg1?: any, arg2?: any): any {
 
 Context.prototype.fields = function (ctx?: Context): FieldMap {
   if (typeof ctx === "undefined") return this.data("@info/fields") ?? {};
-
   return ctx.data("@info/fields") ?? {};
 };
 
