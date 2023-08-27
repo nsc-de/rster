@@ -7,8 +7,6 @@ import {
   ContextCondition,
 } from "./condition";
 
-import { expect } from "chai";
-
 describe("ContextCondition", () => {
   describe("and()", () => {
     it("should return a ContextConditionAnd instance", () => {
@@ -16,7 +14,7 @@ describe("ContextCondition", () => {
       const condition2 = new ContextConditionMethod("GET");
       const andCondition = condition1.and(condition2);
 
-      expect(andCondition).to.be.instanceOf(ContextConditionAnd);
+      expect(andCondition).toBeInstanceOf(ContextConditionAnd);
     });
   });
 
@@ -26,7 +24,7 @@ describe("ContextCondition", () => {
       const condition2 = new ContextConditionMethod("GET");
       const chain = condition1.chain(condition2);
 
-      expect(chain).to.be.instanceOf(ConditionChain);
+      expect(chain).toBeInstanceOf(ConditionChain);
     });
   });
 
@@ -42,7 +40,7 @@ describe("ContextCondition", () => {
         path: "/users/123",
       };
 
-      expect(condition.subRequest(req)).to.equal(req);
+      expect(condition.subRequest(req)).toEqual(req);
     });
   });
 });
@@ -59,7 +57,7 @@ describe("ContextConditionAnd", () => {
         path: "/users/123",
       };
 
-      expect(andCondition.appliesTo(req)).to.be.true;
+      expect(andCondition.appliesTo(req)).toBe(true);
     });
 
     it("should return false if any condition does not apply", () => {
@@ -72,7 +70,7 @@ describe("ContextConditionAnd", () => {
         path: "/users/123",
       };
 
-      expect(andCondition.appliesTo(req)).to.be.false;
+      expect(andCondition.appliesTo(req)).toBe(false);
     });
 
     it("should return true if no conditions are specified", () => {
@@ -83,7 +81,7 @@ describe("ContextConditionAnd", () => {
         path: "/users/123",
       };
 
-      expect(andCondition.appliesTo(req)).to.be.true;
+      expect(andCondition.appliesTo(req)).toBe(true);
     });
   });
 
@@ -99,11 +97,11 @@ describe("ContextConditionAnd", () => {
       subReq = andCondition.subRequest(req);
 
     it("should return a sub request with the same method", () => {
-      expect(subReq.method).to.equal(req.method);
+      expect(subReq.method).toEqual(req.method);
     });
 
     it("should return a sub request the path starting from the part checked for", () => {
-      expect(subReq.path).to.equal("/123");
+      expect(subReq.path).toEqual("/123");
     });
   });
 
@@ -115,8 +113,8 @@ describe("ContextConditionAnd", () => {
       const andCondition = condition1.and(condition2);
       const andCondition2 = andCondition.and(condition3);
 
-      expect(andCondition2).to.be.instanceOf(ContextConditionAnd);
-      expect(andCondition2.conditions).to.have.lengthOf(3);
+      expect(andCondition2).toBeInstanceOf(ContextConditionAnd);
+      expect(andCondition2.conditions).toHaveLength(3);
     });
   });
 
@@ -126,7 +124,7 @@ describe("ContextConditionAnd", () => {
       const condition2 = new ContextConditionMethod("GET");
       const andCondition = new ContextConditionAnd([condition1, condition2]);
 
-      expect(andCondition.info()).to.deep.equal({
+      expect(andCondition.info()).toEqual({
         method: "GET",
         path: "/users",
       });
@@ -139,7 +137,7 @@ describe("ContextConditionAnd", () => {
       const condition2 = new ContextConditionMethod("GET");
       const andCondition = new ContextConditionAnd([condition1, condition2]);
 
-      expect(andCondition.toJson()).to.deep.equal({
+      expect(andCondition.toJson()).toEqual({
         type: "and",
         conditions: [
           {
@@ -161,7 +159,7 @@ describe("ContextConditionAnd", () => {
       const condition2 = new ContextConditionMethod("GET");
       const andCondition = new ContextConditionAnd([condition1, condition2]);
 
-      expect(andCondition.infoJson()).to.deep.equal({
+      expect(andCondition.infoJson()).toEqual({
         method: "GET",
         path: "/users",
       });
@@ -174,7 +172,7 @@ describe("ContextConditionAnd", () => {
       const condition2 = new ContextConditionMethod("GET");
       const andCondition = new ContextConditionAnd([condition1, condition2]);
 
-      expect(andCondition.equals(condition1)).to.be.false;
+      expect(andCondition.equals(condition1)).toBe(false);
     });
 
     it("should return false if length of conditions is not equal", () => {
@@ -183,7 +181,7 @@ describe("ContextConditionAnd", () => {
       const andCondition1 = new ContextConditionAnd([condition1, condition2]);
       const andCondition2 = new ContextConditionAnd([condition1]);
 
-      expect(andCondition1.equals(andCondition2)).to.be.false;
+      expect(andCondition1.equals(andCondition2)).toBe(false);
     });
 
     it("should return true if the conditions are equal", () => {
@@ -192,7 +190,7 @@ describe("ContextConditionAnd", () => {
       const andCondition1 = new ContextConditionAnd([condition1, condition2]);
       const andCondition2 = new ContextConditionAnd([condition1, condition2]);
 
-      expect(andCondition1.equals(andCondition2)).to.be.true;
+      expect(andCondition1.equals(andCondition2)).toBe(true);
     });
 
     it("should return false if the conditions are not equal", () => {
@@ -202,7 +200,7 @@ describe("ContextConditionAnd", () => {
       const andCondition1 = new ContextConditionAnd([condition1, condition2]);
       const andCondition2 = new ContextConditionAnd([condition1, condition3]);
 
-      expect(andCondition1.equals(andCondition2)).to.be.false;
+      expect(andCondition1.equals(andCondition2)).toBe(false);
     });
   });
 });
@@ -217,7 +215,7 @@ describe("ContextConditionPath", () => {
         path: "/users/123",
       };
 
-      expect(condition.appliesTo(req)).to.be.true;
+      expect(condition.appliesTo(req)).toBe(true);
     });
 
     it("should return false if the request path does not start with the specified path", () => {
@@ -228,7 +226,7 @@ describe("ContextConditionPath", () => {
         path: "/products/123",
       };
 
-      expect(condition.appliesTo(req)).to.be.false;
+      expect(condition.appliesTo(req)).toBe(false);
     });
   });
 
@@ -242,11 +240,11 @@ describe("ContextConditionPath", () => {
       subReq = condition.subRequest(req);
 
     it("should return a sub request with the same method", () => {
-      expect(subReq.method).to.equal(req.method);
+      expect(subReq.method).toEqual(req.method);
     });
 
     it("should return a sub request the path starting from the part checked for", () => {
-      expect(subReq.path).to.equal("/123");
+      expect(subReq.path).toEqual("/123");
     });
   });
 
@@ -254,7 +252,7 @@ describe("ContextConditionPath", () => {
     it("should return a Object info representation of the condition", () => {
       const condition = new ContextConditionPath("/users");
 
-      expect(condition.info()).to.deep.equal({
+      expect(condition.info()).toEqual({
         path: "/users",
       });
     });
@@ -264,7 +262,7 @@ describe("ContextConditionPath", () => {
     it("should return a JSON representation of the condition", () => {
       const condition = new ContextConditionPath("/users");
 
-      expect(condition.toJson()).to.deep.equal({
+      expect(condition.toJson()).toEqual({
         type: "path",
         path: "/users",
       });
@@ -275,7 +273,7 @@ describe("ContextConditionPath", () => {
     it("should return a JSON representation of the condition", () => {
       const condition = new ContextConditionPath("/users");
 
-      expect(condition.infoJson()).to.deep.equal({
+      expect(condition.infoJson()).toEqual({
         path: "/users",
       });
     });
@@ -286,21 +284,21 @@ describe("ContextConditionPath", () => {
       const condition1 = new ContextConditionPath("/users");
       const condition2 = new ContextConditionMethod("GET");
 
-      expect(condition1.equals(condition2)).to.be.false;
+      expect(condition1.equals(condition2)).toBe(false);
     });
 
     it("should return true if the paths are equal", () => {
       const condition1 = new ContextConditionPath("/users");
       const condition2 = new ContextConditionPath("/users");
 
-      expect(condition1.equals(condition2)).to.be.true;
+      expect(condition1.equals(condition2)).toBe(true);
     });
 
     it("should return false if the paths are not equal", () => {
       const condition1 = new ContextConditionPath("/users");
       const condition2 = new ContextConditionPath("/products");
 
-      expect(condition1.equals(condition2)).to.be.false;
+      expect(condition1.equals(condition2)).toBe(false);
     });
   });
 });
@@ -315,7 +313,7 @@ describe("ContextConditionPath2", () => {
         path: "/users/123",
       };
 
-      expect(condition.appliesTo(req)).to.be.true;
+      expect(condition.appliesTo(req)).toBe(true);
     });
 
     it("should return false if the request path does not start with the specified path", () => {
@@ -326,7 +324,7 @@ describe("ContextConditionPath2", () => {
         path: "/products/123",
       };
 
-      expect(condition.appliesTo(req)).to.be.false;
+      expect(condition.appliesTo(req)).toBe(false);
     });
   });
 
@@ -340,11 +338,11 @@ describe("ContextConditionPath2", () => {
       subReq = condition.subRequest(req);
 
     it("should return a sub request with the same method", () => {
-      expect(subReq.method).to.equal(req.method);
+      expect(subReq.method).toEqual(req.method);
     });
 
     it("should return a sub request the path starting from the part checked for", () => {
-      expect(subReq.path).to.equal("23");
+      expect(subReq.path).toEqual("23");
     });
   });
 
@@ -352,7 +350,7 @@ describe("ContextConditionPath2", () => {
     it("should return a Object info representation of the condition", () => {
       const condition = new ContextConditionPath2(/^\/users\/\d+$/);
 
-      expect(condition.info()).to.deep.equal({
+      expect(condition.info()).toEqual({
         path: "[^\\/users\\/\\d+$]",
       });
     });
@@ -362,7 +360,7 @@ describe("ContextConditionPath2", () => {
     it("should return a JSON representation of the condition", () => {
       const condition = new ContextConditionPath2(/^\/users\/\d+$/);
 
-      expect(condition.toJson()).to.deep.equal({
+      expect(condition.toJson()).toEqual({
         flags: "",
         path: "^\\/users\\/\\d+$",
         type: "path2",
@@ -374,7 +372,7 @@ describe("ContextConditionPath2", () => {
     it("should return a JSON representation of the condition", () => {
       const condition = new ContextConditionPath2(/^\/users\/\d+$/);
 
-      expect(condition.infoJson()).to.deep.equal({
+      expect(condition.infoJson()).toEqual({
         path2: "^\\/users\\/\\d+$",
       });
     });
@@ -385,28 +383,28 @@ describe("ContextConditionPath2", () => {
       const condition1 = new ContextConditionPath2(/^\/users\/\d+$/);
       const condition2 = new ContextConditionMethod("GET");
 
-      expect(condition1.equals(condition2)).to.be.false;
+      expect(condition1.equals(condition2)).toBe(false);
     });
 
     it("should return true if the paths are equal", () => {
       const condition1 = new ContextConditionPath2(/^\/users\/\d+$/);
       const condition2 = new ContextConditionPath2(/^\/users\/\d+$/);
 
-      expect(condition1.equals(condition2)).to.be.true;
+      expect(condition1.equals(condition2)).toBe(true);
     });
 
     it("should return false if the paths are not equal", () => {
       const condition1 = new ContextConditionPath2(/^\/users\/\d+$/);
       const condition2 = new ContextConditionPath2(/^\/products\/\d+$/);
 
-      expect(condition1.equals(condition2)).to.be.false;
+      expect(condition1.equals(condition2)).toBe(false);
     });
 
     it("should return true if the flags are equal", () => {
       const condition1 = new ContextConditionPath2(/^\/users\/\d+$/);
       const condition2 = new ContextConditionPath2(/^\/users\/\d+$/, "i");
 
-      expect(condition1.equals(condition2)).to.be.true;
+      expect(condition1.equals(condition2)).toBe(true);
     });
   });
 });
@@ -426,7 +424,7 @@ describe("ContextConditionPath2", () => {
 //       path: "/products/123",
 //     };
 
-//     expect(chain.appliesTo(req)).to.be.true;
+//     expect(chain.appliesTo(req)).toBe(true);
 //   });
 
 //   it("should return false if any condition in the chain does not apply", () => {
@@ -441,6 +439,6 @@ describe("ContextConditionPath2", () => {
 //       path: "/products/abc",
 //     };
 
-//     expect(chain.appliesTo(req)).to.be.false;
+//     expect(chain.appliesTo(req)).toBe(false);
 //   });
 // });
