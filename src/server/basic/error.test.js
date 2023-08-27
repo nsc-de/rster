@@ -13,48 +13,47 @@ import {
   $429,
   $500,
 } from "./error"; // Replace 'your-file-path' with the correct path to your file
-import { expect } from "chai";
 
 // Test HTTP_ERROR_MESSAGES object
 describe("HTTP_ERROR_MESSAGES", () => {
   it("should be an object", () => {
-    expect(HTTP_ERROR_MESSAGES).to.be.an("object");
+    expect(typeof HTTP_ERROR_MESSAGES).toBe("object");
   });
 
   it('400 should be "Bad Request"', () => {
-    expect(HTTP_ERROR_MESSAGES[400]).to.equal("Bad Request");
+    expect(HTTP_ERROR_MESSAGES[400]).toEqual("Bad Request");
   });
 
   it('401 should be "Unauthorized"', () => {
-    expect(HTTP_ERROR_MESSAGES[401]).to.equal("Unauthorized");
+    expect(HTTP_ERROR_MESSAGES[401]).toEqual("Unauthorized");
   });
 
   it('403 should be "Forbidden"', () => {
-    expect(HTTP_ERROR_MESSAGES[403]).to.equal("Forbidden");
+    expect(HTTP_ERROR_MESSAGES[403]).toEqual("Forbidden");
   });
 
   it('404 should be "Not Found"', () => {
-    expect(HTTP_ERROR_MESSAGES[404]).to.equal("Not Found");
+    expect(HTTP_ERROR_MESSAGES[404]).toEqual("Not Found");
   });
 
   it("405 should be 'Method Not Allowed'", () => {
-    expect(HTTP_ERROR_MESSAGES[405]).to.equal("Method Not Allowed");
+    expect(HTTP_ERROR_MESSAGES[405]).toEqual("Method Not Allowed");
   });
 
   it('409 should be "Conflict"', () => {
-    expect(HTTP_ERROR_MESSAGES[409]).to.equal("Conflict");
+    expect(HTTP_ERROR_MESSAGES[409]).toEqual("Conflict");
   });
 
   it('410 should be "Gone"', () => {
-    expect(HTTP_ERROR_MESSAGES[410]).to.equal("Gone");
+    expect(HTTP_ERROR_MESSAGES[410]).toEqual("Gone");
   });
 
   it('429 should be "Too Many Requests"', () => {
-    expect(HTTP_ERROR_MESSAGES[429]).to.equal("Too Many Requests");
+    expect(HTTP_ERROR_MESSAGES[429]).toEqual("Too Many Requests");
   });
 
   it('500 should be "Internal Server Error"', () => {
-    expect(HTTP_ERROR_MESSAGES[500]).to.equal("Internal Server Error");
+    expect(HTTP_ERROR_MESSAGES[500]).toEqual("Internal Server Error");
   });
 });
 
@@ -62,15 +61,15 @@ describe("HTTP_ERROR_MESSAGES", () => {
 describe("HttpError", () => {
   it("should create an instance of HttpError", () => {
     const httpError = new HttpError(404, "Not Found");
-    expect(httpError).to.be.an.instanceOf(HttpError);
+    expect(httpError).toBeInstanceOf(HttpError);
   });
 
   it("should have the correct status and message", () => {
     const status = 400;
     const message = "Bad Request";
     const httpError = new HttpError(status, message);
-    expect(httpError.status).to.equal(status);
-    expect(httpError.message).to.equal(message);
+    expect(httpError.status).toEqual(status);
+    expect(httpError.message).toEqual(message);
   });
 });
 
@@ -78,32 +77,32 @@ describe("HttpError", () => {
 describe("$", () => {
   it("should return an instance of HttpError", () => {
     const httpError = $(404, "Not Found");
-    expect(httpError).to.be.an.instanceOf(Function);
+    expect(httpError).toBeInstanceOf(Function);
   });
 
   it("should have the correct status and message", () => {
     const status = 400;
     const message = "Bad Request";
     const httpError = $(status, message)();
-    expect(httpError.status).to.equal(status);
-    expect(httpError.message).to.equal(message);
+    expect(httpError.status).toEqual(status);
+    expect(httpError.message).toEqual(message);
   });
 
   it("should have the correct status and message when only status is provided", () => {
     const status = 400;
     const httpError = $(status)();
-    expect(httpError.status).to.equal(status);
-    expect(httpError.message).to.equal(HTTP_ERROR_MESSAGES[status]);
+    expect(httpError.status).toEqual(status);
+    expect(httpError.message).toEqual(HTTP_ERROR_MESSAGES[status]);
 
     const status2 = 404;
     const httpError2 = $(status2)();
-    expect(httpError2.status).to.equal(status2);
-    expect(httpError2.message).to.equal(HTTP_ERROR_MESSAGES[status2]);
+    expect(httpError2.status).toEqual(status2);
+    expect(httpError2.message).toEqual(HTTP_ERROR_MESSAGES[status2]);
 
     const status3 = 450;
     const httpError3 = $(status3)();
-    expect(httpError3.status).to.equal(status3);
-    expect(httpError3.message).to.equal("Unknown Error");
+    expect(httpError3.status).toEqual(status3);
+    expect(httpError3.message).toEqual("Unknown Error");
   });
 });
 
@@ -113,15 +112,15 @@ describe("ErrorFunctions", () => {
     it("4xx should return an instance of HttpError", () => {
       for (let i = 400; i < 500; i++) {
         const httpError = ErrorFunctions[i]();
-        expect(httpError).to.be.an.instanceOf(HttpError);
+        expect(httpError).toBeInstanceOf(HttpError);
       }
     });
 
     it("4xx should have the correct status and message", () => {
       for (let i = 400; i < 500; i++) {
         const httpError = ErrorFunctions[i]();
-        expect(httpError.status).to.equal(i);
-        expect(httpError.message).to.equal(
+        expect(httpError.status).toEqual(i);
+        expect(httpError.message).toEqual(
           HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
         );
       }
@@ -133,15 +132,15 @@ describe("ErrorFunctions", () => {
     it("5xx should return an instance of HttpError", () => {
       for (let i = 500; i < 600; i++) {
         const httpError = ErrorFunctions[i]();
-        expect(httpError).to.be.an.instanceOf(HttpError);
+        expect(httpError).toBeInstanceOf(HttpError);
       }
     });
 
     it("5xx should have the correct status and message", () => {
       for (let i = 500; i < 600; i++) {
         const httpError = ErrorFunctions[i]();
-        expect(httpError.status).to.equal(i);
-        expect(httpError.message).to.equal(
+        expect(httpError.status).toEqual(i);
+        expect(httpError.message).toEqual(
           HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
         );
       }
@@ -164,13 +163,13 @@ describe("Function shortcuts", () => {
     describe(`$${status}`, () => {
       it(`${status} should return an instance of HttpError`, () => {
         const httpError = func();
-        expect(httpError).to.be.an.instanceOf(HttpError);
+        expect(httpError).toBeInstanceOf(HttpError);
       });
 
       it(`${status} should have the correct status and message`, () => {
         const httpError = func();
-        expect(httpError.status).to.equal(status);
-        expect(httpError.message).to.equal(
+        expect(httpError.status).toEqual(status);
+        expect(httpError.message).toEqual(
           HTTP_ERROR_MESSAGES[status] ?? "Unknown Error"
         );
       });
@@ -181,41 +180,41 @@ describe("Function shortcuts", () => {
 describe("ErrorFunctions", () => {
   it("create", () => {
     // should return $
-    expect(ErrorFunctions.create).to.equal($);
+    expect(ErrorFunctions.create).toEqual($);
   });
 
   it("$", () => {
     // should return $
-    expect(ErrorFunctions.$).to.equal($);
+    expect(ErrorFunctions.$).toEqual($);
   });
 
   it("$ errors [should test 200 functions]", () => {
     for (let i = 400; i < 600; i++) {
       const fn = ErrorFunctions[`$${i}`];
-      expect(fn).to.be.an.instanceOf(Function);
+      expect(fn).toBeInstanceOf(Function);
       const httpError = fn();
-      expect(httpError).to.be.an.instanceOf(HttpError);
-      expect(httpError.status).to.equal(i);
-      expect(httpError.message).to.equal(
+      expect(httpError).toBeInstanceOf(HttpError);
+      expect(httpError.status).toEqual(i);
+      expect(httpError.message).toEqual(
         HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
       );
     }
 
-    expect(() => ErrorFunctions.$aaa).to.throw("Unknown error function $aaa");
+    expect(() => ErrorFunctions.$aaa).toThrow("Unknown error function $aaa");
   });
 
   it("direct errors [should test 200 functions]", () => {
     for (let i = 400; i < 600; i++) {
       const fn = ErrorFunctions[i];
-      expect(fn).to.be.an.instanceOf(Function);
+      expect(fn).toBeInstanceOf(Function);
       const httpError = fn();
-      expect(httpError).to.be.an.instanceOf(HttpError);
-      expect(httpError.status).to.equal(i);
-      expect(httpError.message).to.equal(
+      expect(httpError).toBeInstanceOf(HttpError);
+      expect(httpError.status).toEqual(i);
+      expect(httpError.message).toEqual(
         HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
       );
     }
 
-    expect(() => ErrorFunctions.aaa).to.throw("Unknown error function aaa");
+    expect(() => ErrorFunctions.aaa).toThrow("Unknown error function aaa");
   });
 });
