@@ -7,7 +7,6 @@ import {
   object,
   string,
 } from "../basic/types";
-import { expect } from "chai";
 import crypto from "crypto";
 
 const db = database.createDatabase(
@@ -80,8 +79,8 @@ describe("database", () => {
     await db.connect();
     const create = await db.users.create();
     db.users.insert({ id: 1, name: "test", password: "test" });
-    expect(create).to.be.undefined;
-    expect(await db.users.exists()).to.be.true;
+    expect(create).toBe(undefined);
+    expect(await db.users.exists()).toBe(true);
   });
   it("should insert into table", async () => {
     const insert = await db.users.insert({
@@ -90,8 +89,8 @@ describe("database", () => {
       password: "test2",
       salt: "test",
     });
-    expect(insert).to.be.undefined;
-    expect(await db.users.exists()).to.be.true;
+    expect(insert).toBe(undefined);
+    expect(await db.users.exists()).toBe(true);
   });
 });
 
