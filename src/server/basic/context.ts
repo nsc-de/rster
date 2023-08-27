@@ -855,6 +855,7 @@ export class Context {
           const { condition, context } = it;
           if (await condition.appliesTo(req)) {
             debugRoute(req, condition);
+            const sub = condition.subRequest(req);
             if (await context.execute(condition.subRequest(req), res))
               return true;
           }

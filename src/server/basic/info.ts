@@ -75,7 +75,7 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
   options = options ?? {};
   const path = options.path ?? "/info";
 
-  this.any(path, async (ctx) => {
+  this.any(path, function (ctx) {
     this.description(
       "This module can be used to get information about the API"
     );
@@ -98,32 +98,36 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
       }
 
       if (!context) {
-        res.status(404).json({
-          path: req.path,
-          message: "Nothing found here",
-        });
+        res
+          .status(404)
+          .json({
+            path: req.path,
+            message: "Nothing found here",
+          })
+          .end();
         return;
       }
 
       const decl = declaration(context);
 
-      res.status(200).json({
-        path: req.path,
-        description: context ? this.description(context) : undefined,
-        map: context?.info().map((e) => ({
-          path: e.condition.path,
-          method: e.condition.method ?? "any",
-          description: this.description(e.context),
-        })),
-        fields: context
-          ? ((fields) =>
-              Object.keys(fields).map((field) => ({
-                name: field,
-                value: fields[field],
-              })))(this.fields(context))
-          : undefined,
-        declaration: decl,
-      });
+      res
+        .status(200)
+        .json({
+          path: req.path,
+          description: this.description(context),
+          map: context?.info().map((e) => ({
+            path: e.condition.path,
+            method: e.condition.method ?? "any",
+            description: this.description(e.context),
+          })),
+          fields: ((fields) =>
+            Object.keys(fields).map((field) => ({
+              name: field,
+              value: fields[field],
+            })))(this.fields(context)),
+          declaration: decl,
+        })
+        .end();
     });
   });
 };

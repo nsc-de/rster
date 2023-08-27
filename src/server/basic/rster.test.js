@@ -4,12 +4,12 @@ import { $400 } from "./error";
 
 describe("RestfulApi", () => {
   describe("constructor", () => {
-    it("should create a new instance of RestfulApi", () => {
+    it("Should create a new instance of RestfulApi", () => {
       const restfulApi = new RestfulApi();
       expect(restfulApi).toBeInstanceOf(RestfulApi);
     });
 
-    it("should create a new instance of RestfulApi with options", () => {
+    it("Should create a new instance of RestfulApi with options", () => {
       const restfulApi = new RestfulApi({
         debug: true,
       });
@@ -21,7 +21,7 @@ describe("RestfulApi", () => {
   });
 
   describe("handle", () => {
-    it("should handle a given request", async () => {
+    it("Should handle a given request", async () => {
       const restfulApi = new RestfulApi();
 
       restfulApi.get("/", function () {
@@ -43,7 +43,7 @@ describe("RestfulApi", () => {
       });
     });
 
-    it("should throw 404 error if no route is found", async () => {
+    it("Should throw 404 error if no route is found", async () => {
       const restfulApi = new RestfulApi();
 
       restfulApi.get("/aaa", function () {
@@ -67,7 +67,7 @@ describe("RestfulApi", () => {
       });
     });
 
-    it("should passthrough thrown http errors", async () => {
+    it("Should passthrough thrown http errors", async () => {
       const restfulApi = new RestfulApi();
 
       restfulApi.get("/aaa", function () {
@@ -91,7 +91,7 @@ describe("RestfulApi", () => {
       });
     });
 
-    it("should catch thrown errors and return 500", async () => {
+    it("Should catch thrown errors and return 500", async () => {
       const restfulApi = new RestfulApi();
 
       restfulApi.get("/aaa", function () {
