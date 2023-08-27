@@ -1,4 +1,3 @@
-const { expect } = require("chai");
 const {
   AnyBooleanTypeInformation,
   AnyNumberTypeInformation,
@@ -35,195 +34,193 @@ describe("TypeInformation", () => {
   describe("StringTypeInformation", () => {
     it("check", () => {
       const typeInfo = new StringTypeInformation("hello");
-      expect(typeInfo.check("hello")).to.be.true;
-      expect(typeInfo.check("world")).to.be.false;
-      expect(typeInfo.check(123)).to.be.false;
+      expect(typeInfo.check("hello")).toBe(true);
+      expect(typeInfo.check("world")).toBe(false);
+      expect(typeInfo.check(123)).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new StringTypeInformation("hello");
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).to.include("query");
-      expect(typeInfo.sendableVia()).to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.true;
-      expect(typeInfo.sendableVia("param")).to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).toContain("query");
+      expect(typeInfo.sendableVia()).toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(true);
+      expect(typeInfo.sendableVia("param")).toBe(true);
     });
 
     it("identifier", () => {
       const typeInfo = new StringTypeInformation("hello");
-      expect(typeInfo.identifier).to.equal("string");
+      expect(typeInfo.identifier).toEqual("string");
 
       const typeInfo2 = new StringTypeInformation("world");
-      expect(typeInfo2.identifier).to.equal("string");
+      expect(typeInfo2.identifier).toEqual("string");
     });
 
     it("exportToString", () => {
       const typeInfo = new StringTypeInformation("hello");
-      expect(typeInfo.exportToString("hello")).to.equal("hello");
+      expect(typeInfo.exportToString("hello")).toEqual("hello");
 
       const typeInfo2 = new StringTypeInformation("world");
-      expect(typeInfo2.exportToString("world")).to.equal("world");
+      expect(typeInfo2.exportToString("world")).toEqual("world");
     });
 
     it("importFromString", () => {
       const typeInfo = new StringTypeInformation("hello");
-      expect(typeInfo.importFromString("hello")).to.equal("hello");
+      expect(typeInfo.importFromString("hello")).toEqual("hello");
 
       const typeInfo2 = new StringTypeInformation("world");
-      expect(typeInfo2.importFromString("world")).to.equal("world");
+      expect(typeInfo2.importFromString("world")).toEqual("world");
     });
 
     it("toString", () => {
       const typeInfo = new StringTypeInformation("hello");
-      expect(typeInfo.toString()).to.equal("StringTypeInformation{hello}");
+      expect(typeInfo.toString()).toEqual("StringTypeInformation{hello}");
 
       const typeInfo2 = new StringTypeInformation("world");
-      expect(typeInfo2.toString()).to.equal("StringTypeInformation{world}");
+      expect(typeInfo2.toString()).toEqual("StringTypeInformation{world}");
     });
   });
 
   describe("NumberTypeInformation", () => {
     it("check", () => {
       const typeInfo = new NumberTypeInformation(42);
-      expect(typeInfo.check(42)).to.be.true;
-      expect(typeInfo.check("42")).to.be.false;
+      expect(typeInfo.check(42)).toBe(true);
+      expect(typeInfo.check("42")).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new NumberTypeInformation(42);
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).to.include("query");
-      expect(typeInfo.sendableVia()).to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.true;
-      expect(typeInfo.sendableVia("param")).to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).toContain("query");
+      expect(typeInfo.sendableVia()).toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(true);
+      expect(typeInfo.sendableVia("param")).toBe(true);
     });
 
     it("identifier", () => {
       const typeInfo = new NumberTypeInformation(42);
-      expect(typeInfo.identifier).to.equal("number");
+      expect(typeInfo.identifier).toEqual("number");
 
       const typeInfo2 = new NumberTypeInformation(43);
-      expect(typeInfo2.identifier).to.equal("number");
+      expect(typeInfo2.identifier).toEqual("number");
     });
 
     it("exportToString", () => {
       const typeInfo = new NumberTypeInformation(42);
-      expect(typeInfo.exportToString(42)).to.equal("42");
+      expect(typeInfo.exportToString(42)).toEqual("42");
 
       const typeInfo2 = new NumberTypeInformation(43);
-      expect(typeInfo2.exportToString(43)).to.equal("43");
+      expect(typeInfo2.exportToString(43)).toEqual("43");
     });
 
     it("importFromString", () => {
       const typeInfo = new NumberTypeInformation(42);
-      expect(typeInfo.importFromString("42")).to.equal(42);
+      expect(typeInfo.importFromString("42")).toEqual(42);
 
       const typeInfo2 = new NumberTypeInformation(43);
-      expect(typeInfo2.importFromString("43")).to.equal(43);
+      expect(typeInfo2.importFromString("43")).toEqual(43);
     });
 
     it("toString", () => {
       const typeInfo = new NumberTypeInformation(42);
-      expect(typeInfo.toString()).to.equal("NumberTypeInformation{42}");
+      expect(typeInfo.toString()).toEqual("NumberTypeInformation{42}");
 
       const typeInfo2 = new NumberTypeInformation(43);
-      expect(typeInfo2.toString()).to.equal("NumberTypeInformation{43}");
+      expect(typeInfo2.toString()).toEqual("NumberTypeInformation{43}");
     });
   });
 
   describe("BooleanTypeInformation", () => {
     it("check", () => {
       const typeInfo = new BooleanTypeInformation(true);
-      expect(typeInfo.check(true)).to.be.true;
-      expect(typeInfo.check(false)).to.be.false;
-      expect(typeInfo.check(0)).to.be.false;
-      expect(typeInfo.check("true")).to.be.false;
+      expect(typeInfo.check(true)).toBe(true);
+      expect(typeInfo.check(false)).toBe(false);
+      expect(typeInfo.check(0)).toBe(false);
+      expect(typeInfo.check("true")).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new BooleanTypeInformation(true);
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).not.to.include("query");
-      expect(typeInfo.sendableVia()).not.to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.false;
-      expect(typeInfo.sendableVia("param")).to.be.false;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).not.toContain("query");
+      expect(typeInfo.sendableVia()).not.toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(false);
+      expect(typeInfo.sendableVia("param")).toBe(false);
     });
 
     it("identifier", () => {
       const typeInfo = new BooleanTypeInformation(true);
-      expect(typeInfo.identifier).to.equal("boolean");
+      expect(typeInfo.identifier).toEqual("boolean");
     });
 
     it("exportToString", () => {
       const typeInfo = new BooleanTypeInformation(true);
-      expect(typeInfo.exportToString(true)).to.equal("true");
-      expect(typeInfo.exportToString(false)).to.equal("false");
+      expect(typeInfo.exportToString(true)).toEqual("true");
+      expect(typeInfo.exportToString(false)).toEqual("false");
     });
 
     it("importFromString", () => {
       const typeInfo = new BooleanTypeInformation(true);
-      expect(typeInfo.importFromString("true")).to.equal(true);
-      expect(typeInfo.importFromString("false")).to.equal(false);
+      expect(typeInfo.importFromString("true")).toEqual(true);
+      expect(typeInfo.importFromString("false")).toEqual(false);
     });
 
     it("toString", () => {
       const typeInfo = new BooleanTypeInformation(true);
-      expect(typeInfo.toString()).to.equal("BooleanTypeInformation{true}");
+      expect(typeInfo.toString()).toEqual("BooleanTypeInformation{true}");
     });
   });
 
   describe("NumberRangeTypeInformation", () => {
     it("check", () => {
       const typeInfo = new NumberRangeTypeInformation(1, 10);
-      expect(typeInfo.check(5)).to.be.true;
-      expect(typeInfo.check(20)).to.be.false;
+      expect(typeInfo.check(5)).toBe(true);
+      expect(typeInfo.check(20)).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new NumberRangeTypeInformation(1, 10);
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).to.include("query");
-      expect(typeInfo.sendableVia()).to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.true;
-      expect(typeInfo.sendableVia("param")).to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).toContain("query");
+      expect(typeInfo.sendableVia()).toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(true);
+      expect(typeInfo.sendableVia("param")).toBe(true);
     });
 
     it("identifier", () => {
       const typeInfo = new NumberRangeTypeInformation(1, 10);
-      expect(typeInfo.identifier).to.equal("number");
+      expect(typeInfo.identifier).toEqual("number");
 
       const typeInfo2 = new NumberRangeTypeInformation(2, 20);
-      expect(typeInfo2.identifier).to.equal("number");
+      expect(typeInfo2.identifier).toEqual("number");
     });
 
     it("exportToString", () => {
       const typeInfo = new NumberRangeTypeInformation(1, 10);
-      expect(typeInfo.exportToString(5)).to.equal("5");
+      expect(typeInfo.exportToString(5)).toEqual("5");
 
       const typeInfo2 = new NumberRangeTypeInformation(2, 20);
-      expect(typeInfo2.exportToString(10)).to.equal("10");
+      expect(typeInfo2.exportToString(10)).toEqual("10");
     });
 
     it("importFromString", () => {
       const typeInfo = new NumberRangeTypeInformation(1, 10);
-      expect(typeInfo.importFromString("5")).to.equal(5);
+      expect(typeInfo.importFromString("5")).toEqual(5);
 
       const typeInfo2 = new NumberRangeTypeInformation(2, 20);
-      expect(typeInfo2.importFromString("10")).to.equal(10);
+      expect(typeInfo2.importFromString("10")).toEqual(10);
     });
 
     it("toString", () => {
       const typeInfo = new NumberRangeTypeInformation(1, 10);
-      expect(typeInfo.toString()).to.equal("NumberRangeTypeInformation{1, 10}");
+      expect(typeInfo.toString()).toEqual("NumberRangeTypeInformation{1, 10}");
 
       const typeInfo2 = new NumberRangeTypeInformation(2, 20);
-      expect(typeInfo2.toString()).to.equal(
-        "NumberRangeTypeInformation{2, 20}"
-      );
+      expect(typeInfo2.toString()).toEqual("NumberRangeTypeInformation{2, 20}");
     });
   });
 
@@ -233,9 +230,9 @@ describe("TypeInformation", () => {
         new StringTypeInformation("hello"),
         new NumberTypeInformation(42)
       );
-      expect(typeInfo.check("hello")).to.be.true;
-      expect(typeInfo.check(42)).to.be.true;
-      expect(typeInfo.check(true)).to.be.false;
+      expect(typeInfo.check("hello")).toBe(true);
+      expect(typeInfo.check(42)).toBe(true);
+      expect(typeInfo.check(true)).toBe(false);
     });
 
     it("sendableVia", () => {
@@ -243,12 +240,12 @@ describe("TypeInformation", () => {
         new StringTypeInformation("hello"),
         new NumberTypeInformation(42)
       );
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).to.include("query");
-      expect(typeInfo.sendableVia()).to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.true;
-      expect(typeInfo.sendableVia("param")).to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).toContain("query");
+      expect(typeInfo.sendableVia()).toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(true);
+      expect(typeInfo.sendableVia("param")).toBe(true);
     });
 
     it("identifier", () => {
@@ -256,13 +253,13 @@ describe("TypeInformation", () => {
         new StringTypeInformation("hello"),
         new NumberTypeInformation(42)
       );
-      expect(typeInfo.identifier).to.equal("or");
+      expect(typeInfo.identifier).toEqual("or");
 
       const typeInfo2 = new Or(
         new StringTypeInformation("world"),
         new NumberTypeInformation(43)
       );
-      expect(typeInfo2.identifier).to.equal("or");
+      expect(typeInfo2.identifier).toEqual("or");
     });
 
     it("exportToString", () => {
@@ -270,7 +267,7 @@ describe("TypeInformation", () => {
         new StringTypeInformation("hello"),
         new NumberTypeInformation(42)
       );
-      expect(() => typeInfo.exportToString("hello")).to.throw(
+      expect(() => typeInfo.exportToString("hello")).toThrow(
         "Method not supported."
       );
     });
@@ -280,7 +277,7 @@ describe("TypeInformation", () => {
         new StringTypeInformation("hello"),
         new NumberTypeInformation(42)
       );
-      expect(() => typeInfo.importFromString("hello")).to.throw(
+      expect(() => typeInfo.importFromString("hello")).toThrow(
         "Method not supported."
       );
     });
@@ -290,7 +287,7 @@ describe("TypeInformation", () => {
         new StringTypeInformation("hello"),
         new NumberTypeInformation(42)
       );
-      expect(typeInfo.toString()).to.equal(
+      expect(typeInfo.toString()).toEqual(
         "Or{StringTypeInformation{hello}, NumberTypeInformation{42}}"
       );
 
@@ -298,7 +295,7 @@ describe("TypeInformation", () => {
         new StringTypeInformation("world"),
         new NumberTypeInformation(43)
       );
-      expect(typeInfo2.toString()).to.equal(
+      expect(typeInfo2.toString()).toEqual(
         "Or{StringTypeInformation{world}, NumberTypeInformation{43}}"
       );
     });
@@ -310,11 +307,11 @@ describe("TypeInformation", () => {
         name: { required: true, type: new StringTypeInformation("John") },
         age: { required: false, type: new NumberTypeInformation(30) },
       });
-      expect(typeInfo.check({ name: "John" })).to.be.true;
-      expect(typeInfo.check({ name: "John", age: 30 })).to.be.true;
-      expect(typeInfo.check({ name: "Jane", age: 25 })).to.be.false;
-      expect(typeInfo.check({ name: "Jane" })).to.be.false;
-      expect(typeInfo.check({ name: "Jane", age: "25" })).to.be.false;
+      expect(typeInfo.check({ name: "John" })).toBe(true);
+      expect(typeInfo.check({ name: "John", age: 30 })).toBe(true);
+      expect(typeInfo.check({ name: "Jane", age: 25 })).toBe(false);
+      expect(typeInfo.check({ name: "Jane" })).toBe(false);
+      expect(typeInfo.check({ name: "Jane", age: "25" })).toBe(false);
     });
 
     it("sendableVia", () => {
@@ -322,12 +319,12 @@ describe("TypeInformation", () => {
         name: { required: true, type: new StringTypeInformation("John") },
         age: { required: false, type: new NumberTypeInformation(30) },
       });
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).not.to.include("query");
-      expect(typeInfo.sendableVia()).not.to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.false;
-      expect(typeInfo.sendableVia("param")).to.be.false;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).not.toContain("query");
+      expect(typeInfo.sendableVia()).not.toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(false);
+      expect(typeInfo.sendableVia("param")).toBe(false);
     });
 
     it("identifier", () => {
@@ -335,13 +332,13 @@ describe("TypeInformation", () => {
         name: { required: true, type: new StringTypeInformation("John") },
         age: { required: false, type: new NumberTypeInformation(30) },
       });
-      expect(typeInfo.identifier).to.equal("object");
+      expect(typeInfo.identifier).toEqual("object");
 
       const typeInfo2 = new ObjectTypeInformation({
         name: { required: true, type: new StringTypeInformation("Jane") },
         age: { required: false, type: new NumberTypeInformation(25) },
       });
-      expect(typeInfo2.identifier).to.equal("object");
+      expect(typeInfo2.identifier).toEqual("object");
     });
 
     it("exportToString", () => {
@@ -349,7 +346,7 @@ describe("TypeInformation", () => {
         name: { required: true, type: new StringTypeInformation("John") },
         age: { required: false, type: new NumberTypeInformation(30) },
       });
-      expect(typeInfo.exportToString({ name: "John" })).to.deep.equal(
+      expect(typeInfo.exportToString({ name: "John" })).toEqual(
         '{"name":"John"}'
       );
     });
@@ -359,7 +356,7 @@ describe("TypeInformation", () => {
         name: { required: true, type: new StringTypeInformation("John") },
         age: { required: false, type: new NumberTypeInformation(30) },
       });
-      expect(typeInfo.importFromString('{"name":"John"}')).to.deep.equal({
+      expect(typeInfo.importFromString('{"name":"John"}')).toEqual({
         name: "John",
       });
     });
@@ -369,7 +366,7 @@ describe("TypeInformation", () => {
         name: { required: true, type: new StringTypeInformation("John") },
         age: { required: false, type: new NumberTypeInformation(30) },
       });
-      expect(typeInfo.toString()).to.equal(
+      expect(typeInfo.toString()).toEqual(
         "ObjectTypeInformation{name: {required: true, type: StringTypeInformation{John}}, age: {required: false, type: NumberTypeInformation{30}}}"
       );
 
@@ -377,7 +374,7 @@ describe("TypeInformation", () => {
         name: { required: true, type: new StringTypeInformation("Jane") },
         age: { required: false, type: new NumberTypeInformation(25) },
       });
-      expect(typeInfo2.toString()).to.equal(
+      expect(typeInfo2.toString()).toEqual(
         "ObjectTypeInformation{name: {required: true, type: StringTypeInformation{Jane}}, age: {required: false, type: NumberTypeInformation{25}}}"
       );
     });
@@ -388,61 +385,61 @@ describe("TypeInformation", () => {
       const typeInfo = new ArrayTypeInformation(
         new StringTypeInformation("hello")
       );
-      expect(typeInfo.check(["hello"])).to.be.true;
-      expect(typeInfo.check(["world"])).to.be.false;
-      expect(typeInfo.check([123])).to.be.false;
+      expect(typeInfo.check(["hello"])).toBe(true);
+      expect(typeInfo.check(["world"])).toBe(false);
+      expect(typeInfo.check([123])).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new ArrayTypeInformation(
         new StringTypeInformation("hello")
       );
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).not.to.include("query");
-      expect(typeInfo.sendableVia()).not.to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).not.to.be.true;
-      expect(typeInfo.sendableVia("param")).not.to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).not.toContain("query");
+      expect(typeInfo.sendableVia()).not.toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).not.toBe(true);
+      expect(typeInfo.sendableVia("param")).not.toBe(true);
     });
 
     it("identifier", () => {
       const typeInfo = new ArrayTypeInformation(
         new StringTypeInformation("hello")
       );
-      expect(typeInfo.identifier).to.equal("array");
+      expect(typeInfo.identifier).toEqual("array");
 
       const typeInfo2 = new ArrayTypeInformation(
         new StringTypeInformation("world")
       );
-      expect(typeInfo2.identifier).to.equal("array");
+      expect(typeInfo2.identifier).toEqual("array");
     });
 
     it("exportToString", () => {
       const typeInfo = new ArrayTypeInformation(
         new StringTypeInformation("hello")
       );
-      expect(typeInfo.exportToString(["hello"])).to.deep.equal('["hello"]');
+      expect(typeInfo.exportToString(["hello"])).toEqual('["hello"]');
     });
 
     it("importFromString", () => {
       const typeInfo = new ArrayTypeInformation(
         new StringTypeInformation("hello")
       );
-      expect(typeInfo.importFromString('["hello"]')).to.deep.equal(["hello"]);
+      expect(typeInfo.importFromString('["hello"]')).toEqual(["hello"]);
     });
 
     it("toString", () => {
       const typeInfo = new ArrayTypeInformation(
         new StringTypeInformation("hello")
       );
-      expect(typeInfo.toString()).to.equal(
+      expect(typeInfo.toString()).toEqual(
         "ArrayTypeInformation{StringTypeInformation{hello}}"
       );
 
       const typeInfo2 = new ArrayTypeInformation(
         new StringTypeInformation("world")
       );
-      expect(typeInfo2.toString()).to.equal(
+      expect(typeInfo2.toString()).toEqual(
         "ArrayTypeInformation{StringTypeInformation{world}}"
       );
     });
@@ -451,287 +448,287 @@ describe("TypeInformation", () => {
   describe("NullTypeInformation", () => {
     it("check", () => {
       const typeInfo = new NullTypeInformation();
-      expect(typeInfo.check(null)).to.be.true;
-      expect(typeInfo.check(undefined)).to.be.false;
-      expect(typeInfo.check(0)).to.be.false;
-      expect(typeInfo.check("")).to.be.false;
+      expect(typeInfo.check(null)).toBe(true);
+      expect(typeInfo.check(undefined)).toBe(false);
+      expect(typeInfo.check(0)).toBe(false);
+      expect(typeInfo.check("")).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new NullTypeInformation();
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).to.include("query");
-      expect(typeInfo.sendableVia()).to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.true;
-      expect(typeInfo.sendableVia("param")).to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).toContain("query");
+      expect(typeInfo.sendableVia()).toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(true);
+      expect(typeInfo.sendableVia("param")).toBe(true);
     });
 
     it("identifier", () => {
       const typeInfo = new NullTypeInformation();
-      expect(typeInfo.identifier).to.equal("null");
+      expect(typeInfo.identifier).toEqual("null");
     });
 
     it("exportToString", () => {
       const typeInfo = new NullTypeInformation();
-      expect(typeInfo.exportToString(null)).to.equal("null");
+      expect(typeInfo.exportToString(null)).toEqual("null");
     });
 
     it("importFromString", () => {
       const typeInfo = new NullTypeInformation();
-      expect(typeInfo.importFromString("null")).to.equal(null);
+      expect(typeInfo.importFromString("null")).toEqual(null);
     });
 
     it("toString", () => {
       const typeInfo = new NullTypeInformation();
-      expect(typeInfo.toString()).to.equal("NullTypeInformation{}");
+      expect(typeInfo.toString()).toEqual("NullTypeInformation{}");
     });
   });
 
   describe("UndefinedTypeInformation", () => {
     it("check", () => {
       const typeInfo = new UndefinedTypeInformation();
-      expect(typeInfo.check(undefined)).to.be.true;
-      expect(typeInfo.check(null)).to.be.false;
-      expect(typeInfo.check(0)).to.be.false;
-      expect(typeInfo.check("")).to.be.false;
+      expect(typeInfo.check(undefined)).toBe(true);
+      expect(typeInfo.check(null)).toBe(false);
+      expect(typeInfo.check(0)).toBe(false);
+      expect(typeInfo.check("")).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new UndefinedTypeInformation();
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).to.include("query");
-      expect(typeInfo.sendableVia()).to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.true;
-      expect(typeInfo.sendableVia("param")).to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).toContain("query");
+      expect(typeInfo.sendableVia()).toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(true);
+      expect(typeInfo.sendableVia("param")).toBe(true);
     });
 
     it("identifier", () => {
       const typeInfo = new UndefinedTypeInformation();
-      expect(typeInfo.identifier).to.equal("undefined");
+      expect(typeInfo.identifier).toEqual("undefined");
     });
 
     it("exportToString", () => {
       const typeInfo = new UndefinedTypeInformation();
-      expect(typeInfo.exportToString(undefined)).to.equal("undefined");
+      expect(typeInfo.exportToString(undefined)).toEqual("undefined");
     });
 
     it("importFromString", () => {
       const typeInfo = new UndefinedTypeInformation();
-      expect(typeInfo.importFromString("undefined")).to.equal(undefined);
+      expect(typeInfo.importFromString("undefined")).toEqual(undefined);
     });
 
     it("toString", () => {
       const typeInfo = new UndefinedTypeInformation();
-      expect(typeInfo.toString()).to.equal("UndefinedTypeInformation{}");
+      expect(typeInfo.toString()).toEqual("UndefinedTypeInformation{}");
     });
   });
 
   describe("AnyStringTypeInformation", () => {
     it("check", () => {
       const typeInfo = new AnyStringTypeInformation();
-      expect(typeInfo.check("hello")).to.be.true;
-      expect(typeInfo.check(123)).to.be.false;
-      expect(typeInfo.check(null)).to.be.false;
-      expect(typeInfo.check(undefined)).to.be.false;
+      expect(typeInfo.check("hello")).toBe(true);
+      expect(typeInfo.check(123)).toBe(false);
+      expect(typeInfo.check(null)).toBe(false);
+      expect(typeInfo.check(undefined)).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new AnyStringTypeInformation();
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).to.include("query");
-      expect(typeInfo.sendableVia()).to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.true;
-      expect(typeInfo.sendableVia("param")).to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).toContain("query");
+      expect(typeInfo.sendableVia()).toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(true);
+      expect(typeInfo.sendableVia("param")).toBe(true);
     });
 
     it("identifier", () => {
       const typeInfo = new AnyStringTypeInformation();
-      expect(typeInfo.identifier).to.equal("string");
+      expect(typeInfo.identifier).toEqual("string");
     });
 
     it("exportToString", () => {
       const typeInfo = new AnyStringTypeInformation();
-      expect(typeInfo.exportToString("hello")).to.equal("hello");
+      expect(typeInfo.exportToString("hello")).toEqual("hello");
     });
 
     it("importFromString", () => {
       const typeInfo = new AnyStringTypeInformation();
-      expect(typeInfo.importFromString("hello")).to.equal("hello");
+      expect(typeInfo.importFromString("hello")).toEqual("hello");
     });
 
     it("toString", () => {
       const typeInfo = new AnyStringTypeInformation();
-      expect(typeInfo.toString()).to.equal("AnyStringTypeInformation{}");
+      expect(typeInfo.toString()).toEqual("AnyStringTypeInformation{}");
     });
   });
 
   describe("AnyNumberTypeInformation", () => {
     it("check", () => {
       const typeInfo = new AnyNumberTypeInformation();
-      expect(typeInfo.check(42)).to.be.true;
-      expect(typeInfo.check("42")).to.be.false;
-      expect(typeInfo.check(null)).to.be.false;
-      expect(typeInfo.check(undefined)).to.be.false;
+      expect(typeInfo.check(42)).toBe(true);
+      expect(typeInfo.check("42")).toBe(false);
+      expect(typeInfo.check(null)).toBe(false);
+      expect(typeInfo.check(undefined)).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new AnyNumberTypeInformation();
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).to.include("query");
-      expect(typeInfo.sendableVia()).to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.true;
-      expect(typeInfo.sendableVia("param")).to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).toContain("query");
+      expect(typeInfo.sendableVia()).toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(true);
+      expect(typeInfo.sendableVia("param")).toBe(true);
     });
 
     it("identifier", () => {
       const typeInfo = new AnyNumberTypeInformation();
-      expect(typeInfo.identifier).to.equal("number");
+      expect(typeInfo.identifier).toEqual("number");
     });
 
     it("exportToString", () => {
       const typeInfo = new AnyNumberTypeInformation();
-      expect(typeInfo.exportToString(42)).to.equal("42");
+      expect(typeInfo.exportToString(42)).toEqual("42");
     });
 
     it("importFromString", () => {
       const typeInfo = new AnyNumberTypeInformation();
-      expect(typeInfo.importFromString("42")).to.equal(42);
+      expect(typeInfo.importFromString("42")).toEqual(42);
     });
 
     it("toString", () => {
       const typeInfo = new AnyNumberTypeInformation();
-      expect(typeInfo.toString()).to.equal("AnyNumberTypeInformation{}");
+      expect(typeInfo.toString()).toEqual("AnyNumberTypeInformation{}");
     });
   });
 
   describe("AnyBooleanTypeInformation", () => {
     it("check", () => {
       const typeInfo = new AnyBooleanTypeInformation();
-      expect(typeInfo.check(true)).to.be.true;
-      expect(typeInfo.check(false)).to.be.true;
-      expect(typeInfo.check(0)).to.be.false;
-      expect(typeInfo.check(null)).to.be.false;
-      expect(typeInfo.check(undefined)).to.be.false;
+      expect(typeInfo.check(true)).toBe(true);
+      expect(typeInfo.check(false)).toBe(true);
+      expect(typeInfo.check(0)).toBe(false);
+      expect(typeInfo.check(null)).toBe(false);
+      expect(typeInfo.check(undefined)).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new AnyBooleanTypeInformation();
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).to.include("query");
-      expect(typeInfo.sendableVia()).to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.true;
-      expect(typeInfo.sendableVia("param")).to.be.true;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).toContain("query");
+      expect(typeInfo.sendableVia()).toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(true);
+      expect(typeInfo.sendableVia("param")).toBe(true);
     });
 
     it("identifier", () => {
       const typeInfo = new AnyBooleanTypeInformation();
-      expect(typeInfo.identifier).to.equal("boolean");
+      expect(typeInfo.identifier).toEqual("boolean");
     });
 
     it("exportToString", () => {
       const typeInfo = new AnyBooleanTypeInformation();
-      expect(typeInfo.exportToString(true)).to.equal("true");
+      expect(typeInfo.exportToString(true)).toEqual("true");
     });
 
     it("importFromString", () => {
       const typeInfo = new AnyBooleanTypeInformation();
-      expect(typeInfo.importFromString("true")).to.equal(true);
+      expect(typeInfo.importFromString("true")).toEqual(true);
     });
 
     it("toString", () => {
       const typeInfo = new AnyBooleanTypeInformation();
-      expect(typeInfo.toString()).to.equal("AnyBooleanTypeInformation{}");
+      expect(typeInfo.toString()).toEqual("AnyBooleanTypeInformation{}");
     });
   });
 
   describe("AnyTypeInformation", () => {
     it("check", () => {
       const typeInfo = new AnyTypeInformation();
-      expect(typeInfo.check(true)).to.be.true;
-      expect(typeInfo.check(42)).to.be.true;
-      expect(typeInfo.check("hello")).to.be.true;
-      expect(typeInfo.check({ key: "value" })).to.be.true;
+      expect(typeInfo.check(true)).toBe(true);
+      expect(typeInfo.check(42)).toBe(true);
+      expect(typeInfo.check("hello")).toBe(true);
+      expect(typeInfo.check({ key: "value" })).toBe(true);
     });
 
     it("sendableVia", () => {
       const typeInfo = new AnyTypeInformation();
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).not.to.include("query");
-      expect(typeInfo.sendableVia()).not.to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.false;
-      expect(typeInfo.sendableVia("param")).to.be.false;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).not.toContain("query");
+      expect(typeInfo.sendableVia()).not.toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(false);
+      expect(typeInfo.sendableVia("param")).toBe(false);
     });
 
     it("identifier", () => {
       const typeInfo = new AnyTypeInformation();
-      expect(typeInfo.identifier).to.equal("any");
+      expect(typeInfo.identifier).toEqual("any");
     });
 
     it("exportToString", () => {
       const typeInfo = new AnyTypeInformation();
-      expect(() => typeInfo.exportToString(true)).to.throw(
+      expect(() => typeInfo.exportToString(true)).toThrow(
         "Method not supported."
       );
     });
 
     it("importFromString", () => {
       const typeInfo = new AnyTypeInformation();
-      expect(() => typeInfo.importFromString("true")).to.throw(
+      expect(() => typeInfo.importFromString("true")).toThrow(
         "Method not supported."
       );
     });
 
     it("toString", () => {
       const typeInfo = new AnyTypeInformation();
-      expect(typeInfo.toString()).to.equal("AnyTypeInformation{}");
+      expect(typeInfo.toString()).toEqual("AnyTypeInformation{}");
     });
   });
 
   describe("DateTypeInformation", () => {
     it("check", () => {
       const typeInfo = new DateTypeInformation();
-      expect(typeInfo.check(new Date())).to.be.true;
-      expect(typeInfo.check("2020-01-01")).to.be.false;
+      expect(typeInfo.check(new Date())).toBe(true);
+      expect(typeInfo.check("2020-01-01")).toBe(false);
     });
 
     it("sendableVia", () => {
       const typeInfo = new DateTypeInformation();
-      expect(typeInfo.sendableVia()).to.include("body");
-      expect(typeInfo.sendableVia()).not.to.include("query");
-      expect(typeInfo.sendableVia()).not.to.include("param");
-      expect(typeInfo.sendableVia("body")).to.be.true;
-      expect(typeInfo.sendableVia("query")).to.be.false;
-      expect(typeInfo.sendableVia("param")).to.be.false;
+      expect(typeInfo.sendableVia()).toContain("body");
+      expect(typeInfo.sendableVia()).not.toContain("query");
+      expect(typeInfo.sendableVia()).not.toContain("param");
+      expect(typeInfo.sendableVia("body")).toBe(true);
+      expect(typeInfo.sendableVia("query")).toBe(false);
+      expect(typeInfo.sendableVia("param")).toBe(false);
     });
 
     it("identifier", () => {
       const typeInfo = new DateTypeInformation();
-      expect(typeInfo.identifier).to.equal("date");
+      expect(typeInfo.identifier).toEqual("date");
     });
 
     it("exportToString", () => {
       const typeInfo = new DateTypeInformation();
-      expect(typeInfo.exportToString(new Date("2020-01-01"))).to.equal(
+      expect(typeInfo.exportToString(new Date("2020-01-01"))).toEqual(
         "2020-01-01T00:00:00.000Z"
       );
     });
 
     it("importFromString", () => {
       const typeInfo = new DateTypeInformation();
-      expect(
-        typeInfo.importFromString("2020-01-01T00:00:00.000Z")
-      ).to.deep.equal(new Date("2020-01-01"));
+      expect(typeInfo.importFromString("2020-01-01T00:00:00.000Z")).toEqual(
+        new Date("2020-01-01")
+      );
     });
 
     it("toString", () => {
       const typeInfo = new DateTypeInformation();
-      expect(typeInfo.toString()).to.equal("DateTypeInformation{}");
+      expect(typeInfo.toString()).toEqual("DateTypeInformation{}");
     });
   });
 });
@@ -739,128 +736,128 @@ describe("TypeInformation", () => {
 describe("Creation Shortcuts", () => {
   describe("string()", () => {
     it("test any string type creation", () => {
-      expect(string()).be.instanceOf(AnyStringTypeInformation);
+      expect(string()).toBeInstanceOf(AnyStringTypeInformation);
     });
 
     it("test specific string type creation", () => {
-      expect(string("hello")).be.instanceOf(StringTypeInformation);
-      expect(string("hello").value).to.equal("hello");
+      expect(string("hello")).toBeInstanceOf(StringTypeInformation);
+      expect(string("hello").value).toEqual("hello");
     });
   });
 
   describe("number()", () => {
     it("test any number type creation", () => {
-      expect(number()).be.instanceOf(AnyNumberTypeInformation);
+      expect(number()).toBeInstanceOf(AnyNumberTypeInformation);
     });
 
     it("test specific number type creation", () => {
-      expect(number(42)).be.instanceOf(NumberTypeInformation);
-      expect(number(42).value).to.equal(42);
+      expect(number(42)).toBeInstanceOf(NumberTypeInformation);
+      expect(number(42).value).toEqual(42);
     });
 
     it("test number range type creation", () => {
-      expect(number(1, 10)).be.instanceOf(NumberRangeTypeInformation);
-      expect(number(1, 10).min).to.equal(1);
-      expect(number(1, 10).max).to.equal(10);
+      expect(number(1, 10)).toBeInstanceOf(NumberRangeTypeInformation);
+      expect(number(1, 10).min).toEqual(1);
+      expect(number(1, 10).max).toEqual(10);
     });
   });
 
   describe("numberRange()", () => {
     it("test number range type creation", () => {
-      expect(numberRange(1, 10)).be.instanceOf(NumberRangeTypeInformation);
-      expect(numberRange(1, 10).min).to.equal(1);
-      expect(numberRange(1, 10).max).to.equal(10);
+      expect(numberRange(1, 10)).toBeInstanceOf(NumberRangeTypeInformation);
+      expect(numberRange(1, 10).min).toEqual(1);
+      expect(numberRange(1, 10).max).toEqual(10);
     });
   });
 
   describe("object()", () => {
     it("test object type creation", () => {
-      expect(object({})).be.instanceOf(ObjectTypeInformation);
-      expect(object({}).properties).to.deep.equal({});
+      expect(object({})).toBeInstanceOf(ObjectTypeInformation);
+      expect(object({}).properties).toEqual({});
     });
   });
 
   describe("array()", () => {
     it("test array type creation", () => {
-      expect(array(string())).be.instanceOf(ArrayTypeInformation);
-      expect(array(string()).values).to.be.instanceOf(AnyStringTypeInformation);
+      expect(array(string())).toBeInstanceOf(ArrayTypeInformation);
+      expect(array(string()).values).toBeInstanceOf(AnyStringTypeInformation);
     });
   });
 
   describe("or()", () => {
     it("test or type creation", () => {
       const typeInfo = or(string(), number());
-      expect(typeInfo).be.instanceOf(Or);
-      expect(typeInfo.value0).to.be.instanceOf(AnyStringTypeInformation);
-      expect(typeInfo.value1).to.be.instanceOf(AnyNumberTypeInformation);
+      expect(typeInfo).toBeInstanceOf(Or);
+      expect(typeInfo.value0).toBeInstanceOf(AnyStringTypeInformation);
+      expect(typeInfo.value1).toBeInstanceOf(AnyNumberTypeInformation);
     });
 
     it("test or type creation with 3 arguments", () => {
       const typeInfo = or(string(), number(), object({}));
-      expect(typeInfo).be.instanceOf(Or);
-      expect(typeInfo.value0).to.be.instanceOf(Or);
-      expect(typeInfo.value0.value0).to.be.instanceOf(AnyStringTypeInformation);
-      expect(typeInfo.value0.value1).to.be.instanceOf(AnyNumberTypeInformation);
-      expect(typeInfo.value1).to.be.instanceOf(ObjectTypeInformation);
+      expect(typeInfo).toBeInstanceOf(Or);
+      expect(typeInfo.value0).toBeInstanceOf(Or);
+      expect(typeInfo.value0.value0).toBeInstanceOf(AnyStringTypeInformation);
+      expect(typeInfo.value0.value1).toBeInstanceOf(AnyNumberTypeInformation);
+      expect(typeInfo.value1).toBeInstanceOf(ObjectTypeInformation);
     });
 
     it("test or type creation with 4 arguments", () => {
       const typeInfo = or(string(), number(), string(), object({}));
-      expect(typeInfo).be.instanceOf(Or);
-      expect(typeInfo.value0).to.be.instanceOf(Or);
-      expect(typeInfo.value0.value0).to.be.instanceOf(Or);
-      expect(typeInfo.value0.value0.value0).to.be.instanceOf(
+      expect(typeInfo).toBeInstanceOf(Or);
+      expect(typeInfo.value0).toBeInstanceOf(Or);
+      expect(typeInfo.value0.value0).toBeInstanceOf(Or);
+      expect(typeInfo.value0.value0.value0).toBeInstanceOf(
         AnyStringTypeInformation
       );
-      expect(typeInfo.value0.value0.value1).to.be.instanceOf(
+      expect(typeInfo.value0.value0.value1).toBeInstanceOf(
         AnyNumberTypeInformation
       );
-      expect(typeInfo.value0.value1).to.be.instanceOf(AnyStringTypeInformation);
-      expect(typeInfo.value1).to.be.instanceOf(ObjectTypeInformation);
+      expect(typeInfo.value0.value1).toBeInstanceOf(AnyStringTypeInformation);
+      expect(typeInfo.value1).toBeInstanceOf(ObjectTypeInformation);
     });
   });
 
   describe("any()", () => {
     it("test any type creation", () => {
-      expect(any()).be.instanceOf(AnyTypeInformation);
+      expect(any()).toBeInstanceOf(AnyTypeInformation);
     });
   });
 
   describe("nullType()", () => {
     it("test null type creation", () => {
-      expect(nullType()).be.instanceOf(NullTypeInformation);
+      expect(nullType()).toBeInstanceOf(NullTypeInformation);
     });
   });
 
   describe("undefinedType()", () => {
     it("test undefined type creation", () => {
-      expect(undefinedType()).be.instanceOf(UndefinedTypeInformation);
+      expect(undefinedType()).toBeInstanceOf(UndefinedTypeInformation);
     });
   });
 
   describe("boolean()", () => {
     it("test any boolean type creation", () => {
-      expect(boolean()).be.instanceOf(AnyBooleanTypeInformation);
+      expect(boolean()).toBeInstanceOf(AnyBooleanTypeInformation);
     });
   });
 
   describe("trueType()", () => {
     it("test true type creation", () => {
-      expect(trueType()).be.instanceOf(BooleanTypeInformation);
-      expect(trueType().value).to.be.true;
+      expect(trueType()).toBeInstanceOf(BooleanTypeInformation);
+      expect(trueType().value).toBe(true);
     });
   });
 
   describe("falseType()", () => {
     it("test false type creation", () => {
-      expect(falseType()).be.instanceOf(BooleanTypeInformation);
-      expect(falseType().value).to.be.false;
+      expect(falseType()).toBeInstanceOf(BooleanTypeInformation);
+      expect(falseType().value).toBe(false);
     });
   });
 
   describe("date()", () => {
     it("test date type creation", () => {
-      expect(date()).be.instanceOf(DateTypeInformation);
+      expect(date()).toBeInstanceOf(DateTypeInformation);
     });
   });
 });
@@ -868,14 +865,14 @@ describe("Creation Shortcuts", () => {
 describe("ConversionRegister", () => {
   describe("instance", () => {
     it("test instance contains instance of ConversionRegister", () => {
-      expect(ConversionRegister.instance).to.be.instanceOf(ConversionRegister);
+      expect(ConversionRegister.instance).toBeInstanceOf(ConversionRegister);
     });
   });
 
   describe("constructor", () => {
     it("test constructor", () => {
       const conversionRegister = new ConversionRegister([]);
-      expect(conversionRegister).to.be.instanceOf(ConversionRegister);
+      expect(conversionRegister).toBeInstanceOf(ConversionRegister);
     });
   });
 
@@ -891,15 +888,15 @@ describe("ConversionRegister", () => {
         (value) => JSON.parse(value)
       );
 
-      expect(conversionRegister.entries).to.have.lengthOf(1);
-      expect(conversionRegister.entries[0].type).to.equal(type);
-      expect(conversionRegister.entries[0].identifier).to.equal("hello");
-      expect(conversionRegister.entries[0].exportToString("hello")).to.equal(
+      expect(conversionRegister.entries).toHaveLength(1);
+      expect(conversionRegister.entries[0].type).toEqual(type);
+      expect(conversionRegister.entries[0].identifier).toEqual("hello");
+      expect(conversionRegister.entries[0].exportToString("hello")).toEqual(
         '"hello"'
       );
-      expect(
-        conversionRegister.entries[0].importFromString('"hello"')
-      ).to.equal("hello");
+      expect(conversionRegister.entries[0].importFromString('"hello"')).toEqual(
+        "hello"
+      );
     });
   });
 
@@ -915,7 +912,7 @@ describe("ConversionRegister", () => {
         },
       ]);
 
-      expect(conversionRegister.exportToString("hello")).to.equal(
+      expect(conversionRegister.exportToString("hello")).toEqual(
         '@hello:"hello"'
       );
     });
@@ -946,30 +943,30 @@ describe("ConversionRegister", () => {
         },
       ]);
 
-      expect(conversionRegister.exportToString("hello")).to.equal(
+      expect(conversionRegister.exportToString("hello")).toEqual(
         '@hello:"hello"'
       );
-      expect(conversionRegister.exportToString("world")).to.equal(
+      expect(conversionRegister.exportToString("world")).toEqual(
         '@world:"world"'
       );
-      expect(conversionRegister.exportToString(42)).to.equal("@number:42");
+      expect(conversionRegister.exportToString(42)).toEqual("@number:42");
     });
 
     it("exportToString should throw an error if no conversion is found", () => {
       const conversionRegister = new ConversionRegister([]);
-      expect(() => conversionRegister.exportToString("hello")).to.throw(
+      expect(() => conversionRegister.exportToString("hello")).toThrow(
         "Unsupported type: String"
       );
 
-      expect(() => conversionRegister.exportToString(42)).to.throw(
+      expect(() => conversionRegister.exportToString(42)).toThrow(
         "Unsupported type: Number"
       );
 
-      expect(() => conversionRegister.exportToString(null)).to.throw(
+      expect(() => conversionRegister.exportToString(null)).toThrow(
         "Unsupported type: Null"
       );
 
-      expect(() => conversionRegister.exportToString(undefined)).to.throw(
+      expect(() => conversionRegister.exportToString(undefined)).toThrow(
         "Unsupported type: undefined"
       );
     });
@@ -987,9 +984,9 @@ describe("ConversionRegister", () => {
         },
       ]);
 
-      expect(
-        conversionRegister.importFromString('@hello:"hello"')
-      ).to.deep.equal("hello");
+      expect(conversionRegister.importFromString('@hello:"hello"')).toEqual(
+        "hello"
+      );
     });
 
     it("importFromString with multiple conversations", () => {
@@ -1018,53 +1015,47 @@ describe("ConversionRegister", () => {
         },
       ]);
 
-      expect(
-        conversionRegister.importFromString('@hello:"hello"')
-      ).to.deep.equal("hello");
-      expect(
-        conversionRegister.importFromString('@world:"world"')
-      ).to.deep.equal("world");
-      expect(conversionRegister.importFromString("@number:42")).to.deep.equal(
-        42
+      expect(conversionRegister.importFromString('@hello:"hello"')).toEqual(
+        "hello"
       );
+      expect(conversionRegister.importFromString('@world:"world"')).toEqual(
+        "world"
+      );
+      expect(conversionRegister.importFromString("@number:42")).toEqual(42);
     });
 
     it("importFromString should throw an error if no conversion is found", () => {
       const conversionRegister = new ConversionRegister([]);
       expect(() =>
         conversionRegister.importFromString('@hello:"hello"')
-      ).to.throw("Unsupported type for identifier: hello");
+      ).toThrow("Unsupported type for identifier: hello");
 
       expect(() =>
         conversionRegister.importFromString('@world:"world"')
-      ).to.throw("Unsupported type for identifier: world");
+      ).toThrow("Unsupported type for identifier: world");
 
-      expect(() => conversionRegister.importFromString("@number:42")).to.throw(
+      expect(() => conversionRegister.importFromString("@number:42")).toThrow(
         "Unsupported type for identifier: number"
       );
     });
 
     it("should passthrough if no @identifier is declared", () => {
       const conversionRegister = new ConversionRegister([]);
-      expect(conversionRegister.importFromString("hello")).to.deep.equal(
-        "hello"
-      );
-      expect(conversionRegister.importFromString("world")).to.deep.equal(
-        "world"
-      );
-      expect(conversionRegister.importFromString("42")).to.deep.equal("42");
+      expect(conversionRegister.importFromString("hello")).toEqual("hello");
+      expect(conversionRegister.importFromString("world")).toEqual("world");
+      expect(conversionRegister.importFromString("42")).toEqual("42");
     });
 
     it("test escaped @identifier", () => {
       const conversionRegister = new ConversionRegister([]);
-      expect(
-        conversionRegister.importFromString('\\@hello:"hello"')
-      ).to.deep.equal('@hello:"hello"');
+      expect(conversionRegister.importFromString('\\@hello:"hello"')).toEqual(
+        '@hello:"hello"'
+      );
     });
 
     it("test escaped \\ character at begining", () => {
       const conversionRegister = new ConversionRegister([]);
-      expect(conversionRegister.importFromString("\\\\@hello")).to.deep.equal(
+      expect(conversionRegister.importFromString("\\\\@hello")).toEqual(
         "\\@hello"
       );
     });
@@ -1094,7 +1085,7 @@ describe("ConversionRegister", () => {
           name: "John",
           age: 42,
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: '@string:"John"',
         age: "@number:42",
       });
@@ -1126,7 +1117,7 @@ describe("ConversionRegister", () => {
           },
           (it) => typeof it === "string"
         )
-      ).to.deep.equal({
+      ).toEqual({
         name: "John",
         age: "@number:42",
       });
@@ -1158,7 +1149,7 @@ describe("ConversionRegister", () => {
           age: "@number:42",
           age2: 42,
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: "John",
         age: 42,
         age2: 42,
@@ -1185,9 +1176,10 @@ describe("ConversionRegister", () => {
         },
       ]);
 
-      expect(
-        conversionRegister.exportArrayToString(["John", 42])
-      ).to.deep.equal(['@string:"John"', "@number:42"]);
+      expect(conversionRegister.exportArrayToString(["John", 42])).toEqual([
+        '@string:"John"',
+        "@number:42",
+      ]);
     });
 
     it("Don't export if value is compatible with conversion", () => {
@@ -1213,7 +1205,7 @@ describe("ConversionRegister", () => {
           ["John", 42],
           (it) => typeof it === "string"
         )
-      ).to.deep.equal(["John", "@number:42"]);
+      ).toEqual(["John", "@number:42"]);
     });
   });
 
@@ -1242,7 +1234,7 @@ describe("ConversionRegister", () => {
           "@number:42",
           42,
         ])
-      ).to.deep.equal(["John", 42, 42]);
+      ).toEqual(["John", 42, 42]);
     });
   });
 
@@ -1270,7 +1262,7 @@ describe("ConversionRegister", () => {
           name: "John",
           age: 42,
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: '@string:"John"',
         age: "@number:42",
       });
@@ -1302,7 +1294,7 @@ describe("ConversionRegister", () => {
           },
           (it) => typeof it === "string"
         )
-      ).to.deep.equal({
+      ).toEqual({
         name: "John",
         age: "@number:42",
       });
@@ -1335,7 +1327,7 @@ describe("ConversionRegister", () => {
             number: 42,
           },
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: '@string:"John"',
         age: "@number:42",
         address: {
@@ -1369,7 +1361,7 @@ describe("ConversionRegister", () => {
           age: 42,
           address: ["street", 42],
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: '@string:"John"',
         age: "@number:42",
         address: ['@string:"street"', "@number:42"],
@@ -1400,7 +1392,7 @@ describe("ConversionRegister", () => {
           age: 42,
           address: null,
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: '@string:"John"',
         age: "@number:42",
         address: null,
@@ -1433,7 +1425,7 @@ describe("ConversionRegister", () => {
           age: "@number:42",
           age2: 42,
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: "John",
         age: 42,
         age2: 42,
@@ -1467,7 +1459,7 @@ describe("ConversionRegister", () => {
             number: "@number:42",
           },
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: "John",
         age: 42,
         address: {
@@ -1505,7 +1497,7 @@ describe("ConversionRegister", () => {
           age: "@number:42",
           address: ['@string:"street"', "@number:42"],
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: "John",
         age: 42,
         address: ["street", 42],
@@ -1541,7 +1533,7 @@ describe("ConversionRegister", () => {
           age: "@number:42",
           address: null,
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: "John",
         age: 42,
         address: null,
@@ -1573,9 +1565,10 @@ describe("ConversionRegister", () => {
         },
       ]);
 
-      expect(
-        conversionRegister.deepExportArrayToString(["John", 42])
-      ).to.deep.equal(['@string:"John"', "@number:42"]);
+      expect(conversionRegister.deepExportArrayToString(["John", 42])).toEqual([
+        '@string:"John"',
+        "@number:42",
+      ]);
     });
 
     it("Don't export if value is compatible with conversion", () => {
@@ -1606,7 +1599,7 @@ describe("ConversionRegister", () => {
           ["John", 42],
           (it) => typeof it === "string"
         )
-      ).to.deep.equal(["John", "@number:42"]);
+      ).toEqual(["John", "@number:42"]);
     });
 
     it("test with nested objects", () => {
@@ -1641,7 +1634,7 @@ describe("ConversionRegister", () => {
             number: 42,
           },
         ])
-      ).to.deep.equal([
+      ).toEqual([
         '@string:"John"',
         "@number:42",
         {
@@ -1676,7 +1669,7 @@ describe("ConversionRegister", () => {
 
       expect(
         conversionRegister.deepExportArrayToString(["John", 42, ["street", 42]])
-      ).to.deep.equal([
+      ).toEqual([
         '@string:"John"',
         "@number:42",
         ['@string:"street"', "@number:42"],
@@ -1708,7 +1701,7 @@ describe("ConversionRegister", () => {
 
       expect(
         conversionRegister.deepExportArrayToString(["John", 42, null])
-      ).to.deep.equal(['@string:"John"', "@number:42", null]);
+      ).toEqual(['@string:"John"', "@number:42", null]);
     });
   });
 
@@ -1742,7 +1735,7 @@ describe("ConversionRegister", () => {
           "@number:42",
           42,
         ])
-      ).to.deep.equal(["John", 42, 42]);
+      ).toEqual(["John", 42, 42]);
     });
 
     it("test with nested objects", () => {
@@ -1777,7 +1770,7 @@ describe("ConversionRegister", () => {
             number: "@number:42",
           },
         ])
-      ).to.deep.equal(["John", 42, { street: "street", number: 42 }]);
+      ).toEqual(["John", 42, { street: "street", number: 42 }]);
     });
 
     it("test with nested arrays", () => {
@@ -1809,7 +1802,7 @@ describe("ConversionRegister", () => {
           "@number:42",
           ['@string:"street"', "@number:42"],
         ])
-      ).to.deep.equal(["John", 42, ["street", 42]]);
+      ).toEqual(["John", 42, ["street", 42]]);
     });
 
     it("test with null values (they should be ignored)", () => {
@@ -1841,7 +1834,7 @@ describe("ConversionRegister", () => {
           "@number:42",
           null,
         ])
-      ).to.deep.equal(["John", 42, null]);
+      ).toEqual(["John", 42, null]);
     });
   });
 
@@ -1878,7 +1871,7 @@ describe("ConversionRegister", () => {
             number: 42,
           },
         })
-      ).to.deep.equal({
+      ).toEqual({
         name: "@string:John",
         age: "@number:42",
         address: {
@@ -1913,7 +1906,7 @@ describe("ConversionRegister", () => {
 
       expect(
         conversionRegister.deepExportToString(["John", 42, ["street", 42]])
-      ).to.deep.equal([
+      ).toEqual([
         "@string:John",
         "@number:42",
         ["@string:street", "@number:42"],
@@ -1944,7 +1937,7 @@ describe("ConversionRegister", () => {
         },
       ]);
 
-      expect(() => conversionRegister.deepExportToString(true)).to.throw(
+      expect(() => conversionRegister.deepExportToString(true)).toThrow(
         "Unsupported type"
       );
     });
