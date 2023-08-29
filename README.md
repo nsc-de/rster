@@ -24,7 +24,7 @@
 <h3 align="center">rster</h3>
 
   <p align="center">
-    Build the backend of your dreams
+    <font color="red"><s>build</s></font> design the backend of your dreams
     <br />
     <a href="https://github.com/nsc-de/rster"><strong>Explore the docs »</strong></a>
     <br />
@@ -73,12 +73,19 @@
 
 ### Built With
 
-- [![typescript][typescript-shield]][typescript-url]
-- [![nodejs][nodejs-shield]][nodejs-url]
-- [![npm][npm-package-manager-shield]][npm-package-manager-url]
-- [![jest][jest-shield]][jest-url]
-- [![eslint][eslint-shield]][eslint-url]
-- [![express][express-shield]][express-url]
+[![typescript][typescript-shield]][typescript-url]
+[![nodejs][nodejs-shield]][nodejs-url]
+[![npm][npm-package-manager-shield]][npm-package-manager-url]
+[![eslint][eslint-shield]][eslint-url]
+[![jest][jest-shield]][jest-url]
+[![express][express-shield]][express-url]
+
+- [typescript][typescript-url]
+- [nodejs][nodejs-url]
+- [npm][npm-package-manager-url]
+- [eslint][eslint-url]
+- [jest][jest-url]
+- [express][express-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -236,7 +243,7 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 
 [typescript-shield]: https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white
 [typescript-url]: https://www.typescriptlang.org/
-[npm-package-manager-shield]: https://img.shields.io/badge/npm-000000?style=for-the-badge&logo=npm&logoColor=white
+[npm-package-manager-shield]: https://img.shields.io/badge/npm-red?style=for-the-badge&logo=npm&logoColor=white
 [npm-package-manager-url]: https://www.npmjs.com/
 [express-shield]: https://img.shields.io/badge/Express.js-404D59?style=for-the-badge
 [express-url]: https://expressjs.com/
