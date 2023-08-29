@@ -8,10 +8,10 @@ import {
 describe("createSyntheticRequest", () => {
   it("should create a synthetic with all default parameters", () => {
     const request = createSyntheticRequest();
-    expect(request.accepts).toEqual(["application/json"]);
-    expect(request.acceptsCharsets).toEqual(["utf-8"]);
-    expect(request.acceptsEncodings).toEqual(["identity"]);
-    expect(request.acceptsLanguages).toEqual(["en"]);
+    expect(request.accepts()).toEqual(["application/json"]);
+    expect(request.acceptsCharsets()).toEqual(["utf-8"]);
+    expect(request.acceptsEncodings()).toEqual(["identity"]);
+    expect(request.acceptsLanguages()).toEqual(["en"]);
     expect(request.body).toEqual({});
     expect(request.cookies).toEqual({});
     expect(request.fresh).toEqual(false);
@@ -337,10 +337,10 @@ describe("createSyntheticContext", () => {
   it("just test the function", () => {
     const { request, response, pass, promise } = createSyntheticContext();
 
-    expect(request.accepts).toEqual(["application/json"]);
-    expect(request.acceptsCharsets).toEqual(["utf-8"]);
-    expect(request.acceptsEncodings).toEqual(["identity"]);
-    expect(request.acceptsLanguages).toEqual(["en"]);
+    expect(request.accepts()).toEqual(["application/json"]);
+    expect(request.acceptsCharsets()).toEqual(["utf-8"]);
+    expect(request.acceptsEncodings()).toEqual(["identity"]);
+    expect(request.acceptsLanguages()).toEqual(["en"]);
     expect(request.body).toEqual({});
     expect(request.cookies).toEqual({});
     expect(request.fresh).toEqual(false);

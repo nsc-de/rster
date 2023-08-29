@@ -124,22 +124,22 @@ export interface Request {
   /**
    * @property {string} accepts - Returns the first accepted type (type/ subtype) as an array of strings in the order of preference.
    */
-  readonly accepts: string[];
+  accepts(): string[];
 
   /**
    * @property {string} acceptsCharsets - Returns the charsets that the request accepts, in the order of the client’s preference (most preferred first).
    */
-  readonly acceptsCharsets: string[];
+  acceptsCharsets(): string[];
 
   /**
    * @property {string} acceptsEncodings - Returns the encoding that the request accepts, in the order of the client’s preference (most preferred first).
    */
-  readonly acceptsEncodings: string[];
+  acceptsEncodings(): string[];
 
   /**
    * @property {string} acceptsLanguages - Returns the languages that the request accepts, in the order of the client’s preference (most preferred first).
    */
-  readonly acceptsLanguages: string[];
+  acceptsLanguages(): string[];
 
   /**
    * @property {string} query - The parsed query string.
@@ -828,10 +828,10 @@ export function createSyntheticRequest(
   info: AllOptional<Request> = {}
 ): Request {
   return {
-    accepts: info.accepts ?? ["application/json"],
-    acceptsCharsets: info.acceptsCharsets ?? ["utf-8"],
-    acceptsEncodings: info.acceptsEncodings ?? ["identity"],
-    acceptsLanguages: info.acceptsLanguages ?? ["en"],
+    accepts: info.accepts ?? (() => ["application/json"]),
+    acceptsCharsets: info.acceptsCharsets ?? (() => ["utf-8"]),
+    acceptsEncodings: info.acceptsEncodings ?? (() => ["identity"]),
+    acceptsLanguages: info.acceptsLanguages ?? (() => ["en"]),
     body: info.body ?? {},
     cookies: info.cookies ?? {},
     fresh: info.fresh ?? false,

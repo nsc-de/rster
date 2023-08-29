@@ -27,14 +27,14 @@ export function transformExpressRequest(req: ExpressRequest): Request {
     subdomains: req.subdomains,
     xhr: req.xhr,
     headers: req.headers,
-    accepts: req.accepts(),
-    acceptsCharsets: req.acceptsCharsets(),
-    acceptsEncodings: req.acceptsEncodings(),
-    acceptsLanguages: req.acceptsLanguages(),
+    accepts: req.accepts,
+    acceptsCharsets: req.acceptsCharsets,
+    acceptsEncodings: req.acceptsEncodings,
+    acceptsLanguages: req.acceptsLanguages,
     query: req.query,
 
     get(field: string): string | undefined {
-      return req.get(field);
+      return req.get?.(field);
     },
     is(type: string | string[]): string | false | null {
       return req.is(type);
