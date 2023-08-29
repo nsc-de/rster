@@ -18,7 +18,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/nsc-de/rster">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/logo.svg" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">rster</h3>
@@ -75,7 +75,7 @@
 
 - [![typescript][typescript-shield]][typescript-url]
 - [![nodejs][nodejs-shield]][nodejs-url]
-- [![npm][npm-shield]][npm-url]
+- [![npm][npm-package-manager-shield]][npm-package-manager-url]
 - [![jest][jest-shield]][jest-url]
 - [![eslint][eslint-shield]][eslint-url]
 - [![express][express-shield]][express-url]
@@ -236,8 +236,8 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 
 [typescript-shield]: https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white
 [typescript-url]: https://www.typescriptlang.org/
-[npm-shield]: https://img.shields.io/badge/npm-000000?style=for-the-badge&logo=npm&logoColor=white
-[npm-url]: https://www.npmjs.com/
+[npm-package-manager-shield]: https://img.shields.io/badge/npm-000000?style=for-the-badge&logo=npm&logoColor=white
+[npm-package-manager-url]: https://www.npmjs.com/
 [express-shield]: https://img.shields.io/badge/Express.js-404D59?style=for-the-badge
 [express-url]: https://expressjs.com/
 [jest-shield]: https://img.shields.io/badge/-Jest-C21325?style=for-the-badge&logo=jest&logoColor=white
