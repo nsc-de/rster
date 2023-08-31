@@ -80,6 +80,14 @@ describe("TypeInformation", () => {
       const typeInfo2 = new StringTypeInformation("world");
       expect(typeInfo2.toString()).toEqual("StringTypeInformation{world}");
     });
+
+    it("json", () => {
+      const typeInfo = new StringTypeInformation("hello");
+      expect(typeInfo.json()).toEqual({ type: "string", value: "hello" });
+
+      const typeInfo2 = new StringTypeInformation("world");
+      expect(typeInfo2.json()).toEqual({ type: "string", value: "world" });
+    });
   });
 
   describe("NumberTypeInformation", () => {
@@ -130,6 +138,14 @@ describe("TypeInformation", () => {
       const typeInfo2 = new NumberTypeInformation(43);
       expect(typeInfo2.toString()).toEqual("NumberTypeInformation{43}");
     });
+
+    it("json", () => {
+      const typeInfo = new NumberTypeInformation(42);
+      expect(typeInfo.json()).toEqual({ type: "number", value: 42 });
+
+      const typeInfo2 = new NumberTypeInformation(43);
+      expect(typeInfo2.json()).toEqual({ type: "number", value: 43 });
+    });
   });
 
   describe("BooleanTypeInformation", () => {
@@ -171,6 +187,11 @@ describe("TypeInformation", () => {
     it("toString", () => {
       const typeInfo = new BooleanTypeInformation(true);
       expect(typeInfo.toString()).toEqual("BooleanTypeInformation{true}");
+    });
+
+    it("json", () => {
+      const typeInfo = new BooleanTypeInformation(true);
+      expect(typeInfo.json()).toEqual({ type: "boolean", value: true });
     });
   });
 
@@ -221,6 +242,14 @@ describe("TypeInformation", () => {
 
       const typeInfo2 = new NumberRangeTypeInformation(2, 20);
       expect(typeInfo2.toString()).toEqual("NumberRangeTypeInformation{2, 20}");
+    });
+
+    it("json", () => {
+      const typeInfo = new NumberRangeTypeInformation(1, 10);
+      expect(typeInfo.json()).toEqual({ type: "number", min: 1, max: 10 });
+
+      const typeInfo2 = new NumberRangeTypeInformation(2, 20);
+      expect(typeInfo2.json()).toEqual({ type: "number", min: 2, max: 20 });
     });
   });
 
@@ -298,6 +327,28 @@ describe("TypeInformation", () => {
       expect(typeInfo2.toString()).toEqual(
         "Or{StringTypeInformation{world}, NumberTypeInformation{43}}"
       );
+    });
+
+    it("json", () => {
+      const typeInfo = new Or(
+        new StringTypeInformation("hello"),
+        new NumberTypeInformation(42)
+      );
+      expect(typeInfo.json()).toEqual({
+        type: "or",
+        value0: { type: "string", value: "hello" },
+        value1: { type: "number", value: 42 },
+      });
+
+      const typeInfo2 = new Or(
+        new StringTypeInformation("world"),
+        new NumberTypeInformation(43)
+      );
+      expect(typeInfo2.json()).toEqual({
+        type: "or",
+        value0: { type: "string", value: "world" },
+        value1: { type: "number", value: 43 },
+      });
     });
   });
 
@@ -378,6 +429,32 @@ describe("TypeInformation", () => {
         "ObjectTypeInformation{name: {required: true, type: StringTypeInformation{Jane}}, age: {required: false, type: NumberTypeInformation{25}}}"
       );
     });
+
+    it("json", () => {
+      const typeInfo = new ObjectTypeInformation({
+        name: { required: true, type: new StringTypeInformation("John") },
+        age: { required: false, type: new NumberTypeInformation(30) },
+      });
+      expect(typeInfo.json()).toEqual({
+        type: "object",
+        properties: {
+          name: { required: true, type: { type: "string", value: "John" } },
+          age: { required: false, type: { type: "number", value: 30 } },
+        },
+      });
+
+      const typeInfo2 = new ObjectTypeInformation({
+        name: { required: true, type: new StringTypeInformation("Jane") },
+        age: { required: false, type: new NumberTypeInformation(25) },
+      });
+      expect(typeInfo2.json()).toEqual({
+        type: "object",
+        properties: {
+          name: { required: true, type: { type: "string", value: "Jane" } },
+          age: { required: false, type: { type: "number", value: 25 } },
+        },
+      });
+    });
   });
 
   describe("ArrayTypeInformation", () => {
@@ -443,6 +520,24 @@ describe("TypeInformation", () => {
         "ArrayTypeInformation{StringTypeInformation{world}}"
       );
     });
+
+    it("json", () => {
+      const typeInfo = new ArrayTypeInformation(
+        new StringTypeInformation("hello")
+      );
+      expect(typeInfo.json()).toEqual({
+        type: "array",
+        values: { type: "string", value: "hello" },
+      });
+
+      const typeInfo2 = new ArrayTypeInformation(
+        new StringTypeInformation("world")
+      );
+      expect(typeInfo2.json()).toEqual({
+        type: "array",
+        values: { type: "string", value: "world" },
+      });
+    });
   });
 
   describe("NullTypeInformation", () => {
@@ -482,6 +577,11 @@ describe("TypeInformation", () => {
     it("toString", () => {
       const typeInfo = new NullTypeInformation();
       expect(typeInfo.toString()).toEqual("NullTypeInformation{}");
+    });
+
+    it("json", () => {
+      const typeInfo = new NullTypeInformation();
+      expect(typeInfo.json()).toEqual({ type: "null" });
     });
   });
 
@@ -523,6 +623,11 @@ describe("TypeInformation", () => {
       const typeInfo = new UndefinedTypeInformation();
       expect(typeInfo.toString()).toEqual("UndefinedTypeInformation{}");
     });
+
+    it("json", () => {
+      const typeInfo = new UndefinedTypeInformation();
+      expect(typeInfo.json()).toEqual({ type: "undefined" });
+    });
   });
 
   describe("AnyStringTypeInformation", () => {
@@ -562,6 +667,11 @@ describe("TypeInformation", () => {
     it("toString", () => {
       const typeInfo = new AnyStringTypeInformation();
       expect(typeInfo.toString()).toEqual("AnyStringTypeInformation{}");
+    });
+
+    it("json", () => {
+      const typeInfo = new AnyStringTypeInformation();
+      expect(typeInfo.json()).toEqual({ type: "string" });
     });
   });
 
@@ -603,6 +713,11 @@ describe("TypeInformation", () => {
       const typeInfo = new AnyNumberTypeInformation();
       expect(typeInfo.toString()).toEqual("AnyNumberTypeInformation{}");
     });
+
+    it("json", () => {
+      const typeInfo = new AnyNumberTypeInformation();
+      expect(typeInfo.json()).toEqual({ type: "number" });
+    });
   });
 
   describe("AnyBooleanTypeInformation", () => {
@@ -643,6 +758,11 @@ describe("TypeInformation", () => {
     it("toString", () => {
       const typeInfo = new AnyBooleanTypeInformation();
       expect(typeInfo.toString()).toEqual("AnyBooleanTypeInformation{}");
+    });
+
+    it("json", () => {
+      const typeInfo = new AnyBooleanTypeInformation();
+      expect(typeInfo.json()).toEqual({ type: "boolean" });
     });
   });
 
@@ -688,6 +808,11 @@ describe("TypeInformation", () => {
       const typeInfo = new AnyTypeInformation();
       expect(typeInfo.toString()).toEqual("AnyTypeInformation{}");
     });
+
+    it("json", () => {
+      const typeInfo = new AnyTypeInformation();
+      expect(typeInfo.json()).toEqual({ type: "any" });
+    });
   });
 
   describe("DateTypeInformation", () => {
@@ -729,6 +854,11 @@ describe("TypeInformation", () => {
     it("toString", () => {
       const typeInfo = new DateTypeInformation();
       expect(typeInfo.toString()).toEqual("DateTypeInformation{}");
+    });
+
+    it("json", () => {
+      const typeInfo = new DateTypeInformation();
+      expect(typeInfo.json()).toEqual({ type: "date" });
     });
   });
 });

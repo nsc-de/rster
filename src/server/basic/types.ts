@@ -463,6 +463,8 @@ export abstract class TypeInformation<T> {
   abstract get identifier(): string;
   abstract exportToString(value: T): string;
   abstract importFromString(value: string): T;
+
+  abstract json(): unknown;
 }
 
 /**
@@ -508,6 +510,13 @@ export class StringTypeInformation<
   toString() {
     return `StringTypeInformation{${this.value}}`;
   }
+
+  json() {
+    return {
+      type: "string",
+      value: this.value,
+    };
+  }
 }
 
 /**
@@ -549,6 +558,13 @@ export class NumberTypeInformation<
 
   toString() {
     return `NumberTypeInformation{${this.value}}`;
+  }
+
+  json() {
+    return {
+      type: "number",
+      value: this.value,
+    };
   }
 }
 
@@ -602,6 +618,14 @@ export class NumberRangeTypeInformation<
   toString() {
     return `NumberRangeTypeInformation{${this.min}, ${this.max}}`;
   }
+
+  json() {
+    return {
+      type: "number",
+      min: this.min,
+      max: this.max,
+    };
+  }
 }
 
 /**
@@ -649,6 +673,14 @@ export class Or<
 
   toString() {
     return `Or{${this.value0}, ${this.value1}}`;
+  }
+
+  json() {
+    return {
+      type: "or",
+      value0: this.value0.json(),
+      value1: this.value1.json(),
+    };
   }
 }
 
@@ -721,6 +753,21 @@ export class ObjectTypeInformation<
           `${key}: {required: ${value.required}, type: ${value.type}}`
       )
       .join(", ")}}`;
+  }
+
+  json() {
+    return {
+      type: "object",
+      properties: Object.fromEntries(
+        Object.entries(this.properties).map(([key, value]) => [
+          key,
+          {
+            required: value.required,
+            type: value.type.json(),
+          },
+        ])
+      ),
+    };
   }
 }
 
@@ -799,6 +846,15 @@ export class ArrayTypeInformation<
   toString() {
     return `ArrayTypeInformation{${this.values}}`;
   }
+
+  json() {
+    return {
+      type: "array",
+      values: this.values.json(),
+      minItems: this.minItems,
+      maxItems: this.maxItems,
+    };
+  }
 }
 
 /**
@@ -848,6 +904,13 @@ export class BooleanTypeInformation<
   toString() {
     return `BooleanTypeInformation{${this.value}}`;
   }
+
+  json() {
+    return {
+      type: "boolean",
+      value: this.value,
+    };
+  }
 }
 
 /**
@@ -892,6 +955,12 @@ export class NullTypeInformation extends TypeInformation<null> {
 
   toString() {
     return "NullTypeInformation{}";
+  }
+
+  json() {
+    return {
+      type: "null",
+    };
   }
 }
 
@@ -938,6 +1007,12 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
   toString() {
     return "UndefinedTypeInformation{}";
   }
+
+  json() {
+    return {
+      type: "undefined",
+    };
+  }
 }
 
 /**
@@ -981,6 +1056,12 @@ export class AnyStringTypeInformation extends TypeInformation<string> {
 
   toString() {
     return "AnyStringTypeInformation{}";
+  }
+
+  json() {
+    return {
+      type: "string",
+    };
   }
 }
 
@@ -1026,6 +1107,12 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
   toString() {
     return "AnyNumberTypeInformation{}";
   }
+
+  json() {
+    return {
+      type: "number",
+    };
+  }
 }
 
 /**
@@ -1070,6 +1157,12 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
   toString() {
     return "AnyBooleanTypeInformation{}";
   }
+
+  json() {
+    return {
+      type: "boolean",
+    };
+  }
 }
 
 /**
@@ -1113,6 +1206,12 @@ export class AnyTypeInformation<T = any> extends TypeInformation<T> {
   toString() {
     return "AnyTypeInformation{}";
   }
+
+  json() {
+    return {
+      type: "any",
+    };
+  }
 }
 
 /**
@@ -1155,6 +1254,12 @@ export class DateTypeInformation extends TypeInformation<Date> {
 
   toString() {
     return "DateTypeInformation{}";
+  }
+
+  json() {
+    return {
+      type: "date",
+    };
   }
 }
 
