@@ -12,6 +12,7 @@ import {
   undefinedType,
 } from "./basic/types";
 import { declaration } from "./generator/index";
+import { ArrayFinder, NoNever } from "./util";
 
 export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
   (
@@ -107,49 +108,6 @@ export type ModuleBuilderMap<T extends RsterApiModuleBuilderContext<any, any>> =
 export type MethodBuilderMap<T extends RsterApiMethodBuilderContext<any>> = {
   [key: string]: T;
 };
-
-/**
- * A type to convert an array of objects with the key 'K' property to an object with the key 'K' property.
- * This is used to help typescript infer the type of the object when using the `ArrayFinder` function.
- *
- * @typeparam T - The type of elements in the array.
- * @typeparam K - The key of the property to be used as the key for accessing elements in the array.
- */
-export type ArrayToObject<T, K extends keyof T> = {
-  [P in T[K] as string]: Extract<T, Record<K, P>>;
-};
-
-export type NoNever<TYPE, ALTERNATIVE> = TYPE extends never
-  ? ALTERNATIVE
-  : TYPE;
-
-/**
- * Creates a proxy object that allows accessing elements in the array using a specified property as the key.
- *
- * @typeparam T - The type of elements in the array.
- * @typeparam K - The key of the property to be used as the key for accessing elements in the array.
- * @param array - The array of elements.
- * @param property - The property to be used as the key for accessing elements in the array.
- * @returns A proxy object with keys based on the specified property and values of type `T`.
- */
-export function ArrayFinder<T, K extends keyof T>(
-  array: T[],
-  property: K
-): ArrayToObject<T, K> {
-  const result: any = {};
-  for (const item of array) {
-    result[item[property] as string] = item;
-  }
-
-  return new Proxy(result, {
-    get: (target, prop) => {
-      if (typeof prop === "string") {
-        return target[prop] || undefined;
-      }
-      return target[prop as keyof typeof result];
-    },
-  });
-}
 
 /**
  * A type for the json representation of the api class. Returned by the `json` method, used to get info about the api.
