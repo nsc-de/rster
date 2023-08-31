@@ -188,3 +188,13 @@ export function ArrayFinder<T, K extends keyof T>(
     },
   });
 }
+
+/**
+ * Converts an Object's type to it's value type.
+ */
+export type Value<T extends Record<string, any>> = T[keyof T];
+
+/**
+ * Converts an Object's type to an array of it's value types.
+ */
+export type Values<T extends Record<string, any>> = Value<T>[];
