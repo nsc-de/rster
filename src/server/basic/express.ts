@@ -87,6 +87,11 @@ export function transformExpressResponse(res: ExpressResponse): Response {
 
 // create function to use in app.use()
 export function ExpressMixin(api: RestfulApi, options?: ExpressOptions) {
+  if (!api) throw new Error("api is required");
+
+  if (!(api instanceof RestfulApi))
+    throw new Error("api must be an instance of RestfulApi");
+
   options = options || {};
   const basePath = options.basePath || "";
   const send404 = options.send404 ?? true;
