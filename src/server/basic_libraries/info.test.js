@@ -1,7 +1,7 @@
-const { Context } = require("./context");
-import { createSyntheticContext } from "./common";
+const { Context } = require("../basic/context");
+import { createSyntheticContext } from "../basic/common";
 import "./info";
-import rest from "./rster";
+import rest from "../basic/rster";
 describe("Context", () => {
   describe("description", () => {
     it("Describe without should return the description", () => {

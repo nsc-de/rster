@@ -1,7 +1,7 @@
 import { declaration } from "../generator/index";
-import { Context, ContextChildCondition } from "./context";
+import { Context, ContextChildCondition } from "../basic/context";
 
-declare module "./context" {
+declare module "../basic/context" {
   interface Context {
     description(): string[];
     description(...description: string[]): Context;

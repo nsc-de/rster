@@ -140,7 +140,6 @@ describe("Express tests", () => {
     this.any("/users", function () {
       this.post("/register", function () {
         this.action(function (request, response) {
-          console.log(request);
           const { name, email, password } = request.body;
           if (!name || !email || !password) {
             return response.status(400).json({
