@@ -4,6 +4,7 @@ import {
   PrimitiveType,
   TypeInformation,
 } from "../basic/types";
+import { AllowVoidIfUndefined } from "../util";
 import { RsterApiMethod, RsterApiMethodBuilderContext } from "./method";
 import { RsterApiModule, RsterApiModuleBuilderContext } from "./module";
 
@@ -12,7 +13,9 @@ export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
     args: MapToPrimitiveType<NoUndefined<D["expectBody"], object>> &
       MapToPrimitiveType<NoUndefined<D["expectQuery"], object>> &
       MapToPrimitiveType<NoUndefined<D["expectParams"], object>>
-  ) => PrimitiveType<D["returns"]> | Promise<PrimitiveType<D["returns"]>>;
+  ) => AllowVoidIfUndefined<
+    PrimitiveType<D["returns"]> | Promise<PrimitiveType<D["returns"]>>
+  >;
 
 /**
  * Declaration for method parameters.

@@ -198,3 +198,5 @@ export type Value<T extends Record<string, any>> = T[keyof T];
  * Converts an Object's type to an array of it's value types.
  */
 export type Values<T extends Record<string, any>> = Value<T>[];
+
+export type AllowVoidIfUndefined<T> = T extends undefined ? void | T : T;
