@@ -102,7 +102,7 @@ describe("JsonWebTokenManager", () => {
     it("should verify", () => {
       const manager = new JsonWebTokenManager("secret");
       const token = manager.sign({ id: 1 });
-      const data = manager.verify(token);
+      const data = manager.verify(token, {});
 
       expect(data).toEqual({ id: 1 });
     });
@@ -114,7 +114,7 @@ describe("JsonWebTokenManager", () => {
       const invalid_token = splitted[0] + ":invalid_signature";
 
       expect(() => {
-        manager.verify(invalid_token);
+        manager.verify(invalid_token, {});
       }).toThrow($409("Invalid token"));
     });
 
@@ -125,14 +125,14 @@ describe("JsonWebTokenManager", () => {
       const invalid_token = "f9ekfo82:" + splitted[1];
 
       expect(() => {
-        manager.verify(invalid_token);
+        manager.verify(invalid_token, {});
       }).toThrow($409("Invalid token"));
     });
 
     it("test throw on token with to many parts", () => {
       const manager = new JsonWebTokenManager("secret");
       expect(() => {
-        manager.verify("a:b:c:d");
+        manager.verify("a:b:c:d", {});
       }).toThrow($409("Invalid token"));
     });
   });
