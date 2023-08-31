@@ -319,4 +319,29 @@ describe("Express tests", () => {
       },
     });
   });
+
+  it("should ignore request not starting with base path", async () => {
+    const response = await request(expressApp).post("/users/login").send({
+      email: "john@example.com",
+      password: "a_password",
+    });
+
+    expect(response.status).toEqual(404);
+    expect(response.body).toEqual({});
+  });
+
+  it("should ignore request not matching any route", async () => {
+    const response = await request(expressApp).post("/api/users").send({
+      email: "john@example.com",
+      password: "a_password",
+    });
+
+    expect(response.status).toEqual(404);
+    expect(response.body).toEqual({
+      api_path: "/users",
+      message: "Not Found",
+      method: "POST",
+      path: "/api/users",
+    });
+  });
 });
