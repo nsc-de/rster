@@ -92,6 +92,14 @@ describe("RsterApiMethod", () => {
         description: ["test description"],
         httpPath: "/test",
         httpMethod: "get",
+        declaration: {
+          expectBody: undefined,
+          expectQuery: undefined,
+          expectParams: undefined,
+          returns: {
+            type: "undefined",
+          },
+        },
       });
     });
   });

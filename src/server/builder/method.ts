@@ -1,5 +1,9 @@
 import { Context, Method } from "../basic";
-import { TypeInformation, undefinedType } from "../basic/types";
+import {
+  AllowAnyTypeInformation,
+  TypeInformation,
+  undefinedType,
+} from "../basic/types";
 import { declaration } from "../generator";
 import { RsterApiMethodBuilderContextToRsterApiMethod } from "./conversion_types";
 import { ActionFunction, ParameterDeclaration } from "./types";
@@ -38,6 +42,47 @@ export interface RsterApiMethodJson {
    * @see Method
    */
   httpMethod?: Method;
+
+  /**
+   * The declaration of the method.
+   * @see RsterApiMethod.declaration
+   * @see ParameterDeclaration
+   */
+  declaration: {
+    /**
+     * The declaration of the body of the request.
+     * @see ParameterDeclaration.expectBody
+     * @see ParameterDeclaration
+     */
+    expectBody?: {
+      [key: string]: unknown;
+    };
+
+    /**
+     * The declaration of the query of the request.
+     * @see ParameterDeclaration.expectQuery
+     * @see ParameterDeclaration
+     */
+    expectQuery?: {
+      [key: string]: unknown;
+    };
+
+    /**
+     * The declaration of the params of the request.
+     * @see ParameterDeclaration.expectParams
+     * @see ParameterDeclaration
+     */
+    expectParams?: {
+      [key: string]: unknown;
+    };
+
+    /**
+     * The declaration of the return value of the method.
+     * @see ParameterDeclaration.returns
+     * @see ParameterDeclaration
+     */
+    returns?: unknown;
+  };
 }
 
 export class RsterApiMethod<
@@ -58,6 +103,18 @@ export class RsterApiMethod<
       description: this.description,
       httpPath: this.httpPath,
       httpMethod: this.httpMethod,
+      declaration: {
+        expectBody: this.declaration.expectBody
+          ? Object.entries(this.declaration.expectBody)
+              .map(([key, value]) => ({
+                [key]: (value as { type: AllowAnyTypeInformation }).type.json(),
+              }))
+              .reduce((prev, curr) => ({ ...prev, ...curr }), {})
+          : undefined,
+        expectQuery: this.declaration.expectQuery?.json(),
+        expectParams: this.declaration.expectParams?.json(),
+        returns: this.declaration.returns?.json(),
+      },
     };
   }
 
