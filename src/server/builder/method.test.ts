@@ -1,4 +1,4 @@
-import { undefinedType } from "../basic/types";
+import { string, undefinedType } from "../basic/types";
 import { RsterApiMethod } from "./method";
 
 describe("RsterApiMethod", () => {
@@ -96,6 +96,54 @@ describe("RsterApiMethod", () => {
           expectBody: undefined,
           expectQuery: undefined,
           expectParams: undefined,
+          returns: {
+            type: "undefined",
+          },
+        },
+      });
+    });
+
+    it("test with declaration for body, query and params", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectBody: {
+            test: { type: string(), optional: false },
+            test2: { type: string(), optional: true },
+          },
+          expectQuery: {
+            test3: { type: string(), optional: false },
+            test4: { type: string(), optional: true },
+          },
+          expectParams: {
+            test5: { type: string(), optional: false },
+            test6: { type: string(), optional: true },
+          },
+          returns: undefinedType(),
+        },
+        "/test",
+        "get"
+      );
+
+      expect(method.json()).toEqual({
+        name: "test",
+        description: ["test description"],
+        httpPath: "/test",
+        httpMethod: "get",
+        declaration: {
+          expectBody: {
+            test: { type: { type: "string" }, optional: false },
+            test2: { type: { type: "string" }, optional: true },
+          },
+          expectQuery: {
+            test3: { type: { type: "string" }, optional: false },
+            test4: { type: { type: "string" }, optional: true },
+          },
+          expectParams: {
+            test5: { type: { type: "string" }, optional: false },
+            test6: { type: { type: "string" }, optional: true },
+          },
           returns: {
             type: "undefined",
           },

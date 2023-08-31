@@ -86,7 +86,18 @@ export interface RsterApiMethodJson {
 }
 
 export class RsterApiMethod<
-  DECLARATION extends ParameterDeclaration<any, any, any, any>
+  DECLARATION extends ParameterDeclaration<
+    AllowAnyTypeInformation,
+    {
+      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+    },
+    {
+      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+    },
+    {
+      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+    }
+  >
 > {
   constructor(
     public readonly name: string,
@@ -107,12 +118,42 @@ export class RsterApiMethod<
         expectBody: this.declaration.expectBody
           ? Object.entries(this.declaration.expectBody)
               .map(([key, value]) => ({
-                [key]: (value as { type: AllowAnyTypeInformation }).type.json(),
+                [key]: {
+                  type: (
+                    value as { type: AllowAnyTypeInformation }
+                  ).type.json(),
+
+                  optional: (value as { optional: boolean }).optional,
+                },
               }))
               .reduce((prev, curr) => ({ ...prev, ...curr }), {})
           : undefined,
-        expectQuery: this.declaration.expectQuery?.json(),
-        expectParams: this.declaration.expectParams?.json(),
+        expectQuery: this.declaration.expectQuery
+          ? Object.entries(this.declaration.expectQuery)
+              .map(([key, value]) => ({
+                [key]: {
+                  type: (
+                    value as { type: AllowAnyTypeInformation }
+                  ).type.json(),
+
+                  optional: (value as { optional: boolean }).optional,
+                },
+              }))
+              .reduce((prev, curr) => ({ ...prev, ...curr }), {})
+          : undefined,
+        expectParams: this.declaration.expectParams
+          ? Object.entries(this.declaration.expectParams)
+              .map(([key, value]) => ({
+                [key]: {
+                  type: (
+                    value as { type: AllowAnyTypeInformation }
+                  ).type.json(),
+
+                  optional: (value as { optional: boolean }).optional,
+                },
+              }))
+              .reduce((prev, curr) => ({ ...prev, ...curr }), {})
+          : undefined,
         returns: this.declaration.returns?.json(),
       },
     };
