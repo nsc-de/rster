@@ -4,7 +4,7 @@
   "description": "Toolset for REST Api creation",
   "main": "lib/index.js",
   "author": "Nicolas Schmidt",
-  "license": "BSD-2-Clause",
+  "license": "BSD-3-Clause",
   "dependencies": {
     "cross-fetch": "^4.0.0",
     "debug": "^4.3.4",
