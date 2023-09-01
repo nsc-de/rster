@@ -1,5 +1,20 @@
 // import { declaration } from "../generator/index";
 import { Context, ContextChildCondition } from "@rster/basic";
+import { TypeInformation } from "@rster/types";
+
+export interface Declaration {
+  name: string;
+  expectBody?: {
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+  };
+  expectQuery?: {
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+  };
+  expectParams?: {
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+  };
+  returnBody: TypeInformation<unknown>;
+}
 
 declare module "@rster/basic" {
   interface Context {
@@ -15,6 +30,30 @@ declare module "@rster/basic" {
     fields(): FieldMap;
     fields(ctx: Context): FieldMap;
     useInfo(options?: { path?: string }): void;
+
+    declaration(): Declaration;
+    declaration(decl: Declaration): Context;
+    declaration(context: Context): Declaration | undefined;
+    declaration(context: Context, decl: Declaration): Context;
+    declaration(
+      context?: Context | Declaration,
+      decl?: Declaration
+    ): Context | Declaration | undefined | string[];
+
+    hasDeclaration(): boolean;
+    hasDeclaration(context: Context): boolean;
+    hasDeclaration(context?: Context): boolean;
+
+    collectDeclarations(
+      ctx: Context
+    ): { declaration: Declaration; ctx: Context }[];
+    requireAuthentication(): void;
+    requireAuthentication(context: Context): void;
+    requireAuthentication(context?: Context): void;
+
+    requiresAuthentication(): boolean;
+    requiresAuthentication(context: Context): boolean;
+    requiresAuthentication(context?: Context): boolean;
   }
 }
 
@@ -131,4 +170,45 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
         .end();
     });
   });
+};
+
+Context.prototype.declaration = function (
+  context?: Context | Declaration,
+  decl?: Declaration
+) {
+  if (typeof context === "undefined") return this.data("@info/declaration");
+
+  if (typeof context === "object" && context instanceof Context) {
+    if (typeof decl === "undefined") {
+      return context.data("@info/declaration");
+    }
+    this.setData("@info/declaration", decl);
+    return context;
+  }
+
+  if (typeof context === "object") {
+    this.setData("@info/declaration", context);
+    return this;
+  }
+
+  throw new Error("Invalid arguments");
+};
+
+Context.prototype.hasDeclaration = function (context?: Context): boolean {
+  if (typeof context === "undefined")
+    return typeof this.data("@info/declaration") !== "undefined";
+
+  return typeof context.data("@info/declaration") !== "undefined";
+};
+
+Context.prototype.collectDeclarations = function (
+  ctx: Context
+): { declaration: Declaration; ctx: Context }[] {
+  const contexts = ctx.collect();
+  return contexts
+    .map((c) => ({ declaration: this.declaration(c), ctx: c }))
+    .filter((d) => !!d.declaration) as {
+    declaration: Declaration;
+    ctx: Context;
+  }[];
 };
