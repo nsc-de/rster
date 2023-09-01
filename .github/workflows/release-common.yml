@@ -45,7 +45,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ./build/*.tgz
+            ./packages/common/*.tgz
             ./packages/common/changelog.md
             ./packages/common/README.md
             ./packages/common/LICENSE
