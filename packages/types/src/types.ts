@@ -690,7 +690,9 @@ export class Or<
  * @typeParam T - The object type
  */
 export class ObjectTypeInformation<
-  T extends { [key: string]: { required: boolean; type: AnyTypeInformation } }
+  T extends {
+    [key: string]: { required: boolean; type: AllowAnyTypeInformation };
+  }
 > extends TypeInformation<{ [key in keyof T]: T[key]["type"] }> {
   constructor(public readonly properties: T) {
     super();
