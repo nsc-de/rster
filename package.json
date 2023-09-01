@@ -113,7 +113,22 @@
     "packages:worker-express:publish:gpr": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --access=public --registry https://npm.pkg.github.com/ && cd ../..",
     "packages:worker-express:publish:gpr:next": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag next --access=public --registry https://npm.pkg.github.com/ && cd ../..",
     "packages:worker-express:publish:gpr:beta": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag beta --access=public --registry https://npm.pkg.github.com/ && cd ../..",
-    "packages:worker-express:publish:gpr:alpha": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag alpha --access=public --registry https://npm.pkg.github.com/ && cd ../.."
+    "packages:worker-express:publish:gpr:alpha": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag alpha --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:rster:ci": "cd packages/rster && npm ci && cd ../..",
+    "packages:rster:install": "cd packages/rster && npm install && cd ../..",
+    "packages:rster:build": "cd packages/rster && npm run build && cd ../..",
+    "packages:rster:test": "cd packages/rster && npm test && cd ../..",
+    "packages:rster:lint": "cd packages/rster && npm run lint && cd ../..",
+    "packages:rster:prepack": "npm run packages:rster:ci && npm run packages:rster:test && npm run packages:rster:build  && npm run packages:rster:lint",
+    "packages:rster:pack": "npm run packages:rster:prepack && cd packages/rster && npm pack && cd ../..",
+    "packages:rster:publish:npm": "npm run packages:rster:prepack && cd packages/rster && npm publish --access=public && cd ../..",
+    "packages:rster:publish:npm:next": "npm run packages:rster:prepack && cd packages/rster && npm publish --tag next --access=public && cd ../..",
+    "packages:rster:publish:npm:beta": "npm run packages:rster:prepack && cd packages/rster && npm publish --tag beta --access=public && cd ../..",
+    "packages:rster:publish:npm:alpha": "npm run packages:rster:prepack && cd packages/rster && npm publish --tag alpha --access=public && cd ../..",
+    "packages:rster:publish:gpr": "npm run packages:rster:prepack && cd packages/rster && npm publish --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:rster:publish:gpr:next": "npm run packages:rster:prepack && cd packages/rster && npm publish --tag next --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:rster:publish:gpr:beta": "npm run packages:rster:prepack && cd packages/rster && npm publish --tag beta --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:rster:publish:gpr:alpha": "npm run packages:rster:prepack && cd packages/rster && npm publish --tag alpha --access=public --registry https://npm.pkg.github.com/ && cd ../.."
   },
   "publishConfig": {
     "access": "public"
