@@ -18,7 +18,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/nsc-de/rster">
-    <img src="images/logo.svg" alt="Logo" height="80">
+    <img src="./images/logo.png" alt="Logo" height="80">
   </a>
 
 <h3 align="center">rster</h3>
