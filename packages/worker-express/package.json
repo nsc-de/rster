@@ -10,7 +10,8 @@
     "@rster/basic": "^0.1.1",
     "@rster/common": "^0.1.1",
     "@rster/types": "^0.1.1",
-    "debug": "^4.3.4"
+    "debug": "^4.3.4",
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.10",
