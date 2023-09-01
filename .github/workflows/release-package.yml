@@ -9,6 +9,10 @@ jobs:
   extract_info:
     runs-on: ubuntu-latest
 
+    outputs:
+      release_type: ${{ steps.extract_info.outputs.release_type }}
+      version: ${{ steps.extract_info.outputs.version }}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
