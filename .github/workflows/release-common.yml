@@ -1,0 +1,54 @@
+name: Node.js Package
+
+on:
+  push:
+    tags:
+      - "packages/common/v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm run packages:common:ci
+      - run: npm run packages:common:build
+      - run: npm run packages:common:test
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - run: npm run packages:common:publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+  publish-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm run packages:common:pack
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./build/*.tgz
+            ./packages/common/changelog.md
+            ./packages/common/README.md
+            ./packages/common/LICENSE
+          tag_name: ${{github.ref}}
+          body: |
+            See changelog for details
