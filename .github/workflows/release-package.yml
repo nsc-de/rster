@@ -20,7 +20,7 @@ jobs:
           RELEASE_TYPE=${TAG%%/v*}
           VERSION=${TAG#*/v}
           echo "release_type=${RELEASE_TYPE}" >> $GITHUB_OUTPUT
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Dump Release Info
         run: |
