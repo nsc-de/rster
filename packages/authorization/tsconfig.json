@@ -13,18 +13,10 @@
     "forceConsistentCasingInFileNames": true,
     "lib": ["ES6"]
   },
-  "include": [
-    "src/server/**/*.ts",
-    "src/server/builder/builder.ts",
-    "packages/authorization/src/authorization.test.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "src/server/**/*.spec.ts",
-    "src/server/**/*.test.ts"
-  ],
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.test.ts"],
   "typedocOptions": {
-    "entryPoints": ["src/server/index.ts"],
-    "out": "docs/typedoc/typedoc"
+    "entryPoints": ["src/index.ts"],
+    "out": "../../docs/typedoc/typedoc/authorization"
   }
 }
