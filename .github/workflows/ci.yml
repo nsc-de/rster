@@ -50,7 +50,7 @@ jobs:
 
     strategy:
       matrix:
-        package: ["basic", "common", "rster", "types", "worker"]
+        package: ["basic", "common", "rster", "types", "worker-express"]
 
     steps:
       - name: Checkout 🛎️
