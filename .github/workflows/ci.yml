@@ -6,13 +6,14 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   tests:
-    name: CI Tests on Node.js ${{ matrix.node-version }} 🧪
+    name: CI Tests for ${{matrix.package}} on Node.js ${{ matrix.node-version }} 🧪
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [v16.x, v18.x, v19.x, v20.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        package: ["basic", "common", "rster", "types", "worker"]
 
     steps:
       - name: Checkout 🛎️
@@ -27,7 +28,7 @@ jobs:
           cache: "npm"
 
       - name: Install ⤵️
-        run: npm ci
+        run: npm run packages:${{ matrix.package }}:ci
 
       - name: Cache ♻️
         uses: actions/cache@v1.2.1
@@ -36,7 +37,7 @@ jobs:
           key: /cache/ci/module_cache
 
       - name: Run tests 🔬
-        run: npm run test
+        run: npm run packages:${{ matrix.package }}:test
 
       - name: Upload coverage reports to Codecov ☁️
         uses: codecov/codecov-action@v3
@@ -44,8 +45,12 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build:
-    name: Build on Node.js v18.x 🔨
+    name: Build ${{matrix.package}} on Node.js v18.x 🔨
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        package: ["basic", "common", "rster", "types", "worker"]
 
     steps:
       - name: Checkout 🛎️
@@ -60,7 +65,7 @@ jobs:
           cache: "npm"
 
       - name: Install ⤵️
-        run: npm ci
+        run: npm run packages:${{ matrix.package }}:ci
 
       - name: Cache ♻️
         uses: actions/cache@v1.2.1
@@ -69,4 +74,4 @@ jobs:
           key: /cache/ci/module_cache
 
       - name: Build 🔧
-        run: npm run build
+        run: npm run packages:${{ matrix.package }}:build
