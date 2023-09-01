@@ -15,10 +15,12 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
         package:
           [
+            "authorization",
             "basic",
             "builder",
             "common",
             "info",
+            "ping",
             "rster",
             "types",
             "worker-express",
@@ -59,7 +61,18 @@ jobs:
 
     strategy:
       matrix:
-        package: ["basic", "common", "rster", "types", "worker-express"]
+        package:
+          [
+            "authorization",
+            "basic",
+            "builder",
+            "common",
+            "info",
+            "ping",
+            "rster",
+            "types",
+            "worker-express",
+          ]
 
     steps:
       - name: Checkout 🛎️
