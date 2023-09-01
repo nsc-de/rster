@@ -35,9 +35,7 @@
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "build:docs:typedoc": "typedoc",
-    "build:docs:docusaurus": "npm run prepare:docs && cd docs && npm run build && cd ..",
-    "build:docs": "npm run build:docs:typedoc && npm run build:docs:docusaurus",
+    "build:typedoc": "typedoc",
     "lint": "eslint . --ext .ts"
   },
   "repository": {

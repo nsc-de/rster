@@ -17,6 +17,6 @@
   "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.test.ts"],
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
-    "out": "typedoc"
+    "out": "../../docs/typedoc/typedoc/common"
   }
 }
