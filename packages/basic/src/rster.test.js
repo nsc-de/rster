@@ -1,5 +1,5 @@
 import { RestfulApi } from "./rster";
-import { createSyntheticContext } from "./common";
+import { createSyntheticContext } from "@rster/common";
 import { $400 } from "./error";
 
 describe("RestfulApi", () => {
