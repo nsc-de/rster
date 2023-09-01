@@ -41,15 +41,9 @@
     "express": "^4.18.2"
   },
   "scripts": {
-    "start": "node dist/index.js",
-    "start-test": "node -r source-map-support/register lib/test.js",
-    "test": "jest --config=jest.config.js",
-    "type-check": "tsc --noEmit",
-    "type-check:watch": "npm run type-check --watch",
+    "test": "npm run packages:all:test",
     "prepare:docs": "cd docs && npm ci && cd ..",
-    "build": "npm run build:types && npm run build:js",
-    "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "babel src/server --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "build": "npm run packages:all:build",
     "build:docs:typedoc": "npm run packages:all:ci && npm run packages:all:typedoc",
     "build:docs:docusaurus": "npm run prepare:docs && cd docs && npm run build && cd ..",
     "build:docs": "npm run build:docs:typedoc && npm run build:docs:docusaurus",
