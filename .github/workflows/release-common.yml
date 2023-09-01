@@ -3,7 +3,7 @@ name: Node.js Package
 on:
   push:
     tags:
-      - "packages/common/v*"
+      - "release/common/v*"
 
 jobs:
   build:
