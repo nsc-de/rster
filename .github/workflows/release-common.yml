@@ -5,6 +5,10 @@ on:
     tags:
       - "release/common/v*"
 
+permissions:
+  contents: write
+  discussions: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,7 +44,7 @@ jobs:
           node-version: 16
       - run: npm run packages:common:pack
         env:
-          GITHUB_TOKEN: ${{secrets.GH_POWER_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
