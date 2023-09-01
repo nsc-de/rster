@@ -69,15 +69,21 @@
     "packages:common:publish:gpr:next": "npm run packages:common:prepack && cd packages/common && npm publish --tag next --access=public --registry https://npm.pkg.github.com/ && cd ../..",
     "packages:common:publish:gpr:beta": "npm run packages:common:prepack && cd packages/common && npm publish --tag beta --access=public --registry https://npm.pkg.github.com/ && cd ../..",
     "packages:common:publish:gpr:alpha": "npm run packages:common:prepack && cd packages/common && npm publish --tag alpha --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:types:ci": "cd packages/types && npm ci && cd ../..",
+    "packages:types:install": "cd packages/types && npm install && cd ../..",
     "packages:types:build": "cd packages/types && npm run build && cd ../..",
     "packages:types:test": "cd packages/types && npm test && cd ../..",
     "packages:types:lint": "cd packages/types && npm run lint && cd ../..",
-    "packages:types:prepack": "npm run prepack && npm run packages:types:test && npm run packages:types:build  && npm run packages:types:lint",
-    "packages:types:pack": "npm run packages:types:prepack && cd packages/types && npm pack --pack-destination ../../build && cd ../..",
-    "packages:types:publish": "npm run packages:types:prepack && cd packages/types && npm publish && cd ../..",
-    "packages:types:publish:next": "npm run packages:types:prepack && cd packages/types && npm publish --tag next && cd ../..",
-    "packages:types:publish:beta": "npm run packages:types:prepack && cd packages/types && npm publish --tag beta && cd ../..",
-    "packages:types:publish:alpha": "npm run packages:types:prepack && cd packages/types && npm publish --tag alpha && cd ../.."
+    "packages:types:prepack": "npm run packages:types:ci && npm run packages:types:test && npm run packages:types:build  && npm run packages:types:lint",
+    "packages:types:pack": "npm run packages:types:prepack && cd packages/types && npm pack && cd ../..",
+    "packages:types:publish:npm": "npm run packages:types:prepack && cd packages/types && npm publish --access=public && cd ../..",
+    "packages:types:publish:npm:next": "npm run packages:types:prepack && cd packages/types && npm publish --tag next --access=public && cd ../..",
+    "packages:types:publish:npm:beta": "npm run packages:types:prepack && cd packages/types && npm publish --tag beta --access=public && cd ../..",
+    "packages:types:publish:npm:alpha": "npm run packages:types:prepack && cd packages/types && npm publish --tag alpha --access=public && cd ../..",
+    "packages:types:publish:gpr": "npm run packages:types:prepack && cd packages/types && npm publish --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:types:publish:gpr:next": "npm run packages:types:prepack && cd packages/types && npm publish --tag next --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:types:publish:gpr:beta": "npm run packages:types:prepack && cd packages/types && npm publish --tag beta --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:types:publish:gpr:alpha": "npm run packages:types:prepack && cd packages/types && npm publish --tag alpha --access=public --registry https://npm.pkg.github.com/ && cd ../.."
   },
   "publishConfig": {
     "access": "public"
