@@ -98,7 +98,22 @@
     "packages:basic:publish:gpr": "npm run packages:basic:prepack && cd packages/basic && npm publish --access=public --registry https://npm.pkg.github.com/ && cd ../..",
     "packages:basic:publish:gpr:next": "npm run packages:basic:prepack && cd packages/basic && npm publish --tag next --access=public --registry https://npm.pkg.github.com/ && cd ../..",
     "packages:basic:publish:gpr:beta": "npm run packages:basic:prepack && cd packages/basic && npm publish --tag beta --access=public --registry https://npm.pkg.github.com/ && cd ../..",
-    "packages:basic:publish:gpr:alpha": "npm run packages:basic:prepack && cd packages/basic && npm publish --tag alpha --access=public --registry https://npm.pkg.github.com/ && cd ../.."
+    "packages:basic:publish:gpr:alpha": "npm run packages:basic:prepack && cd packages/basic && npm publish --tag alpha --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:worker-express:ci": "cd packages/worker-express && npm ci && cd ../..",
+    "packages:worker-express:install": "cd packages/worker-express && npm install && cd ../..",
+    "packages:worker-express:build": "cd packages/worker-express && npm run build && cd ../..",
+    "packages:worker-express:test": "cd packages/worker-express && npm test && cd ../..",
+    "packages:worker-express:lint": "cd packages/worker-express && npm run lint && cd ../..",
+    "packages:worker-express:prepack": "npm run packages:worker-express:ci && npm run packages:worker-express:test && npm run packages:worker-express:build  && npm run packages:worker-express:lint",
+    "packages:worker-express:pack": "npm run packages:worker-express:prepack && cd packages/worker-express && npm pack && cd ../..",
+    "packages:worker-express:publish:npm": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --access=public && cd ../..",
+    "packages:worker-express:publish:npm:next": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag next --access=public && cd ../..",
+    "packages:worker-express:publish:npm:beta": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag beta --access=public && cd ../..",
+    "packages:worker-express:publish:npm:alpha": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag alpha --access=public && cd ../..",
+    "packages:worker-express:publish:gpr": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:worker-express:publish:gpr:next": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag next --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:worker-express:publish:gpr:beta": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag beta --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:worker-express:publish:gpr:alpha": "npm run packages:worker-express:prepack && cd packages/worker-express && npm publish --tag alpha --access=public --registry https://npm.pkg.github.com/ && cd ../.."
   },
   "publishConfig": {
     "access": "public"
