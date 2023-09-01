@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "author": "Nicolas Schmidt",
   "license": "BSD-2-Clause",
   "dependencies": {

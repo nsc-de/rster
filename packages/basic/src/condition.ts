@@ -1,4 +1,4 @@
-import { Method, Request } from "./common";
+import { Method, Request } from "@rster/common";
 
 export type ContextConditionJson =
   | { type: "and"; conditions: ContextConditionJson[] }

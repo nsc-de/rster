@@ -3,7 +3,7 @@
  * The context class is used to describe a route. Context can be nested using {@link ContextChildCondition} as children (generated using the when function).
  */
 import debug from "debug";
-import { Method, Request, Response } from "./common";
+import { Method, Request, Response } from "@rster/common";
 import {
   ConditionInfo,
   ContextCondition,

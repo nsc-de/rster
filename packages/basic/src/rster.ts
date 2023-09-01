@@ -1,12 +1,7 @@
-import { Request, Response } from "./common";
 import { Context, ContextInitializer } from "./context";
-import {
-  Request as ExpressRequest,
-  Response as ExpressResponse,
-} from "express";
-import { ExpressMixin, ExpressOptions } from "./express";
 import debug from "debug";
 import { HttpError } from "./error";
+import { Request, Response } from "@rster/common";
 
 const debugHttpError = debug("rster:http-error");
 
@@ -56,12 +51,6 @@ export class RestfulApi extends Context {
         } catch (e) {}
       }
     }
-  }
-
-  express(
-    options?: ExpressOptions
-  ): (req: ExpressRequest, res: ExpressResponse, next: any) => void {
-    return ExpressMixin(this, options);
   }
 }
 
