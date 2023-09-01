@@ -1,7 +1,7 @@
-import { declaration } from "../generator/index";
-import { Context, ContextChildCondition } from "../basic/context";
+// import { declaration } from "../generator/index";
+import { Context, ContextChildCondition } from "@rster/basic";
 
-declare module "../basic/context" {
+declare module "@rster/basic" {
   interface Context {
     description(): string[];
     description(...description: string[]): Context;
@@ -108,7 +108,8 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
         return;
       }
 
-      const decl = declaration(context);
+      // TODO Move declaration to info?
+      // const decl = declaration(context);
 
       res
         .status(200)
@@ -125,7 +126,7 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
               name: field,
               value: fields[field],
             })))(this.fields(context)),
-          declaration: decl,
+          // declaration: decl,
         })
         .end();
     });
