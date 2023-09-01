@@ -12,6 +12,7 @@ yarn-error.log*
 /lib
 /cli
 /build
+*.tgz
 
 # generated documentation / reports
 /coverage
