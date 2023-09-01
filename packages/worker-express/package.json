@@ -45,5 +45,9 @@
     "build:docs:docusaurus": "npm run prepare:docs && cd docs && npm run build && cd ..",
     "build:docs": "npm run build:docs:typedoc && npm run build:docs:docusaurus",
     "lint": "eslint . --ext .ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nsc-de/rster"
   }
 }
