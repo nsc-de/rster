@@ -61,14 +61,14 @@
     "packages:common:lint": "cd packages/common && npm run lint && cd ../..",
     "packages:common:prepack": "npm run packages:common:ci && npm run packages:common:test && npm run packages:common:build  && npm run packages:common:lint",
     "packages:common:pack": "npm run packages:common:prepack && cd packages/common && npm pack && cd ../..",
-    "packages:common:publish:npm": "npm run packages:common:prepack && cd packages/common && npm publish && cd ../..",
-    "packages:common:publish:npm:next": "npm run packages:common:prepack && cd packages/common && npm publish --tag next && cd ../..",
-    "packages:common:publish:npm:beta": "npm run packages:common:prepack && cd packages/common && npm publish --tag beta && cd ../..",
-    "packages:common:publish:npm:alpha": "npm run packages:common:prepack && cd packages/common && npm publish --tag alpha && cd ../..",
-    "packages:common:publish:gpr": "npm run packages:common:prepack && cd packages/common && npm publish --registry https://npm.pkg.github.com/ && cd ../..",
-    "packages:common:publish:gpr:next": "npm run packages:common:prepack && cd packages/common && npm publish --tag next --registry https://npm.pkg.github.com/ && cd ../..",
-    "packages:common:publish:gpr:beta": "npm run packages:common:prepack && cd packages/common && npm publish --tag beta --registry https://npm.pkg.github.com/ && cd ../..",
-    "packages:common:publish:gpr:alpha": "npm run packages:common:prepack && cd packages/common && npm publish --tag alpha --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:common:publish:npm": "npm run packages:common:prepack && cd packages/common && npm publish --access=public && cd ../..",
+    "packages:common:publish:npm:next": "npm run packages:common:prepack && cd packages/common && npm publish --tag next --access=public && cd ../..",
+    "packages:common:publish:npm:beta": "npm run packages:common:prepack && cd packages/common && npm publish --tag beta --access=public && cd ../..",
+    "packages:common:publish:npm:alpha": "npm run packages:common:prepack && cd packages/common && npm publish --tag alpha --access=public && cd ../..",
+    "packages:common:publish:gpr": "npm run packages:common:prepack && cd packages/common && npm publish --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:common:publish:gpr:next": "npm run packages:common:prepack && cd packages/common && npm publish --tag next --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:common:publish:gpr:beta": "npm run packages:common:prepack && cd packages/common && npm publish --tag beta --access=public --registry https://npm.pkg.github.com/ && cd ../..",
+    "packages:common:publish:gpr:alpha": "npm run packages:common:prepack && cd packages/common && npm publish --tag alpha --access=public --registry https://npm.pkg.github.com/ && cd ../..",
     "packages:types:build": "cd packages/types && npm run build && cd ../..",
     "packages:types:test": "cd packages/types && npm test && cd ../..",
     "packages:types:lint": "cd packages/types && npm run lint && cd ../..",
@@ -78,5 +78,8 @@
     "packages:types:publish:next": "npm run packages:types:prepack && cd packages/types && npm publish --tag next && cd ../..",
     "packages:types:publish:beta": "npm run packages:types:prepack && cd packages/types && npm publish --tag beta && cd ../..",
     "packages:types:publish:alpha": "npm run packages:types:prepack && cd packages/types && npm publish --tag alpha && cd ../.."
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
