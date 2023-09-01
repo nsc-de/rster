@@ -1,9 +1,9 @@
-import { Request, Response } from "./common";
+import { Request, Response } from "@rster/common";
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,
 } from "express";
-import { RestfulApi } from "./index";
+import { RestfulApi } from "@rster/basic";
 
 export function transformExpressRequest(req: ExpressRequest): Request {
   return {

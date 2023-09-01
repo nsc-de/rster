@@ -1,6 +1,7 @@
 import { transformExpressRequest } from "./express";
 import express from "express";
-import rest, { $409, ExpressMixin } from "./index";
+import rest, { $409 } from "@rster/basic";
+import { ExpressMixin } from ".";
 import request from "supertest";
 
 describe("transformExpressRequest", () => {
@@ -136,7 +137,6 @@ describe("Express tests", () => {
     // It is definitely not secure as it stores passwords in plain text in memory
     // Also after restarting the server all users are gone
 
-    this.description("Test description");
     this.any("/users", function () {
       this.post("/register", function () {
         this.action(function (request, response) {
