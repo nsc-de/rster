@@ -1,6 +1,6 @@
 {
   "name": "rster",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Toolset for REST Api creation",
   "main": "lib/index.js",
   "author": "Nicolas Schmidt",
