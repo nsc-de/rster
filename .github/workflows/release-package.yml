@@ -16,11 +16,11 @@ jobs:
       - name: Extract Release Type and Version 📋
         id: extract_info
         run: |
-          TAG=${GITHUB_REF#refs/tags/packages/}
+          TAG=${GITHUB_REF#refs/tags/release/}
           RELEASE_TYPE=${TAG%%/v*}
-          VERSION=${TAG#*v}
-          echo "::set-output name=release_type::${RELEASE_TYPE}"
-          echo "::set-output name=version::${VERSION}"
+          VERSION=${TAG#*/v}
+          echo "release_type=${RELEASE_TYPE}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT"
 
       - name: Dump Release Info
         run: |
