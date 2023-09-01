@@ -5,47 +5,82 @@ on:
     tags:
       - "release/common/v*"
 
-permissions:
-  contents: write
-  discussions: write
-
 jobs:
   build:
+    name: Build 🛠️
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Setup Node.js 📦
+        uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm run packages:common:ci
-      - run: npm run packages:common:build
-      - run: npm run packages:common:test
+      - name: Install dependencies 🔃
+        run: npm run packages:common:ci
+
+      - name: Build 🔨
+        run: npm run packages:common:build
+
+      - name: Test 🧪
+        run: npm run packages:common:test
 
   publish-npm:
+    name: Publish to NPM Registry 📦
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Setup Node.js 📦
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: npm run packages:common:publish
+      - name: Publish ☁️
+        run: npm run packages:common:publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
-  publish-release:
+  publish-gpr:
+    name: Publish to GitHub Package Registry 📦
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Setup Node.js 📦
+        uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm run packages:common:pack
+          registry-url: https://npm.pkg.github.com/
+      - name: Publish ☁️
+        run: npm run packages:common:publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  draft-release:
+    name: Draft Release for tag 📦
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      discussions: write
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Setup Node.js 📦
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Pack Release 📦
+        run: npm run packages:common:pack
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: Release
+      - name: Release ☁️
         uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -56,3 +91,4 @@ jobs:
           tag_name: ${{github.ref}}
           body: |
             See changelog for details
+          name: ${{github.ref_name}}
