@@ -1,7 +1,7 @@
 {
   "name": "@rster/types",
   "version": "0.1.0",
-  "description": "Toolset for REST Api creation",
+  "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
   "author": "Nicolas Schmidt",
   "license": "BSD-2-Clause",
