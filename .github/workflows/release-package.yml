@@ -68,25 +68,25 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
-  publish-gpr:
-    name: Publish to GitHub Package Registry 📦
-    needs: [draft-release, build, extract_info]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
-      - name: Setup Node.js 📦
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://npm.pkg.github.com/
-      - name: Publish ☁️
-        run: npm run packages:${{needs.extract_info.outputs.release_type}}:publish:gpr
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  # publish-gpr:
+  #   name: Publish to GitHub Package Registry 📦
+  #   needs: [draft-release, build, extract_info]
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #   steps:
+  #     - name: Checkout 🛎️
+  #       uses: actions/checkout@v3
+  #     - name: Setup Node.js 📦
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16
+  #         registry-url: https://npm.pkg.github.com/
+  #     - name: Publish ☁️
+  #       run: npm run packages:${{needs.extract_info.outputs.release_type}}:publish:gpr
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   draft-release:
     name: Draft Release for tag 📦
