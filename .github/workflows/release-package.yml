@@ -118,3 +118,4 @@ jobs:
           body: |
             See changelog for details
           name: ${{github.ref_name}}
+          draft: falsew
