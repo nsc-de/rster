@@ -1,4 +1,4 @@
-import { string, undefinedType } from "../basic/types";
+import { string, undefinedType } from "@rster/types";
 import { RsterApiMethod } from "./method";
 
 describe("RsterApiMethod", () => {

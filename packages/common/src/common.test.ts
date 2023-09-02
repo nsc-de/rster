@@ -81,10 +81,10 @@ describe("createSyntheticRequest", () => {
       },
     });
 
-    expect(request.accepts).toEqual(["text/html"]);
-    expect(request.acceptsCharsets).toEqual(["utf-8", "utf-16"]);
-    expect(request.acceptsEncodings).toEqual(["identity", "gzip", "deflate"]);
-    expect(request.acceptsLanguages).toEqual(["en", "fr"]);
+    expect(request.accepts()).toEqual(["text/html"]);
+    expect(request.acceptsCharsets()).toEqual(["utf-8", "utf-16"]);
+    expect(request.acceptsEncodings()).toEqual(["identity", "gzip", "deflate"]);
+    expect(request.acceptsLanguages()).toEqual(["en", "fr"]);
     expect(request.body).toEqual({ name: "John Doe" });
     expect(request.cookies).toEqual({ name: "John Doe" });
     expect(request.fresh).toEqual(true);
@@ -96,7 +96,7 @@ describe("createSyntheticRequest", () => {
     expect(request.params).toEqual({ id: 1 });
     expect(request.path).toEqual("/aaa");
     expect(request.protocol).toEqual("https");
-    expect(request.query).toEqual({ id: 1 });
+    expect(request.query).toEqual({ id: "1" });
     expect(request.baseUrl).toEqual("/aaa");
     expect(request.fullApiPath).toEqual("/aaa");
     expect(request.fullPath).toEqual("/aaa");
@@ -165,10 +165,10 @@ describe("createSyntheticRequest", () => {
       },
     });
 
-    expect(request.accepts).toEqual(["text/html"]);
-    expect(request.acceptsCharsets).toEqual(["utf-8", "utf-16"]);
-    expect(request.acceptsEncodings).toEqual(["identity", "gzip", "deflate"]);
-    expect(request.acceptsLanguages).toEqual(["en", "fr"]);
+    expect(request.accepts()).toEqual(["text/html"]);
+    expect(request.acceptsCharsets()).toEqual(["utf-8", "utf-16"]);
+    expect(request.acceptsEncodings()).toEqual(["identity", "gzip", "deflate"]);
+    expect(request.acceptsLanguages()).toEqual(["en", "fr"]);
     expect(request.body).toEqual({ name: "John Doe" });
     expect(request.cookies).toEqual({ name: "John Doe" });
     expect(request.fresh).toEqual(true);
@@ -180,7 +180,7 @@ describe("createSyntheticRequest", () => {
     expect(request.params).toEqual({ id: 1 });
     expect(request.path).toEqual("/aaa");
     expect(request.protocol).toEqual("https");
-    expect(request.query).toEqual({ id: 1 });
+    expect(request.query).toEqual({ id: "1" });
     expect(request.baseUrl).toEqual("/aaa");
     expect(request.fullApiPath).toEqual("/aaa");
     expect(request.fullPath).toEqual("/aaa");
@@ -433,10 +433,10 @@ describe("createSyntheticContext", () => {
       },
     });
 
-    expect(request.accepts).toEqual(["text/html"]);
-    expect(request.acceptsCharsets).toEqual(["utf-8", "utf-16"]);
-    expect(request.acceptsEncodings).toEqual(["identity", "gzip", "deflate"]);
-    expect(request.acceptsLanguages).toEqual(["en", "fr"]);
+    expect(request.accepts()).toEqual(["text/html"]);
+    expect(request.acceptsCharsets()).toEqual(["utf-8", "utf-16"]);
+    expect(request.acceptsEncodings()).toEqual(["identity", "gzip", "deflate"]);
+    expect(request.acceptsLanguages()).toEqual(["en", "fr"]);
     expect(request.body).toEqual({ name: "John Doe" });
     expect(request.cookies).toEqual({ name: "John Doe" });
     expect(request.fresh).toEqual(true);
@@ -448,7 +448,7 @@ describe("createSyntheticContext", () => {
     expect(request.params).toEqual({ id: 1 });
     expect(request.path).toEqual("/aaa");
     expect(request.protocol).toEqual("https");
-    expect(request.query).toEqual({ id: 1 });
+    expect(request.query).toEqual({ id: "1" });
     expect(request.baseUrl).toEqual("/aaa");
     expect(request.fullApiPath).toEqual("/aaa");
     expect(request.fullPath).toEqual("/aaa");

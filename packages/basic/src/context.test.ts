@@ -212,7 +212,7 @@ describe("Context", () => {
 
     it("Should add a route using a Path condition if called with a string", () => {
       const context = createEmptyContext();
-      context.get("test", () => {});
+      context.get("/test", () => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -227,7 +227,7 @@ describe("Context", () => {
         .condition;
       expect(andCondition.info()).toEqual({
         method: "get",
-        path: "test",
+        path: "/test",
       });
     });
 
@@ -280,7 +280,7 @@ describe("Context", () => {
 
     it("Should add a route using a Path condition if called with a string", () => {
       const context = createEmptyContext();
-      context.post("test", () => {});
+      context.post("/test", () => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -295,7 +295,7 @@ describe("Context", () => {
         .condition;
       expect(andCondition.info()).toEqual({
         method: "post",
-        path: "test",
+        path: "/test",
       });
     });
 
@@ -348,7 +348,7 @@ describe("Context", () => {
 
     it("Should add a route using a Path condition if called with a string", () => {
       const context = createEmptyContext();
-      context.put("test", () => {});
+      context.put("/test", () => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -363,7 +363,7 @@ describe("Context", () => {
         .condition;
       expect(andCondition.info()).toEqual({
         method: "put",
-        path: "test",
+        path: "/test",
       });
     });
 
@@ -416,7 +416,7 @@ describe("Context", () => {
 
     it("Should add a route using a Path condition if called with a string", () => {
       const context = createEmptyContext();
-      context.patch("test", () => {});
+      context.patch("/test", () => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -431,7 +431,7 @@ describe("Context", () => {
         .condition;
       expect(andCondition.info()).toEqual({
         method: "patch",
-        path: "test",
+        path: "/test",
       });
     });
 
@@ -483,7 +483,7 @@ describe("Context", () => {
 
     it("Should add a route using a Path condition if called with a string", () => {
       const context = createEmptyContext();
-      context.delete("test", () => {});
+      context.delete("/test", () => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -498,7 +498,7 @@ describe("Context", () => {
         .condition;
       expect(andCondition.info()).toEqual({
         method: "delete",
-        path: "test",
+        path: "/test",
       });
     });
 
@@ -550,7 +550,7 @@ describe("Context", () => {
 
     it("Should add a route using a Path condition if called with a string", () => {
       const context = createEmptyContext();
-      context.head("test", () => {});
+      context.head("/test", () => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -560,7 +560,7 @@ describe("Context", () => {
         (context.children[0] as ContextChildCondition).condition.info()
       ).toEqual({
         method: "head",
-        path: "test",
+        path: "/test",
       });
       expect(
         (context.children[0] as ContextChildCondition).context
@@ -613,7 +613,7 @@ describe("Context", () => {
 
     it("Should add a route using a Path condition if called with a string", () => {
       const context = createEmptyContext();
-      context.options("test", () => {});
+      context.options("/test", () => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -625,7 +625,7 @@ describe("Context", () => {
         .condition;
       expect(andCondition.info()).toEqual({
         method: "options",
-        path: "test",
+        path: "/test",
       });
       expect(
         (context.children[0] as ContextChildCondition).context
@@ -703,7 +703,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -721,7 +721,7 @@ describe("Context", () => {
         response: res,
       } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -747,7 +747,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -806,7 +806,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -824,7 +824,7 @@ describe("Context", () => {
         response: res,
       } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.use((reqq, ress, next) => {
@@ -849,7 +849,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -868,7 +868,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -889,7 +889,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -909,7 +909,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -940,7 +940,7 @@ describe("Context", () => {
         response: res,
       } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
       expect(Array.isArray(await context.contextStack(...pass))).toBe(true);
       expect(await context.contextStack(...pass)).toEqual([[]]);
@@ -966,7 +966,7 @@ describe("Context", () => {
         response: res,
       } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       const r = await context.contextStack(...pass);
@@ -1028,7 +1028,7 @@ describe("Context", () => {
         response: res,
       } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       const r = await context.contextStack(...pass);
@@ -1081,7 +1081,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
       context.execute(...pass);
 
@@ -1096,7 +1096,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
       context.execute(...pass);
 
@@ -1111,7 +1111,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       expect(async () => await context.execute(...pass)).rejects.toThrow(
@@ -1127,7 +1127,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       expect(async () => await context.execute(...pass)).rejects.toThrow(
@@ -1143,7 +1143,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
       await context.execute(...pass);
     });
@@ -1161,7 +1161,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -1184,7 +1184,7 @@ describe("Context", () => {
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -1208,7 +1208,7 @@ describe("Context", () => {
       });
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
 
       context.execute(...pass);
@@ -1230,7 +1230,7 @@ describe("Context", () => {
       });
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
       await context.execute(...pass);
 
@@ -1248,7 +1248,7 @@ describe("Context", () => {
       });
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
       await context.execute(...pass);
 
@@ -1260,7 +1260,7 @@ describe("Context", () => {
       let executed = false;
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "test",
+        path: "/test",
       });
       context.use(async (req, res, next) => {
         next();
@@ -1287,7 +1287,7 @@ describe("Context", () => {
 
         const { pass } = createSyntheticContext({
           method: "get",
-          path: "test",
+          path: "/test",
         });
         await context.execute(...pass);
 
