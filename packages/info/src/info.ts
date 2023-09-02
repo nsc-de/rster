@@ -29,6 +29,7 @@ declare module "@rster/basic" {
 
     fields(): FieldMap;
     fields(ctx: Context): FieldMap;
+
     useInfo(options?: { path?: string }): void;
 
     declaration(): Declaration;
@@ -47,13 +48,6 @@ declare module "@rster/basic" {
     collectDeclarations(
       ctx: Context
     ): { declaration: Declaration; ctx: Context }[];
-    requireAuthentication(): void;
-    requireAuthentication(context: Context): void;
-    requireAuthentication(context?: Context): void;
-
-    requiresAuthentication(): boolean;
-    requiresAuthentication(context: Context): boolean;
-    requiresAuthentication(context?: Context): boolean;
   }
 }
 
