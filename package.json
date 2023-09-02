@@ -37,7 +37,7 @@
   "scripts": {
     "test": "jest --config=jest.config.js",
     "prepare:docs": "cd docs && npm ci && cd ..",
-    "ci": "gulp ci"
+    "ci": "gulp ci",
     "build": "gulp build",
     "build:docs:typedoc": "gulp ci && gulp typedoc",
     "build:docs:docusaurus": "npm run prepare:docs && cd docs && npm run build && cd ..",
