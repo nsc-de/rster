@@ -200,6 +200,7 @@ describe("ErrorFunctions", () => {
       );
     }
 
+    // @ts-ignore
     expect(() => ErrorFunctions.$aaa).toThrow("Unknown error function $aaa");
   });
 
@@ -215,6 +216,7 @@ describe("ErrorFunctions", () => {
       );
     }
 
+    // @ts-ignore
     expect(() => ErrorFunctions.aaa).toThrow("Unknown error function aaa");
   });
 });

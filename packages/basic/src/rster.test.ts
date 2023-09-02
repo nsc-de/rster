@@ -14,6 +14,7 @@ describe("RestfulApi", () => {
         debug: true,
       });
       expect(restfulApi).toBeInstanceOf(RestfulApi);
+      //@ts-ignore
       expect(restfulApi._options).toEqual({
         debug: true,
       });

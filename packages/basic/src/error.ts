@@ -39,11 +39,12 @@ export type ErrorFunction<T extends number> = (
   message?: string
 ) => HttpError<T>;
 
-export function $<T extends number>(status: T): ErrorFunction<T> {
+export function $<T extends number>(status: T, msg?: string): ErrorFunction<T> {
   return (message?: string) =>
     new HttpError(
       status,
       message ??
+        msg ??
         HTTP_ERROR_MESSAGES[status as keyof typeof HTTP_ERROR_MESSAGES] ??
         "Unknown Error"
     );

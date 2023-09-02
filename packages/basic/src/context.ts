@@ -151,7 +151,7 @@ export class Context {
    * @see {@link ContextChildCondition}
    * @see {@link ContextChildUse}
    */
-  private children: ContextChild[] = [];
+  children: ContextChild[] = [];
 
   /**
    * The data of the context. Used to store data for the context (for extensions)
