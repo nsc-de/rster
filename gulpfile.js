@@ -108,4 +108,5 @@ packages.forEach((pkg) => {
     `packages:all:${task}`,
     gulp.parallel(packages.map((pkg) => `packages:${pkg.name}:${task}`))
   );
+  gulp.task(task, gulp.series(`packages:all:${task}`));
 });
