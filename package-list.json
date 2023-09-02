@@ -2,6 +2,7 @@
   "packages": [
     { "name": "authorization" },
     { "name": "basic" },
+    { "name": "builder" },
     { "name": "common" },
     { "name": "generator" },
     { "name": "info" },

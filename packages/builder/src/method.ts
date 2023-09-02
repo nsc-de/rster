@@ -5,7 +5,7 @@ import {
   TypeInformation,
   undefinedType,
 } from "@rster/types";
-import { declaration } from "../generator";
+import { declaration } from "@rster/info";
 import { RsterApiMethodBuilderContextToRsterApiMethod } from "./conversion_types";
 import { ActionFunction, ParameterDeclaration } from "./types";
 
