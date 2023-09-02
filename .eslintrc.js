@@ -38,5 +38,15 @@ module.exports = {
         "jest/valid-expect": "error",
       },
     },
+    {
+      files: ["gulpfile.js"],
+      env: {
+        node: true,
+      },
+      plugins: ["@typescript-eslint"],
+      rules: {
+        "@typescript-eslint/no-var-requires": "off",
+      },
+    },
   ],
 };
