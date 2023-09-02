@@ -1,0 +1,13 @@
+{
+  "packages": [
+    { "name": "authorization" },
+    { "name": "basic" },
+    { "name": "common" },
+    { "name": "generator" },
+    { "name": "info" },
+    { "name": "ping" },
+    { "name": "rster" },
+    { "name": "types" },
+    { "name": "worker-express" }
+  ]
+}

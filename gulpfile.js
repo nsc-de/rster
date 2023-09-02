@@ -2,17 +2,7 @@ const gulp = require("gulp");
 const run = require("gulp-run");
 var taskListing = require("gulp-task-listing");
 
-const packages = [
-  { name: "authorization" },
-  { name: "basic" },
-  { name: "common" },
-  { name: "generator" },
-  { name: "info" },
-  { name: "ping" },
-  { name: "rster" },
-  { name: "types" },
-  { name: "worker-express" },
-];
+const { packages } = require("./package-list.json");
 
 // Add a task to render the output
 gulp.task("help", taskListing);
