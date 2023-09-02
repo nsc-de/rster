@@ -69,6 +69,7 @@ describe("transformExpressRequest", () => {
       },
     };
 
+    // @ts-ignore
     const request = transformExpressRequest(expressRequest);
 
     expect(request).toEqual({
@@ -120,16 +121,16 @@ describe("transformExpressRequest", () => {
 
     expect(request.get("")).toEqual(undefined);
     expect(request.header("content-type")).toEqual("application/json");
-    expect(request.accepts("application/json")).toEqual("application/json");
-    expect(request.acceptsCharsets("utf-8")).toEqual("utf-8");
-    expect(request.acceptsEncodings("gzip")).toEqual("gzip");
-    expect(request.acceptsLanguages("en")).toEqual("en");
+    expect(request.accepts()).toEqual("application/json");
+    expect(request.acceptsCharsets()).toEqual("utf-8");
+    expect(request.acceptsEncodings()).toEqual("gzip");
+    expect(request.acceptsLanguages()).toEqual("en");
     expect(request.is("")).toEqual("application/json");
   });
 });
 
 describe("Express tests", () => {
-  let users = [];
+  let users: { name: string; email: string; password: string }[] = [];
 
   const app = rest(function () {
     // This is a test rest api
