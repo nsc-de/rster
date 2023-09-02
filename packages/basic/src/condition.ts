@@ -14,7 +14,7 @@ export type ContextConditionInfoJson = {
 
 export abstract class ContextCondition {
   abstract appliesTo(req: Request): boolean;
-  and(other: ContextCondition): ContextCondition {
+  and(other: ContextCondition): ContextConditionAnd {
     return new ContextConditionAnd([this, other]);
   }
   chain(other: ContextCondition): ConditionChain {
@@ -41,7 +41,7 @@ export class ContextConditionAnd extends ContextCondition {
     return this.conditions.every((c) => c.appliesTo(req));
   }
 
-  and(other: ContextCondition): ContextCondition {
+  and(other: ContextCondition): ContextConditionAnd {
     return new ContextConditionAnd([...this.conditions, other]);
   }
 
