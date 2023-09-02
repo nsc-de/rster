@@ -972,7 +972,7 @@ export function createSyntheticResponse(): {
   };
 }
 
-export function createSyntheticContext(info: AllOptional<Request>): {
+export function createSyntheticContext(info: AllOptional<Request> = {}): {
   request: Request;
   response: Response;
   pass: [Request, Response];

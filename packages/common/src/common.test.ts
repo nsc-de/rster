@@ -51,10 +51,10 @@ describe("createSyntheticRequest", () => {
 
   it("should create a synthetic with all parameters", () => {
     const request = createSyntheticRequest({
-      accepts: ["text/html"],
-      acceptsCharsets: ["utf-8", "utf-16"],
-      acceptsEncodings: ["identity", "gzip", "deflate"],
-      acceptsLanguages: ["en", "fr"],
+      accepts: () => ["text/html"],
+      acceptsCharsets: () => ["utf-8", "utf-16"],
+      acceptsEncodings: () => ["identity", "gzip", "deflate"],
+      acceptsLanguages: () => ["en", "fr"],
       body: { name: "John Doe" },
       cookies: { name: "John Doe" },
       fresh: true,
@@ -66,7 +66,7 @@ describe("createSyntheticRequest", () => {
       params: { id: 1 },
       path: "/aaa",
       protocol: "https",
-      query: { id: 1 },
+      query: { id: "1" },
       baseUrl: "/aaa",
       fullApiPath: "/aaa",
       fullPath: "/aaa",
@@ -124,10 +124,10 @@ describe("createSyntheticRequest", () => {
 
   it("Test with custom function", () => {
     const request = createSyntheticRequest({
-      accepts: ["text/html"],
-      acceptsCharsets: ["utf-8", "utf-16"],
-      acceptsEncodings: ["identity", "gzip", "deflate"],
-      acceptsLanguages: ["en", "fr"],
+      accepts: () => ["text/html"],
+      acceptsCharsets: () => ["utf-8", "utf-16"],
+      acceptsEncodings: () => ["identity", "gzip", "deflate"],
+      acceptsLanguages: () => ["en", "fr"],
       body: { name: "John Doe" },
       cookies: { name: "John Doe" },
       fresh: true,
@@ -139,7 +139,7 @@ describe("createSyntheticRequest", () => {
       params: { id: 1 },
       path: "/aaa",
       protocol: "https",
-      query: { id: 1 },
+      query: { id: "1" },
       baseUrl: "/aaa",
       fullApiPath: "/aaa",
       fullPath: "/aaa",
@@ -161,7 +161,7 @@ describe("createSyntheticRequest", () => {
         return name;
       },
       is: (name) => {
-        return name;
+        return typeof name === "string" ? name : name[0];
       },
     });
 
@@ -392,10 +392,10 @@ describe("createSyntheticContext", () => {
 
   it("test with parameters", () => {
     const { request, pass, promise, response } = createSyntheticContext({
-      accepts: ["text/html"],
-      acceptsCharsets: ["utf-8", "utf-16"],
-      acceptsEncodings: ["identity", "gzip", "deflate"],
-      acceptsLanguages: ["en", "fr"],
+      accepts: () => ["text/html"],
+      acceptsCharsets: () => ["utf-8", "utf-16"],
+      acceptsEncodings: () => ["identity", "gzip", "deflate"],
+      acceptsLanguages: () => ["en", "fr"],
       body: { name: "John Doe" },
       cookies: { name: "John Doe" },
       fresh: true,
@@ -407,7 +407,7 @@ describe("createSyntheticContext", () => {
       params: { id: 1 },
       path: "/aaa",
       protocol: "https",
-      query: { id: 1 },
+      query: { id: "1" },
       baseUrl: "/aaa",
       fullApiPath: "/aaa",
       fullPath: "/aaa",
@@ -429,7 +429,7 @@ describe("createSyntheticContext", () => {
         return name;
       },
       is: (name) => {
-        return name;
+        return typeof name === "string" ? name : name[0];
       },
     });
 
