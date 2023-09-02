@@ -37,12 +37,13 @@
   "scripts": {
     "test": "jest --config=jest.config.js",
     "prepare:docs": "cd docs && npm ci && cd ..",
-    "build": "npm run packages:all:build",
-    "build:docs:typedoc": "npm run packages:all:ci && npm run packages:all:typedoc",
+    "ci": "gulp ci"
+    "build": "gulp build",
+    "build:docs:typedoc": "gulp ci && gulp typedoc",
     "build:docs:docusaurus": "npm run prepare:docs && cd docs && npm run build && cd ..",
     "build:docs": "npm run build:docs:typedoc && npm run build:docs:docusaurus",
     "lint": "eslint . --ext .ts",
-    "gulp": "gulp --gulpfile ./gulpfile.js"
+    "gulp": "gulp --gulpfile gulpfile.js"
   },
   "publishConfig": {
     "access": "public"
