@@ -46,7 +46,7 @@ declare module "@rster/basic" {
     hasDeclaration(context?: Context): boolean;
 
     collectDeclarations(
-      ctx: Context
+      ctx?: Context
     ): { declaration: Declaration; ctx: Context }[];
   }
 }
@@ -198,8 +198,9 @@ Context.prototype.hasDeclaration = function (context?: Context): boolean {
 };
 
 Context.prototype.collectDeclarations = function (
-  ctx: Context
+  ctx?: Context
 ): { declaration: Declaration; ctx: Context }[] {
+  ctx = ctx ?? this;
   const contexts = ctx.collect();
   return contexts
     .map((c) => ({ declaration: this.declaration(c), ctx: c }))
