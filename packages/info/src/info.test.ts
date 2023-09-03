@@ -393,4 +393,47 @@ describe("Context", () => {
       });
     });
   });
+
+  describe("#hasDeclaration()", () => {
+    it("Test hasDeclaration with no declaration", () => {
+      const ctx = createEmptyContext();
+
+      ctx.init(function () {
+        expect(this.hasDeclaration()).toBeFalsy();
+      });
+    });
+
+    it("Test hasDeclaration with declaration", () => {
+      const ctx = createEmptyContext();
+
+      ctx.init(function () {
+        this.declaration({ name: "test", returnBody: string() });
+        expect(this.hasDeclaration()).toBeTruthy();
+      });
+    });
+
+    it("Test hasDeclaration without declaration of another context", () => {
+      const ctx = createEmptyContext();
+      const ctx2 = createEmptyContext();
+
+      ctx.init(function () {});
+
+      ctx2.init(function () {
+        expect(this.hasDeclaration(ctx)).toBeFalsy();
+      });
+    });
+
+    it("Test hasDeclaration with declaration of another context", () => {
+      const ctx = createEmptyContext();
+      const ctx2 = createEmptyContext();
+
+      ctx.init(function () {
+        this.declaration({ name: "test", returnBody: string() });
+      });
+
+      ctx2.init(function () {
+        expect(this.hasDeclaration(ctx)).toBeTruthy();
+      });
+    });
+  });
 });
