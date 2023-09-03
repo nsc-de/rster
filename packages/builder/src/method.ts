@@ -5,9 +5,9 @@ import {
   TypeInformation,
   undefinedType,
 } from "@rster/types";
-import { declaration } from "@rster/info";
 import { RsterApiMethodBuilderContextToRsterApiMethod } from "./conversion_types";
 import { ActionFunction, ParameterDeclaration } from "./types";
+import "@rster/info";
 
 /**
  * A type for the json representation of the method class. Returned by the `json` method, used to get info about the method.
@@ -162,7 +162,7 @@ export class RsterApiMethod<
 
   public rest() {
     Context.current.description(...this.description);
-    declaration({
+    Context.current.declaration({
       name: this.name,
       returnBody: this.declaration.returns,
       expectBody: this.declaration.expectBody,

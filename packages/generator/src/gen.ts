@@ -15,16 +15,13 @@ import {
   TypeInformation,
   UndefinedTypeInformation,
 } from "@rster/types";
-import {
-  Declaration,
-  collectDeclarations,
-  requiresAuthentication,
-} from "@rster/info";
-import { Context, Method } from "@rster/basic";
+import { Declaration } from "@rster/info";
+import { Context } from "@rster/basic";
 import path from "path";
 import fs from "fs";
 // import { fileURLToPath } from "url";
 import { glob } from "glob";
+import { Method } from "@rster/common";
 
 // // fallback for __dirname and __filename
 // if (!__dirname) {
@@ -80,7 +77,7 @@ Array.prototype.zip = function <T>(other: T[]) {
   return this.map((e, i) => [e, other[i]]);
 };
 
-declare module "../basic/types" {
+declare module "@rster/types" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TypeInformation<T> {
     toTypeScript(): ts.TypeNode;
@@ -594,7 +591,7 @@ export function declarationsToApiInformation(
         returnType: declaration.returnBody,
         method,
         call,
-        requireAuthentication: requiresAuthentication(ctx),
+        requireAuthentication: false, //requiresAuthentication(ctx), // TODO
       });
 
       return;
@@ -679,7 +676,7 @@ export async function generateDeclarations({
   outDir?: string;
   useAuth?: boolean;
 }) {
-  const declarations = collectDeclarations(ctx);
+  const declarations = ctx.collectDeclarations();
   const apiInformation = declarationsToApiInformation(name, declarations);
   const file = createFile(
     generateApi(apiInformation, { authenticationApiAvailable: useAuth })
