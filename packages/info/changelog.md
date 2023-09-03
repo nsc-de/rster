@@ -1,5 +1,10 @@
 # Changelog for @rster/info
 
+## v0.1.2.1
+
+- Fix build logic error: missing .d.ts files
+- Remove tests from package
+
 ## v0.1.2
 
 - Introduced methods to get and set the declaration on a context:
