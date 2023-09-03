@@ -2,12 +2,12 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "master" ]
+    branches: ["master"]
   schedule:
-    - cron: '27 20 * * 5'
+    - cron: "27 20 * * 5"
 
 jobs:
   analyze:
@@ -27,37 +27,39 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript' ]
+        language: ["javascript"]
         node-version: [v18.x]
 
     steps:
-    - name: Checkout repository 🛎️
-      uses: actions/checkout@v3
+      - name: Checkout repository 🛎️
+        uses: actions/checkout@v3
 
-    - name: Initialize CodeQL ⤵️ 
-      uses: github/codeql-action/init@v2
-      with:
-        languages: ${{ matrix.language }}
-          
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: "npm"
-      
-    - name: Install ⤵️ 
-      run: npm ci
-      
-    - name: Cache ♻️
-      uses: actions/cache@v1.2.1
-      with:
-        path: /cache/ci/module_cache
-        key: /cache/ci/module_cache
-          
-    - name: Build 🔧
-      run: npm run build
+      - name: Initialize CodeQL ⤵️
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
 
-    - name: Perform CodeQL Analysis 🔬
-      uses: github/codeql-action/analyze@v2
-      with:
-        category: "/language:${{matrix.language}}"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install ⤵️
+        run: |
+          npm ci
+          npm run ci
+
+      - name: Cache ♻️
+        uses: actions/cache@v1.2.1
+        with:
+          path: /cache/ci/module_cache
+          key: /cache/ci/module_cache
+
+      - name: Build 🔧
+        run: npm run build
+
+      - name: Perform CodeQL Analysis 🔬
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"
