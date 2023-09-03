@@ -43,7 +43,9 @@ jobs:
           node-version: 16
 
       - name: Install dependencies 🔃
-        run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:ci
+        run: |
+          npm ci
+          npm run gulp packages:${{needs.extract_info.outputs.release_type}}:ci
 
       - name: Build 🔨
         run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:build
@@ -58,11 +60,16 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
+
       - name: Setup Node.js 📦
         uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies 🔃
+        run: npm ci
+
       - name: Publish ☁️
         run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:publish:npm
         env:
@@ -83,6 +90,10 @@ jobs:
   #       with:
   #         node-version: 16
   #         registry-url: https://npm.pkg.github.com/
+  #
+  #     - name: Install dependencies 🔃
+  #     run: npm ci
+  #
   #     - name: Publish ☁️
   #       run: npm run packages:${{needs.extract_info.outputs.release_type}}:publish:gpr
   #       env:
@@ -95,17 +106,24 @@ jobs:
     permissions:
       contents: write
       discussions: write
+
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
+
       - name: Setup Node.js 📦
         uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      - name: Install dependencies 🔃
+        run: npm ci
+
       - name: Pack Release 📦
         run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:pack
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
       - name: Release ☁️
         uses: softprops/action-gh-release@v1
         with:
