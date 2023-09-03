@@ -36,7 +36,7 @@ packages.forEach((pkg) => {
   gulp.task(
     `packages:${pkg.name}:pack`,
     gulp.series(`packages:${pkg.name}:prepack`, () =>
-      run(`npm run pack`, { cwd: `./packages/${pkg.name}` }).exec()
+      run(`npm pack`, { cwd: `./packages/${pkg.name}` }).exec()
     )
   );
 
