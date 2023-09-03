@@ -17,6 +17,10 @@ packages.forEach((pkg) => {
     run(`npm install`, { cwd: `./packages/${pkg.name}` }).exec()
   );
 
+  gulp.task(`packages:${pkg.name}:upgrade`, () =>
+    run(`npm upgrade`, { cwd: `./packages/${pkg.name}` }).exec()
+  );
+
   gulp.task(`packages:${pkg.name}:test`, () =>
     run(`npm run test`, { cwd: `./packages/${pkg.name}` }).exec()
   );
@@ -84,6 +88,7 @@ packages.forEach((pkg) => {
   "publish:npm",
   "test",
   "typedoc",
+  "upgrade",
 ].forEach((task) => {
   gulp.task(
     `packages:all:${task}`,
