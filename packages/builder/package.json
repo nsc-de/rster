@@ -9,7 +9,7 @@
   "dependencies": {
     "@rster/basic": "^0.1.1",
     "@rster/common": "^0.1.1",
-    "@rster/info": "^0.1.1",
+    "@rster/info": "^0.1.2",
     "@rster/types": "^0.1.1",
     "debug": "^4.3.4"
   },

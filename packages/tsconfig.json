@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "sourceMap": true,
-    "outDir": "lib",
     "module": "CommonJS",
     "target": "ES2018",
     "declaration": true,

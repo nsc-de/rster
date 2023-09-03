@@ -5,7 +5,7 @@ import rest, {
   ContextConditionPath,
 } from "@rster/basic";
 import { Method, ArrayFinder, NoNever, Values } from "@rster/common";
-import { declaration } from "../generator/index";
+import { declaration } from "@rster/info";
 import { RsterApiBuilderContext } from "./api";
 import { RsterApiModuleBuilderContext } from "./module";
 import {
