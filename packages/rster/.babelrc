@@ -3,7 +3,5 @@
   "plugins": [
     "@babel/plugin-proposal-class-properties",
     "@babel/plugin-proposal-object-rest-spread"
-  ],
-  // Include all files in source that don't have .test.ts or .spec.ts extension
-  "ignore": ["**/*.test.ts", "**/*.spec.ts", "**/*.test.js", "**/*.spec.js"]
+  ]
 }

@@ -18,3 +18,9 @@
 # Generated files
 /coverage
 *.tgz
+
+# Test files
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
