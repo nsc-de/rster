@@ -176,6 +176,8 @@ Context.prototype.declaration = function (
     if (typeof decl === "undefined") {
       return context.data("@info/declaration");
     }
+
+    if (typeof decl !== "object") throw new Error("Invalid arguments");
     this.setData("@info/declaration", decl);
     return context;
   }

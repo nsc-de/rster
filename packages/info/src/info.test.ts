@@ -1,12 +1,13 @@
 import { createSyntheticContext } from "@rster/common";
 import rest, { Context } from "@rster/basic";
 import "./info";
+import { string } from "@rster/types";
 
 // @ts-ignore
 const createEmptyContext = () => new Context();
 
 describe("Context", () => {
-  describe("description", () => {
+  describe("#description()", () => {
     it("Describe without should return the description", () => {
       const context = createEmptyContext();
       context.init(function () {
@@ -72,7 +73,7 @@ describe("Context", () => {
     });
   });
 
-  describe("field", () => {
+  describe("#field()", () => {
     it("Test getting not-set field", () => {
       const context = createEmptyContext();
       context.init(function () {
@@ -129,7 +130,7 @@ describe("Context", () => {
     });
   });
 
-  describe("fields", () => {
+  describe("#fields()", () => {
     it("Test getting fields", () => {
       const context = createEmptyContext();
       context.init(function () {
@@ -171,7 +172,7 @@ describe("Context", () => {
     });
   });
 
-  describe("useInfo", () => {
+  describe("#useInfo()", () => {
     const ctx = rest(function () {
       this.description("Test description");
       this.field("test", "hello world");
@@ -316,6 +317,79 @@ describe("Context", () => {
           "Content-Type": "application/json",
         },
         sendFile: undefined,
+      });
+    });
+  });
+
+  describe("#declaration()", () => {
+    it("Test getting declaration of actual context", () => {
+      const ctx = createEmptyContext();
+
+      ctx.init(function () {
+        this.setData("@info/declaration", "test");
+        expect(this.declaration()).toEqual("test");
+      });
+    });
+
+    it("Test getting declaration of another context", () => {
+      const ctx = createEmptyContext();
+      const ctx2 = createEmptyContext();
+
+      ctx.init(function () {
+        this.setData("@info/declaration", "test");
+      });
+
+      ctx2.init(function () {
+        this.setData("@info/declaration", "test2");
+        expect(this.declaration(ctx)).toEqual("test");
+      });
+    });
+
+    it("Test setting declaration of actual context", () => {
+      const ctx = createEmptyContext();
+
+      ctx.init(function () {
+        this.declaration({ name: "test", returnBody: string() });
+        expect(this.declaration()).toEqual({
+          name: "test",
+          returnBody: string(),
+        });
+      });
+    });
+
+    it("Test setting declaration of another context", () => {
+      const ctx = createEmptyContext();
+      const ctx2 = createEmptyContext();
+
+      ctx.init(function () {
+        this.declaration({ name: "test", returnBody: string() });
+      });
+
+      ctx2.init(function () {
+        this.declaration(ctx, { name: "test2", returnBody: string() });
+        expect(this.declaration(ctx)).toEqual({
+          name: "test",
+          returnBody: string(),
+        });
+      });
+    });
+
+    it("Test setting declaration with invalid arguments", () => {
+      const ctx = createEmptyContext();
+
+      ctx.init(function () {
+        // @ts-ignore
+        expect(() => this.declaration(10)).toThrow("Invalid arguments");
+      });
+    });
+
+    it("Test setting declaration of another context with invalid arguments", () => {
+      const ctx = createEmptyContext();
+      const ctx2 = createEmptyContext();
+
+      ctx.init(function () {
+        // @ts-ignore
+        expect(() => this.declaration(ctx2, 10)).toThrow("Invalid arguments");
       });
     });
   });
