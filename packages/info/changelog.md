@@ -1,6 +1,6 @@
 # Changelog for @rster/info
 
-## v0.1.2.1
+## v0.1.3
 
 - Fix build logic error: missing .d.ts files
 - Remove tests from package
