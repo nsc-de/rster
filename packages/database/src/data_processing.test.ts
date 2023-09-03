@@ -1,13 +1,8 @@
 import * as database from "./database";
 import { JSONAdapter } from "./adapters/json";
-import {
-  PrimitiveType,
-  TypeInformation,
-  number,
-  object,
-  string,
-} from "../basic/types";
+import { number, object, string } from "@rster/types";
 import crypto from "crypto";
+import { PassThrough, createDataProcessingLayer } from "./data_processing";
 
 const db = database.createDatabase(
   {
@@ -74,35 +69,19 @@ const db = database.createDatabase(
   }
 );
 
-describe("database", () => {
-  it("should create table", async () => {
-    await db.connect();
-    const create = await db.users.create();
-    db.users.insert({ id: 1, name: "test", password: "test" });
-    expect(create).toBe(undefined);
-    expect(await db.users.exists()).toBe(true);
-  });
-  it("should insert into table", async () => {
-    const insert = await db.users.insert({
-      id: 2,
-      name: "test2",
-      password: "test2",
-      salt: "test",
-    });
-    expect(insert).toBe(undefined);
-    expect(await db.users.exists()).toBe(true);
-  });
-});
-
-db
-  .createRestApi({
-    name: "Test Database",
-    description: ["This is a test database."],
-    include: {
-      users: {
-        id: true,
-        name: true,
-      },
+const exitLayer = createDataProcessingLayer(db, {
+  users: {
+    get(search: { id: number }) {
+      return db.users.get(search);
     },
-  })
-  .generate().modules.users.methods.get;
+  },
+}).layer({
+  users: {
+    get: PassThrough,
+    // a: PassThrough,
+  },
+}).functions.users.get;
+
+describe("[]", () => {
+  it("[]", () => {});
+});

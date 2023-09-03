@@ -1,4 +1,4 @@
-import { DeepMapOptional, RemoveThisParam } from "../util";
+import { DeepMapOptional, RemoveThisParam } from "@rster/common";
 
 /**
  * PassThrough is a special value that can be used in the schema to indicate that the value should be passed through to the next layer.

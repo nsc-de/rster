@@ -5,21 +5,21 @@ import {
   api,
   method,
   module,
-} from "../builder";
+} from "@rster/builder";
 import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
   TypeInformationFor,
   object,
-} from "../basic/types";
+} from "@rster/types";
 import { DatabaseAdapter } from "./adapter";
 import {
   DataProcessingLayer,
   DataProcessingSchema,
   createDataProcessingLayer,
 } from "./data_processing";
-import { AllOptional } from "../util";
+import { AllOptional } from "@rster/common";
 
 export type NoNever<TYPE, ALTERNATIVE> = TYPE extends never
   ? ALTERNATIVE

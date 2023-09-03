@@ -1,4 +1,4 @@
-import { AllowAnyTypeInformation } from "../basic/types";
+import { AllowAnyTypeInformation } from "@rster/types";
 
 /**
  * Database Adapter Level 1 with nesting support

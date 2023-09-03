@@ -18,7 +18,7 @@ import {
   StringType,
   BooleanType,
   DateTypeInformation,
-} from "../../basic/types";
+} from "@rster/types";
 import { DatabaseAdapter, createDatabaseAdapter } from "../adapter";
 import { MongoClient, MongoClientOptions } from "mongodb";
 import debug from "debug";
