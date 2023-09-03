@@ -43,13 +43,13 @@ jobs:
           node-version: 16
 
       - name: Install dependencies 🔃
-        run: npm run packages:${{needs.extract_info.outputs.release_type}}:ci
+        run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:ci
 
       - name: Build 🔨
-        run: npm run packages:${{needs.extract_info.outputs.release_type}}:build
+        run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:build
 
       - name: Test 🧪
-        run: npm run packages:${{needs.extract_info.outputs.release_type}}:test
+        run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:test
 
   publish-npm:
     name: Publish to NPM Registry 📦
@@ -64,7 +64,7 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - name: Publish ☁️
-        run: npm run packages:${{needs.extract_info.outputs.release_type}}:publish:npm
+        run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:publish:npm
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
@@ -103,7 +103,7 @@ jobs:
         with:
           node-version: 16
       - name: Pack Release 📦
-        run: npm run packages:${{needs.extract_info.outputs.release_type}}:pack
+        run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:pack
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Release ☁️
