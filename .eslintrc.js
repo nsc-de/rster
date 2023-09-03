@@ -38,7 +38,7 @@ module.exports = {
         "jest/valid-expect": "error",
         "@typescript-eslint/no-explicit-any": "warn",
         "@typescript-eslint/no-unused-vars": "warn",
-        "@typescript-eslint/ban-ts-comment": "ignore",
+        "@typescript-eslint/ban-ts-comment": 0,
         "no-empty": "warn",
       },
     },

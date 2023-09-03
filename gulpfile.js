@@ -17,10 +17,6 @@ packages.forEach((pkg) => {
     run(`npm install`, { cwd: `./packages/${pkg.name}` }).exec()
   );
 
-  gulp.task(`packages:${pkg.name}:lint`, () =>
-    run(`npm run lint`, { cwd: `./packages/${pkg.name}` }).exec()
-  );
-
   gulp.task(`packages:${pkg.name}:test`, () =>
     run(`npm run test`, { cwd: `./packages/${pkg.name}` }).exec()
   );
@@ -33,11 +29,7 @@ packages.forEach((pkg) => {
     `packages:${pkg.name}:prepack`,
     gulp.series(
       `packages:${pkg.name}:ci`,
-      gulp.parallel(
-        `packages:${pkg.name}:lint`,
-        `packages:${pkg.name}:test`,
-        `packages:${pkg.name}:build`
-      )
+      gulp.parallel(`packages:${pkg.name}:test`, `packages:${pkg.name}:build`)
     )
   );
 
@@ -86,7 +78,6 @@ packages.forEach((pkg) => {
   "build",
   "ci",
   "install",
-  "lint",
   "pack",
   "prepack",
   "publish:gpr",
