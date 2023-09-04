@@ -1,0 +1,8 @@
+{
+  "label": "Workers",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Workers are used to bring your backend to the internet. They are the bridge between rster and your webserver."
+  }
+}
