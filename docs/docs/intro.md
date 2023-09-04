@@ -77,5 +77,12 @@ const api = rest(function() {
 
 **NOTE:** It is important to use the `function()` syntax instead of the arrow function `() => {}` as the `this` keyword is not bound to the arrow function.
 
-Now we can start our server. We will use the express worker implementation for this example.
+Now we can create a webserver using express and pass our api it using the `use` function and the `express` worker.
 
+```typescript
+import express from 'express';
+
+const app = express();
+
+app.use(api.express());
+```
