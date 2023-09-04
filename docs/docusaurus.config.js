@@ -7,7 +7,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "rster",
-  tagline: "Build the backend of your dreams",
+  tagline: "Design the backend of your dreams",
   favicon: "img/favicon.ico",
   staticDirectories: ["public", "static", "typedoc"],
 
@@ -65,8 +65,8 @@ const config = {
       navbar: {
         title: "rster",
         logo: {
-          alt: "rster Logo",
-          src: "img/logo.svg",
+          alt: "rster logo",
+          src: "img/logo-small.svg",
         },
         items: [
           {
@@ -82,7 +82,7 @@ const config = {
           },
           { to: "/blog", label: "Blog", position: "left" },
           {
-            href: "https://github.com/facebook/docusaurus",
+            href: "https://github.com/nsc-de/rster",
             label: "GitHub",
             position: "right",
           },
@@ -127,6 +127,10 @@ const config = {
               {
                 label: "GitHub",
                 href: "https://github.com/nsc-de/rster",
+              },
+              {
+                label: "TypeDoc",
+                href: "https://nsc-de.github.io/rster/typedoc/",
               },
             ],
           },
