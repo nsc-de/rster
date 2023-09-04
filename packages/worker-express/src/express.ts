@@ -5,6 +5,14 @@ import {
 } from "express";
 import { RestfulApi } from "@rster/basic";
 
+declare module "@rster/basic" {
+  interface RestfulApi {
+    express(
+      options?: ExpressOptions
+    ): (req: ExpressRequest, res: ExpressResponse, next: any) => any;
+  }
+}
+
 export function transformExpressRequest(req: ExpressRequest): Request {
   return {
     baseUrl: req.baseUrl,
@@ -119,3 +127,7 @@ export interface ExpressOptions {
   basePath?: string;
   send404?: boolean;
 }
+
+RestfulApi.prototype.express = function (options?: ExpressOptions) {
+  return ExpressMixin(this, options);
+};
