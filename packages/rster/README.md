@@ -18,7 +18,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/nsc-de/rster">
-    <img src="./images/logo.png" alt="Logo" height="80">
+    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/logo.png" alt="Logo" height="80">
   </a>
 
 <h3 align="center">rster</h3>
@@ -26,7 +26,7 @@
   <p align="center">
     <font color="red"><s>build</s></font> design the backend of your dreams
     <br />
-    <a href="https://github.com/nsc-de/rster"><strong>Explore the docs »</strong></a>
+    <a href="https://nsc-de.github.io/rster/"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/nsc-de/rster">View Demo</a>
