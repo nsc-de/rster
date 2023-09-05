@@ -3,6 +3,8 @@
 ## v0.1.2
 
 - Write caught errors to debug instead of console (rster:caught-error)
+- Action now only activates when path is matched (so an action for /api will not activate for /api/other)
+- Fix: If next() is not called in middleware, execute will resolve when the middleware is done (just await returned promise)
 
 ## v0.1.1
 

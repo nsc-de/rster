@@ -15,7 +15,8 @@ import {
 import { HttpError } from "./error";
 import { RestfulApi } from "./index";
 
-const debugRoute = debug("rster:router");
+const debugRoutePath = debug("rster:router:path");
+const debugRouteUse = debug("rster:router:use");
 
 export type ContextJson = {
   children: (
@@ -854,13 +855,12 @@ export class Context {
           const it = collected[i] as ContextChildCondition;
           const { condition, context } = it;
           if (await condition.appliesTo(req)) {
-            debugRoute(req, condition);
-            const sub = condition.subRequest(req);
+            debugRoutePath(req, condition);
             if (await context.execute(condition.subRequest(req), res))
               return true;
           }
         }
-        if (collected[i].type === "action") {
+        if (collected[i].type === "action" && req.path === "") {
           await (collected[i] as ContextChildAction).func(req, res);
           return true;
         }
@@ -868,16 +868,31 @@ export class Context {
           const new_collect = collected.slice(i + 1);
           return new Promise<boolean>((resolve, reject) => {
             (async () => {
-              const next = (err: any) => {
+              let next_called = false;
+              debugRouteUse(
+                `Next called for ${req.path} in use function${
+                  next_called
+                    ? " (again): WARNING: SAME NEXT FUNCTION CALLED MULTIPLE TIMES, SKIPPING NEXT CALL"
+                    : ""
+                }`
+              );
+
+              const next = (err: unknown) => {
+                if (next_called) return;
+                next_called = true;
                 if (err !== true && err) {
                   reject(err);
                 }
-
                 do_execute(new_collect).then(resolve).catch(reject);
               };
+
               await (collected[i] as ContextChildUse)
                 .func(req, res, next)
                 ?.catch(next);
+
+              if (!next_called) {
+                resolve(true);
+              }
             })();
           });
         }

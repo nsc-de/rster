@@ -694,7 +694,26 @@ describe("Context", () => {
       context.action(() => fail("Function should not be executed directly"));
     });
 
-    it("Should be executed when the context is executed", () => {
+    it("Should be executed when the context is executed with finished path", async () => {
+      const context = createEmptyContext();
+      let executed = false;
+      context.action(() => {
+        executed = true;
+      });
+
+      const { pass } = createSyntheticContext({
+        method: "get",
+        path: "",
+        fullApiPath: "/test",
+        fullPath: "/api/test",
+      });
+
+      await context.execute(...pass);
+
+      expect(executed).toBe(true);
+    });
+
+    it("Should not be executed when the context is executed with unfinished path", async () => {
       const context = createEmptyContext();
       let executed = false;
       context.action(() => {
@@ -704,14 +723,16 @@ describe("Context", () => {
       const { pass } = createSyntheticContext({
         method: "get",
         path: "/test",
+        fullApiPath: "/test",
+        fullPath: "/api/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
-      expect(executed).toBe(true);
+      expect(executed).toBe(false);
     });
 
-    it("Should be executed with the correct parameters", () => {
+    it("Should be executed with the correct parameters", async () => {
       const context = createEmptyContext();
       let executed = false;
 
@@ -721,36 +742,38 @@ describe("Context", () => {
         response: res,
       } = createSyntheticContext({
         method: "get",
-        path: "/test",
+        path: "",
+        fullApiPath: "/test",
+        fullPath: "/api/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
       context.action((reqq, ress) => {
         executed = true;
         expect(reqq).toEqual(req);
         expect(ress).toEqual(res);
       });
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
     });
 
-    it("Everything after the action should not be executed", () => {
+    it("Everything after called action should not be executed", async () => {
       const context = createEmptyContext();
       let executed = false;
       context.action(() => {
         executed = true;
       });
       context.use(() => {
-        fail("Everything after the action should not be executed");
+        fail("Everything after called action should not be executed");
       });
 
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "/test",
+        path: "",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
     });
@@ -797,7 +820,7 @@ describe("Context", () => {
       context.use(() => fail("Function should not be executed directly"));
     });
 
-    it("Should be executed when the context is executed", () => {
+    it("Should be executed when the context is executed", async () => {
       const context = createEmptyContext();
       let executed = false;
       context.use(() => {
@@ -809,12 +832,12 @@ describe("Context", () => {
         path: "/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
     });
 
-    it("Should be executed with the correct parameters", () => {
+    it("Should be executed with the correct parameters", async () => {
       const context = createEmptyContext();
       let executed = false;
 
@@ -832,12 +855,12 @@ describe("Context", () => {
         expect(reqq).toEqual(req);
         expect(ress).toEqual(res);
       });
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
     });
 
-    it("Everything after the middleware should be executed", () => {
+    it("Everything after the middleware should be executed", async () => {
       const context = createEmptyContext();
       let executed = false;
       context.use(() => {
@@ -852,12 +875,12 @@ describe("Context", () => {
         path: "/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
     });
 
-    it("Should provide a next function", () => {
+    it("Should provide a next function", async () => {
       const context = createEmptyContext();
       let executed = false;
       context.use((req, res, next) => {
@@ -871,12 +894,12 @@ describe("Context", () => {
         path: "/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
     });
 
-    it("Should execute the next middleware if next is called", () => {
+    it("Should execute the next middleware if next is called", async () => {
       const context = createEmptyContext();
       let executed = false;
       context.use((req, res, next) => {
@@ -892,12 +915,12 @@ describe("Context", () => {
         path: "/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
     });
 
-    it("Should not execute the next middleware if next not is called", () => {
+    it("Should not execute the next middleware if next not is called", async () => {
       const context = createEmptyContext();
       let executed = false;
       context.use((req, res, next) => {
@@ -912,7 +935,7 @@ describe("Context", () => {
         path: "/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
     });
@@ -1072,7 +1095,25 @@ describe("Context", () => {
   });
 
   describe("execute", () => {
-    it("Should execute action", () => {
+    it("Should execute action if path is finished", async () => {
+      const context = createEmptyContext();
+      let executed = false;
+      context.action(() => {
+        executed = true;
+      });
+
+      const { pass } = createSyntheticContext({
+        method: "get",
+        path: "",
+        fullApiPath: "/test",
+        fullPath: "/api/test",
+      });
+      await context.execute(...pass);
+
+      expect(executed).toBe(true);
+    });
+
+    it("Should not execute action if path is not finished", async () => {
       const context = createEmptyContext();
       let executed = false;
       context.action(() => {
@@ -1082,12 +1123,15 @@ describe("Context", () => {
       const { pass } = createSyntheticContext({
         method: "get",
         path: "/test",
+        fullApiPath: "/test",
+        fullPath: "/api/test",
       });
-      context.execute(...pass);
+      await context.execute(...pass);
 
-      expect(executed).toBe(true);
+      expect(executed).toBe(false);
     });
-    it("Should execute middleware", () => {
+
+    it("Should execute middleware", async () => {
       const context = createEmptyContext();
       let executed = false;
       context.use(() => {
@@ -1098,12 +1142,12 @@ describe("Context", () => {
         method: "get",
         path: "/test",
       });
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
     });
 
-    it("Test middleware with error passed to next", () => {
+    it("Test middleware with error passed to next", async () => {
       const context = createEmptyContext();
       context.use(async (req, res, next) => {
         await next(new Error("test"));
@@ -1114,12 +1158,12 @@ describe("Context", () => {
         path: "/test",
       });
 
-      expect(async () => await context.execute(...pass)).rejects.toThrow(
+      await expect(async () => await context.execute(...pass)).rejects.toThrow(
         "test"
       );
     });
 
-    it("Test middleware with error thrown", () => {
+    it("Test middleware with error thrown", async () => {
       const context = createEmptyContext();
       context.use(async (req, res, next) => {
         throw new Error("test");
@@ -1130,7 +1174,7 @@ describe("Context", () => {
         path: "/test",
       });
 
-      expect(async () => await context.execute(...pass)).rejects.toThrow(
+      await expect(async () => await context.execute(...pass)).rejects.toThrow(
         "test"
       );
     });
@@ -1164,7 +1208,7 @@ describe("Context", () => {
         path: "/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
       expect(executed2).toBe(false);
@@ -1179,7 +1223,7 @@ describe("Context", () => {
         await next();
       });
       context.action(async (req, res) => {
-        let executed2 = true;
+        executed2 = true;
       });
 
       const { pass } = createSyntheticContext({
@@ -1187,7 +1231,7 @@ describe("Context", () => {
         path: "/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
       expect(executed2).toBe(false);
@@ -1211,7 +1255,7 @@ describe("Context", () => {
         path: "/test",
       });
 
-      context.execute(...pass);
+      await context.execute(...pass);
 
       expect(executed).toBe(true);
       expect(executed2).toBe(false);
@@ -1220,7 +1264,6 @@ describe("Context", () => {
     it("Test middleware with next called activating next middleware", async () => {
       const context = createEmptyContext();
       let executed = false;
-      let called = 0;
       context.use(async (req, res, next) => {
         next();
       });
@@ -1248,7 +1291,7 @@ describe("Context", () => {
       });
       const { pass } = createSyntheticContext({
         method: "get",
-        path: "/test",
+        path: "",
       });
       await context.execute(...pass);
 
@@ -1313,7 +1356,6 @@ describe("Context", () => {
 
       it("Test HTTP error", async () => {
         const context = createEmptyContext();
-        let executed = false;
         context.get("/test", function () {
           this.action(() => {
             throw $404("test");
