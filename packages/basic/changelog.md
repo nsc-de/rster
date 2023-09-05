@@ -1,5 +1,9 @@
 # Changelog for @rster/worker-express
 
+## v0.1.2
+
+- Write caught errors to debug instead of console (rster:caught-error)
+
 ## v0.1.1
 
 - Grant correct license

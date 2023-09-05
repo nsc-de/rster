@@ -4,6 +4,7 @@ import { HttpError } from "./error";
 import { Request, Response } from "@rster/common";
 
 const debugHttpError = debug("rster:http-error");
+const debugCaught = debug("rster:caught-error");
 
 export class RestfulApi extends Context {
   private _options: RestfulApiOptions;
@@ -45,10 +46,12 @@ export class RestfulApi extends Context {
         debugHttpError(e);
         res.status(e.status).json({ error: e.toJson() }).end();
       } else {
-        console.error(e);
+        debugCaught(e);
         try {
           res.status(500).json({ message: "Internal server error" }).end();
-        } catch (e) {}
+        } catch (e) {
+          /* empty */
+        }
       }
     }
   }
