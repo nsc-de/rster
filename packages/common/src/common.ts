@@ -2,9 +2,7 @@
  * @file common.ts - Common types and interfaces for the server.
  * @module common
  */
-
-import { error } from "console";
-import { AllOptional } from "./util";
+import { AllOptional } from "@rster/util";
 import os from "os";
 
 /**
