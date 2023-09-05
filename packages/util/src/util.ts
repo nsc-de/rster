@@ -178,15 +178,7 @@ export function ArrayFinder<T, K extends keyof T>(
   for (const item of array) {
     result[item[property] as string] = item;
   }
-
-  return new Proxy(result, {
-    get: (target, prop) => {
-      if (typeof prop === "string") {
-        return target[prop] || undefined;
-      }
-      return target[prop as keyof typeof result];
-    },
-  });
+  return result;
 }
 
 /**
