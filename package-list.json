@@ -9,6 +9,7 @@
     { "name": "ping" },
     { "name": "rster" },
     { "name": "types" },
+    { "name": "util" },
     { "name": "worker-express" }
   ]
 }
