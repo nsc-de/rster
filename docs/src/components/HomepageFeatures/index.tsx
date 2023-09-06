@@ -39,7 +39,7 @@ const FeatureList: FeatureItem[] = [
     Svg: undraw_product_iteration,
     description: (
       <>
-        Rster can be integrated Info any Javascript-based Webserver Setup using a rster-worker Implementation.
+        Rster can be integrated with any nodejs-based webserver-setup using a rster-worker implementation.
       </>
     ),
   },
