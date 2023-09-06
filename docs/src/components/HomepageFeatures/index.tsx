@@ -39,8 +39,7 @@ const FeatureList: FeatureItem[] = [
     Svg: undraw_product_iteration,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Rster can be integrated Info any Javascript-based Webserver Setup using a rster-worker Implementation.
       </>
     ),
   },
