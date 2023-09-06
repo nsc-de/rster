@@ -21,3 +21,22 @@
   align-items: center;
   justify-content: center;
 }
+
+.logo {
+  position: relative;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 5rem;
+}
+
+.logo_container {
+  margin: 4rem 0 2rem 0;
+  position: relative;
+}
+
+@media screen and (max-width: 996px) {
+  .logo_container {
+    margin: 2rem 0 2rem 0;
+  }
+}

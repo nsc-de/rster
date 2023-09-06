@@ -1,6 +1,9 @@
 import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
+import undraw_portfolio_update from '@site/static/img/undraw_portfolio_update.svg';
+import undraw_note_list from '@site/static/img/undraw_note_list.svg';
+import undraw_product_iteration from '@site/static/img/undraw_product_iteration.svg';
 
 type FeatureItem = {
   title: string;
@@ -11,27 +14,29 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: undraw_portfolio_update,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Rster is designed to help you declaring your api structure in a simple
+        way. Just tell the framework how you want your api to be structured and
+        it will do the rest.
       </>
     ),
   },
   {
     title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    Svg: undraw_note_list,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Rster lets you focus on your api structure, and we&apos;ll do the communication 
+        between your api and your client. Rster Is completely able to generate an api 
+        client to communicate with your api and to use in your frontend.
       </>
     ),
   },
   {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: 'Flexible',
+    Svg: undraw_product_iteration,
     description: (
       <>
         Extend or customize your website layout by reusing React. Docusaurus can
