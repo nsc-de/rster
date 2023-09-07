@@ -101,7 +101,7 @@ describe("Context", () => {
       });
     });
 
-    it("Test setting and getting field from another context", () => {
+    it("Test getting field from another context", () => {
       const context = createEmptyContext();
 
       context.init(function () {
@@ -196,6 +196,7 @@ describe("Context", () => {
           this.description("And another test path");
           this.field("test4", "hello world4");
           this.field("test5", "hello world5");
+          console.log(this.getPath());
           this.action((req, res) => {
             res.send("Hello World").end();
           });
@@ -214,7 +215,7 @@ describe("Context", () => {
 
       expect(await promise).toEqual({
         code: 200,
-        data: '{"path":"/","description":["Test description"],"map":[{"path":"/test","method":"get","description":["Just a test path"]},{"path":"/hello","method":"get","description":["Just another test path"]},{"path":"/hello/world","method":"get","description":["And another test path"]},{"path":"/info","method":"any","description":["This module can be used to get information about the API","Just call /info/[path] to get information about this module"]}],"fields":[{"name":"test","value":"hello world"}]}',
+        data: '{"path":"","method":"any","description":["Test description"],"map":[{"path":"/test","method":"get","description":["Just a test path"]},{"path":"/hello","method":"get","description":["Just another test path"]},{"path":"/hello/world","method":"get","description":["And another test path"]},{"path":"/info","method":"any","description":["This module can be used to get information about the API","Just call /info/[path] to get information about this module"]}],"fields":[{"name":"test","value":"hello world"}]}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -231,7 +232,7 @@ describe("Context", () => {
 
       expect(await promise).toEqual({
         code: 200,
-        data: '{"path":"/test","description":["Just a test path"],"map":[],"fields":[{"name":"test2","value":"hello world2"}]}',
+        data: '{"path":"/test","method":"get","description":["Just a test path"],"map":[],"fields":[{"name":"test2","value":"hello world2"}]}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -247,8 +248,8 @@ describe("Context", () => {
       ctx.handle(...pass);
 
       expect(await promise).toEqual({
-        code: 200,
-        data: '{"path":"/test/test","description":["Just a test path"],"map":[],"fields":[{"name":"test2","value":"hello world2"}]}',
+        code: 404,
+        data: '{"error":{"status":404,"message":"No context found for path \\"/test/test\\""}}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -265,7 +266,7 @@ describe("Context", () => {
 
       expect(await promise).toEqual({
         code: 200,
-        data: '{"path":"/hello","description":["Just another test path"],"map":[{"path":"/world","method":"get","description":["And another test path"]}],"fields":[{"name":"test3","value":"hello world3"}]}',
+        data: '{"path":"/hello","method":"get","description":["Just another test path"],"map":[{"path":"/world","method":"get","description":["And another test path"]}],"fields":[{"name":"test3","value":"hello world3"}]}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -282,7 +283,7 @@ describe("Context", () => {
 
       expect(await promise).toEqual({
         code: 200,
-        data: '{"path":"/hello/world","description":["Just another test path"],"map":[{"path":"/world","method":"get","description":["And another test path"]}],"fields":[{"name":"test3","value":"hello world3"}]}',
+        data: '{"path":"/hello/world","method":"get","description":["And another test path"],"map":[],"fields":[{"name":"test4","value":"hello world4"},{"name":"test5","value":"hello world5"}]}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -299,7 +300,7 @@ describe("Context", () => {
 
       expect(await promise).toEqual({
         code: 200,
-        data: '{"path":"/info","description":["This module can be used to get information about the API","Just call /info/[path] to get information about this module"],"map":[],"fields":[{"name":"version","value":"0.1.0"}]}',
+        data: '{"path":"/info","method":"any","description":["This module can be used to get information about the API","Just call /info/[path] to get information about this module"],"map":[],"fields":[{"name":"version","value":"0.1.4"}]}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -315,8 +316,8 @@ describe("Context", () => {
       ctx.handle(...pass);
 
       expect(await promise).toEqual({
-        code: 404,
-        data: '{"path":"","message":"Nothing found here"}',
+        code: 200,
+        data: '{"path":"","method":"any","description":["Test description"],"map":[{"path":"/test","method":"get","description":["Just a test path"]},{"path":"/hello","method":"get","description":["Just another test path"]},{"path":"/hello/world","method":"get","description":["And another test path"]},{"path":"/info","method":"any","description":["This module can be used to get information about the API","Just call /info/[path] to get information about this module"]}],"fields":[{"name":"test","value":"hello world"}]}',
         headers: {
           "Content-Type": "application/json",
         },

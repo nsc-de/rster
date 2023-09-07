@@ -1,5 +1,9 @@
 # Changelog for @rster/info
 
+## v0.1.4
+
+- Fix bug in `#useInfo`: Logic error with paths & bugged `Context#contextStack()` function of `@rster/basic` used in `#useInfo` (which is now fixed with `@rster/basic@v0.1.3`)
+
 ## v0.1.3
 
 - Fix build logic error: missing .d.ts files

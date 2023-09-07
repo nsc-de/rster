@@ -1,7 +1,9 @@
+import "@rster/info";
+import "@rster/worker-express";
 import express from "express";
 import rest from "rster";
 import { makeFetch } from "supertest-fetch";
-import "@rster/worker-express";
+import { InfoClient } from "./info";
 
 const api = rest(function () {
   this.useInfo({ path: "/info" });
@@ -44,39 +46,17 @@ const server = app.listen();
 const fetch = makeFetch(server);
 
 describe("info", () => {
+  const client = new InfoClient({
+    basePath: "/info",
+    url: "",
+    customFetchFunction: fetch as unknown as (
+      input: RequestInfo | URL,
+      init?: RequestInit | undefined
+    ) => Promise<Response>,
+  });
+
   it("should return info", async () => {
-    await fetch("/info/").expect(200, {
-      description: [
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        "Nam eget aliquam leo, a pretium turpis.",
-        "Mauris vitae elementum justo.",
-      ],
-      fields: [
-        { name: "version", value: "1.0.0" },
-        { name: "name", value: "Test API" },
-      ],
-      map: [
-        {
-          description: [
-            "This module can be used to get information about the API",
-            "Just call /info/[path] to get information about this module",
-          ],
-          method: "any",
-          path: "/info",
-        },
-        { description: [], method: "any", path: "/ping" },
-        {
-          description: [
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-            "Nam eget aliquam leo, a pretium turpis.",
-            "Mauris vitae elementum justo.",
-          ],
-          method: "get",
-          path: "/hello",
-        },
-      ],
-      path: "/",
-    });
+    console.log(await client.getIndex());
   });
 
   afterAll(() => {

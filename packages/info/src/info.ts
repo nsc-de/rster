@@ -1,6 +1,8 @@
 // import { declaration } from "../generator/index";
-import { Context, ContextChildCondition } from "@rster/basic";
+import { $404, Context, ContextChildCondition } from "@rster/basic";
 import { TypeInformation } from "@rster/types";
+
+const version = "0.1.4";
 
 export interface Declaration {
   name: string;
@@ -116,29 +118,28 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
       "Just call /info/[path] to get information about this module"
     );
 
-    this.field("version", "0.1.0");
+    this.field("version", version);
 
-    this.use(async (req, res, next) => {
+    this.use(async (req, res, _next) => {
       const stack = await ctx.api.contextStack(req, res);
       let context = (
         stack[stack.length - 2]?.filter(
+          // TODO: stack[stack.length - 1] normally should be the action / use function. But it could be a condition. If it is a condition, the context is useless as it does nothing. How to handle this?
+          // TODO: Generally think about criteria what context to choose if multiple routes match which should theoretically be possible
           (e) => e.type === "condition"
         )[0] as ContextChildCondition
       )?.context as Context;
 
-      if (req.path == "/") {
+      if (req.path == "/" || req.path == "") {
         context = ctx.api;
       }
 
-      if (!context) {
-        res
-          .status(404)
-          .json({
-            path: req.path,
-            message: "Nothing found here",
-          })
-          .end();
-        return;
+      if (
+        !context ||
+        (req.path !== context?.getPath() &&
+          req.path !== context?.getPath() + "/")
+      ) {
+        throw $404(`No context found for path "${req.path}"`);
       }
 
       const decl = context.declaration();
@@ -146,7 +147,8 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
       res
         .status(200)
         .json({
-          path: req.path,
+          path: context.getPath(),
+          method: context.getMethod(),
           description: this.description(context),
           map: context?.info().map((e) => ({
             path: e.condition.path,
