@@ -135,10 +135,10 @@ const config = {
                 label: "GitHub",
                 href: "https://github.com/nsc-de/rster",
               },
-              {
-                label: "TypeDoc",
-                href: "https://nsc-de.github.io/rster/typedoc/",
-              },
+              // {
+              //   label: "TypeDoc",
+              //   href: "https://nsc-de.github.io/rster/typedoc/",
+              // },
             ],
           },
         ],
