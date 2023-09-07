@@ -1092,6 +1092,70 @@ describe("Context", () => {
       expect((r[2][1] as ContextChildCondition).condition).toBeUndefined();
       expect(typeof (r[2][1] as ContextChildAction).func).toBe("function");
     });
+
+    it("Test on deep pathed context", async () => {
+      const context = createEmptyContext().init(function () {
+        this.get("/hello", function () {
+          this.get("/world", function () {
+            this.action(function () {});
+          });
+        });
+      });
+
+      const {
+        pass,
+        request: req,
+        response: res,
+      } = createSyntheticContext({
+        method: "get",
+        path: "/hello/world",
+      });
+
+      const r = await context.contextStack(...pass);
+
+      expect(Array.isArray(r)).toBe(true);
+      expect(r).toHaveLength(3);
+
+      expect(Array.isArray(r[0])).toBe(true);
+      expect(r[0]).toHaveLength(1);
+
+      expect(Array.isArray(r[1])).toBe(true);
+      expect(r[1]).toHaveLength(1);
+
+      expect(Array.isArray(r[2])).toBe(true);
+      expect(r[2]).toHaveLength(1);
+
+      expect(typeof r[0][0]).toBe("object");
+      expect(r[0][0].type).toEqual("condition");
+      expect((r[0][0] as ContextChildCondition).condition).toBeInstanceOf(
+        ContextConditionAnd
+      );
+      expect((r[0][0] as ContextChildCondition).context).toBeInstanceOf(
+        Context
+      );
+      expect((r[0][0] as ContextChildCondition).condition.info()).toEqual({
+        method: "get",
+        path: "/hello",
+      });
+
+      expect(typeof r[1][0]).toBe("object");
+      expect(r[1][0].type).toEqual("condition");
+      expect((r[1][0] as ContextChildCondition).condition).toBeInstanceOf(
+        ContextConditionAnd
+      );
+      expect((r[1][0] as ContextChildCondition).context).toBeInstanceOf(
+        Context
+      );
+      expect((r[1][0] as ContextChildCondition).condition.info()).toEqual({
+        method: "get",
+        path: "/world",
+      });
+
+      expect(typeof r[2][0]).toBe("object");
+      expect(r[2][0].type).toEqual("action");
+      expect((r[2][0] as ContextChildCondition).condition).toBeUndefined();
+      expect(typeof (r[2][0] as ContextChildAction).func).toBe("function");
+    });
   });
 
   describe("execute", () => {

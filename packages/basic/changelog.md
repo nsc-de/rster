@@ -3,6 +3,7 @@
 ## v0.1.3
 
 - Introduce Context#getRoutingPath()
+- Fix bug in Context#contextStack(): Do not use sub-request's routing path --> routing completely broken
 
 ## v0.1.2
 

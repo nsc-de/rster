@@ -810,7 +810,12 @@ export class Context {
             stack,
             ...(await (
               this.children[i] as ContextChildCondition
-            ).context.contextStack(req, res)),
+            ).context.contextStack(
+              (this.children[i] as ContextChildCondition).condition.subRequest(
+                req
+              ),
+              res
+            )),
           ];
         }
       } else if (this.children[i].type === "action") {
