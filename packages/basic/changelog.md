@@ -1,4 +1,8 @@
-# Changelog for @rster/worker-express
+# Changelog for @rster/basic
+
+## v0.1.3
+
+- Introduce Context#getRoutingPath()
 
 ## v0.1.2
 
