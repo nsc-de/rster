@@ -6,14 +6,19 @@ export interface InfoResponseField {
 }
 
 export type InfoResponseDescription = string[];
-export type InfoResponseFields = InfoResponseField[];
+
+export interface InfoResponseMapInner {
+  path?: string;
+  method?: string;
+  description?: InfoResponseDescription;
+}
 
 export interface InfoResponseMap {
   path?: string;
   method?: string;
   description?: InfoResponseDescription;
-  fields?: InfoResponseFields;
-  map?: InfoResponseMap[];
+  fields?: InfoResponseField[];
+  map?: InfoResponseMapInner[];
 }
 
 export interface InfoClientOptions {
@@ -25,17 +30,83 @@ export interface InfoClientOptions {
   ) => Promise<Response>;
 }
 
-export type InfoField = InfoResponseField;
-export type InfoDescription = InfoResponseDescription;
-export type InfoFields = InfoResponseFields;
+type InfoField = InfoResponseField;
+type InfoDescription = InfoResponseDescription;
 
-export interface InfoMap {
-  path?: string;
-  absolutePath?: string;
-  method?: string;
-  description?: InfoDescription;
-  fields?: InfoFields;
-  map?: InfoMap[];
+export abstract class InfoMap {
+  abstract get path(): Promise<string>;
+  abstract get method(): Promise<string>;
+  abstract get description(): Promise<InfoDescription>;
+  abstract get fields(): Promise<InfoField[]>;
+  abstract get map(): Promise<InfoMap[]>;
+  abstract get absolutePath(): Promise<string>;
+  abstract get parent(): Promise<InfoMap | undefined>;
+}
+
+export class InfoMapImpl extends InfoMap {
+  readonly path: Promise<string>;
+  readonly method: Promise<string>;
+  readonly description: Promise<InfoDescription>;
+  readonly fields: Promise<InfoField[]>;
+  readonly map: Promise<InfoMap[]>;
+  readonly absolutePath: Promise<string>;
+  readonly parent: Promise<InfoMap | undefined>;
+
+  constructor(
+    private readonly api: InfoClient,
+    it: InfoResponseMap,
+    apiBasePath: string,
+    parent?: InfoMap
+  ) {
+    super();
+    this.path = Promise.resolve(it.path ?? "");
+    this.method = Promise.resolve(it.method ?? "any");
+    this.description = Promise.resolve(it.description ?? []);
+    this.fields = Promise.resolve(it.fields ?? []);
+    this.map = Promise.resolve(
+      it.map?.map((it) => new InfoMapImpl2(api, it, apiBasePath, this)) ?? []
+    );
+    this.absolutePath = Promise.resolve(apiBasePath + it.path ?? "");
+    this.parent = Promise.resolve(parent);
+  }
+}
+
+export class InfoMapImpl2 extends InfoMap {
+  private __promise?: Promise<InfoMap>;
+  private get __infoMaplPromise(): Promise<InfoMap> {
+    if (!this.__promise) {
+      this.__promise = (async () => await this.api.getInfo(await this.path))();
+    }
+    return this.__promise;
+  }
+
+  readonly path: Promise<string>;
+  readonly method: Promise<string>;
+  readonly description: Promise<InfoDescription>;
+  readonly absolutePath: Promise<string>;
+  readonly parent: Promise<InfoMap | undefined>;
+
+  get fields(): Promise<InfoField[]> {
+    return this.__infoMaplPromise.then((it) => it.fields);
+  }
+
+  get map(): Promise<InfoMap[]> {
+    return this.__infoMaplPromise.then((it) => it.map);
+  }
+
+  constructor(
+    private readonly api: InfoClient,
+    it: InfoResponseMapInner,
+    apiBasePath: string,
+    parent?: InfoMap
+  ) {
+    super();
+    this.path = Promise.resolve(it.path ?? "");
+    this.method = Promise.resolve(it.method ?? "any");
+    this.description = Promise.resolve(it.description ?? []);
+    this.absolutePath = Promise.resolve(apiBasePath + it.path ?? "");
+    this.parent = Promise.resolve(parent);
+  }
 }
 
 export class InfoClientResponseError extends Error {
@@ -106,22 +177,23 @@ export class InfoClient {
       });
   }
 
-  async getIndex() {
+  async getIndex(): Promise<InfoMap> {
     const response = await this.request(`/`);
-    return this.deepMapResponse(await response.json(), []);
+    return new InfoMapImpl(
+      this,
+      await response.json(),
+      this.options.basePath,
+      undefined
+    );
   }
 
-  async getInfo(path: string) {
+  async getInfo(path: string): Promise<InfoMap> {
     const response = await this.request(path);
-    return this.deepMapResponse(await response.json(), []);
-  }
-
-  private deepMapResponse(item: InfoResponseMap, path: string[]): InfoMap {
-    const newPath = [...path, item.path ?? ""];
-    return {
-      ...item,
-      map: item.map?.map((item) => this.deepMapResponse(item, newPath)) ?? [],
-      absolutePath: newPath.join(""),
-    };
+    return new InfoMapImpl(
+      this,
+      await response.json(),
+      this.options.basePath,
+      undefined
+    ); // TODO: parent
   }
 }
