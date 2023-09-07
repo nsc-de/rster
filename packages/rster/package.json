@@ -24,7 +24,7 @@
     "@types/jest": "^29.5.3",
     "@types/node": "^20.5.0",
     "babel-jest": "^29.6.2",
-    "typedoc": "^0.25.0",
+    "typedoc-plugin-markdown": "^3.16.0",
     "typescript": "^5.2.2"
   },
   "scripts": {

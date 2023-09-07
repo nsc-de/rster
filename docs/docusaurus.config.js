@@ -4,6 +4,14 @@
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
+const path = require("path");
+const fs = require("fs");
+
+const packages = require("../package-list.json").packages.map((it) => ({
+  ...it,
+  packageJson: require(`../packages/${it.name}/package.json`),
+}));
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "rster",
@@ -135,13 +143,37 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} rster, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} rster. Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
     }),
+
+  plugins: [
+    ...packages.map((it, i) => [
+      "docusaurus-plugin-typedoc",
+
+      // Plugin / TypeDoc options
+      {
+        entryPoints: [path.resolve(`../packages/${it.name}/src/index.ts`)],
+        tsconfig: path.resolve(`../packages/${it.name}/tsconfig.json`),
+        id: `@typedoc/${it.name}`,
+        plugin: ["typedoc-plugin-mdn-links"],
+        sidebar: {
+          autoConfiguration: true,
+          position: 0,
+        },
+        cleanOutputDir: true,
+        out: `../api-reference/${it.name}`,
+        sidebar: {
+          categoryLabel: it.packageJson.name,
+          position: i,
+        },
+      },
+    ]),
+  ],
 };
 
 module.exports = config;

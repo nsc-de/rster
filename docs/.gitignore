@@ -21,3 +21,4 @@ yarn-error.log*
 
 typedoc/typedoc/*
 !typedoc/typedoc/index.html
+api-reference/*
