@@ -84,8 +84,10 @@ const config = {
             label: "Tutorial",
           },
           {
-            to: "https://nsc-de.github.io/rster/typedoc/",
-            label: "API",
+            type: "docSidebar",
+            docsPluginId: "api-reference",
+            sidebarId: "apiReferenceSidebar",
+            label: "API Reference",
             position: "left",
           },
           { to: "/blog", label: "Blog", position: "left" },
@@ -173,6 +175,15 @@ const config = {
         },
       },
     ]),
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "api-reference",
+        path: "api-reference",
+        routeBasePath: "api-reference",
+        sidebarPath: require.resolve("./sidebarApiReference.js"),
+      },
+    ],
   ],
 };
 
