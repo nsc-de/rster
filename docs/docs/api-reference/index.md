@@ -11,7 +11,7 @@ Rster consists of a number of packages. The main package is `rster`. All other p
 - [rster](/typedoc/rster)
 - [@rster/authorization](/typedoc/authorization)
 - [@rster/basic](/typedoc/basic)
-- [@rster/builder](/typedoc/builder) -
+- [@rster/builder](/typedoc/builder)
 - [@rster/common](/typedoc/common)
 - [@rster/generator](/typedoc/generator)
 - [@rster/info](/typedoc/info)

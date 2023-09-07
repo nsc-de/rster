@@ -78,15 +78,12 @@ const config = {
         },
         items: [
           {
-            type: "docSidebar",
-            sidebarId: "tutorialSidebar",
+            to: "/docs/intro",
             position: "left",
             label: "Tutorial",
           },
           {
-            type: "docSidebar",
-            docsPluginId: "api-reference",
-            sidebarId: "apiReferenceSidebar",
+            to: "/docs/api-reference",
             label: "API Reference",
             position: "left",
           },
@@ -168,22 +165,13 @@ const config = {
           position: 0,
         },
         cleanOutputDir: true,
-        out: `../api-reference/${it.name}`,
+        out: `api-reference/${it.name}`,
         sidebar: {
           categoryLabel: it.packageJson.name,
           position: i,
         },
       },
     ]),
-    [
-      "@docusaurus/plugin-content-docs",
-      {
-        id: "api-reference",
-        path: "api-reference",
-        routeBasePath: "api-reference",
-        sidebarPath: require.resolve("./sidebarApiReference.js"),
-      },
-    ],
   ],
 };
 

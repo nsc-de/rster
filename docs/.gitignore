@@ -21,4 +21,7 @@ yarn-error.log*
 
 typedoc/typedoc/*
 !typedoc/typedoc/index.html
-api-reference/*
+
+docs/api-reference/*
+!docs/api-reference/index.md
+!docs/api-reference/_category_.yml
