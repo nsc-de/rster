@@ -1038,12 +1038,21 @@ export class Context {
   }
 
   /**
-   * Get the request path to access this context
+   * Get the request path to access this context (including the parent path, if any. Use {@link Context.getRoutingPath} to get the path without the parent path)
    * @returns {string} The request path to access this context
    */
   getPath(): string {
     const info = this.condition?.info();
     return (this.parent?.getPath() ?? "") + (info?.path ?? "");
+  }
+
+  /**
+   * Get the request path to access this context (without the parent path, if any. Use {@link Context.getPath} to get the path with the parent path)
+   * @returns {string} The request path to access this context
+   */
+  getRoutingPath(): string {
+    const info = this.condition?.info();
+    return info?.path ?? "";
   }
 
   /**
