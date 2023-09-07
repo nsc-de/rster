@@ -69,10 +69,6 @@ packages.forEach((pkg) => {
     run(`npm run test`, { cwd: `./packages/${pkg.name}` }).exec()
   );
 
-  gulp.task(`packages:${pkg.name}:typedoc`, () =>
-    run(`npm run build:typedoc`, { cwd: `./packages/${pkg.name}` }).exec()
-  );
-
   gulp.task(`packages:${pkg.name}:build`, () =>
     run(`npm run build`, { cwd: `./packages/${pkg.name}` }).exec()
   );
@@ -87,7 +83,6 @@ packages.forEach((pkg) => {
   "publish:gpr",
   "publish:npm",
   "test",
-  "typedoc",
   "upgrade",
 ].forEach((task) => {
   gulp.task(

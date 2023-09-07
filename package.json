@@ -29,7 +29,6 @@
     "gulp-run": "^1.7.1",
     "gulp-task-listing": "^1.1.1",
     "jest": "^29.6.2",
-    "typedoc": "^0.25.1",
     "typescript": "^5.2.2"
   },
   "optionalDependencies": {
@@ -40,9 +39,8 @@
     "prepare:docs": "cd docs && npm ci && cd ..",
     "ci": "gulp ci",
     "build": "gulp build",
-    "build:docs:typedoc": "gulp ci && gulp typedoc",
     "build:docs:docusaurus": "npm run prepare:docs && cd docs && npm run build && cd ..",
-    "build:docs": "npm run build:docs:typedoc && npm run build:docs:docusaurus",
+    "build:docs": "npm run ci && npm run build:docs:docusaurus",
     "lint": "eslint . --ext .ts",
     "gulp": "gulp --gulpfile gulpfile.js"
   },

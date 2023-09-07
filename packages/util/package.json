@@ -20,18 +20,15 @@
     "@types/node": "^20.5.0",
     "babel-jest": "^29.6.2",
     "jest": "^29.6.2",
-    "typedoc": "^0.25.0",
     "typescript": "^5.2.2"
   },
   "scripts": {
     "test": "jest --config=jest.config.js",
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check --watch",
-    "prepare:docs": "cd docs && npm ci && cd ..",
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "build:typedoc": "typedoc"
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline"
   },
   "repository": {
     "type": "git",
