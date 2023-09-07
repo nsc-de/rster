@@ -24,7 +24,7 @@
 <h3 align="center">rster</h3>
 
   <p align="center">
-    <font color="red"><s>build</s></font> design the backend of your dreams
+    <font color="red"><s>build</s></font> design your backend
     <br />
     <a href="https://nsc-de.github.io/rster/"><strong>Explore the docs »</strong></a>
     <br />
