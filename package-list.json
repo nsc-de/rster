@@ -6,6 +6,8 @@
     { "name": "common" },
     { "name": "generator" },
     { "name": "info" },
+    { "name": "info-client" },
+    { "name": "info-explorer" },
     { "name": "ping" },
     { "name": "rster" },
     { "name": "types" },
