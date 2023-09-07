@@ -1,4 +1,5 @@
 <a name="readme-top"></a>
+
 [![Github Shield][github-shield]][github-url]
 [![NPM Shield][npm-shield]][npm-url]
 [![Documentation][documentation-shield]][documentation-url]
@@ -18,7 +19,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/nsc-de/rster">
-    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/logo.png" alt="Logo" height="80" />
+    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/logo.png" alt="Logo" styles="height: 80px" />
   </a>
 
 <h3 align="center">rster</h3>
