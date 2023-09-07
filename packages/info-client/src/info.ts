@@ -111,6 +111,11 @@ export class InfoClient {
     return this.deepMapResponse(await response.json(), []);
   }
 
+  async getInfo(path: string) {
+    const response = await this.request(path);
+    return this.deepMapResponse(await response.json(), []);
+  }
+
   private deepMapResponse(item: InfoResponseMap, path: string[]): InfoMap {
     const newPath = [...path, item.path ?? ""];
     return {

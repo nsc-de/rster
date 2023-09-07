@@ -56,7 +56,71 @@ describe("info", () => {
   });
 
   it("should return info", async () => {
-    console.log(await client.getIndex());
+    await expect(client.getIndex()).resolves.toEqual({
+      path: "",
+      method: "any",
+      description: [
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "Nam eget aliquam leo, a pretium turpis.",
+        "Mauris vitae elementum justo.",
+      ],
+      map: [
+        {
+          path: "/info",
+          method: "any",
+          description: [
+            "This module can be used to get information about the API",
+            "Just call /info/[path] to get information about this module",
+          ],
+          map: [],
+          absolutePath: "/info",
+        },
+        {
+          path: "/ping",
+          method: "any",
+          description: [],
+          map: [],
+          absolutePath: "/ping",
+        },
+        {
+          path: "/hello",
+          method: "get",
+          description: [
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "Nam eget aliquam leo, a pretium turpis.",
+            "Mauris vitae elementum justo.",
+          ],
+          map: [],
+          absolutePath: "/hello",
+        },
+      ],
+      fields: [
+        { name: "version", value: "1.0.0" },
+        { name: "name", value: "Test API" },
+      ],
+      absolutePath: "",
+    });
+  });
+
+  it("should return info for /hello", async () => {
+    await expect(client.getInfo("/hello")).resolves.toEqual({
+      path: "/hello",
+      method: "get",
+      description: [
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "Nam eget aliquam leo, a pretium turpis.",
+        "Mauris vitae elementum justo.",
+      ],
+      map: [],
+      fields: [
+        { name: "message", value: "Hello World!" },
+        { name: "timestamp", value: expect.any(String) },
+        { name: "version", value: "1.0.0" },
+        { name: "name", value: "Test API" },
+        { name: "author", value: "John Doe" },
+      ],
+      absolutePath: "/hello",
+    });
   });
 
   afterAll(() => {
