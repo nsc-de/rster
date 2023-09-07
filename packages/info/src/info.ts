@@ -141,8 +141,7 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
         return;
       }
 
-      // TODO Move declaration to info?
-      // const decl = declaration(context);
+      const decl = context.declaration();
 
       res
         .status(200)
@@ -159,7 +158,7 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
               name: field,
               value: fields[field],
             })))(this.fields(context)),
-          // declaration: decl,
+          declaration: decl,
         })
         .end();
     });
