@@ -1,6 +1,7 @@
 const gulp = require("gulp");
 const run = require("gulp-run");
 var taskListing = require("gulp-task-listing");
+var del = import("del").then((m) => m.deleteAsync);
 
 const { packages } = require("./package-list.json");
 
@@ -72,6 +73,25 @@ packages.forEach((pkg) => {
   gulp.task(`packages:${pkg.name}:build`, () =>
     run(`npm run build`, { cwd: `./packages/${pkg.name}` }).exec()
   );
+
+  gulp.task(`packages:${pkg.name}:clean:build`, async () => {
+    return await (
+      await del
+    )([`./packages/${pkg.name}/lib`, `./packages/${pkg.name}/coverage`]);
+  });
+
+  gulp.task(
+    `packages:${pkg.name}:clean:dependencies`,
+    async () => await (await del)([`./packages/${pkg.name}/node_modules`])
+  );
+
+  gulp.task(
+    `packages:${pkg.name}:clean`,
+    gulp.parallel(
+      `packages:${pkg.name}:clean:build`,
+      `packages:${pkg.name}:clean:dependencies`
+    )
+  );
 });
 
 [
@@ -84,10 +104,13 @@ packages.forEach((pkg) => {
   "publish:npm",
   "test",
   "upgrade",
+  "clean",
+  "clean:build",
+  "clean:dependencies",
 ].forEach((task) => {
   gulp.task(
     `packages:all:${task}`,
-    gulp.parallel(packages.map((pkg) => `packages:${pkg.name}:${task}`))
+    gulp.parallel([...packages.map((pkg) => `packages:${pkg.name}:${task}`)])
   );
   gulp.task(task, gulp.series(`packages:all:${task}`));
 });
