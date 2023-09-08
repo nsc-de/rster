@@ -49,6 +49,10 @@ export default function App() {
                 name: "Home 1",
                 href: "#",
               },
+              {
+                name: "Home 1",
+                href: "#",
+              },
             ],
           },
         ]}

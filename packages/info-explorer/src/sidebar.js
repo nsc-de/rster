@@ -1,15 +1,15 @@
-import Icon from "@mdi/react";
-import { mdiChevronRight } from "@mdi/js";
 import "./sidebar.sass";
 import { useState } from "react";
+import Button from "react-bootstrap/Button";
 
-function RenderDropdown({ className, format, path, title, map }) {
+function RenderDropdown({ className, format, path, title }) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button
+      <Button
         className="btn btn-toggle text-left align-items-left rounded collapsed"
+        variant="outline-secondary"
         data-bs-toggle={`sidebar-${[...path, title].join("-")}`}
         data-bs-target={`#sidebar-${[...path, title].join("-")}`}
         aria-expanded={open}
@@ -17,12 +17,12 @@ function RenderDropdown({ className, format, path, title, map }) {
       >
         {/* <Icon path={mdiChevronRight} size={1} /> */}
         {title}
-      </button>
+      </Button>
       <div
         className={`collapse ${open ? "show" : ""}`}
         id={`sidebar-${[...path, title].join("-")}`}
       >
-        <RenderUl format={map} path={path} />
+        <RenderUl format={format} path={path} />
       </div>
     </>
   );
@@ -30,7 +30,8 @@ function RenderDropdown({ className, format, path, title, map }) {
 
 function RenderUl({ className, format, path }) {
   path = path ?? [];
-  format = format ?? [];
+
+  console.log(format);
 
   return (
     <ul className={`list-unstyled ps-0 ${className ?? ""}`}>
@@ -58,7 +59,7 @@ export default function Sidebar({ className, format, title, logo }) {
   format = format ?? [];
   return (
     <div
-      className="flex-shrink-0 p-3 bg-white h-100"
+      className={`flex-shrink-0 p-3 bg-888 h-100 sidebar ${className ?? ""}}`}
       style={{ width: "280px" }}
     >
       <a
