@@ -1,8 +1,33 @@
-import Navbar from "react-bootstrap/Navbar";
+import { mdiSearchWeb } from "@mdi/js";
+import Icon from "@mdi/react";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
+import Navbar from "react-bootstrap/Navbar";
+import Row from "react-bootstrap/Row";
+
 import Sidebar from "./sidebar";
 
+import { InfoClient } from "@rster/info-client";
+import { useState } from "react";
+
 export default function App() {
+  const [apiBaseUrl, setApiBaseUrl] = useState("http://localhost:3001/api/");
+
+  const url = new URL(apiBaseUrl);
+
+  const { protocol, host, pathname } = url;
+
+  const infoClient = new InfoClient({
+    basePath: pathname,
+    url: `${protocol}//${host}`,
+  });
+
+  const index = infoClient.getIndex();
+
+  console.log(index);
+
   return (
     <div
       className="App w-100 h-100"
@@ -34,6 +59,19 @@ export default function App() {
                 rster info explorer
               </span>
             </Navbar.Brand>
+            <Form inline>
+              <Row>
+                <Col xs="auto">
+                  <Form.Control
+                    type="text"
+                    placeholder="API base URL"
+                    className=" mr-sm-2"
+                    defaultValue={apiBaseUrl}
+                    onChange={(e) => setApiBaseUrl(e.target.value)}
+                  />
+                </Col>
+              </Row>
+            </Form>
           </Container>
         </Navbar>
       </header>

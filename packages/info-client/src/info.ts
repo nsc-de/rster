@@ -119,7 +119,7 @@ export class InfoClientResponseError extends Error {
   }
 
   static async fromResponse(response: Response) {
-    const body = await response.json();
+    const body = await jsonPipe(response);
     if (response.status === 404) {
       return new InfoClientNotFoundError(
         body.message ?? response.statusText,
@@ -143,45 +143,53 @@ export class InfoClientNotFoundError extends InfoClientResponseError {
   }
 }
 
-export class InfoClient {
-  fetch: (
-    input: RequestInfo | URL,
-    init?: RequestInit | undefined
-  ) => Promise<Response>;
-  constructor(readonly options: InfoClientOptions) {
-    this.fetch = options.customFetchFunction ?? fetch;
+export class InfoClientNoHostError extends Error {
+  constructor(message: string) {
+    super(message);
   }
+}
+
+export class InfoClientCorsError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class InfoClient {
+  constructor(readonly options: InfoClientOptions) {}
 
   private request(path: string) {
-    return this.fetch(
-      `${this.options.url ?? ""}${this.options.basePath ?? ""}${path}`,
-      {
-        method: "GET",
-      }
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw InfoClientResponseError.fromResponse(response);
+    return handleErrors(
+      (this.options.customFetchFunction ?? fetch)(
+        `${this.options.url ?? ""}${this.options.basePath ?? ""}${path}`,
+        {
+          method: "GET",
         }
-        return response;
-      })
-      .catch((error) => {
-        if (error instanceof InfoClientResponseError) {
-          throw error;
-        }
-        if (error instanceof Response) {
-          throw InfoClientResponseError.fromResponse(error);
-        }
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw InfoClientResponseError.fromResponse(response);
+          }
+          return response;
+        })
+        .catch((error) => {
+          if (error instanceof InfoClientResponseError) {
+            throw error;
+          }
+          if (error instanceof Response) {
+            throw InfoClientResponseError.fromResponse(error);
+          }
 
-        throw error;
-      });
+          throw error;
+        })
+    );
   }
 
   async getIndex(): Promise<InfoMap> {
     const response = await this.request(`/`);
     return new InfoMapImpl(
       this,
-      await response.json(),
+      await jsonPipe(response),
       this.options.basePath,
       undefined
     );
@@ -191,9 +199,37 @@ export class InfoClient {
     const response = await this.request(path);
     return new InfoMapImpl(
       this,
-      await response.json(),
+      await jsonPipe(response),
       this.options.basePath,
       undefined
     ); // TODO: parent
   }
 }
+
+function handleErrors<T extends Promise<Response>>(fetchPromise: T): T {
+  return fetchPromise.catch((error) => {
+    const msg = error.message;
+    if (msg.includes("Failed to fetch")) {
+      throw new InfoClientNoHostError(
+        msg +
+          "; This means that the server is not running or the url is wrong or it does not allow this origin to access it (CORS). See console logs for more details."
+      );
+    }
+
+    throw error;
+  }) as T;
+}
+
+async function jsonPipe(response: Response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    throw new InfoClientResponseError(
+      "Unable to parse json response!\n" + text,
+      response
+    );
+  }
+}
+
+export default InfoClient;
