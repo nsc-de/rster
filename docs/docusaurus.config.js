@@ -164,6 +164,7 @@ const config = {
           autoConfiguration: true,
           position: 0,
         },
+        skipErrorChecking: true,
         cleanOutputDir: true,
         out: `api-reference/${it.name}`,
         sidebar: {

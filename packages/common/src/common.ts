@@ -810,7 +810,7 @@ export interface Response {
 }
 
 /**
- * @interface Request - The request object.
+ * The request object.
  */
 export type Method =
   | "get"
