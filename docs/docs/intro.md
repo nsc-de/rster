@@ -40,7 +40,7 @@ Rster packages a few core dependencies that will help you getting started. Howev
 You definitly want to install a worker implementation. A worker implementation is a package that allows you to run your rster application on a webserver so you can access your api from the internet.
 We recommend using [@rster/worker-express](https://www.npmjs.com/package/@rster/worker-express) as it is the easiest to get started with.
 
-[find more worker implementations here](/docs/workers/worker-implementations)
+[find more worker implementations here](/docs/category/workers)
 
 ```bash
 npm install @rster/worker-express
@@ -57,8 +57,8 @@ yarn add @rster/worker-express
 Firstly we want to import the rest function from rster as well as our worker's implementation. (we'll use express in this example)
 
 ```typescript
-import { rest } from 'rster';
-import '@rster/worker-express';
+import { rest } from "rster";
+import "@rster/worker-express";
 ```
 
 The worker will extend the prototype of our rest api object. Types are automatically extended as well.
@@ -66,10 +66,10 @@ The worker will extend the prototype of our rest api object. Types are automatic
 Next we can define the pattern of our api. We will create a simple api that returns a string when we call the `/hello` endpoint.
 
 ```typescript
-const api = rest(function() {
-  this.get('/hello', function() {
-    this.action(function(req, res) {
-      res.json({ message: 'Hello World!' });
+const api = rest(function () {
+  this.get("/hello", function () {
+    this.action(function (req, res) {
+      res.json({ message: "Hello World!" });
     });
   });
 });
@@ -80,7 +80,7 @@ const api = rest(function() {
 Now we can create a webserver using express and pass our api it using the `use` function and the `express` worker.
 
 ```typescript
-import express from 'express';
+import express from "express";
 
 const app = express();
 
