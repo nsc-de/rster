@@ -207,8 +207,11 @@ export class InfoClient {
 }
 
 function handleErrors<T extends Promise<Response>>(fetchPromise: T): T {
-  return fetchPromise.catch((error) => {
+  return fetchPromise.catch(async (error) => {
+    if (error instanceof Promise) error = await handleErrors(error);
+
     const msg = error.message;
+    if (!error.message) throw error;
     if (msg.includes("Failed to fetch")) {
       throw new InfoClientNoHostError(
         msg +

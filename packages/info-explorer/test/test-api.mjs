@@ -2,6 +2,8 @@ import rster from "rster";
 import express from "express";
 import "@rster/worker-express";
 import helmet from "helmet";
+import morgan from "morgan";
+import cors from "cors";
 
 const rest = rster.basic.rest;
 
@@ -41,8 +43,11 @@ const api = rest(function () {
 });
 
 const app = express();
+
+app.use(cors("*"));
 app.use(helmet());
-app.use(api.express());
+app.use(morgan("combined"));
+app.use(api.express({ basePath: "/api" }));
 
 app.listen(PORT, () => {
   console.log(`Test API listening at http://localhost:${PORT}`);
