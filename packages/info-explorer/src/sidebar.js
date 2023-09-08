@@ -9,7 +9,7 @@ function RenderDropdown({ className, format, path, title, map }) {
   return (
     <>
       <button
-        className="btn btn-toggle align-items-center rounded collapsed"
+        className="btn btn-toggle text-left align-items-left rounded collapsed"
         data-bs-toggle={`sidebar-${[...path, title].join("-")}`}
         data-bs-target={`#sidebar-${[...path, title].join("-")}`}
         aria-expanded={open}
