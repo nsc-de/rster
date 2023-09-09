@@ -18,6 +18,18 @@ import { RestfulApi } from "./index";
 const debugRoutePath = debug("rster:router:path");
 const debugRouteUse = debug("rster:router:use");
 
+function toInitializer(
+  func: ActionFunction | ContextInitializer
+): ContextInitializer {
+  if (func.length == 2) {
+    return function (ctx: Context) {
+      ctx.action(func as ActionFunction);
+    };
+  } else {
+    return func as ContextInitializer;
+  }
+}
+
 export type ContextJson = {
   children: (
     | {
@@ -268,7 +280,11 @@ export class Context {
    * Context.current.describe("/hello", function() {
    *   // ctx is available here via [this] keyword
    *   // Do something
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
    * });
+   * ```
    */
   describe(what: string, init: ContextInitializer): this;
 
@@ -281,15 +297,63 @@ export class Context {
    * Context.current.describe("/hello", function() {
    *   // ctx is available here via [this] keyword
    *   // Do something
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
    * });
+   * ```
    */
   describe(what: RegExp, init: ContextInitializer): this;
-  describe(what: string | RegExp, init: ContextInitializer): this {
-    if (typeof what === "string") {
-      return this.when(new ContextConditionPath(what), init);
-    } else {
-      return this.when(new ContextConditionPath2(what), init);
-    }
+
+  /**
+   * Search for paths starting with the given path. Is the same as {@link Condition.any}
+   * This is a shorthand for {@link Context.describe} and then {@link Context.action} inside.
+   * @param what the path that the condition should check for
+   * @param init the action happening when the condition is met
+   * @example
+   * ```typescript
+   *
+   * Context.current.describe("/hello", async (req, res) => {
+   *   res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.describe("/hello", function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   * ```
+   */
+  describe(what: string, init: ActionFunction): this;
+
+  /**
+   * Search for paths matching the given regex. Is the same as {@link Condition.any}
+   * This is a shorthand for {@link Context.describe} and then {@link Context.action} inside.
+   * @param what the regex that the condition should check for
+   * @param init the action happening when the condition is met
+   * @example
+   * ```typescript
+   * Context.current.describe(/\/hello/, async (req, res) => {
+   *   res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.describe(/\/hello/, function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   * ```
+   */
+  describe(what: RegExp, init: ActionFunction): this;
+  describe(
+    what: string | RegExp,
+    init: ContextInitializer | ActionFunction
+  ): this {
+    if (typeof what === "string")
+      return this.when(new ContextConditionPath(what), toInitializer(init));
+    else return this.when(new ContextConditionPath2(what), toInitializer(init));
   }
 
   /**
@@ -317,10 +381,52 @@ export class Context {
    * });
    */
   any(what: RegExp, init: ContextInitializer): this;
-  any(what: string | RegExp, init: ContextInitializer): this {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return this.describe(what, init);
+
+  /**
+   * Search for paths starting with the given path. Is the same as {@link Condition.describe}
+   * This is a shorthand for {@link Context.any} and then {@link Context.action} inside.
+   * @param what - the path that the condition should check for
+   * @param init - the action happening when the condition is met
+   * @example
+   * ```typescript
+   * Context.current.any("/hello", async (req, res) => {
+   *  res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.any("/hello", function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   * ```
+   */
+  any(what: string, init: ActionFunction): this;
+
+  /**
+   * Search for paths matching the given regex. Is the same as {@link Condition.describe}
+   * This is a shorthand for {@link Context.any} and then {@link Context.action} inside.
+   * @param what - the regex that the condition should check for
+   * @param init - the action happening when the condition is met
+   * @example
+   * ```typescript
+   * Context.current.any(/\/hello/, async (req, res) => {
+   *   res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.any(/\/hello/, function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   * ```
+   */
+  any(what: RegExp, init: ActionFunction): this;
+  any(what: string | RegExp, init: ContextInitializer | ActionFunction): this {
+    if (typeof what === "string")
+      return this.when(new ContextConditionPath(what), toInitializer(init));
+    else return this.when(new ContextConditionPath2(what), toInitializer(init));
   }
 
   /**
@@ -333,7 +439,7 @@ export class Context {
    *   // Do something
    * });
    */
-  post(init: ContextInitializer): Context;
+  post(init: ContextInitializer): this;
 
   /**
    * Search for requests starting with the given path and requests with the method POST.
@@ -347,7 +453,7 @@ export class Context {
    * });
    * ```
    */
-  post(what: string, init: ContextInitializer): Context;
+  post(what: string, init: ContextInitializer): this;
 
   /**
    * Search for requests matching the given regex and requests with the method POST.
@@ -361,23 +467,90 @@ export class Context {
    * });
    * ```
    */
-  post(what: RegExp, init: ContextInitializer): Context;
+  post(what: RegExp, init: ContextInitializer): this;
+
+  /**
+   * Search for requests with the method POST.
+   * This is a shorthand for {@link Context.post} and then {@link Context.action} inside.
+   * @param init - the action happening when the condition is met
+   * @example
+   * ```typescript
+   * Context.current.post(async (req, res) => {
+   *   res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.post(function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   */
+  post(init: ActionFunction): this;
+
+  /**
+   * Search for requests starting with the given path and requests with the method POST.
+   * This is a shorthand for {@link Context.post} and then {@link Context.action} inside.
+   * @param what - the path that the condition should check for
+   * @param init - the action happening when the condition is met
+   * @example
+   * ```typescript
+   * Context.current.post("/hello", async (req, res) => {
+   *   res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.post("/hello", function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   * ```
+   */
+  post(what: string, init: ActionFunction): this;
+
+  /**
+   * Search for requests matching the given regex and requests with the method POST.
+   * This is a shorthand for {@link Context.post} and then {@link Context.action} inside.
+   * @param what - the regex that the condition should check for
+   * @param init - the action happening when the condition is met
+   * @example
+   * ```typescript
+   * Context.current.post(/\/hello/, async (req, res) => {
+   *   res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.post(/\/hello/, function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   * ```
+   */
+  post(what: RegExp, init: ActionFunction): this;
+
   post(
-    arg0: string | RegExp | ContextInitializer,
-    arg1?: ContextInitializer
+    arg0: string | RegExp | ContextInitializer | ActionFunction,
+    arg1?: ContextInitializer | ActionFunction
   ): this {
+    // post(what: string, init)
     if (typeof arg0 === "string" && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("post").and(new ContextConditionPath(arg0)),
-        arg1
+        toInitializer(arg1)
       );
+
+    // post(what: RegExp, init)
     if (arg0 instanceof RegExp && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("post").and(new ContextConditionPath2(arg0)),
-        arg1
+        toInitializer(arg1)
       );
+    // post(init)
     else if (typeof arg0 === "function")
-      return this.when(new ContextConditionMethod("post"), arg0);
+      return this.when(new ContextConditionMethod("post"), toInitializer(arg0));
+
     throw new Error("Invalid arguments");
   }
 
@@ -421,22 +594,87 @@ export class Context {
    * ```
    */
   get(what: RegExp, init: ContextInitializer): Context;
+
+  /**
+   * Search for requests with the method GET.
+   * This is a shorthand for {@link Context.get} and then {@link Context.action} inside.
+   * @param init - the action happening when the condition is met
+   * @example
+   * ```typescript
+   * Context.current.get(async (req, res) => {
+   *   res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.get(function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   * ```
+   */
+  get(init: ActionFunction): Context;
+
+  /**
+   * Search for requests starting with the given path and requests with the method GET.
+   * This is a shorthand for {@link Context.get} and then {@link Context.action} inside.
+   * @param what - the path that the condition should check for
+   * @param init - the action happening when the condition is met
+   * @example
+   * ```typescript
+   * Context.current.get("/hello", async (req, res) => {
+   *   res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.get("/hello", function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   * ```
+   */
+  get(what: string, init: ActionFunction): Context;
+
+  /**
+   * Search for requests matching the given regex and requests with the method GET.
+   * This is a shorthand for {@link Context.get} and then {@link Context.action} inside.
+   * @param what - the regex that the condition should check for
+   * @param init - the action happening when the condition is met
+   * @example
+   * ```typescript
+   * Context.current.get(/\/hello/, async (req, res) => {
+   *   res.status(200).json({ message: "Hello World!" }).end();
+   * });
+   *
+   * // Is the same as this:
+   * Context.current.get(/\/hello/, function() {
+   *   this.action(async (req, res) => {
+   *     res.status(200).json({ message: "Hello World!" }).end();
+   *   });
+   * });
+   * ```
+   */
+  get(what: RegExp, init: ActionFunction): Context;
   get(
-    arg0: string | RegExp | ContextInitializer,
-    arg1?: ContextInitializer
+    arg0: string | RegExp | ContextInitializer | ActionFunction,
+    arg1?: ContextInitializer | ActionFunction
   ): this {
+    // get(what: string, init)
     if (typeof arg0 === "string" && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("get").and(new ContextConditionPath(arg0)),
-        arg1
+        toInitializer(arg1)
       );
+    // get(what: RegExp, init)
     if (arg0 instanceof RegExp && typeof arg1 === "function")
       return this.when(
         new ContextConditionMethod("get").and(new ContextConditionPath2(arg0)),
-        arg1
+        toInitializer(arg1)
       );
+    // get(init)
     else if (typeof arg0 === "function")
-      return this.when(new ContextConditionMethod("get"), arg0);
+      return this.when(new ContextConditionMethod("get"), toInitializer(arg0));
     throw new Error("Invalid arguments");
   }
 
