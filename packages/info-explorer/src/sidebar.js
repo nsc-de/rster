@@ -1,6 +1,7 @@
 import "./sidebar.sass";
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
+import { Link } from "react-router-dom";
 
 function RenderDropdown({ className, format, path, title }) {
   const [open, setOpen] = useState(false);
@@ -44,10 +45,13 @@ function RenderUl({ className, format, path }) {
               title={item.name}
             />
           ) : (
-            <a href={item.href ?? ""} className="link-dark rounded">
-              {" "}
-              {item.name}{" "}
-            </a>
+            <Link
+              to={item.href ?? ""}
+              className="link-dark rounded"
+              data-method={item.method ?? "any"}
+            >
+              {item.name}
+            </Link>
           )}
         </li>
       ))}
@@ -55,22 +59,25 @@ function RenderUl({ className, format, path }) {
   );
 }
 
-export default function Sidebar({ className, format, title, logo }) {
+export default function Sidebar({ className, format, title, logo, style }) {
   format = format ?? [];
   return (
     <div
       className={`flex-shrink-0 p-3 bg-888 h-100 sidebar ${className ?? ""}}`}
-      style={{ width: "280px" }}
+      style={{
+        width: "280px",
+        ...style,
+      }}
     >
-      <a
-        href="/"
+      <Link
+        to="/"
         className="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom"
       >
         <span className="fs-5 fw-semibold">
           {logo ?? ""}
           {title}
         </span>
-      </a>
+      </Link>
       <RenderUl format={format} />
     </div>
   );
