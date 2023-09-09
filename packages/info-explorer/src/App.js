@@ -41,13 +41,15 @@ export default function App() {
   const { protocol, host, pathname } = url;
 
   const [infoClient, setInfoClient] = useState(
-    new InfoClient({
-      basePath: pathname,
-      url: `${protocol}//${host}`,
-    })
+    () =>
+      new InfoClient({
+        basePath: pathname,
+        url: `${protocol}//${host}`,
+      })
   );
 
   const [index, setIndex] = useState(null);
+  const [indexElement, setIndexElement] = useState(null);
 
   if (
     infoClient.options.basePath !== pathname ||
@@ -64,7 +66,10 @@ export default function App() {
   useEffect(() => {
     infoClient
       .getIndex()
-      .then((it) => generateNavbarIndex(it))
+      .then((it) => {
+        setIndexElement(it);
+        return generateNavbarIndex(it);
+      })
       .then((index) => {
         setIndex(index);
       })
@@ -183,6 +188,8 @@ export default function App() {
             ) : (
               <Route element={<div className="p-3">Loading</div>} />
             )}
+            <Route path="/" element={<PathInfo info={indexElement} />} />
+            <Route path="*" element={<div className="p-3">Not found</div>} />
           </Routes>
         </main>
       </div>
@@ -215,25 +222,26 @@ function PathInfo({ info }) {
 
   return (
     <div className="p-3">
-      <h1
-        style={{
-          position: "relative",
-        }}
-      >
-        {path}
-        <span
+      {path ? (
+        <h1
           style={{
-            right: 0,
-            position: "absolute",
-            textTransform: "uppercase",
-            color: "#999",
+            position: "relative",
           }}
         >
-          {method}
-        </span>
-      </h1>
-
-      <p>{description}</p>
+          {path}
+          <span
+            style={{
+              right: 0,
+              position: "absolute",
+              textTransform: "uppercase",
+              color: "#999",
+            }}
+          >
+            {method}
+          </span>
+        </h1>
+      ) : null}
+      <p>{description.join(" ")}</p>
 
       <h2>Fields</h2>
       {fields
