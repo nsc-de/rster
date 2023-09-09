@@ -24,6 +24,7 @@ async function generateNavbarIndex(map) {
       children.map(async (child) => ({
         path: await child.path,
         method: await child.method,
+        info: child,
       }))
     )
   ).sort((a, b) => a.path.localeCompare(b.path));
@@ -140,10 +141,10 @@ export default function App() {
               ? [
                   {
                     name: "Paths",
-                    map: index.map((path) => ({
-                      name: path.path,
-                      href: path.path,
-                      method: path.method,
+                    map: index.map((item) => ({
+                      name: item.path,
+                      href: `${item.path}@${item.method}`,
+                      method: item.method,
                     })),
                   },
                 ]
@@ -161,12 +162,27 @@ export default function App() {
         <main
           className="App-main"
           style={{
-            paddingLeft: "320px",
-            width: "100%",
+            marginLeft: "320px",
+            width: "calc(100% - 320px)",
+            padding: "2rem",
+            position: "relative",
           }}
         >
           <Routes>
-            <Route path="/:path" Component={Path}></Route>
+            {index ? (
+              index.map((path) => {
+                console.log(`${path.path}@${path.method}`);
+                return (
+                  <Route
+                    path={`${path.path}@${path.method}`}
+                    key={`${path.path}@${path.method}`}
+                    element={<PathInfo info={path.info} />}
+                  />
+                );
+              })
+            ) : (
+              <Route element={<div className="p-3">Loading</div>} />
+            )}
           </Routes>
         </main>
       </div>
@@ -174,10 +190,80 @@ export default function App() {
   );
 }
 
-function Path({ path }) {
+function PathInfo({ info }) {
+  const [path, setPath] = useState(null);
+  const [method, setMethod] = useState(null);
+  const [description, setDescription] = useState(null);
+  const [fields, setFields] = useState(null);
+
+  useEffect(() => {
+    if (!info) return;
+
+    info.path.then((path) => setPath(path));
+    info.method.then((method) => setMethod(method));
+    info.description.then((description) => setDescription(description));
+    info.fields.then((fields) => setFields(fields));
+  }, [info]);
+
+  if (!info) {
+    return (
+      <div className="p-3">
+        <h1>Not found</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="p-3">
-      <h1>Path</h1>
+      <h1
+        style={{
+          position: "relative",
+        }}
+      >
+        {path}
+        <span
+          style={{
+            right: 0,
+            position: "absolute",
+            textTransform: "uppercase",
+            color: "#999",
+          }}
+        >
+          {method}
+        </span>
+      </h1>
+
+      <p>{description}</p>
+
+      <h2>Fields</h2>
+      {fields
+        ? fields
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((field) => (
+              <InputGroup
+                style={{
+                  display: "inline-flex",
+                  width: "auto",
+                  margin: "1rem",
+                }}
+              >
+                <Form.Control
+                  type="text"
+                  placeholder={field.name}
+                  value={field.name}
+                  disabled
+                  className="bg-white"
+                ></Form.Control>
+                <Form.Control
+                  type="text"
+                  placeholder={field.value}
+                  defaultValue={field.value}
+                  disabled
+                  className="text-end"
+                />
+              </InputGroup>
+            ))
+        : null}
     </div>
   );
 }
