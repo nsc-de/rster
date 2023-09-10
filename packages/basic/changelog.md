@@ -3,6 +3,7 @@
 ## v0.1.4
 
 - Introduce shortcuts for actions inside of `Context#describe()`, `Context#any()`, `Context#post()`, `Context#put()`, `Context#patch()`, `Context#delete()`, `Context#options()`, `Context#head()`, `Context#get()`
+- Add parameter support to ContextConditionPath
 
 ## v0.1.3
 

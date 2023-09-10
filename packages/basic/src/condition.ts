@@ -92,19 +92,84 @@ export class ContextConditionAnd extends ContextCondition {
   }
 }
 
+type ParsedPathDescriptorPathEntry = { type: "path"; path: string };
+type ParsedPathDescriptorParamEntry = { type: "param"; name: string };
+type ParsedPathDescriptor = (
+  | ParsedPathDescriptorPathEntry
+  | ParsedPathDescriptorParamEntry
+)[];
+
+function parsePathDescriptor(str: string): ParsedPathDescriptor {
+  const parts = str.matchAll(/((?<url>[^:]*)(:(?<param>[\w-]+))?)/g);
+  const result: ParsedPathDescriptor = [];
+  for (const part of parts) {
+    if (part.length === 0) continue;
+
+    const url = part.groups?.url;
+    const param_name = part.groups?.param;
+
+    if (url) result.push({ type: "path", path: url });
+    if (param_name) result.push({ type: "param", name: param_name });
+  }
+
+  return result;
+}
+
+function parsePath(
+  path: string,
+  descriptor: ParsedPathDescriptor
+): (Record<string, string> & { $__SUBPATH: string }) | false {
+  const params: Record<string, string> = {};
+  const descriptor_copy = [...descriptor];
+
+  while (descriptor_copy.length > 0) {
+    const entry = descriptor_copy.shift();
+
+    if (!entry) {
+      throw new Error("Unexpected end of descriptor");
+    }
+
+    if (entry.type === "path") {
+      if (!path.startsWith(entry.path)) {
+        return false;
+      }
+      path = path.slice(entry.path.length);
+      continue;
+    }
+
+    if (entry.type === "param") {
+      // match start of path while matching \w- characters
+      const match = /^([\w-]+)/.exec(path)?.[0] ?? "";
+      params[entry.name] = match;
+      path = path.slice(match.length);
+      continue;
+    }
+
+    throw new Error("Unexpected entry type");
+  }
+
+  return { ...params, $__SUBPATH: path };
+}
+
 export class ContextConditionPath extends ContextCondition {
+  readonly parsedPath: ParsedPathDescriptor;
   constructor(readonly path: string) {
     super();
+    this.parsedPath = parsePathDescriptor(path);
   }
 
   appliesTo(req: Request): boolean {
-    return req.path.startsWith(this.path);
+    return parsePath(req.path, this.parsedPath) !== false;
   }
 
   subRequest(req: Request): Request {
+    const path = parsePath(req.path, this.parsedPath);
+    if (!path) {
+      throw new Error("Path does not match");
+    }
     return {
       ...req,
-      path: req.path.slice(this.path.length),
+      path: path.$__SUBPATH,
     };
   }
 
