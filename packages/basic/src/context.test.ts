@@ -176,6 +176,36 @@ describe("Context", () => {
         (context.children[0] as ContextChildCondition).context
       ).not.toBeUndefined();
     });
+
+    it("Should add passed actions as children with string path", () => {
+      const context = createEmptyContext();
+      context.describe("test", (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionPath);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children with RegExp path", () => {
+      const context = createEmptyContext();
+      context.describe(/test/, (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionPath2);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
   });
 
   describe("any", () => {
@@ -204,6 +234,36 @@ describe("Context", () => {
       expect(
         (context.children[0] as ContextChildCondition).context
       ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children with string path", () => {
+      const context = createEmptyContext();
+      context.any("test", (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionPath);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children with RegExp path", () => {
+      const context = createEmptyContext();
+      context.any(/test/, (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionPath2);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
     });
   });
 
@@ -263,6 +323,51 @@ describe("Context", () => {
       expect(
         (context.children[0] as ContextChildCondition).context
       ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children with string path", () => {
+      const context = createEmptyContext();
+      context.get("test", (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children with RegExp path", () => {
+      const context = createEmptyContext();
+      context.get(/test/, (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children without path", () => {
+      const context = createEmptyContext();
+      context.get((req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionMethod);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
     });
 
     it("Test with wrong parameters", () => {
@@ -333,6 +438,51 @@ describe("Context", () => {
       ).not.toBeUndefined();
     });
 
+    it("Should add passed actions as children with string path", () => {
+      const context = createEmptyContext();
+      context.post("test", (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children with RegExp path", () => {
+      const context = createEmptyContext();
+      context.post(/test/, (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children without path", () => {
+      const context = createEmptyContext();
+      context.post((req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionMethod);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
     it("Test with wrong parameters", () => {
       const context = createEmptyContext();
 
@@ -396,6 +546,52 @@ describe("Context", () => {
       expect(
         (context.children[0] as ContextChildCondition).condition
       ).toBeInstanceOf(ContextConditionMethod);
+      expect(
+        (context.children[0] as ContextChildCondition).context
+      ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children with string path", () => {
+      const context = createEmptyContext();
+      context.put("test", (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children with RegExp path", () => {
+      const context = createEmptyContext();
+      context.put(/test/, (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(
+        (context.children[0] as ContextChildCondition).condition.info()
+      ).toEqual({
+        method: "put",
+        path: "[test]",
+      });
+      expect(
+        (context.children[0] as ContextChildCondition).context
+      ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children without path", () => {
+      const context = createEmptyContext();
+      context.put((req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(
+        (context.children[0] as ContextChildCondition).condition.info()
+      ).toEqual({
+        method: "put",
+      });
       expect(
         (context.children[0] as ContextChildCondition).context
       ).not.toBeUndefined();
@@ -469,6 +665,52 @@ describe("Context", () => {
       ).not.toBeUndefined();
     });
 
+    it("Should add passed actions as children with string path", () => {
+      const context = createEmptyContext();
+      context.patch("test", (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children with RegExp path", () => {
+      const context = createEmptyContext();
+      context.patch(/test/, (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(
+        (context.children[0] as ContextChildCondition).condition.info()
+      ).toEqual({
+        method: "patch",
+        path: "[test]",
+      });
+      expect(
+        (context.children[0] as ContextChildCondition).context
+      ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children without path", () => {
+      const context = createEmptyContext();
+      context.patch((req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(
+        (context.children[0] as ContextChildCondition).condition.info()
+      ).toEqual({
+        method: "patch",
+      });
+      expect(
+        (context.children[0] as ContextChildCondition).context
+      ).not.toBeUndefined();
+    });
+
     it("Test with wrong parameters", () => {
       const context = createEmptyContext();
       // @ts-ignore
@@ -536,6 +778,52 @@ describe("Context", () => {
       ).not.toBeUndefined();
     });
 
+    it("Should add passed actions as children with string path", () => {
+      const context = createEmptyContext();
+      context.delete("test", (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children with RegExp path", () => {
+      const context = createEmptyContext();
+      context.delete(/test/, (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(
+        (context.children[0] as ContextChildCondition).condition.info()
+      ).toEqual({
+        method: "delete",
+        path: "[test]",
+      });
+      expect(
+        (context.children[0] as ContextChildCondition).context
+      ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children without path", () => {
+      const context = createEmptyContext();
+      context.delete((req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(
+        (context.children[0] as ContextChildCondition).condition.info()
+      ).toEqual({
+        method: "delete",
+      });
+      expect(
+        (context.children[0] as ContextChildCondition).context
+      ).not.toBeUndefined();
+    });
+
     it("Test with wrong parameters", () => {
       const context = createEmptyContext();
       // @ts-ignore
@@ -594,6 +882,53 @@ describe("Context", () => {
       expect(
         (context.children[0] as ContextChildCondition).condition
       ).toBeInstanceOf(ContextConditionMethod);
+      expect(
+        (context.children[0] as ContextChildCondition).context
+      ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children with string path", () => {
+      const context = createEmptyContext();
+      context.head("test", (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(
+        (context.children[0] as ContextChildCondition).condition.info()
+      ).toEqual({
+        method: "head",
+        path: "test",
+      });
+      expect(
+        (context.children[0] as ContextChildCondition).context
+      ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children with RegExp path", () => {
+      const context = createEmptyContext();
+      context.head(/test/, (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(
+        (context.children[0] as ContextChildCondition).condition.info()
+      ).toEqual({
+        method: "head",
+        path: "[test]",
+      });
+      expect(
+        (context.children[0] as ContextChildCondition).context
+      ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children without path", () => {
+      const context = createEmptyContext();
+      context.head((req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+      expect(
+        (context.children[0] as ContextChildCondition).condition.info()
+      ).toEqual({
+        method: "head",
+      });
       expect(
         (context.children[0] as ContextChildCondition).context
       ).not.toBeUndefined();
@@ -664,6 +999,51 @@ describe("Context", () => {
       expect(
         (context.children[0] as ContextChildCondition).context
       ).not.toBeUndefined();
+    });
+
+    it("Should add passed actions as children with string path", () => {
+      const context = createEmptyContext();
+      context.options("test", (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children with RegExp path", () => {
+      const context = createEmptyContext();
+      context.options(/test/, (req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
+    });
+
+    it("Should add passed actions as children without path", () => {
+      const context = createEmptyContext();
+      context.options((req, res) => {});
+      expect(context.children).toHaveLength(1);
+      expect(context.children[0].type).toEqual("condition");
+
+      const child: ContextChildCondition = context
+        .children[0] as ContextChildCondition;
+
+      expect(child.condition).toBeInstanceOf(ContextConditionMethod);
+      expect(child.context).not.toBeUndefined();
+      expect(child.context.children).toHaveLength(1);
+      expect(child.context.children[0].type).toEqual("action");
     });
 
     it("Test with wrong parameters", () => {
