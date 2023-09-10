@@ -1,4 +1,4 @@
-import { mdiAlertOutline, mdiSearchWeb } from "@mdi/js";
+import { mdiAlertOutline } from "@mdi/js";
 import Icon from "@mdi/react";
 import InputGroup from "react-bootstrap/InputGroup";
 import Col from "react-bootstrap/Col";

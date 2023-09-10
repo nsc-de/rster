@@ -69,7 +69,7 @@ Next we can define the pattern of our api. We will create a simple api that retu
 const api = rest(function () {
   this.get("/hello", function () {
     this.action(function (req, res) {
-      res.json({ message: "Hello World!" });
+      res.status(200).json({ message: "Hello World!" }).end();
     });
   });
 });
