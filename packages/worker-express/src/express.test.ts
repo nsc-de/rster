@@ -130,7 +130,7 @@ describe("transformExpressRequest", () => {
 });
 
 describe("Express tests", () => {
-  let users: { name: string; email: string; password: string }[] = [];
+  const users: { name: string; email: string; password: string }[] = [];
 
   const app = rest(function () {
     // This is a test rest api
