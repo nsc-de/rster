@@ -2,7 +2,7 @@
 
 ## v0.1.4
 
-- Introduce shortcuts for `Context#describe()`, `Context#any()`, `Context#post()`, `Context#put()`, `Context#patch()`, `Context#delete()`, `Context#options()`, `Context#head()`, `Context#get()`
+- Introduce shortcuts for actions inside of `Context#describe()`, `Context#any()`, `Context#post()`, `Context#put()`, `Context#patch()`, `Context#delete()`, `Context#options()`, `Context#head()`, `Context#get()`
 
 ## v0.1.3
 
