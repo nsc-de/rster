@@ -1,5 +1,9 @@
 # Changelog for @rster/basic
 
+## v0.1.4
+
+- Introduce shortcuts for actions inside of `Context#describe()`, `Context#any()`, `Context#post()`, `Context#put()`, `Context#patch()`, `Context#delete()`, `Context#options()`, `Context#head()`, `Context#get()`
+
 ## v0.1.3
 
 - Introduce Context#getRoutingPath()
