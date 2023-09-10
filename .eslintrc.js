@@ -16,7 +16,7 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-  ignorePatterns: ["node_modules/", "lib"],
+  ignorePatterns: ["node_modules/", "lib/", "dist/", "coverage/"],
   rules: {
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": "warn",
@@ -25,7 +25,7 @@ module.exports = {
 
   overrides: [
     {
-      files: ["**/*.test.[jt]s?(x)", "./jest.config.js"],
+      files: ["**/*.test.[jt]s?(x)"],
       env: {
         jest: true,
       },
@@ -43,13 +43,29 @@ module.exports = {
       },
     },
     {
-      files: ["gulpfile.js"],
+      files: ["**/gulpfile.js", "**/babel.config.js"],
       env: {
         node: true,
       },
-      plugins: ["@typescript-eslint"],
+      plugins: [],
       rules: {
         "@typescript-eslint/no-var-requires": "off",
+      },
+    },
+    {
+      files: ["**/jest.config.js"],
+      env: {
+        jest: true,
+      },
+      plugins: ["jest"],
+      rules: {
+        "jest/no-disabled-tests": "warn",
+        "jest/no-focused-tests": "error",
+        "jest/no-identical-title": "error",
+        "jest/prefer-to-have-length": "warn",
+        "jest/valid-expect": "error",
+        "@typescript-eslint/no-var-requires": "off",
+        "no-empty": "warn",
       },
     },
   ],
