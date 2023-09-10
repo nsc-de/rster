@@ -160,22 +160,24 @@ export class RsterApiMethod<
     };
   }
 
-  public rest() {
-    Context.current.description(...this.description);
-    Context.current.declaration({
+  public rest(ctx?: Context) {
+    ctx = ctx ?? Context.current;
+
+    ctx.description(...this.description);
+    ctx.declaration({
       name: this.name,
       returnBody: this.declaration.returns,
       expectBody: this.declaration.expectBody,
       expectQuery: this.declaration.expectQuery,
       expectParams: this.declaration.expectParams,
     });
-    Context.current.action(async (req, res) => {
+    ctx.action(async (req, res) => {
       const result = this.action?.({
         ...req.body,
         ...req.query,
         ...req.params,
       });
-      res.json(result); // TODO: Handle export of non-json-compatible types
+      res.status(200).json(result).end(); // TODO: Handle export of non-json-compatible types
     });
   }
 }

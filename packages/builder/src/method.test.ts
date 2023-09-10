@@ -1,5 +1,6 @@
 import { string, undefinedType } from "@rster/types";
 import { RsterApiMethod } from "./method";
+import { rest } from "@rster/basic";
 
 describe("RsterApiMethod", () => {
   describe("#constructor()", () => {
@@ -148,6 +149,54 @@ describe("RsterApiMethod", () => {
             type: "undefined",
           },
         },
+      });
+    });
+  });
+
+  describe("#rest()", () => {
+    const method = new RsterApiMethod(
+      "test",
+      ["test description"],
+      {
+        expectBody: {
+          test: { type: string(), optional: false },
+          test2: { type: string(), optional: true },
+        },
+        expectQuery: {
+          test3: { type: string(), optional: false },
+          test4: { type: string(), optional: true },
+        },
+        expectParams: {
+          test5: { type: string(), optional: false },
+          test6: { type: string(), optional: true },
+        },
+        returns: undefinedType(),
+      },
+      "/test",
+      "get"
+    );
+
+    it("should return a rest representation of the method", () => {
+      const api = rest(function () {
+        method.rest(this);
+      });
+
+      expect(api.description()).toEqual(["test description"]);
+      expect(api.declaration()).toEqual({
+        name: "test",
+        expectBody: {
+          test: { type: string(), optional: false },
+          test2: { type: string(), optional: true },
+        },
+        expectQuery: {
+          test3: { type: string(), optional: false },
+          test4: { type: string(), optional: true },
+        },
+        expectParams: {
+          test5: { type: string(), optional: false },
+          test6: { type: string(), optional: true },
+        },
+        returnBody: undefinedType(),
       });
     });
   });
