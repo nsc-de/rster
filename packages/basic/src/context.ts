@@ -429,7 +429,7 @@ export class Context {
   }
 
   /**
-   * Search for requests with the method POST.
+   * Match requests with the method POST.
    * @param init - the action happening when the condition is met
    * @example
    * ```typescript
@@ -441,7 +441,7 @@ export class Context {
   post(init: ContextInitializer): this;
 
   /**
-   * Search for requests starting with the given path and requests with the method POST.
+   * Match requests starting with the given path and requests with the method POST.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -455,7 +455,7 @@ export class Context {
   post(what: string, init: ContextInitializer): this;
 
   /**
-   * Search for requests matching the given regex and requests with the method POST.
+   * Match requests matching the given regex and requests with the method POST.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -469,7 +469,7 @@ export class Context {
   post(what: RegExp, init: ContextInitializer): this;
 
   /**
-   * Search for requests with the method POST.
+   * Match requests with the method POST.
    * This is a shorthand for {@link Context.post} and then {@link Context.action} inside.
    * @param init - the action happening when the condition is met
    * @example
@@ -488,7 +488,7 @@ export class Context {
   post(init: ActionFunction): this;
 
   /**
-   * Search for requests starting with the given path and requests with the method POST.
+   * Match requests starting with the given path and requests with the method POST.
    * This is a shorthand for {@link Context.post} and then {@link Context.action} inside.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
@@ -509,7 +509,7 @@ export class Context {
   post(what: string, init: ActionFunction): this;
 
   /**
-   * Search for requests matching the given regex and requests with the method POST.
+   * Match requests matching the given regex and requests with the method POST.
    * This is a shorthand for {@link Context.post} and then {@link Context.action} inside.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
@@ -554,7 +554,7 @@ export class Context {
   }
 
   /**
-   * Search for requests with the method GET.
+   * Match requests with the method GET.
    * @param init - the action happening when the condition is met
    * @example
    * ```typescript
@@ -567,7 +567,7 @@ export class Context {
   get(init: ContextInitializer): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method GET.
+   * Match requests starting with the given path and requests with the method GET.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -581,7 +581,7 @@ export class Context {
   get(what: string, init: ContextInitializer): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method GET.
+   * Match requests matching the given regex and requests with the method GET.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -595,7 +595,7 @@ export class Context {
   get(what: RegExp, init: ContextInitializer): Context;
 
   /**
-   * Search for requests with the method GET.
+   * Match requests with the method GET.
    * This is a shorthand for {@link Context.get} and then {@link Context.action} inside.
    * @param init - the action happening when the condition is met
    * @example
@@ -615,7 +615,7 @@ export class Context {
   get(init: ActionFunction): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method GET.
+   * Match requests starting with the given path and requests with the method GET.
    * This is a shorthand for {@link Context.get} and then {@link Context.action} inside.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
@@ -636,7 +636,7 @@ export class Context {
   get(what: string, init: ActionFunction): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method GET.
+   * Match requests matching the given regex and requests with the method GET.
    * This is a shorthand for {@link Context.get} and then {@link Context.action} inside.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
@@ -678,7 +678,7 @@ export class Context {
   }
 
   /**
-   * Search for requests with the method PUT.
+   * Match requests with the method PUT.
    * @param init - the action happening when the condition is met
    * @example
    * ```typescript
@@ -691,7 +691,7 @@ export class Context {
   put(init: ContextInitializer): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method PUT.
+   * Match requests starting with the given path and requests with the method PUT.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -705,7 +705,7 @@ export class Context {
   put(what: string, init: ContextInitializer): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method PUT.
+   * Match requests matching the given regex and requests with the method PUT.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -719,7 +719,7 @@ export class Context {
   put(what: RegExp, init: ContextInitializer): Context;
 
   /**
-   * Search for requests with the method PUT.
+   * Match requests with the method PUT.
    * This is a shorthand for {@link Context.put} and then {@link Context.action} inside.
    * @param init - the action happening when the condition is met
    * @example
@@ -739,7 +739,7 @@ export class Context {
   put(init: ActionFunction): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method PUT.
+   * Match requests starting with the given path and requests with the method PUT.
    * This is a shorthand for {@link Context.put} and then {@link Context.action} inside.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
@@ -760,7 +760,7 @@ export class Context {
   put(what: string, init: ActionFunction): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method PUT.
+   * Match requests matching the given regex and requests with the method PUT.
    * This is a shorthand for {@link Context.put} and then {@link Context.action} inside.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
@@ -803,7 +803,7 @@ export class Context {
   }
 
   /**
-   * Search for requests with the method PATCH.
+   * Match requests with the method PATCH.
    * @param init - the action happening when the condition is met
    * @example
    * ```typescript
@@ -816,7 +816,7 @@ export class Context {
   patch(init: ContextInitializer): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method PATCH.
+   * Match requests starting with the given path and requests with the method PATCH.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -830,7 +830,7 @@ export class Context {
   patch(what: string, init: ContextInitializer): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method PATCH.
+   * Match requests matching the given regex and requests with the method PATCH.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -844,7 +844,7 @@ export class Context {
   patch(what: RegExp, init: ContextInitializer): Context;
 
   /**
-   * Search for requests with the method PATCH.
+   * Match requests with the method PATCH.
    * This is a shorthand for {@link Context.patch} and then {@link Context.action} inside.
    * @param init - the action happening when the condition is met
    * @example
@@ -864,7 +864,7 @@ export class Context {
   patch(init: ActionFunction): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method PATCH.
+   * Match requests starting with the given path and requests with the method PATCH.
    * This is a shorthand for {@link Context.patch} and then {@link Context.action} inside.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
@@ -885,7 +885,7 @@ export class Context {
   patch(what: string, init: ActionFunction): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method PATCH.
+   * Match requests matching the given regex and requests with the method PATCH.
    * This is a shorthand for {@link Context.patch} and then {@link Context.action} inside.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
@@ -933,7 +933,7 @@ export class Context {
   }
 
   /**
-   * Search for requests with the method DELETE.
+   * Match requests with the method DELETE.
    * @param init - the action happening when the condition is met
    * @example
    * ```typescript
@@ -946,7 +946,7 @@ export class Context {
   delete(init: ContextInitializer): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method DELETE.
+   * Match requests starting with the given path and requests with the method DELETE.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -960,7 +960,7 @@ export class Context {
   delete(what: string, init: ContextInitializer): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method DELETE.
+   * Match requests matching the given regex and requests with the method DELETE.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -974,7 +974,7 @@ export class Context {
   delete(what: RegExp, init: ContextInitializer): Context;
 
   /**
-   * Search for requests with the method DELETE.
+   * Match requests with the method DELETE.
    * This is a shorthand for {@link Context.delete} and then {@link Context.action} inside.
    * @param init - the action happening when the condition is met
    * @example
@@ -994,7 +994,7 @@ export class Context {
   delete(init: ActionFunction): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method DELETE.
+   * Match requests starting with the given path and requests with the method DELETE.
    * This is a shorthand for {@link Context.delete} and then {@link Context.action} inside.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
@@ -1015,7 +1015,7 @@ export class Context {
   delete(what: string, init: ActionFunction): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method DELETE.
+   * Match requests matching the given regex and requests with the method DELETE.
    * This is a shorthand for {@link Context.delete} and then {@link Context.action} inside.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
@@ -1065,7 +1065,7 @@ export class Context {
   }
 
   /**
-   * Search for requests with the method OPTIONS.
+   * Match requests with the method OPTIONS.
    * @param init - the action happening when the condition is met
    * @example
    * ```typescript
@@ -1078,7 +1078,7 @@ export class Context {
   options(init: ContextInitializer): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method OPTIONS.
+   * Match requests starting with the given path and requests with the method OPTIONS.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -1092,7 +1092,7 @@ export class Context {
   options(what: string, init: ContextInitializer): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method OPTIONS.
+   * Match requests matching the given regex and requests with the method OPTIONS.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -1106,7 +1106,7 @@ export class Context {
   options(what: RegExp, init: ContextInitializer): Context;
 
   /**
-   * Search for requests with the method OPTIONS.
+   * Match requests with the method OPTIONS.
    * This is a shorthand for {@link Context.options} and then {@link Context.action} inside.
    * @param init - the action happening when the condition is met
    * @example
@@ -1126,7 +1126,7 @@ export class Context {
   options(init: ActionFunction): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method OPTIONS.
+   * Match requests starting with the given path and requests with the method OPTIONS.
    * This is a shorthand for {@link Context.options} and then {@link Context.action} inside.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
@@ -1142,7 +1142,7 @@ export class Context {
   options(what: string, init: ActionFunction): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method OPTIONS.
+   * Match requests matching the given regex and requests with the method OPTIONS.
    * This is a shorthand for {@link Context.options} and then {@link Context.action} inside.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
@@ -1187,7 +1187,7 @@ export class Context {
   }
 
   /**
-   * Search for requests with the method HEAD.
+   * Match requests with the method HEAD.
    * @param init - the action happening when the condition is met
    * @example
    * ```typescript
@@ -1200,7 +1200,7 @@ export class Context {
   head(init: ContextInitializer): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method HEAD.
+   * Match requests starting with the given path and requests with the method HEAD.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -1214,7 +1214,7 @@ export class Context {
   head(what: string, init: ContextInitializer): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method HEAD.
+   * Match requests matching the given regex and requests with the method HEAD.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
    * @example
@@ -1228,7 +1228,7 @@ export class Context {
   head(what: RegExp, init: ContextInitializer): Context;
 
   /**
-   * Search for requests with the method HEAD.
+   * Match requests with the method HEAD.
    * This is a shorthand for {@link Context.head} and then {@link Context.action} inside.
    * @param init - the action happening when the condition is met
    * @example
@@ -1248,7 +1248,7 @@ export class Context {
   head(init: ActionFunction): Context;
 
   /**
-   * Search for requests starting with the given path and requests with the method HEAD.
+   * Match requests starting with the given path and requests with the method HEAD.
    * This is a shorthand for {@link Context.head} and then {@link Context.action} inside.
    * @param what - the path that the condition should check for
    * @param init - the action happening when the condition is met
@@ -1271,7 +1271,7 @@ export class Context {
   head(what: string, init: ActionFunction): Context;
 
   /**
-   * Search for requests matching the given regex and requests with the method HEAD.
+   * Match requests matching the given regex and requests with the method HEAD.
    * This is a shorthand for {@link Context.head} and then {@link Context.action} inside.
    * @param what - the regex that the condition should check for
    * @param init - the action happening when the condition is met
