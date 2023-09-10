@@ -214,7 +214,7 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 [npm-shield]: https://img.shields.io/badge/npm-red?style=for-the-badge&logo=npm
 [npm-url]: https://www.npmjs.com/package/rster
 [typedoc-shield]: https://img.shields.io/badge/typedoc-darkblue?style=for-the-badge&logo=typescript
-[typedoc-url]: https://nsc-de.github.io/rster/
+[typedoc-url]: https://nsc-de.github.io/rster/docs/api-reference
 [documentation-shield]: https://img.shields.io/badge/documentation-blue.svg?style=for-the-badge&logo=github
 [documentation-url]: https://nsc-de.github.io/rster/
 
