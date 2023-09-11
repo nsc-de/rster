@@ -31,9 +31,27 @@ packages.forEach((pkg) => {
   );
 
   gulp.task(
+    `packages:${pkg.name}:remove-readme`,
+    async () => await (await del)(`./packages/${pkg.name}/README.md`)
+  );
+
+  gulp.task(`packages:${pkg.name}:run-copy-readme`, () =>
+    gulp.src(`./README.md`).pipe(gulp.dest(`./packages/${pkg.name}`))
+  );
+
+  gulp.task(
+    `packages:${pkg.name}:copy-readme`,
+    gulp.series(
+      `packages:${pkg.name}:remove-readme`,
+      `packages:${pkg.name}:run-copy-readme`
+    )
+  );
+
+  gulp.task(
     `packages:${pkg.name}:prepack`,
     gulp.series(
       `packages:${pkg.name}:ci`,
+      `packages:${pkg.name}:copy-readme`,
       gulp.parallel(`packages:${pkg.name}:test`, `packages:${pkg.name}:build`)
     )
   );
@@ -107,6 +125,7 @@ packages.forEach((pkg) => {
   "clean",
   "clean:build",
   "clean:dependencies",
+  "copy-readme",
 ].forEach((task) => {
   gulp.task(
     `packages:all:${task}`,

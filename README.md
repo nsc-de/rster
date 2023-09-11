@@ -136,9 +136,58 @@ Hello and welcome to the rster project. Rster is the easiest way to build your b
 
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+`rster` packages a few core dependencies that will help you getting started. However we have a few more dependencies that you might want to install.
+You definitly want to install a worker implementation. A worker implementation is a package that allows you to run your rster application on a webserver so you can access your api from the internet.
+We recommend using [@rster/worker-express](https://www.npmjs.com/package/@rster/worker-express) as it is the easiest to get started with.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+[find more worker implementations here](/docs/category/workers)
+
+```bash
+npm install @rster/worker-express
+```
+
+_alternatively you can use `yarn`_
+
+```bash
+yarn add @rster/worker-express
+```
+
+### Lets use express in our application
+
+Firstly we want to import the rest function from rster as well as our worker's implementation. (we'll use express in this example)
+
+```typescript
+import { rest } from "rster";
+import "@rster/worker-express";
+```
+
+The worker will extend the prototype of our rest api object. Types are automatically extended as well.
+
+Next we can define the pattern of our api. We will create a simple api that returns a string when we call the `/hello` endpoint.
+
+```typescript
+const api = rest(function () {
+  this.get("/hello", function () {
+    this.action(function (req, res) {
+      res.status(200).json({ message: "Hello World!" }).end();
+    });
+  });
+});
+```
+
+**NOTE:** It is important to use the `function()` syntax instead of the arrow function `() => {}` as the `this` keyword is not bound to the arrow function.
+
+Now we can create a webserver using express and pass our api it using the `use` function and the `express` worker.
+
+```typescript
+import express from "express";
+
+const app = express();
+
+app.use(api.express());
+```
+
+_For more examples, please refer to the [Documentation][documentation-url]_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -228,15 +277,12 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 [issues-url]: https://github.com/nsc-de/rster/issues
 [license-shield]: https://img.shields.io/github/license/nsc-de/rster.svg?style=for-the-badge
 [license-url]: https://github.com/nsc-de/rster/blob/master/LICENSE.txt
-[product-screenshot]: images/screenshot.png
 [build-shield]: https://img.shields.io/github/actions/workflow/status/nsc-de/rster/ci.yml?style=for-the-badge
 [build-url]: https://github.com/nsc-de/rster/actions/workflows/ci.yml
 [contributors-shield]: https://img.shields.io/github/contributors/nsc-de/rster.svg?style=for-the-badge
 [contributors-url]: https://github.com/nsc-de/rster/graphs/contributors
 [version-shield]: https://img.shields.io/npm/v/rster.svg?style=for-the-badge
-[version-url]: https://www.npmjs.com/package/rster/
 [downloads-shield]: https://img.shields.io/npm/dt/rster.svg?style=for-the-badge
-[downloads-url]: https://www.npmjs.com/package/rster/
 [coverage-shield]: https://img.shields.io/codecov/c/github/nsc-de/rster?style=for-the-badge
 [coverage-url]: https://codecov.io/gh/nsc-de/rster
 
