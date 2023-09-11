@@ -28,24 +28,6 @@ describe("ContextCondition", () => {
       expect(chain).toBeInstanceOf(ConditionChain);
     });
   });
-
-  describe("subRequest()", () => {
-    it("should return the same request because it has no need to be modified", () => {
-      // @ts-ignore
-      const condition = new (class extends ContextCondition {
-        appliesTo() {
-          return true;
-        }
-      })();
-
-      const req = createSyntheticRequest({
-        method: "get",
-        path: "/users/123",
-      });
-
-      expect(condition.subRequest(req)).toEqual(req);
-    });
-  });
 });
 
 describe("ContextConditionAnd", () => {
@@ -234,20 +216,141 @@ describe("ContextConditionPath", () => {
   });
 
   describe("subRequest()", () => {
-    const condition = new ContextConditionPath("/users");
-
-    const req = createSyntheticRequest({
-        method: "get",
-        path: "/users/123",
-      }),
-      subReq = condition.subRequest(req);
-
     it("should return a sub request with the same method", () => {
+      const condition = new ContextConditionPath("/users");
+
+      const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123",
+        }),
+        subReq = condition.subRequest(req);
       expect(subReq.method).toEqual(req.method);
     });
 
     it("should return a sub request the path starting from the part checked for", () => {
+      const condition = new ContextConditionPath("/users");
+
+      const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123",
+        }),
+        subReq = condition.subRequest(req);
       expect(subReq.path).toEqual("/123");
+    });
+
+    it("should return a sub request with the same query", () => {
+      const condition = new ContextConditionPath("/users");
+
+      const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123",
+          query: { a: "b" },
+        }),
+        subReq = condition.subRequest(req);
+      expect(subReq.query).toEqual(req.query);
+    });
+
+    it("should return a sub-request with updated params", () => {
+      const condition = new ContextConditionPath("/users/:id/posts/:postId");
+
+      const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123/posts/456",
+        }),
+        subReq = condition.subRequest(req);
+      expect(subReq.params).toHaveProperty("id", "123");
+      expect(subReq.params).toHaveProperty("postId", "456");
+    });
+  });
+
+  describe("parse()", () => {
+    describe("applies", () => {
+      it("should return true if the request path starts with the specified path", () => {
+        const condition = new ContextConditionPath("/users");
+
+        const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123",
+        });
+
+        expect(condition.parse(req).applies).toBe(true);
+      });
+
+      it("should return false if the request path does not start with the specified path", () => {
+        const condition = new ContextConditionPath("/users");
+
+        const req = createSyntheticRequest({
+          method: "get",
+          path: "/products/123",
+        });
+
+        expect(condition.parse(req).applies).toBe(false);
+      });
+    });
+
+    describe("subRequest()", () => {
+      it("should return a sub request with the same method", () => {
+        const condition = new ContextConditionPath("/users");
+
+        const req = createSyntheticRequest({
+            method: "get",
+            path: "/users/123",
+          }),
+          subReq = condition.parse(req).subRequest(req);
+        expect(subReq.method).toEqual(req.method);
+      });
+
+      it("should return a sub request the path starting from the part checked for", () => {
+        const condition = new ContextConditionPath("/users");
+
+        const req = createSyntheticRequest({
+            method: "get",
+            path: "/users/123",
+          }),
+          subReq = condition.parse(req).subRequest(req);
+        expect(subReq.path).toEqual("/123");
+      });
+
+      it("should return a sub request with the same query", () => {
+        const condition = new ContextConditionPath("/users");
+
+        const req = createSyntheticRequest({
+            method: "get",
+            path: "/users/123",
+            query: { a: "b" },
+          }),
+          subReq = condition.parse(req).subRequest(req);
+        expect(subReq.query).toEqual(req.query);
+      });
+
+      it("should return a sub-request with updated params", () => {
+        const condition = new ContextConditionPath("/users/:id/posts/:postId");
+
+        const req = createSyntheticRequest({
+            method: "get",
+            path: "/users/123/posts/456",
+          }),
+          subReq = condition.parse(req).subRequest(req);
+        expect(subReq.params).toHaveProperty("id", "123");
+        expect(subReq.params).toHaveProperty("postId", "456");
+      });
+    });
+
+    describe("parameters()", () => {
+      it("should return a object with the parameters", () => {
+        const condition = new ContextConditionPath("/users/:id/posts/:postId");
+
+        const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123/posts/456",
+        });
+
+        expect(condition.parse(req).parameters()).toHaveProperty("id", "123");
+        expect(condition.parse(req).parameters()).toHaveProperty(
+          "postId",
+          "456"
+        );
+      });
     });
   });
 
@@ -346,6 +449,116 @@ describe("ContextConditionPath2", () => {
 
     it("should return a sub request the path starting from the part checked for", () => {
       expect(subReq.path).toEqual("23");
+    });
+
+    it("should return a sub request with the same query", () => {
+      const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123",
+          query: { a: "b" },
+        }),
+        subReq = condition.subRequest(req);
+      expect(subReq.query).toEqual(req.query);
+    });
+
+    it("should return a sub-request with updated params", () => {
+      const condition = new ContextConditionPath2(
+        /^\/users\/(?<id>\d+)\/posts\/(?<postId>\d+)$/
+      );
+
+      const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123/posts/456",
+        }),
+        subReq = condition.subRequest(req);
+      expect(subReq.params).toHaveProperty("id", "123");
+      expect(subReq.params).toHaveProperty("postId", "456");
+    });
+  });
+
+  describe("parse()", () => {
+    describe("applies", () => {
+      it("should return true if the request path starts with the specified path", () => {
+        const condition = new ContextConditionPath2(/^\/users\/\d+$/);
+
+        const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123",
+        });
+
+        expect(condition.parse(req).applies).toBe(true);
+      });
+
+      it("should return false if the request path does not start with the specified path", () => {
+        const condition = new ContextConditionPath2(/^\/users\/\d+$/);
+
+        const req = createSyntheticRequest({
+          method: "get",
+          path: "/products/123",
+        });
+
+        expect(condition.parse(req).applies).toBe(false);
+      });
+    });
+
+    describe("subRequest()", () => {
+      const condition = new ContextConditionPath2(/^\/users\/\d/);
+
+      const req = createSyntheticRequest({
+          method: "get",
+          path: "/users/123",
+        }),
+        subReq = condition.parse(req).subRequest(req);
+
+      it("should return a sub request with the same method", () => {
+        expect(subReq.method).toEqual(req.method);
+      });
+
+      it("should return a sub request the path starting from the part checked for", () => {
+        expect(subReq.path).toEqual("23");
+      });
+
+      it("should return a sub request with the same query", () => {
+        const req = createSyntheticRequest({
+            method: "get",
+            path: "/users/123",
+            query: { a: "b" },
+          }),
+          subReq = condition.parse(req).subRequest(req);
+        expect(subReq.query).toEqual(req.query);
+      });
+
+      it("should return a sub-request with updated params", () => {
+        const condition = new ContextConditionPath2(
+          /^\/users\/(?<id>\d+)\/posts\/(?<postId>\d+)$/
+        );
+
+        const req = createSyntheticRequest({
+            method: "get",
+            path: "/users/123/posts/456",
+          }),
+          subReq = condition.parse(req).subRequest(req);
+        expect(subReq.params).toHaveProperty("id", "123");
+        expect(subReq.params).toHaveProperty("postId", "456");
+      });
+    });
+
+    describe("parameters()", () => {
+      const condition = new ContextConditionPath2(
+        /^\/users\/(?<id>\d+)\/posts\/(?<postId>\d+)$/
+      );
+
+      const req = createSyntheticRequest({
+        method: "get",
+        path: "/users/123/posts/456",
+      });
+
+      it("should return a object with the parameters", () => {
+        expect(condition.parse(req).parameters()).toEqual({
+          id: "123",
+          postId: "456",
+        });
+      });
     });
   });
 

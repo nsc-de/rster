@@ -12,8 +12,13 @@ export type ContextConditionInfoJson = {
   method?: Method;
 };
 
+export type ConditionParseResult = {
+  applies: boolean;
+  parameters(): Record<string, string>;
+  subRequest(req: Request): Request;
+};
+
 export abstract class ContextCondition {
-  abstract appliesTo(req: Request): boolean;
   and(other: ContextCondition): ContextConditionAnd {
     return new ContextConditionAnd([this, other]);
   }
@@ -21,9 +26,25 @@ export abstract class ContextCondition {
     return new ConditionChain([this, other]);
   }
 
-  subRequest(req: Request): Request {
-    return req;
+  /**
+   * @deprecated Use `#parse().applies` instead (For performance reasons, as this method parses the request itself and subRequest again)
+   * @param req Request to check
+   * @returns Whether the condition applies to the request
+   */
+  appliesTo(req: Request): boolean {
+    return this.parse(req).applies;
   }
+
+  /**
+   * @deprecated Use `#parse().parameters` instead (For performance reasons, as this method parses the request itself and appliesTo again)
+   * @param req Request to check
+   * @returns Parameters of the condition
+   */
+  subRequest(req: Request): Request {
+    return this.parse(req).subRequest(req);
+  }
+
+  abstract parse(req: Request): ConditionParseResult;
 
   abstract info(): ConditionInfo;
 
@@ -37,16 +58,19 @@ export class ContextConditionAnd extends ContextCondition {
     super();
   }
 
-  appliesTo(req: Request): boolean {
-    return this.conditions.every((c) => c.appliesTo(req));
-  }
-
   and(other: ContextCondition): ContextConditionAnd {
     return new ContextConditionAnd([...this.conditions, other]);
   }
 
-  subRequest(req: Request): Request {
-    return this.conditions.reduce((req, c) => c.subRequest(req), req);
+  parse(req: Request): ConditionParseResult {
+    const parsed = this.conditions.map((c) => c.parse(req));
+    return {
+      applies: parsed.every((c) => c.applies),
+      subRequest: (req: Request) =>
+        parsed.reduce((req, c) => c.subRequest(req), req),
+      parameters: () =>
+        parsed.reduce((params, c) => ({ ...params, ...c.parameters() }), {}),
+    };
   }
 
   info(): ConditionInfo {
@@ -92,19 +116,97 @@ export class ContextConditionAnd extends ContextCondition {
   }
 }
 
+type ParsedPathDescriptorPathEntry = { type: "path"; path: string };
+type ParsedPathDescriptorParamEntry = { type: "param"; name: string };
+type ParsedPathDescriptor = (
+  | ParsedPathDescriptorPathEntry
+  | ParsedPathDescriptorParamEntry
+)[];
+
+function parsePathDescriptor(str: string): ParsedPathDescriptor {
+  const parts = str.matchAll(/((?<url>[^:]*)(:(?<param>[\w-]+))?)/g);
+  const result: ParsedPathDescriptor = [];
+  for (const part of parts) {
+    if (part.length === 0) continue;
+
+    const url = part.groups?.url;
+    const param_name = part.groups?.param;
+
+    if (url) result.push({ type: "path", path: url });
+    if (param_name) result.push({ type: "param", name: param_name });
+  }
+
+  return result;
+}
+
+function parsePath(
+  path: string,
+  descriptor: ParsedPathDescriptor
+): (Record<string, string> & { $__SUBPATH: string }) | false {
+  const params: Record<string, string> = {};
+  const descriptor_copy = [...descriptor];
+
+  while (descriptor_copy.length > 0) {
+    const entry = descriptor_copy.shift();
+
+    if (!entry) {
+      throw new Error("Unexpected end of descriptor");
+    }
+
+    if (entry.type === "path") {
+      if (!path.startsWith(entry.path)) {
+        return false;
+      }
+      path = path.slice(entry.path.length);
+      continue;
+    }
+
+    if (entry.type === "param") {
+      // match start of path while matching \w- characters
+      const match = /^([\w-]+)/.exec(path)?.[0] ?? "";
+      params[entry.name] = match;
+      path = path.slice(match.length);
+      continue;
+    }
+
+    throw new Error("Unexpected entry type");
+  }
+
+  return { ...params, $__SUBPATH: path };
+}
+
 export class ContextConditionPath extends ContextCondition {
+  readonly parsedPath: ParsedPathDescriptor;
   constructor(readonly path: string) {
     super();
+    this.parsedPath = parsePathDescriptor(path);
   }
 
-  appliesTo(req: Request): boolean {
-    return req.path.startsWith(this.path);
-  }
+  parse(req: Request): ConditionParseResult {
+    const params = parsePath(req.path, this.parsedPath);
 
-  subRequest(req: Request): Request {
+    if (!params) {
+      return {
+        applies: false,
+        parameters: () => {
+          throw new Error("Condition does not apply");
+        },
+        subRequest: () => {
+          throw new Error("Condition does not apply");
+        },
+      };
+    }
+
+    const subPath = params.$__SUBPATH;
+
     return {
-      ...req,
-      path: req.path.slice(this.path.length),
+      applies: true,
+      parameters: () => params,
+      subRequest: (req) => ({
+        ...req,
+        path: subPath,
+        params: { ...(req.params ?? {}), ...params },
+      }),
     };
   }
 
@@ -141,14 +243,31 @@ export class ContextConditionPath2 extends ContextCondition {
     super();
   }
 
-  appliesTo(req: Request): boolean {
-    return startsWithRegex(req.path, this.path);
-  }
+  parse(req: Request): ConditionParseResult {
+    const match = this.path.exec(req.path);
 
-  subRequest(req: Request): Request {
+    if (!match) {
+      return {
+        applies: false,
+        parameters: () => {
+          throw new Error("Condition does not apply");
+        },
+        subRequest: () => {
+          throw new Error("Condition does not apply");
+        },
+      };
+    }
+
+    const params = match.groups ?? {};
+
     return {
-      ...req,
-      path: req.path.replace(this.path, ""),
+      applies: true,
+      parameters: () => params,
+      subRequest: (req) => ({
+        ...req,
+        path: req.path.slice(match[0].length),
+        params: { ...(req.params ?? {}), ...params },
+      }),
     };
   }
 
@@ -186,8 +305,24 @@ export class ContextConditionMethod extends ContextCondition {
     super();
   }
 
-  appliesTo(req: Request): boolean {
-    return req.method.toLowerCase() === this.method.toLocaleLowerCase();
+  parse(req: Request): ConditionParseResult {
+    if (req.method.toLowerCase() !== this.method.toLowerCase()) {
+      return {
+        applies: false,
+        parameters: () => {
+          throw new Error("Condition does not apply");
+        },
+        subRequest: () => {
+          throw new Error("Condition does not apply");
+        },
+      };
+    }
+
+    return {
+      applies: true,
+      parameters: () => ({}),
+      subRequest: (req) => req,
+    };
   }
 
   toJson(): ContextConditionJson {
