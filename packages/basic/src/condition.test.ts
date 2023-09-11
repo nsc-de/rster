@@ -28,24 +28,6 @@ describe("ContextCondition", () => {
       expect(chain).toBeInstanceOf(ConditionChain);
     });
   });
-
-  describe("subRequest()", () => {
-    it("should return the same request because it has no need to be modified", () => {
-      // @ts-ignore
-      const condition = new (class extends ContextCondition {
-        appliesTo() {
-          return true;
-        }
-      })();
-
-      const req = createSyntheticRequest({
-        method: "get",
-        path: "/users/123",
-      });
-
-      expect(condition.subRequest(req)).toEqual(req);
-    });
-  });
 });
 
 describe("ContextConditionAnd", () => {

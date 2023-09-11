@@ -1409,21 +1409,13 @@ export class Context {
    * @see {@link ContextChildUse}
    */
   async execute(req: Request, res: Response): Promise<boolean> {
-    const collected = this.children.filter(
-      (c) =>
-        (c.type === "condition" &&
-          c.condition instanceof ContextCondition &&
-          c.condition.appliesTo(req)) ||
-        c.type === "action" ||
-        c.type === "use"
-    );
-
     const do_execute = async (collected: typeof this.children) => {
       for (let i = 0; i < collected.length; i++) {
         if (collected[i].type === "condition") {
           const it = collected[i] as ContextChildCondition;
           const { condition, context } = it;
-          if (await condition.appliesTo(req)) {
+          const parsed = condition.parse(req);
+          if (condition.appliesTo(req)) {
             debugRoutePath(req, condition);
             if (await context.execute(condition.subRequest(req), res))
               return true;
@@ -1470,7 +1462,7 @@ export class Context {
       return false;
     };
 
-    return await do_execute(collected);
+    return await do_execute(this.children);
   }
 
   /**

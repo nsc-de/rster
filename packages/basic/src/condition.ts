@@ -64,7 +64,6 @@ export class ContextConditionAnd extends ContextCondition {
 
   parse(req: Request): ConditionParseResult {
     const parsed = this.conditions.map((c) => c.parse(req));
-
     return {
       applies: parsed.every((c) => c.applies),
       subRequest: (req: Request) =>
@@ -305,7 +304,7 @@ export class ContextConditionMethod extends ContextCondition {
   }
 
   parse(req: Request): ConditionParseResult {
-    if (req.method !== this.method) {
+    if (req.method.toLowerCase() !== this.method.toLowerCase()) {
       return {
         applies: false,
         parameters: () => {
