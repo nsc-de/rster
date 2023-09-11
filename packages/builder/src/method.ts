@@ -1,4 +1,4 @@
-import { Context } from "@rster/basic";
+import { $400, Context } from "@rster/basic";
 import { Method } from "@rster/common";
 import {
   AllowAnyTypeInformation,
@@ -172,11 +172,60 @@ export class RsterApiMethod<
       expectParams: this.declaration.expectParams,
     });
     ctx.action(async (req, res) => {
-      const result = this.action?.({
-        ...req.body,
-        ...req.query,
-        ...req.params,
-      });
+      const params = req.params;
+
+      if (this.declaration.expectBody) {
+        for (const [key, value] of Object.entries(
+          this.declaration.expectBody
+        )) {
+          if (value.optional) continue;
+          if (req.body[key] === undefined)
+            throw $400(`Missing body parameter ${key}`);
+
+          const type = (value as { type: TypeInformation<unknown> }).type;
+          if (!type.check(req.body[key]))
+            throw $400(
+              `Invalid body parameter ${key}: Expected ${type.json()}`
+            );
+
+          params[key] = req.body[key];
+        }
+      }
+
+      if (this.declaration.expectQuery) {
+        for (const [key, value] of Object.entries(
+          this.declaration.expectQuery
+        )) {
+          if (value.optional) continue;
+          if (req.query[key] === undefined)
+            throw $400(`Missing query parameter ${key}`);
+
+          const type = (value as { type: TypeInformation<unknown> }).type;
+          if (!type.check(req.query[key]))
+            throw $400(
+              `Invalid query parameter ${key}: Expected ${type.json()}`
+            );
+
+          params[key] = req.query[key];
+        }
+      }
+
+      if (this.declaration.expectParams) {
+        for (const [key, value] of Object.entries(
+          this.declaration.expectParams
+        )) {
+          if (value.optional) continue;
+          if (req.params[key] === undefined) throw $400(`Missing param ${key}`);
+
+          const type = (value as { type: TypeInformation<unknown> }).type;
+          if (!type.check(req.params[key]))
+            throw $400(`Invalid param ${key}: Expected ${type.json()}`);
+
+          params[key] = req.params[key];
+        }
+      }
+
+      const result = await this.action?.(params);
       res.status(200).json(result).end(); // TODO: Handle export of non-json-compatible types
     });
   }
