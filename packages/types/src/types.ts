@@ -388,6 +388,21 @@ export type DestructedType =
  */
 type SendMethod = "param" | "body" | "query";
 
+interface JsonCompatibleObject {
+  [key: string]: JsonCompatible;
+}
+
+type JsonCompatibleArray = JsonCompatible[];
+
+type JsonCompatible =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | JsonCompatibleArray
+  | JsonCompatibleObject;
+
 /**
  * Type for all the different string-ish type information
  */
@@ -463,6 +478,8 @@ export abstract class TypeInformation<T> {
   abstract get identifier(): string;
   abstract exportToString(value: T): string;
   abstract importFromString(value: string): T;
+  abstract exportToJson(value: T): JsonCompatible;
+  abstract importFromJson(value: JsonCompatible): T;
 
   abstract json(): unknown;
 }
@@ -504,6 +521,14 @@ export class StringTypeInformation<
   }
 
   importFromString(value: string): T {
+    return value as T;
+  }
+
+  exportToJson(value: T): JsonCompatible {
+    return value;
+  }
+
+  importFromJson(value: JsonCompatible): T {
     return value as T;
   }
 
@@ -554,6 +579,12 @@ export class NumberTypeInformation<
   }
   importFromString(value: string): T {
     return Number(value) as T;
+  }
+  exportToJson(value: T): JsonCompatible {
+    return value;
+  }
+  importFromJson(value: JsonCompatible): T {
+    return value as T;
   }
 
   toString() {
@@ -612,7 +643,15 @@ export class NumberRangeTypeInformation<
   }
 
   importFromString(value: string): IntRange<MIN, MAX> {
-    return Number(value) as any;
+    return Number(value) as IntRange<MIN, MAX>;
+  }
+
+  exportToJson(value: IntRange<MIN, MAX>): JsonCompatible {
+    return value;
+  }
+
+  importFromJson(value: JsonCompatible): IntRange<MIN, MAX> {
+    return value as IntRange<MIN, MAX>;
   }
 
   toString() {
@@ -668,6 +707,14 @@ export class Or<
   }
 
   importFromString(value: string): T0 | T1 {
+    throw new Error("Method not supported."); // TODO: Possible to implement?
+  }
+
+  exportToJson(value: T0 | T1): JsonCompatible {
+    throw new Error("Method not supported."); // TODO: Possible to implement?
+  }
+
+  importFromJson(value: JsonCompatible): T0 | T1 {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
@@ -746,6 +793,36 @@ export class ObjectTypeInformation<
     return ConversionRegister.instance.deepImportObjectFromString(
       JSON.parse(value)
     ) as { [key in keyof T]: T[key]["type"] };
+  }
+
+  exportToJson(value: { [key in keyof T]: T[key]["type"] }): JsonCompatible {
+    return Object.entries(value)
+      .map(([key, value]) => [key, value, this.properties[key]])
+      .map(([key, value, property]) => [key, property.type.exportToJson(value)])
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, JsonCompatible>);
+  }
+
+  importFromJson(value: JsonCompatible): { [key in keyof T]: T[key]["type"] } {
+    if (Array.isArray(value) || typeof value !== "object" || value === null) {
+      throw new Error(`Expected object, got ${typeof value}`);
+    }
+
+    return Object.entries(this.properties)
+      .map(([key, property]) => {
+        if (!(value as JsonCompatibleObject)[key] && property.required) {
+          throw new Error(`Missing required property: ${key}`);
+        }
+        return [key, property.type.importFromJson(value)];
+      })
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, T[keyof T]["type"]>) as {
+      [key in keyof T]: T[key]["type"];
+    };
   }
 
   toString() {
@@ -845,6 +922,18 @@ export class ArrayTypeInformation<
     );
   }
 
+  exportToJson(value: T["type"][]): JsonCompatible {
+    return value.map((v) => this.values.exportToJson(v));
+  }
+
+  importFromJson(value: JsonCompatible): T["type"][] {
+    if (!Array.isArray(value)) {
+      throw new Error(`Expected array, got ${typeof value}`);
+    }
+
+    return value.map((v: JsonCompatible) => this.values.importFromJson(v));
+  }
+
   toString() {
     return `ArrayTypeInformation{${this.values}}`;
   }
@@ -903,6 +992,14 @@ export class BooleanTypeInformation<
     return (value === "true" ? true : false) as T;
   }
 
+  exportToJson(value: T): JsonCompatible {
+    return value;
+  }
+
+  importFromJson(value: JsonCompatible): T {
+    return value as T;
+  }
+
   toString() {
     return `BooleanTypeInformation{${this.value}}`;
   }
@@ -952,6 +1049,14 @@ export class NullTypeInformation extends TypeInformation<null> {
   }
 
   importFromString(): null {
+    return null;
+  }
+
+  importFromJson(): null {
+    return null;
+  }
+
+  exportToJson(): null {
     return null;
   }
 
@@ -1006,6 +1111,14 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
     return undefined;
   }
 
+  exportToJson(): null {
+    return null;
+  }
+
+  importFromJson(): undefined {
+    return undefined;
+  }
+
   toString() {
     return "UndefinedTypeInformation{}";
   }
@@ -1054,6 +1167,14 @@ export class AnyStringTypeInformation extends TypeInformation<string> {
 
   importFromString(value: string): string {
     return value;
+  }
+
+  exportToJson(value: string): JsonCompatible {
+    return value;
+  }
+
+  importFromJson(value: JsonCompatible): string {
+    return value as string;
   }
 
   toString() {
@@ -1106,6 +1227,14 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
     return Number(value);
   }
 
+  exportToJson(value: number): JsonCompatible {
+    return value;
+  }
+
+  importFromJson(value: any): number {
+    return value;
+  }
+
   toString() {
     return "AnyNumberTypeInformation{}";
   }
@@ -1154,6 +1283,14 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
 
   importFromString(value: string): boolean {
     return value === "true";
+  }
+
+  exportToJson(value: boolean): JsonCompatible {
+    return value;
+  }
+
+  importFromJson(value: any): boolean {
+    return value;
   }
 
   toString() {
@@ -1205,6 +1342,14 @@ export class AnyTypeInformation<T = any> extends TypeInformation<T> {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
+  exportToJson(value: T): JsonCompatible {
+    return value as JsonCompatible; // TODO: Possible to implement?
+  }
+
+  importFromJson(value: JsonCompatible): T {
+    return value as T; // TODO: Possible to implement?
+  }
+
   toString() {
     return "AnyTypeInformation{}";
   }
@@ -1252,6 +1397,14 @@ export class DateTypeInformation extends TypeInformation<Date> {
 
   importFromString(value: string): Date {
     return new Date(value);
+  }
+
+  exportToJson(value: Date): JsonCompatible {
+    return value.toISOString();
+  }
+
+  importFromJson(value: JsonCompatible): Date {
+    return new Date(value as string);
   }
 
   toString() {
