@@ -1370,22 +1370,16 @@ export class Context {
     const stack: ContextChild[] = [];
     for (let i = 0; i < this.children.length; i++) {
       if (this.children[i].type === "condition") {
-        if (
-          await (this.children[i] as ContextChildCondition).condition.appliesTo(
-            req
-          )
-        ) {
+        const parsed = (
+          this.children[i] as ContextChildCondition
+        ).condition.parse(req);
+        if (parsed.applies) {
           stack.push(this.children[i]);
           return [
             stack,
             ...(await (
               this.children[i] as ContextChildCondition
-            ).context.contextStack(
-              (this.children[i] as ContextChildCondition).condition.subRequest(
-                req
-              ),
-              res
-            )),
+            ).context.contextStack(parsed.subRequest(req), res)),
           ];
         }
       } else if (this.children[i].type === "action") {
