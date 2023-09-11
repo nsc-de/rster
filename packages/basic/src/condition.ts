@@ -191,7 +191,7 @@ export class ContextConditionPath extends ContextCondition {
         parameters: () => {
           throw new Error("Condition does not apply");
         },
-        subRequest: (req) => {
+        subRequest: () => {
           throw new Error("Condition does not apply");
         },
       };
@@ -205,6 +205,7 @@ export class ContextConditionPath extends ContextCondition {
       subRequest: (req) => ({
         ...req,
         path: subPath,
+        params: { ...(req.params ?? {}), ...params },
       }),
     };
   }
@@ -251,7 +252,7 @@ export class ContextConditionPath2 extends ContextCondition {
         parameters: () => {
           throw new Error("Condition does not apply");
         },
-        subRequest: (req) => {
+        subRequest: () => {
           throw new Error("Condition does not apply");
         },
       };
@@ -265,6 +266,7 @@ export class ContextConditionPath2 extends ContextCondition {
       subRequest: (req) => ({
         ...req,
         path: req.path.slice(match[0].length),
+        params: { ...(req.params ?? {}), ...params },
       }),
     };
   }
@@ -310,7 +312,7 @@ export class ContextConditionMethod extends ContextCondition {
         parameters: () => {
           throw new Error("Condition does not apply");
         },
-        subRequest: (req) => {
+        subRequest: () => {
           throw new Error("Condition does not apply");
         },
       };

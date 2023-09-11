@@ -1415,10 +1415,9 @@ export class Context {
           const it = collected[i] as ContextChildCondition;
           const { condition, context } = it;
           const parsed = condition.parse(req);
-          if (condition.appliesTo(req)) {
+          if (parsed.applies) {
             debugRoutePath(req, condition);
-            if (await context.execute(condition.subRequest(req), res))
-              return true;
+            if (await context.execute(parsed.subRequest(req), res)) return true;
           }
         }
         if (collected[i].type === "action" && req.path === "") {
