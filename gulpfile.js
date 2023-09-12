@@ -67,14 +67,6 @@ packages.forEach((pkg) => {
   );
 
   gulp.task(
-    `packages:${pkg.name}:copy-readme`,
-    gulp.series(
-      `packages:${pkg.name}:remove-readme`,
-      `packages:${pkg.name}:run-copy-readme`
-    )
-  );
-
-  gulp.task(
     `packages:${pkg.name}:prepack`,
     gulp.series(
       `packages:${pkg.name}:ci`,
