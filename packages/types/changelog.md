@@ -1,5 +1,9 @@
 # Changelog for @rster/types
 
+## v0.1.3
+
+- Fix package index
+
 ## v0.1.2
 
 - Introduce `TypeInformation#exportToJson` and `TypeInformation#importFromJson`
