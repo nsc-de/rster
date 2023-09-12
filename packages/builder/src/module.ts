@@ -78,17 +78,13 @@ export class RsterApiModule<
     public readonly methodList: Values<METHODS>,
     public readonly httpPath?: string,
     public readonly httpMethod?: Method
-  ) {}
+  ) {
+    this.modules = ArrayFinder(this.moduleList, "name") as unknown as MODULES;
+    this.methods = ArrayFinder(this.methodList, "name") as unknown as METHODS;
+  }
 
-  public readonly modules: MODULES = ArrayFinder(
-    this.moduleList,
-    "name"
-  ) as unknown as MODULES;
-
-  public readonly methods: METHODS = ArrayFinder(
-    this.methodList,
-    "name"
-  ) as unknown as METHODS;
+  public readonly modules: MODULES;
+  public readonly methods: METHODS;
 
   public json(): RsterApiModuleJson {
     return {
@@ -101,33 +97,28 @@ export class RsterApiModule<
     };
   }
 
-  public rest() {
-    const contents = () => {
-      Context.current.description(...this.description);
-      this.moduleList.forEach((m) => {
-        m.rest();
-      });
-      this.methodList.forEach((m) => {
-        m.rest();
-      });
+  public rest(ctx?: Context) {
+    ctx = ctx ?? Context.current;
+
+    const contents = (ctx: Context) => {
+      ctx.description(...this.description);
+      this.moduleList.forEach((m) => m.rest(ctx));
+      this.methodList.forEach((m) => m.rest(ctx));
     };
 
     if (this.httpPath && this.httpMethod) {
-      Context.current.when(
+      ctx.when(
         new ContextConditionPath(this.httpPath).and(
           new ContextConditionMethod(this.httpMethod)
         ),
         contents
       );
     } else if (this.httpPath) {
-      Context.current.when(new ContextConditionPath(this.httpPath), contents);
+      ctx.when(new ContextConditionPath(this.httpPath), contents);
     } else if (this.httpMethod) {
-      Context.current.when(
-        new ContextConditionMethod(this.httpMethod),
-        contents
-      );
+      ctx.when(new ContextConditionMethod(this.httpMethod), contents);
     } else {
-      contents();
+      contents(ctx);
     }
   }
 }
