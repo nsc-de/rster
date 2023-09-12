@@ -200,7 +200,9 @@ export class RsterApiMethod<
             const type = (value as { type: TypeInformation<unknown> }).type;
             if (!type.check(req.body[key]))
               throw $400(
-                `Invalid body parameter ${key}: Expected ${type.json()}`
+                `Invalid body parameter ${key}: Expected ${JSON.stringify(
+                  type.json()
+                )}`
               );
 
             params[key] = req.body[key];
@@ -216,7 +218,9 @@ export class RsterApiMethod<
             const type = (value as { type: TypeInformation<unknown> }).type;
             if (!type.check(req.query[key]))
               throw $400(
-                `Invalid query parameter ${key}: Expected ${type.json()}`
+                `Invalid query parameter ${key}: Expected ${JSON.stringify(
+                  type.json()
+                )}`
               );
 
             params[key] = req.query[key];
@@ -227,11 +231,13 @@ export class RsterApiMethod<
           for (const [key, value] of Object.entries(declaration.expectParams)) {
             if (value.optional && req.params[key] === undefined) continue;
             if (req.params[key] === undefined)
-              throw $400(`Missing param ${key}`);
+              throw $400(`Missing path parameter ${key}`);
 
             const type = (value as { type: TypeInformation<unknown> }).type;
             if (!type.check(req.params[key]))
-              throw $400(`Invalid param ${key}: Expected ${type.json()}`);
+              throw $400(
+                `Invalid param ${key}: Expected ${JSON.stringify(type.json())}`
+              );
 
             params[key] = req.params[key];
           }
