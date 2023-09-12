@@ -8,6 +8,27 @@ import {
   TypeInformation,
 } from "../types";
 
+type RemoveNeverProperties<T> = {
+  [K in keyof T as T[K] extends never ? never : K]: T[K];
+};
+
+type ObjectType<
+  T extends {
+    [key: string]: { required: boolean; type: AllowAnyTypeInformation };
+  }
+> = RemoveNeverProperties<{
+  [key in keyof T]: T[key]["required"] extends true
+    ? PrimitiveType<T[key]["type"]>
+    : never;
+}> &
+  Partial<
+    RemoveNeverProperties<{
+      [key in keyof T]: T[key]["required"] extends false
+        ? PrimitiveType<T[key]["type"]>
+        : never;
+    }>
+  >;
+
 /**
  * Type for defining an object with specific properties
  *
@@ -17,17 +38,20 @@ export class ObjectTypeInformation<
   T extends {
     [key: string]: { required: boolean; type: AllowAnyTypeInformation };
   }
-> extends TypeInformation<{ [key in keyof T]: T[key]["type"] }> {
+> extends TypeInformation<ObjectType<T>> {
   constructor(public readonly properties: T) {
     super();
   }
 
-  check(value: any): value is { [key in keyof T]: T[key]["type"] } {
+  check(value: any): value is ObjectType<T> {
     return (
       typeof value === "object" &&
       Object.keys(this.properties).every((key) => {
         const property = this.properties[key];
-        return !property.required || property.type.check(value[key]);
+        return (
+          (!property.required && value[key] === undefined) || // optional property
+          property.type.check(value[key])
+        );
       })
     );
   }
@@ -41,7 +65,7 @@ export class ObjectTypeInformation<
     return ["body"];
   }
 
-  get type(): { [key in keyof T]: PrimitiveType<T[key]["type"]> } {
+  get type(): ObjectType<T> {
     return Object.keys(this.properties).reduce((acc, key) => {
       const value = this.properties[key];
       acc[key] = value.type.type;
@@ -53,7 +77,7 @@ export class ObjectTypeInformation<
     return "object";
   }
 
-  exportToString(value: { [key in keyof T]: T[key]["type"] }): string {
+  exportToString(value: ObjectType<T>): string {
     return JSON.stringify(
       ConversionRegister.instance.deepExportObjectToString(
         value,
@@ -66,23 +90,32 @@ export class ObjectTypeInformation<
     );
   }
 
-  importFromString(value: string): { [key in keyof T]: T[key]["type"] } {
+  importFromString(value: string): ObjectType<T> {
     return ConversionRegister.instance.deepImportObjectFromString(
       JSON.parse(value)
-    ) as { [key in keyof T]: T[key]["type"] };
+    ) as ObjectType<T>;
   }
 
-  exportToJson(value: { [key in keyof T]: T[key]["type"] }): JsonCompatible {
-    return Object.entries(value)
-      .map(([key, value]) => [key, value, this.properties[key]])
-      .map(([key, value, property]) => [key, property.type.exportToJson(value)])
-      .reduce((acc, [key, value]) => {
+  exportToJson(value: ObjectType<T>): JsonCompatible {
+    if (Array.isArray(value) || typeof value !== "object" || value === null) {
+      throw new Error(`Expected object, got ${typeof value}`);
+    }
+    const value_: Record<string, unknown> = value;
+
+    return Object.entries(this.properties)
+      .map(([key, property]) => {
+        if (!value_[key] && property.required) {
+          throw new Error(`Missing required property: ${key}`);
+        }
+        return { key, value: property.type.exportToJson(value_[key]) };
+      })
+      .reduce((acc, { key, value }) => {
         acc[key] = value;
         return acc;
-      }, {} as Record<string, JsonCompatible>);
+      }, {} as JsonCompatibleObject);
   }
 
-  importFromJson(value: JsonCompatible): { [key in keyof T]: T[key]["type"] } {
+  importFromJson(value: JsonCompatible): ObjectType<T> {
     if (Array.isArray(value) || typeof value !== "object" || value === null) {
       throw new Error(`Expected object, got ${typeof value}`);
     }
@@ -92,14 +125,12 @@ export class ObjectTypeInformation<
         if (!(value as JsonCompatibleObject)[key] && property.required) {
           throw new Error(`Missing required property: ${key}`);
         }
-        return [key, property.type.importFromJson(value)];
+        return { key, value: property.type.importFromJson(value) };
       })
-      .reduce((acc, [key, value]) => {
+      .reduce((acc, { key, value }) => {
         acc[key] = value;
         return acc;
-      }, {} as Record<string, T[keyof T]["type"]>) as {
-      [key in keyof T]: T[key]["type"];
-    };
+      }, {} as Record<string, unknown>) as ObjectType<T>;
   }
 
   toString() {
