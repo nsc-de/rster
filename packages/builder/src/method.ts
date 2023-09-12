@@ -226,7 +226,8 @@ export class RsterApiMethod<
       }
 
       const result = await this.action?.(params);
-      res.status(200).json(result).end(); // TODO: Handle export of non-json-compatible types
+      const exported = this.declaration.returns?.exportToJson(result);
+      res.status(200).json(exported).end();
     });
   }
 }
