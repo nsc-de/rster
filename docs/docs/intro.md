@@ -36,7 +36,7 @@ yarn add rster
 
 ### Additional Dependencies
 
-Rster packages a few core dependencies that will help you getting started. However we have a few more dependencies that you might want to install.
+`rster` packages a few core dependencies that will help you getting started. However we have a few more dependencies that you might want to install.
 You definitly want to install a worker implementation. A worker implementation is a package that allows you to run your rster application on a webserver so you can access your api from the internet.
 We recommend using [@rster/worker-express](https://www.npmjs.com/package/@rster/worker-express) as it is the easiest to get started with.
 
