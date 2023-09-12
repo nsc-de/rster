@@ -105,14 +105,22 @@ export class RsterApiMethod<
     }
   >
 > {
+  public readonly httpPath: string;
   constructor(
     public readonly name: string,
     public readonly description: string[],
     public readonly declaration: DECLARATION,
-    public readonly httpPath?: string,
+    httpPath?: string,
     public readonly httpMethod?: Method,
     public readonly action?: ActionFunction<DECLARATION>
-  ) {}
+  ) {
+    if (!httpPath) {
+      const name = this.name;
+      const params = Object.keys(this.declaration.expectParams ?? {}).join("/");
+      const httpPath = `/${name}${params ? `/${params}` : ""}`;
+      this.httpPath = httpPath;
+    } else this.httpPath = httpPath;
+  }
 
   public json(): RsterApiMethodJson {
     return {
