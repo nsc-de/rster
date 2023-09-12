@@ -1,6 +1,7 @@
 import { string, undefinedType } from "@rster/types";
 import { RsterApiMethod } from "./method";
 import { rest } from "@rster/basic";
+import { createSyntheticContext } from "@rster/common";
 
 describe("RsterApiMethod", () => {
   describe("#constructor()", () => {
@@ -10,7 +11,8 @@ describe("RsterApiMethod", () => {
         [],
         { returns: undefinedType() },
         "/test",
-        "get"
+        "get",
+        (args) => {}
       );
 
       expect(method.name).toBe("test");
@@ -22,7 +24,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         { returns: undefinedType() },
         "/test",
-        "get"
+        "get",
+        (args) => {}
       );
 
       expect(method.description).toEqual(["test description"]);
@@ -34,7 +37,8 @@ describe("RsterApiMethod", () => {
         [],
         { returns: undefinedType() },
         "/test",
-        "get"
+        "get",
+        (args) => {}
       );
 
       expect(method.httpPath).toBe("/test");
@@ -46,7 +50,8 @@ describe("RsterApiMethod", () => {
         [],
         { returns: undefinedType() },
         "/test",
-        "get"
+        "get",
+        (args) => {}
       );
 
       expect(method.httpMethod).toBe("get");
@@ -58,7 +63,8 @@ describe("RsterApiMethod", () => {
         [],
         { returns: undefinedType() },
         "/test",
-        "get"
+        "get",
+        (args) => {}
       );
 
       expect(method.declaration).toEqual({ returns: undefinedType() });
@@ -85,7 +91,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         { returns: undefinedType() },
         "/test",
-        "get"
+        "get",
+        (args) => {}
       );
 
       expect(method.json()).toEqual({
@@ -124,7 +131,8 @@ describe("RsterApiMethod", () => {
           returns: undefinedType(),
         },
         "/test",
-        "get"
+        "get",
+        (args) => {}
       );
 
       expect(method.json()).toEqual({
@@ -154,29 +162,29 @@ describe("RsterApiMethod", () => {
   });
 
   describe("#rest()", () => {
-    const method = new RsterApiMethod(
-      "test",
-      ["test description"],
-      {
-        expectBody: {
-          test: { type: string(), optional: false },
-          test2: { type: string(), optional: true },
-        },
-        expectQuery: {
-          test3: { type: string(), optional: false },
-          test4: { type: string(), optional: true },
-        },
-        expectParams: {
-          test5: { type: string(), optional: false },
-          test6: { type: string(), optional: true },
-        },
-        returns: undefinedType(),
-      },
-      "/test",
-      "get"
-    );
-
     it("should return a rest representation of the method", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectBody: {
+            test: { type: string(), optional: false },
+            test2: { type: string(), optional: true },
+          },
+          expectQuery: {
+            test3: { type: string(), optional: false },
+            test4: { type: string(), optional: true },
+          },
+          expectParams: {
+            test5: { type: string(), optional: false },
+            test6: { type: string(), optional: true },
+          },
+          returns: undefinedType(),
+        },
+        "/test",
+        "get",
+        (args) => {}
+      );
       const api = rest(function () {
         method.rest(this);
       });
@@ -198,6 +206,150 @@ describe("RsterApiMethod", () => {
         },
         returnBody: undefinedType(),
       });
+
+      expect(api.children).toHaveLength(1);
+      expect(api.children[0].type).toBe("action");
+    });
+  });
+
+  it("test action function to work", async () => {
+    const method = new RsterApiMethod(
+      "test",
+      ["test description"],
+      {
+        returns: string(),
+      },
+      "/test",
+      "get",
+      () => {
+        return "Hello from the test action 😉";
+      }
+    );
+
+    const api = rest(function () {
+      method.rest(this);
+    });
+
+    expect(api.children).toHaveLength(1);
+    expect(api.children[0].type).toBe("action");
+
+    const action = api.children[0] as any;
+
+    const { pass, promise } = createSyntheticContext({ path: "" });
+
+    api.handle(...pass);
+
+    const result = await promise;
+
+    expect(result).toEqual({
+      code: 200,
+      data: '"Hello from the test action 😉"',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      sendFile: undefined,
+    });
+  });
+
+  it("test action function to work with body params", async () => {
+    const method = new RsterApiMethod(
+      "test",
+      ["test description"],
+      {
+        expectBody: {
+          test: { type: string(), optional: false },
+          test2: { type: string(), optional: true },
+        },
+        returns: string(),
+      },
+      "/test",
+      "get",
+      (args) => {
+        return (
+          "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+        );
+      }
+    );
+
+    const api = rest(function () {
+      method.rest(this);
+    });
+
+    expect(api.children).toHaveLength(1);
+    expect(api.children[0].type).toBe("action");
+
+    const action = api.children[0] as any;
+
+    const { pass, promise } = createSyntheticContext({
+      path: "",
+      body: {
+        test: "test",
+        test2: "test2",
+      },
+    });
+
+    api.handle(...pass);
+
+    const result = await promise;
+
+    expect(result).toEqual({
+      code: 200,
+      data: '"Hello from the test action 😉 test,test2"',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      sendFile: undefined,
+    });
+  });
+
+  it("test action function to work with query params", async () => {
+    const method = new RsterApiMethod(
+      "test",
+      ["test description"],
+      {
+        expectQuery: {
+          test: { type: string(), optional: false },
+          test2: { type: string(), optional: true },
+        },
+        returns: string(),
+      },
+      "/test",
+      "get",
+      (args) => {
+        return (
+          "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+        );
+      }
+    );
+
+    const api = rest(function () {
+      method.rest(this);
+    });
+
+    expect(api.children).toHaveLength(1);
+    expect(api.children[0].type).toBe("action");
+
+    const action = api.children[0] as any;
+
+    const { pass, promise } = createSyntheticContext({
+      path: "",
+      query: {
+        test: "test",
+        test2: "test2",
+      },
+    });
+
+    api.handle(...pass);
+
+    const result = await promise;
+
+    expect(result).toEqual({
+      code: 200,
+      data: '"Hello from the test action 😉 test,test2"',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      sendFile: undefined,
     });
   });
 });

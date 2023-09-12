@@ -178,7 +178,7 @@ export class RsterApiMethod<
         for (const [key, value] of Object.entries(
           this.declaration.expectBody
         )) {
-          if (value.optional) continue;
+          if (value.optional && req.body[key] === undefined) continue;
           if (req.body[key] === undefined)
             throw $400(`Missing body parameter ${key}`);
 
@@ -196,7 +196,7 @@ export class RsterApiMethod<
         for (const [key, value] of Object.entries(
           this.declaration.expectQuery
         )) {
-          if (value.optional) continue;
+          if (value.optional && req.query[key] === undefined) continue;
           if (req.query[key] === undefined)
             throw $400(`Missing query parameter ${key}`);
 
@@ -214,7 +214,7 @@ export class RsterApiMethod<
         for (const [key, value] of Object.entries(
           this.declaration.expectParams
         )) {
-          if (value.optional) continue;
+          if (value.optional && req.params[key] === undefined) continue;
           if (req.params[key] === undefined) throw $400(`Missing param ${key}`);
 
           const type = (value as { type: TypeInformation<unknown> }).type;
