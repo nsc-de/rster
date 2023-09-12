@@ -68,6 +68,11 @@
 
 ## About The Project
 
+Rster is built to simplify creation of restful backend apis. It is a framework that allows you to build your api in a modular way. It's core framework works quite similar to express, however we provide a few tools like `@rster/builder`, `@rster/database` to drastically simplify the creation of your api and directly integrate your database. These tools are especially powerful when combined with `typescript` as all typings are generated automatically.
+Also with `@rster/generator` you can generate a typescript client directly from your server-side api definition which saves you a lot of time and nerves.
+
+_**NOTE**: This project is still in early development and features are added frequently. If you have any suggestions or ideas feel free to open an issue or pull request. `@rster/generator`, `@rster/builder` and `@rster/database` are not available via npm yet. They need to be built from source and are not yet documented or tested enough to be used in production. Feel free to try them out and give feedback. Please have some patience, they take a lot of work to build and test. They will be released soon. Thanks!_
+
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -90,53 +95,42 @@
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- GETTING STARTED -->
-
-## Getting Started
+## Tutorial Intro
 
 Hello and welcome to the rster project. Rster is the easiest way to build your backend api in nodejs. It is a framework that allows you to build your api in a modular way. Just define your library then use your functions to access and modify your data. Or directly add it to the express app using `express.use()`. It is up to you. You can even generate a typescript client directly from your server-side api definition!
 
-### Prerequisites
+Let's learn rster **rster in less than 5 minutes**.
 
-- npm
+## Prerequisites
 
-  ```sh
-  npm install npm@latest -g
-  ```
+We recommend you to have basic knowledge of the following tools before starting:
 
-  alternatively you can use yarn
+- [node.js](https://nodejs.org/en/): a JavaScript runtime built on Chrome's V8 JavaScript engine.
+- [npm](https://www.npmjs.com/): a package manager for the JavaScript programming language.
 
-  ```sh
-    npm install yarn@latest -g
-  ```
+## What you'll need
 
-### Installation
+- [Node.js](https://nodejs.org/en/download/) version 14 or higher (which comes with [npm](http://npmjs.com/)) installed on your computer.
+  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+  - On some systems you might need to install npm separately.
 
-1. Install the package
+## Installation
 
-   ```sh
-   npm install rster
-   ```
+### Install rster package locally
 
-   using yarn
+```bash
+npm install rster
+```
 
-   ```sh
-    yarn add rster
-   ```
+_alternatively you can use `yarn`_
 
-2. Import the package
+```bash
+yarn add rster
+```
 
-   ```js
-   import rster from "rster";
-   ```
+### Additional Dependencies
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- USAGE EXAMPLES -->
-
-## Usage
-
-`rster` packages a few core dependencies that will help you getting started. However we have a few more dependencies that you might want to install.
+Rster packages a few core dependencies that will help you getting started. However we have a few more dependencies that you might want to install.
 You definitly want to install a worker implementation. A worker implementation is a package that allows you to run your rster application on a webserver so you can access your api from the internet.
 We recommend using [@rster/worker-express](https://www.npmjs.com/package/@rster/worker-express) as it is the easiest to get started with.
 
@@ -151,6 +145,8 @@ _alternatively you can use `yarn`_
 ```bash
 yarn add @rster/worker-express
 ```
+
+## Getting Started
 
 ### Lets use express in our application
 

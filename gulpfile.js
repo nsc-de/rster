@@ -30,20 +30,39 @@ packages.forEach((pkg) => {
     run(`npm run build`, { cwd: `./packages/${pkg.name}` }).exec()
   );
 
-  gulp.task(
-    `packages:${pkg.name}:remove-readme`,
-    async () => await (await del)(`./packages/${pkg.name}/README.md`)
-  );
-
-  gulp.task(`packages:${pkg.name}:run-copy-readme`, () =>
+  gulp.task(`packages:${pkg.name}:copy-readme`, () =>
     gulp.src(`./README.md`).pipe(gulp.dest(`./packages/${pkg.name}`))
   );
 
+  gulp.task(`packages:${pkg.name}:copy-license`, () =>
+    gulp.src(`./LICENSE`).pipe(gulp.dest(`./packages/${pkg.name}`))
+  );
+
   gulp.task(
-    `packages:${pkg.name}:copy-readme`,
-    gulp.series(
-      `packages:${pkg.name}:remove-readme`,
-      `packages:${pkg.name}:run-copy-readme`
+    `packages:${pkg.name}:copy-assets`,
+    gulp.parallel(
+      `packages:${pkg.name}:copy-readme`,
+      `packages:${pkg.name}:copy-license`
+    )
+  );
+
+  gulp.task(`packages:${pkg.name}:clean:readme`, async () => {
+    return await (
+      await del
+    )([`./packages/${pkg.name}/README.md`]);
+  });
+
+  gulp.task(`packages:${pkg.name}:clean:license`, async () => {
+    return await (
+      await del
+    )([`./packages/${pkg.name}/LICENSE`]);
+  });
+
+  gulp.task(
+    `packages:${pkg.name}:clean:assets`,
+    gulp.parallel(
+      `packages:${pkg.name}:clean:readme`,
+      `packages:${pkg.name}:clean:license`
     )
   );
 
@@ -51,8 +70,11 @@ packages.forEach((pkg) => {
     `packages:${pkg.name}:prepack`,
     gulp.series(
       `packages:${pkg.name}:ci`,
-      `packages:${pkg.name}:copy-readme`,
-      gulp.parallel(`packages:${pkg.name}:test`, `packages:${pkg.name}:build`)
+      gulp.parallel(
+        `packages:${pkg.name}:test`,
+        `packages:${pkg.name}:build`,
+        `packages:${pkg.name}:copy-assets`
+      )
     )
   );
 
@@ -107,7 +129,8 @@ packages.forEach((pkg) => {
     `packages:${pkg.name}:clean`,
     gulp.parallel(
       `packages:${pkg.name}:clean:build`,
-      `packages:${pkg.name}:clean:dependencies`
+      `packages:${pkg.name}:clean:dependencies`,
+      `packages:${pkg.name}:clean:assets`
     )
   );
 });
@@ -125,6 +148,11 @@ packages.forEach((pkg) => {
   "clean",
   "clean:build",
   "clean:dependencies",
+  "clean:assets",
+  "clean:readme",
+  "clean:license",
+  "copy-assets",
+  "copy-license",
   "copy-readme",
 ].forEach((task) => {
   gulp.task(
