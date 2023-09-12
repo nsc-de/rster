@@ -1,4 +1,9 @@
-import { $400, Context } from "@rster/basic";
+import {
+  $400,
+  Context,
+  ContextConditionMethod,
+  ContextConditionPath,
+} from "@rster/basic";
 import { Method } from "@rster/common";
 import {
   AllowAnyTypeInformation,
@@ -163,71 +168,79 @@ export class RsterApiMethod<
   public rest(ctx?: Context) {
     ctx = ctx ?? Context.current;
 
-    ctx.description(...this.description);
-    ctx.declaration({
-      name: this.name,
-      returnBody: this.declaration.returns,
-      expectBody: this.declaration.expectBody,
-      expectQuery: this.declaration.expectQuery,
-      expectParams: this.declaration.expectParams,
-    });
-    ctx.action(async (req, res) => {
-      const params = req.params;
+    const pathCondition = new ContextConditionPath(this.httpPath ?? "");
+    const methodCondition = this.httpMethod
+      ? new ContextConditionMethod(this.httpMethod)
+      : undefined;
 
-      if (this.declaration.expectBody) {
-        for (const [key, value] of Object.entries(
-          this.declaration.expectBody
-        )) {
-          if (value.optional && req.body[key] === undefined) continue;
-          if (req.body[key] === undefined)
-            throw $400(`Missing body parameter ${key}`);
+    const condition = methodCondition
+      ? pathCondition.and(methodCondition)
+      : pathCondition;
 
-          const type = (value as { type: TypeInformation<unknown> }).type;
-          if (!type.check(req.body[key]))
-            throw $400(
-              `Invalid body parameter ${key}: Expected ${type.json()}`
-            );
+    const { declaration, action, description, name } = this;
 
-          params[key] = req.body[key];
+    ctx.when(condition, function () {
+      this.description(...description);
+      this.declaration({
+        name: name,
+        returnBody: declaration.returns,
+        expectBody: declaration.expectBody,
+        expectQuery: declaration.expectQuery,
+        expectParams: declaration.expectParams,
+      });
+      this.action(async (req, res) => {
+        const params = req.params;
+
+        if (declaration.expectBody) {
+          for (const [key, value] of Object.entries(declaration.expectBody)) {
+            if (value.optional && req.body[key] === undefined) continue;
+            if (req.body[key] === undefined)
+              throw $400(`Missing body parameter ${key}`);
+
+            const type = (value as { type: TypeInformation<unknown> }).type;
+            if (!type.check(req.body[key]))
+              throw $400(
+                `Invalid body parameter ${key}: Expected ${type.json()}`
+              );
+
+            params[key] = req.body[key];
+          }
         }
-      }
 
-      if (this.declaration.expectQuery) {
-        for (const [key, value] of Object.entries(
-          this.declaration.expectQuery
-        )) {
-          if (value.optional && req.query[key] === undefined) continue;
-          if (req.query[key] === undefined)
-            throw $400(`Missing query parameter ${key}`);
+        if (declaration.expectQuery) {
+          for (const [key, value] of Object.entries(declaration.expectQuery)) {
+            if (value.optional && req.query[key] === undefined) continue;
+            if (req.query[key] === undefined)
+              throw $400(`Missing query parameter ${key}`);
 
-          const type = (value as { type: TypeInformation<unknown> }).type;
-          if (!type.check(req.query[key]))
-            throw $400(
-              `Invalid query parameter ${key}: Expected ${type.json()}`
-            );
+            const type = (value as { type: TypeInformation<unknown> }).type;
+            if (!type.check(req.query[key]))
+              throw $400(
+                `Invalid query parameter ${key}: Expected ${type.json()}`
+              );
 
-          params[key] = req.query[key];
+            params[key] = req.query[key];
+          }
         }
-      }
 
-      if (this.declaration.expectParams) {
-        for (const [key, value] of Object.entries(
-          this.declaration.expectParams
-        )) {
-          if (value.optional && req.params[key] === undefined) continue;
-          if (req.params[key] === undefined) throw $400(`Missing param ${key}`);
+        if (declaration.expectParams) {
+          for (const [key, value] of Object.entries(declaration.expectParams)) {
+            if (value.optional && req.params[key] === undefined) continue;
+            if (req.params[key] === undefined)
+              throw $400(`Missing param ${key}`);
 
-          const type = (value as { type: TypeInformation<unknown> }).type;
-          if (!type.check(req.params[key]))
-            throw $400(`Invalid param ${key}: Expected ${type.json()}`);
+            const type = (value as { type: TypeInformation<unknown> }).type;
+            if (!type.check(req.params[key]))
+              throw $400(`Invalid param ${key}: Expected ${type.json()}`);
 
-          params[key] = req.params[key];
+            params[key] = req.params[key];
+          }
         }
-      }
 
-      const result = await this.action?.(params);
-      const exported = this.declaration.returns?.exportToJson(result);
-      res.status(200).json(exported).end();
+        const result = await action?.(params);
+        const exported = declaration.returns?.exportToJson(result);
+        res.status(200).json(exported).end();
+      });
     });
   }
 }

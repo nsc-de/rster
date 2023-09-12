@@ -1,6 +1,13 @@
 import { string, undefinedType } from "@rster/types";
 import { RsterApiMethod } from "./method";
-import { rest } from "@rster/basic";
+import {
+  ContextChildAction,
+  ContextChildCondition,
+  ContextConditionAnd,
+  ContextConditionMethod,
+  ContextConditionPath,
+  rest,
+} from "@rster/basic";
 import { createSyntheticContext } from "@rster/common";
 
 describe("RsterApiMethod", () => {
@@ -189,8 +196,25 @@ describe("RsterApiMethod", () => {
         method.rest(this);
       });
 
-      expect(api.description()).toEqual(["test description"]);
-      expect(api.declaration()).toEqual({
+      expect(api.children).toHaveLength(1);
+      expect(api.children[0].type).toBe("condition");
+
+      const child = api.children[0] as ContextChildCondition;
+      expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+      const condition = child.condition as ContextConditionAnd;
+      expect(condition.conditions).toHaveLength(2);
+      expect(condition.conditions[0]).toBeInstanceOf(ContextConditionPath);
+      expect(condition.conditions[1]).toBeInstanceOf(ContextConditionMethod);
+
+      const path = condition.conditions[0] as ContextConditionPath;
+      expect(path.path).toBe("/test");
+      const methodCondition = condition.conditions[1] as ContextConditionMethod;
+      expect(methodCondition.method.toLowerCase()).toBe("get");
+
+      const ctx = child.context;
+
+      expect(ctx.description()).toEqual(["test description"]);
+      expect(ctx.declaration()).toEqual({
         name: "test",
         expectBody: {
           test: { type: string(), optional: false },
@@ -207,8 +231,8 @@ describe("RsterApiMethod", () => {
         returnBody: undefinedType(),
       });
 
-      expect(api.children).toHaveLength(1);
-      expect(api.children[0].type).toBe("action");
+      expect(ctx.children).toHaveLength(1);
+      expect(ctx.children[0].type).toBe("action");
     });
   });
 
@@ -231,11 +255,27 @@ describe("RsterApiMethod", () => {
     });
 
     expect(api.children).toHaveLength(1);
-    expect(api.children[0].type).toBe("action");
+    expect(api.children[0].type).toBe("condition");
+    const child = api.children[0] as ContextChildCondition;
+    expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+    const condition = child.condition as ContextConditionAnd;
+    expect(condition.conditions).toHaveLength(2);
+    expect(condition.conditions[0]).toBeInstanceOf(ContextConditionPath);
+    expect(condition.conditions[1]).toBeInstanceOf(ContextConditionMethod);
+    const pathCondition = condition.conditions[0] as ContextConditionPath;
+    expect(pathCondition.path).toBe("/test");
+    const methodCondition = condition.conditions[1] as ContextConditionMethod;
+    expect(methodCondition.method.toLowerCase()).toBe("get");
 
-    const action = api.children[0] as any;
+    const ctx = child.context;
 
-    const { pass, promise } = createSyntheticContext({ path: "" });
+    expect(ctx.children).toHaveLength(1);
+    expect(ctx.children[0].type).toBe("action");
+
+    const { pass, promise } = createSyntheticContext({
+      path: "/test",
+      method: "get",
+    });
 
     api.handle(...pass);
 
@@ -276,12 +316,25 @@ describe("RsterApiMethod", () => {
     });
 
     expect(api.children).toHaveLength(1);
-    expect(api.children[0].type).toBe("action");
+    expect(api.children[0].type).toBe("condition");
+    const child = api.children[0] as ContextChildCondition;
+    expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+    const condition = child.condition as ContextConditionAnd;
+    expect(condition.conditions).toHaveLength(2);
+    expect(condition.conditions[0]).toBeInstanceOf(ContextConditionPath);
+    expect(condition.conditions[1]).toBeInstanceOf(ContextConditionMethod);
+    const pathCondition = condition.conditions[0] as ContextConditionPath;
+    expect(pathCondition.path).toBe("/test");
+    const methodCondition = condition.conditions[1] as ContextConditionMethod;
+    expect(methodCondition.method.toLowerCase()).toBe("get");
 
-    const action = api.children[0] as any;
+    const ctx = child.context;
+
+    expect(ctx.children).toHaveLength(1);
+    expect(ctx.children[0].type).toBe("action");
 
     const { pass, promise } = createSyntheticContext({
-      path: "",
+      path: "/test",
       body: {
         test: "test",
         test2: "test2",
@@ -327,16 +380,89 @@ describe("RsterApiMethod", () => {
     });
 
     expect(api.children).toHaveLength(1);
-    expect(api.children[0].type).toBe("action");
+    expect(api.children[0].type).toBe("condition");
+    const child = api.children[0] as ContextChildCondition;
+    expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+    const condition = child.condition as ContextConditionAnd;
+    expect(condition.conditions).toHaveLength(2);
+    expect(condition.conditions[0]).toBeInstanceOf(ContextConditionPath);
+    expect(condition.conditions[1]).toBeInstanceOf(ContextConditionMethod);
+    const pathCondition = condition.conditions[0] as ContextConditionPath;
+    expect(pathCondition.path).toBe("/test");
+    const methodCondition = condition.conditions[1] as ContextConditionMethod;
+    expect(methodCondition.method.toLowerCase()).toBe("get");
 
-    const action = api.children[0] as any;
+    const ctx = child.context;
+
+    expect(ctx.children).toHaveLength(1);
+    expect(ctx.children[0].type).toBe("action");
 
     const { pass, promise } = createSyntheticContext({
-      path: "",
+      path: "/test",
       query: {
         test: "test",
         test2: "test2",
       },
+    });
+
+    api.handle(...pass);
+
+    const result = await promise;
+
+    expect(result).toEqual({
+      code: 200,
+      data: '"Hello from the test action 😉 test,test2"',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      sendFile: undefined,
+    });
+  });
+
+  it("test action function to work with params", async () => {
+    const method = new RsterApiMethod(
+      "test",
+      ["test description"],
+      {
+        expectParams: {
+          test: { type: string(), optional: false },
+          test2: { type: string(), optional: true },
+        },
+        returns: string(),
+      },
+      "/test/:test/:test2",
+      "get",
+      (args) => {
+        return (
+          "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+        );
+      }
+    );
+
+    const api = rest(function () {
+      method.rest(this);
+    });
+
+    expect(api.children).toHaveLength(1);
+    expect(api.children[0].type).toBe("condition");
+    const child = api.children[0] as ContextChildCondition;
+    expect(child.condition).toBeInstanceOf(ContextConditionAnd);
+    const condition = child.condition as ContextConditionAnd;
+    expect(condition.conditions).toHaveLength(2);
+    expect(condition.conditions[0]).toBeInstanceOf(ContextConditionPath);
+    expect(condition.conditions[1]).toBeInstanceOf(ContextConditionMethod);
+    const pathCondition = condition.conditions[0] as ContextConditionPath;
+    expect(pathCondition.path).toBe("/test/:test/:test2");
+    const methodCondition = condition.conditions[1] as ContextConditionMethod;
+    expect(methodCondition.method.toLowerCase()).toBe("get");
+
+    const ctx = child.context;
+
+    expect(ctx.children).toHaveLength(1);
+    expect(ctx.children[0].type).toBe("action");
+
+    const { pass, promise } = createSyntheticContext({
+      path: "/test/test/test2",
     });
 
     api.handle(...pass);
