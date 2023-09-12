@@ -70,6 +70,7 @@
 
 Rster is built to simplify creation of restful backend apis. It is a framework that allows you to build your api in a modular way. It's core framework works quite similar to express, however we provide a few tools like `@rster/builder`, `@rster/database` to drastically simplify the creation of your api and directly integrate your database. These tools are especially powerful when combined with `typescript` as all typings are generated automatically.
 Also with `@rster/generator` you can generate a typescript client directly from your server-side api definition which saves you a lot of time and nerves.
+
 _**NOTE**: This project is still in early development and features are added frequently. If you have any suggestions or ideas feel free to open an issue or pull request. `@rster/generator`, `@rster/builder` and `@rster/database` are not available via npm yet. They need to be built from source and are not yet documented or tested enough to be used in production. Feel free to try them out and give feedback. Please have some patience, they take a lot of work to build and test. They will be released soon. Thanks!_
 
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
