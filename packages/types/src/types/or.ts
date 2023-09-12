@@ -1,6 +1,7 @@
 import {
   AllowAnyTypeInformation,
   JsonCompatible,
+  PrimitiveType,
   SendMethod,
   TypeInformation,
 } from "../types";
@@ -40,19 +41,19 @@ export class Or<
     return "or";
   }
 
-  exportToString(value: T0 | T1): string {
+  exportToString(value: PrimitiveType<T0> | PrimitiveType<T1>): string {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
-  importFromString(value: string): T0 | T1 {
+  importFromString(value: string): PrimitiveType<T0> | PrimitiveType<T1> {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
-  exportToJson(value: T0 | T1): JsonCompatible {
+  exportToJson(value: PrimitiveType<T0> | PrimitiveType<T1>): JsonCompatible {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
-  importFromJson(value: JsonCompatible): T0 | T1 {
+  importFromJson(value: JsonCompatible): PrimitiveType<T0> | PrimitiveType<T1> {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
