@@ -116,7 +116,9 @@ export class RsterApiMethod<
   ) {
     if (!httpPath) {
       const name = this.name;
-      const params = Object.keys(this.declaration.expectParams ?? {}).join("/");
+      const params = Object.keys(this.declaration.expectParams ?? {})
+        .map((it) => `:${it}`)
+        .join("/");
       const httpPath = `/${name}${params ? `/${params}` : ""}`;
       this.httpPath = httpPath;
     } else this.httpPath = httpPath;

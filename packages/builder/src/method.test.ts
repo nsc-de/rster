@@ -89,6 +89,48 @@ describe("RsterApiMethod", () => {
 
       expect(method.action).toBeDefined();
     });
+
+    it("should create create a method with default parameters generated (without params)", () => {
+      const method = new RsterApiMethod("test", [], {
+        returns: undefinedType(),
+        expectParams: {},
+      });
+
+      expect(method.declaration).toEqual({
+        expectParams: {},
+        returns: undefinedType(),
+      });
+
+      expect(method.action).toBeUndefined();
+      expect(method.name).toBe("test");
+      expect(method.description).toEqual([]);
+      expect(method.httpPath).toBe("/test");
+      expect(method.httpMethod).toBeUndefined();
+    });
+
+    it("should create create a method with default parameters generated (with params)", () => {
+      const method = new RsterApiMethod("test", [], {
+        returns: undefinedType(),
+        expectParams: {
+          test: { type: string(), optional: false },
+          test2: { type: string(), optional: false },
+        },
+      });
+
+      expect(method.declaration).toEqual({
+        expectParams: {
+          test: { type: string(), optional: false },
+          test2: { type: string(), optional: false },
+        },
+        returns: undefinedType(),
+      });
+
+      expect(method.action).toBeUndefined();
+      expect(method.name).toBe("test");
+      expect(method.description).toEqual([]);
+      expect(method.httpPath).toBe("/test/:test/:test2");
+      expect(method.httpMethod).toBeUndefined();
+    });
   });
 
   describe("#json()", () => {
