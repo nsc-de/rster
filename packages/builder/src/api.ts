@@ -22,12 +22,6 @@ import {
  */
 export interface RsterApiJson {
   /**
-   * The version string of the api.
-   * @see RsterApi.version
-   */
-  version: string;
-
-  /**
    * The name of the api.
    * @see RsterApi.name
    */
@@ -56,26 +50,20 @@ export interface RsterApiJson {
 
 export class RsterApi<MODULES extends ModuleMap, METHODS extends MethodMap> {
   constructor(
-    public readonly version: string,
     public readonly name: string,
     public readonly description: string[],
     public readonly moduleList: Values<MODULES>,
     public readonly methodList: Values<METHODS>
-  ) {}
+  ) {
+    this.modules = ArrayFinder(this.moduleList, "name") as unknown as MODULES;
+    this.methods = ArrayFinder(this.methodList, "name") as unknown as METHODS;
+  }
 
-  public readonly modules: MODULES = ArrayFinder(
-    this.moduleList,
-    "name"
-  ) as unknown as MODULES;
-
-  public readonly methods: METHODS = ArrayFinder(
-    this.methodList,
-    "name"
-  ) as unknown as METHODS;
+  public readonly modules: MODULES;
+  public readonly methods: METHODS;
 
   public json(): RsterApiJson {
     return {
-      version: this.version,
       name: this.name,
       description: this.description,
       modules: this.moduleList.map((m) => m.json()),
@@ -207,7 +195,6 @@ export class RsterApiBuilderContext<
 
   public generate() {
     return new RsterApi(
-      this._version!,
       this._name!,
       this._description,
       this.moduleList.map((m) => m.generate()),

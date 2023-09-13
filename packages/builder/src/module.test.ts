@@ -3,7 +3,6 @@ import { RsterApiMethod } from "./method";
 import { RsterApiModule } from "./module";
 import rest, {
   ContextChildCondition,
-  ContextCondition,
   ContextConditionAnd,
   ContextConditionMethod,
   ContextConditionPath,
