@@ -1,7 +1,6 @@
 import { string, undefinedType } from "@rster/types";
 import { RsterApiMethod } from "./method";
 import {
-  ContextChildAction,
   ContextChildCondition,
   ContextConditionAnd,
   ContextConditionMethod,

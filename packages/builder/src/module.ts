@@ -5,7 +5,7 @@ import {
 } from "@rster/basic";
 import { Values, Method } from "@rster/common";
 import { RsterApiMethod, RsterApiMethodJson } from "./method";
-import { AnyParameterDeclaration, MethodMap, ModuleMap } from "./types";
+import { AnyParameterDeclaration } from "./types";
 
 /**
  * A type for the json representation of the module class. Returned by the `json` method, used to get info about the module.

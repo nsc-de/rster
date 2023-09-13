@@ -6,8 +6,8 @@ import {
   TypeInformation,
 } from "@rster/types";
 import { AllowVoidIfUndefined } from "@rster/common";
-import { RsterApiMethod, RsterApiMethodBuilderContext } from "./method";
-import { RsterApiModule, RsterApiModuleBuilderContext } from "./module";
+import { RsterApiMethod } from "./method";
+import { RsterApiModule } from "./module";
 
 export type AnyParameterDeclaration = ParameterDeclaration<
   AllowAnyTypeInformation,

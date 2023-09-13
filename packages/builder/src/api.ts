@@ -2,7 +2,7 @@ import rest, { Context, RestfulApi } from "@rster/basic";
 import { Values } from "@rster/common";
 import { RsterApiMethod, RsterApiMethodJson } from "./method";
 import { RsterApiModule, RsterApiModuleJson } from "./module";
-import { AnyParameterDeclaration, MethodMap, ModuleMap } from "./types";
+import { AnyParameterDeclaration } from "./types";
 
 /**
  * A type for the json representation of the api class. Returned by the `json` method, used to get info about the api.
