@@ -14,8 +14,8 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [],
-        [],
+        {},
+        {},
         "/test",
         "get"
       );
@@ -28,8 +28,8 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [],
-        [],
+        {},
+        {},
         "/test",
         "get"
       );
@@ -47,8 +47,8 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [new RsterApiModule("test", ["test"], [], [], "/test", "get")],
-        [],
+        { test: new RsterApiModule("test", ["test"], {}, {}, "/test", "get") },
+        {},
         "/test",
         "get"
       );
@@ -75,9 +75,9 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [],
-        [
-          new RsterApiMethod(
+        {},
+        {
+          test: new RsterApiMethod(
             "test",
             ["test"],
             {
@@ -86,7 +86,7 @@ describe("RsterApiModule", () => {
             "/test",
             "get"
           ),
-        ],
+        },
         "/test",
         "get"
       );
@@ -120,14 +120,14 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [
-          new RsterApiModule("test", ["test"], [], [], "/test", "get"),
-          new RsterApiModule(
-            "test",
+        {
+          test: new RsterApiModule("test", ["test"], {}, {}, "/test", "get"),
+          test2: new RsterApiModule(
+            "test2",
             ["test"],
-            [],
-            [
-              new RsterApiMethod(
+            {},
+            {
+              test: new RsterApiMethod(
                 "test",
                 ["test"],
                 {
@@ -136,12 +136,12 @@ describe("RsterApiModule", () => {
                 "/test",
                 "get"
               ),
-            ],
+            },
             "/test",
             "get"
           ),
-        ],
-        [],
+        },
+        {},
         "/test",
         "get"
       );
@@ -158,7 +158,7 @@ describe("RsterApiModule", () => {
             httpMethod: "get",
           },
           {
-            name: "test",
+            name: "test2",
             description: ["test"],
             modules: [],
             methods: [
@@ -193,8 +193,8 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [],
-        [],
+        {},
+        {},
         "/test",
         "get"
       );
@@ -226,8 +226,8 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [new RsterApiModule("test", ["test"], [], [], "/test", "get")],
-        [],
+        { test: new RsterApiModule("test", ["test"], {}, {}, "/test", "get") },
+        {},
         "/test",
         "get"
       );
@@ -275,9 +275,9 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [],
-        [
-          new RsterApiMethod(
+        {},
+        {
+          test: new RsterApiMethod(
             "test",
             ["test"],
             {
@@ -286,7 +286,7 @@ describe("RsterApiModule", () => {
             "/test",
             "get"
           ),
-        ],
+        },
         "/test",
         "get"
       );
@@ -335,8 +335,8 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [],
-        [],
+        {},
+        {},
         undefined,
         "get"
       );
@@ -362,8 +362,8 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [],
-        [],
+        {},
+        {},
         "/test",
         undefined
       );
@@ -389,8 +389,8 @@ describe("RsterApiModule", () => {
       const module = new RsterApiModule(
         "test",
         ["test"],
-        [],
-        [],
+        {},
+        {},
         undefined,
         undefined
       );

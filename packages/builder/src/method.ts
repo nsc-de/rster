@@ -5,13 +5,12 @@ import {
   ContextConditionPath,
 } from "@rster/basic";
 import { Method } from "@rster/common";
+import { AllowAnyTypeInformation, TypeInformation } from "@rster/types";
 import {
-  AllowAnyTypeInformation,
-  TypeInformation,
-  undefinedType,
-} from "@rster/types";
-import { RsterApiMethodBuilderContextToRsterApiMethod } from "./conversion_types";
-import { ActionFunction, ParameterDeclaration } from "./types";
+  ActionFunction,
+  AnyParameterDeclaration,
+  ParameterDeclaration,
+} from "./types";
 import "@rster/info";
 
 /**
@@ -92,22 +91,12 @@ export interface RsterApiMethodJson {
 }
 
 export class RsterApiMethod<
-  DECLARATION extends ParameterDeclaration<
-    AllowAnyTypeInformation,
-    {
-      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-    },
-    {
-      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-    },
-    {
-      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-    }
-  >
+  NAME extends string,
+  DECLARATION extends AnyParameterDeclaration
 > {
   public readonly httpPath: string;
   constructor(
-    public readonly name: string,
+    public readonly name: NAME,
     public readonly description: string[],
     public readonly declaration: DECLARATION,
     httpPath?: string,
@@ -261,140 +250,34 @@ export class RsterApiMethod<
   }
 }
 
-export class RsterApiMethodBuilderContext<
-  DECLARATION extends ParameterDeclaration<any, any, any, any>
-> {
-  private readonly _name: string;
-  private readonly _description: string[] = [];
-  private _httpPath?: string;
-  private _httpMethod?: Method;
-  private _declaration: DECLARATION;
-
-  public get name() {
-    return this._name;
-  }
-
-  private _action?: ActionFunction<DECLARATION>;
-
-  constructor({
+function method<
+  NAME extends string,
+  DECLARATION extends ParameterDeclaration<
+    AllowAnyTypeInformation,
+    {
+      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+    },
+    {
+      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+    },
+    {
+      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+    }
+  >
+>(
+  name: NAME,
+  description: string[],
+  declaration: DECLARATION,
+  httpPath?: string,
+  httpMethod?: Method,
+  action?: ActionFunction<DECLARATION>
+) {
+  return new RsterApiMethod(
     name,
-    description = [],
+    description,
+    declaration,
     httpPath,
     httpMethod,
-    declaration = {
-      expectBody: {},
-      expectQuery: {},
-      expectParams: {},
-      returns: undefinedType(),
-    } as any as DECLARATION,
-    action,
-  }: {
-    name: string;
-    description?: string[];
-    httpPath?: string;
-    httpMethod?: Method;
-    declaration?: DECLARATION;
-    action?: ActionFunction<DECLARATION>;
-  }) {
-    this._name = name;
-    this._description = description;
-    this._httpPath = httpPath;
-    this._httpMethod = httpMethod;
-    this._declaration = declaration;
-    this._action = action;
-  }
-
-  public description(...description: string[]) {
-    this._description.push(...description);
-  }
-
-  public httpPath(path: string) {
-    this._httpPath = path;
-  }
-
-  public httpMethod(method: Method) {
-    this._httpMethod = method;
-  }
-
-  public declaration(declaration: DECLARATION) {
-    this._declaration = declaration;
-  }
-
-  public getDeclaration() {
-    return this._declaration;
-  }
-
-  public declarationBody(body: {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-  }) {
-    this._declaration.expectBody = body;
-  }
-
-  public declarationBodyParam(name: string, type: TypeInformation<unknown>) {
-    if (!this._declaration.expectBody) this._declaration.expectBody = {};
-    this._declaration.expectBody![name] = { type, optional: false };
-  }
-
-  public declarationBodyParamOptional(
-    name: string,
-    type: TypeInformation<unknown>
-  ) {
-    if (!this._declaration.expectBody) this._declaration.expectBody = {};
-    this._declaration.expectBody![name] = { type, optional: true };
-  }
-
-  public declarationQuery(query: {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-  }) {
-    this._declaration.expectQuery = query;
-  }
-
-  public declarationQueryParam(name: string, type: TypeInformation<unknown>) {
-    if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
-    this._declaration.expectQuery![name] = { type, optional: false };
-  }
-
-  public declarationQueryParamOptional(
-    name: string,
-    type: TypeInformation<unknown>
-  ) {
-    if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
-    this._declaration.expectQuery![name] = { type, optional: true };
-  }
-
-  public declarationParams(params: {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-  }) {
-    this._declaration.expectParams = params;
-  }
-
-  public declarationParam(name: string, type: TypeInformation<unknown>) {
-    if (!this._declaration.expectParams) this._declaration.expectParams = {};
-    this._declaration.expectParams![name] = { type, optional: false };
-  }
-
-  public declarationParamOptional(
-    name: string,
-    type: TypeInformation<unknown>
-  ) {
-    if (!this._declaration.expectParams) this._declaration.expectParams = {};
-    this._declaration.expectParams![name] = { type, optional: true };
-  }
-
-  public action(action: ActionFunction<DECLARATION>) {
-    this._action = action;
-  }
-
-  public generate() {
-    if (this._declaration === undefined)
-      throw new Error("No declaration for method " + this._name);
-    return new RsterApiMethod(
-      this._name,
-      this._description,
-      this._declaration,
-      this._httpPath,
-      this._httpMethod,
-      this._action!
-    ) as RsterApiMethodBuilderContextToRsterApiMethod<this>;
-  }
+    action
+  );
 }

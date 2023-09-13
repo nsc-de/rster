@@ -1,4 +1,5 @@
 import {
+  AllowAnyTypeInformation,
   MapToPrimitiveType,
   NoUndefined,
   PrimitiveType,
@@ -7,6 +8,19 @@ import {
 import { AllowVoidIfUndefined } from "@rster/common";
 import { RsterApiMethod, RsterApiMethodBuilderContext } from "./method";
 import { RsterApiModule, RsterApiModuleBuilderContext } from "./module";
+
+export type AnyParameterDeclaration = ParameterDeclaration<
+  AllowAnyTypeInformation,
+  {
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+  },
+  {
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+  },
+  {
+    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+  }
+>;
 
 export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
   (

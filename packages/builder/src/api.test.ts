@@ -12,14 +12,14 @@ import { RsterApi } from "./api";
 describe("RsterApi", () => {
   describe("#constructor()", () => {
     it("should create a new RsterApi", () => {
-      const module = new RsterApi("test", ["test"], [], []);
+      const module = new RsterApi("test", ["test"], {}, {});
       expect(module).toBeInstanceOf(RsterApi);
     });
   });
 
   describe("#json()", () => {
     it("should return the json representation of the module", () => {
-      const module = new RsterApi("test", ["test"], [], []);
+      const module = new RsterApi("test", ["test"], {}, {});
       expect(module.json()).toEqual({
         name: "test",
         description: ["test"],
@@ -32,8 +32,8 @@ describe("RsterApi", () => {
       const module = new RsterApi(
         "test",
         ["test"],
-        [new RsterApiModule("test", ["test"], [], [], "/test", "get")],
-        []
+        { test: new RsterApiModule("test", ["test"], {}, {}, "/test", "get") },
+        {}
       );
       expect(module.json()).toEqual({
         name: "test",
@@ -56,9 +56,9 @@ describe("RsterApi", () => {
       const module = new RsterApi(
         "test",
         ["test"],
-        [],
-        [
-          new RsterApiMethod(
+        {},
+        {
+          test: new RsterApiMethod(
             "test",
             ["test"],
             {
@@ -67,7 +67,7 @@ describe("RsterApi", () => {
             "/test",
             "get"
           ),
-        ]
+        }
       );
 
       expect(module.json()).toEqual({
@@ -97,14 +97,14 @@ describe("RsterApi", () => {
       const module = new RsterApi(
         "test",
         ["test"],
-        [
-          new RsterApiModule("test", ["test"], [], [], "/test", "get"),
-          new RsterApiModule(
-            "test",
+        {
+          test: new RsterApiModule("test", ["test"], {}, {}, "/test", "get"),
+          test2: new RsterApiModule(
+            "test2",
             ["test"],
-            [],
-            [
-              new RsterApiMethod(
+            {},
+            {
+              test: new RsterApiMethod(
                 "test",
                 ["test"],
                 {
@@ -113,12 +113,12 @@ describe("RsterApi", () => {
                 "/test",
                 "get"
               ),
-            ],
+            },
             "/test",
             "get"
           ),
-        ],
-        []
+        },
+        {}
       );
       expect(module.json()).toEqual({
         name: "test",
@@ -133,7 +133,7 @@ describe("RsterApi", () => {
             httpMethod: "get",
           },
           {
-            name: "test",
+            name: "test2",
             description: ["test"],
             modules: [],
             methods: [
@@ -163,7 +163,7 @@ describe("RsterApi", () => {
 
   describe("#rest()", () => {
     it("should create the rest representation of the module", () => {
-      const it = new RsterApi("test", ["test"], [], []);
+      const it = new RsterApi("test", ["test"], {}, {});
 
       const api = it.rest();
 
@@ -175,8 +175,8 @@ describe("RsterApi", () => {
       const it = new RsterApi(
         "test",
         ["test"],
-        [new RsterApiModule("test", ["test"], [], [], "/test", "get")],
-        []
+        { test: new RsterApiModule("test", ["test"], {}, {}, "/test", "get") },
+        {}
       );
 
       const api = it.rest();
@@ -206,9 +206,9 @@ describe("RsterApi", () => {
       const it = new RsterApi(
         "test",
         ["test"],
-        [],
-        [
-          new RsterApiMethod(
+        {},
+        {
+          test: new RsterApiMethod(
             "test",
             ["test"],
             {
@@ -217,7 +217,7 @@ describe("RsterApi", () => {
             "/test",
             "get"
           ),
-        ]
+        }
       );
 
       const api = it.rest();
