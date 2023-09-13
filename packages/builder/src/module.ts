@@ -5,7 +5,7 @@ import {
 } from "@rster/basic";
 import { Values, Method } from "@rster/common";
 import { RsterApiMethod, RsterApiMethodJson } from "./method";
-import { AnyParameterDeclaration } from "./types";
+import { AnyParameterDeclaration, RsterArgsType } from "./types";
 
 /**
  * A type for the json representation of the module class. Returned by the `json` method, used to get info about the module.
@@ -113,6 +113,41 @@ export class RsterApiModule<
     } else {
       contents(ctx);
     }
+  }
+
+  public native(): {
+    [key in keyof MODULES]: key extends keyof METHODS
+      ? ReturnType<METHODS[key]["native"]> & ReturnType<METHODS[key]["native"]>
+      : ReturnType<MODULES[key]["native"]>;
+  } & {
+    [key in keyof Exclude<
+      keyof METHODS,
+      keyof MODULES
+    >]: key extends keyof METHODS ? ReturnType<METHODS[key]["native"]> : never;
+  } {
+    const moduleList = this.moduleList.map((m) => ({
+      name: m.name,
+      native: m.native(),
+    }));
+    const methodList = this.methodList.map((m) => ({
+      name: m.name,
+      native: m.native(),
+    }));
+
+    const map = methodList.reduce((map, m) => {
+      map[m.name] = m.native;
+      return map;
+    }, {} as Record<string, any>);
+
+    moduleList.forEach((m) => {
+      if (m.name in map) {
+        Object.assign(map[m.name], m.native);
+        return;
+      }
+      map[m.name] = m.native;
+    });
+
+    return {} as any;
   }
 }
 

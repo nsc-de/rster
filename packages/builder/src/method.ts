@@ -9,7 +9,9 @@ import { AllowAnyTypeInformation, TypeInformation } from "@rster/types";
 import {
   ActionFunction,
   AnyParameterDeclaration,
+  RsterArgsType,
   ParameterDeclaration,
+  RsterReturnType,
 } from "./types";
 import "@rster/info";
 
@@ -248,9 +250,17 @@ export class RsterApiMethod<
       });
     });
   }
+
+  public native(): (
+    args: RsterArgsType<DECLARATION>
+  ) => RsterReturnType<DECLARATION> {
+    return this.action as unknown as (
+      args: RsterArgsType<DECLARATION>
+    ) => RsterReturnType<DECLARATION>;
+  }
 }
 
-function method<
+export function method<
   NAME extends string,
   DECLARATION extends ParameterDeclaration<
     AllowAnyTypeInformation,
