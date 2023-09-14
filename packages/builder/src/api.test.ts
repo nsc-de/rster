@@ -244,4 +244,119 @@ describe("RsterApi", () => {
       expect(ctx.description()).toEqual(["test"]);
     });
   });
+
+  describe("#native()", () => {
+    it("should return an empty object if no methods or submodules", () => {
+      const module = new RsterApi("test", ["test"], {}, {});
+      expect(module.native()).toEqual({});
+    });
+
+    it("should add all submodules to an object", () => {
+      const module = new RsterApi(
+        "test",
+        ["test"],
+        { test: new RsterApiModule("test", ["test"], {}, {}, "/test", "get") },
+        {}
+      );
+
+      module.native();
+      expect(module.native()).toEqual({
+        test: {},
+      });
+    });
+
+    it("should add all methods to an object", () => {
+      const module = new RsterApi(
+        "test",
+        ["test"],
+        {},
+        {
+          test: new RsterApiMethod(
+            "test",
+            ["test"],
+            {
+              returns: undefinedType(),
+            },
+            "/test",
+            "get"
+          ),
+        }
+      );
+      const native = module.native();
+
+      expect(native).toHaveProperty("test");
+      expect(native.test).toBeInstanceOf(Function);
+    });
+
+    it("should add all submodules and methods to an object", () => {
+      const module = new RsterApi(
+        "test",
+        ["test"],
+        {
+          test: new RsterApiModule("test", ["test"], {}, {}, "/test", "get"),
+        },
+        {
+          test: new RsterApiMethod(
+            "test",
+            ["test"],
+            {
+              returns: undefinedType(),
+            },
+            "/test",
+            "get"
+          ),
+        }
+      );
+      const native = module.native();
+
+      expect(native).toHaveProperty("test");
+      expect(native.test).toBeInstanceOf(Function);
+    });
+
+    it("should merge submodules and methods with the same name", () => {
+      const module = new RsterApi(
+        "test",
+        ["test"],
+        {
+          test: new RsterApiModule(
+            "test",
+            ["test"],
+            {
+              test: new RsterApiModule(
+                "test",
+                ["test"],
+                {},
+                {},
+                "/test",
+                "get"
+              ),
+            },
+            {},
+            "/test",
+            "get"
+          ),
+        },
+        {
+          test: new RsterApiMethod(
+            "test",
+            ["test"],
+            {
+              returns: undefinedType(),
+            },
+            "/test",
+            "get",
+            () => {}
+          ),
+        }
+      );
+      const native = module.native();
+
+      expect(native).toHaveProperty("test");
+      expect(native.test).toBeInstanceOf(Function);
+
+      expect(native.test()).toEqual(undefined);
+
+      expect(native.test.test).toEqual({});
+    });
+  });
 });

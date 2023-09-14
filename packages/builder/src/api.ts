@@ -2,7 +2,7 @@ import rest, { Context, RestfulApi } from "@rster/basic";
 import { Values } from "@rster/common";
 import { RsterApiMethod, RsterApiMethodJson } from "./method";
 import { RsterApiModule, RsterApiModuleJson } from "./module";
-import { AnyParameterDeclaration } from "./types";
+import { AnyParameterDeclaration, RemoveNeverProperties } from "./types";
 
 /**
  * A type for the json representation of the api class. Returned by the `json` method, used to get info about the api.
@@ -81,16 +81,16 @@ export class RsterApi<
     });
   }
 
-  public native(): {
+  public native(): RemoveNeverProperties<{
     [key in keyof MODULES]: key extends keyof METHODS
-      ? ReturnType<METHODS[key]["native"]> & ReturnType<METHODS[key]["native"]>
+      ? ReturnType<MODULES[key]["native"]> & ReturnType<METHODS[key]["native"]>
       : ReturnType<MODULES[key]["native"]>;
-  } & {
-    [key in keyof Exclude<
-      keyof METHODS,
-      keyof MODULES
-    >]: key extends keyof METHODS ? ReturnType<METHODS[key]["native"]> : never;
-  } {
+  }> &
+    RemoveNeverProperties<{
+      [key in keyof METHODS]: key extends keyof MODULES
+        ? never
+        : ReturnType<METHODS[key]["native"]>;
+    }> {
     const moduleList = this.moduleList.map((m) => ({
       name: m.name,
       native: m.native(),
