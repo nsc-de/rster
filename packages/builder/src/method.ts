@@ -19,7 +19,6 @@ import {
   t,
 } from "./types";
 import "@rster/info";
-import { Declaration } from "@rster/info";
 
 type RemoveOptionalProperties<T> = {
   [K in keyof T as T[K] extends undefined | null ? never : K]: T[K];
@@ -250,6 +249,7 @@ export class RsterApiMethod<
 
             const type = (value as { type: TypeInformation<unknown> }).type;
             if (!type.check(req.params[key]))
+              // This should basically never happen if it has the right type
               throw $400(
                 `Invalid param ${key}: Expected ${JSON.stringify(type.json())}`
               );
