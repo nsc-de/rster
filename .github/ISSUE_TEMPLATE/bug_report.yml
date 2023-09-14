@@ -1,0 +1,125 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees:
+  - nsc-de
+body:
+  # Welcome to the bug report template!
+  - type: markdown
+    attributes:
+      placeholder: |
+        Thanks for taking the time to fill out this bug report!
+
+  # Contact Details
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+
+  # Bug Description
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Tell us what you see!
+      value: "A bug happened!"
+    validations:
+      required: true
+
+  # What package are you using?
+  - type: dropdown
+    id: package
+    attributes:
+      label: What package are you using?
+      description: What package are you using?
+      options: |
+        rster
+        @rster/authorization
+        @rster/basic
+        @rster/builder (UNRELEASED)
+        @rster/common
+        @rster/database (UNRELEASED)
+        @rster/generator (UNRELEASED)
+        @rster/info
+        @rster/info-client
+        @rster/info-explorer (UNRELEASED)
+        @rster/ping
+        @rster/types
+        @rster/util
+        @rster/worker-express
+        I don't know
+      default: 0
+    validations:
+      required: true
+
+  # What version of the package are you using?
+  - type: input
+    id: package version
+    attributes:
+      label: Version
+      description: What version of our software are you running?
+      default: 0
+    validations:
+      required: true
+
+  # What OS are you using?
+  - type: dropdown
+    id: os
+    attributes:
+      label: What plattform are you working on
+      multiple: true
+      options:
+        - Windows x32
+        - Windows x64
+        - Linux x32
+        - Linux x64
+        - OSX
+        - Docker Container (please tell us more about your container)
+        - Other
+
+  # What OS are you using (more info)
+  - type: input
+    id: os (more info)
+    label: Tell us more about your OS
+
+  # What version of Node are you using?
+  - type: input
+    id: node version
+    attributes:
+      label: Node Version (run `node -v`)
+      description: What version of Node are you using? (run `node -v`)
+      default: 0
+    validations:
+      required: true
+
+  # Paste your logs here
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+
+  # Paste code / info to reproduce the issue
+  - type: textarea
+    id: code
+    attributes:
+      label: Code to reproduce the issue
+      description: Please copy and paste any relevant code. This will be automatically formatted into code, so no need for backticks.
+      render: typescript
+
+  # Code of Conduct
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/nsc-de/rster/blob/master/.github/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
