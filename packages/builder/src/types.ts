@@ -8,14 +8,21 @@ import { AllowVoidIfUndefined } from "@rster/common";
 import { RsterApiMethod } from "./method";
 import { RsterApiModule } from "./module";
 
-export type AnyParameterDeclaration = ParameterDeclaration<any, any, any, any>;
+export type AnyParameterDeclaration = ParameterDeclaration<
+  TypeInformation<unknown>,
+  ParameterList,
+  ParameterList,
+  ParameterList
+>;
 
 export type ActionFunction<D extends AnyParameterDeclaration> = (
   args: RsterArgsType<D>
 ) => AllowVoidIfUndefined<RsterReturnType<D>>;
 
 export type ParameterList = {
-  [key: string]: { type: TypeInformation<unknown>; required: true | false };
+  [key: string]:
+    | { type: TypeInformation<unknown>; required: true }
+    | { type: TypeInformation<unknown>; required: false };
 };
 
 /**
@@ -53,9 +60,9 @@ type ObjectType<
   }
 > = t<
   RemoveNeverProperties<{
-    [key in keyof T]: T[key]["required"] extends boolean
-      ? PrimitiveType<T[key]["type"]>
-      : never;
+    [key in keyof T]: T[key]["required"] extends false
+      ? never
+      : PrimitiveType<T[key]["type"]>;
   }> &
     Partial<
       RemoveNeverProperties<{

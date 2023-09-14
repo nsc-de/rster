@@ -5,7 +5,11 @@ import {
   ContextConditionPath,
 } from "@rster/basic";
 import { Method } from "@rster/common";
-import { AllowAnyTypeInformation, TypeInformation } from "@rster/types";
+import {
+  AllowAnyTypeInformation,
+  AnyTypeInformation,
+  TypeInformation,
+} from "@rster/types";
 import {
   ActionFunction,
   AnyParameterDeclaration,
@@ -15,6 +19,7 @@ import {
   t,
 } from "./types";
 import "@rster/info";
+import { Declaration } from "@rster/info";
 
 type RemoveOptionalProperties<T> = {
   [K in keyof T as T[K] extends undefined | null ? never : K]: T[K];
@@ -193,7 +198,7 @@ export class RsterApiMethod<
       this.description(...description);
       this.declaration({
         name: name,
-        returnBody: declaration.returns,
+        returnBody: declaration.returns as AnyTypeInformation,
         expectBody: declaration.expectBody,
         expectQuery: declaration.expectQuery,
         expectParams: declaration.expectParams,
