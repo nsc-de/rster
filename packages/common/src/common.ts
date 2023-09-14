@@ -851,7 +851,7 @@ export function createSyntheticRequest(
       }
       return (
         Object.entries(this.headers).find(
-          ([key, value]) => key.toLowerCase() === field.toLowerCase()
+          ([key]) => key.toLowerCase() === field.toLowerCase()
         )?.[1] ?? ""
       );
     },
@@ -861,7 +861,7 @@ export function createSyntheticRequest(
       }
       return (
         Object.entries(this.headers).find(
-          ([key, value]) => key.toLowerCase() === name.toLowerCase()
+          ([key]) => key.toLowerCase() === name.toLowerCase()
         )?.[1] ?? ""
       );
     },
@@ -904,16 +904,17 @@ export function createSyntheticResponse(): {
     redirect?: string;
   }) => void;
 
-  let rejecter: (reason?: any) => void;
+  // Appears to be unused
+  // let rejecter: (reason?: any) => void;
 
   const promise = new Promise<{
     code: number;
     data: string;
     headers: Record<string, string>;
     sendFile?: string;
-  }>((resolve, reject) => {
+  }>((resolve) => {
     resolver = resolve;
-    rejecter = reject;
+    // rejecter = reject;
   });
 
   let statusCode = 200;

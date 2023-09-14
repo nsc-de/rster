@@ -72,7 +72,7 @@ describe("RestfulApi", () => {
       const restfulApi = new RestfulApi();
 
       restfulApi.get("/aaa", function () {
-        this.action((req, res) => {
+        this.action(() => {
           throw $400("Bad Request");
         });
       });
@@ -96,7 +96,7 @@ describe("RestfulApi", () => {
       const restfulApi = new RestfulApi();
 
       restfulApi.get("/aaa", function () {
-        this.action((req, res) => {
+        this.action(() => {
           throw new Error("Bad Request");
         });
       });

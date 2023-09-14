@@ -107,6 +107,47 @@ describe("$", () => {
 });
 
 describe("ErrorFunctions", () => {
+  it("create", () => {
+    // should return $
+    expect(ErrorFunctions.create).toEqual($);
+  });
+
+  it("$", () => {
+    // should return $
+    expect(ErrorFunctions.$).toEqual($);
+  });
+
+  it("$ errors [should test 200 functions]", () => {
+    for (let i = 400; i < 600; i++) {
+      const fn = ErrorFunctions[`$${i}`];
+      expect(fn).toBeInstanceOf(Function);
+      const httpError = fn();
+      expect(httpError).toBeInstanceOf(HttpError);
+      expect(httpError.status).toEqual(i);
+      expect(httpError.message).toEqual(
+        HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
+      );
+    }
+
+    // @ts-ignore
+    expect(() => ErrorFunctions.$aaa).toThrow("Unknown error function $aaa");
+  });
+
+  it("direct errors [should test 200 functions]", () => {
+    for (let i = 400; i < 600; i++) {
+      const fn = ErrorFunctions[i];
+      expect(fn).toBeInstanceOf(Function);
+      const httpError = fn();
+      expect(httpError).toBeInstanceOf(HttpError);
+      expect(httpError.status).toEqual(i);
+      expect(httpError.message).toEqual(
+        HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
+      );
+    }
+
+    // @ts-ignore
+    expect(() => ErrorFunctions.aaa).toThrow("Unknown error function aaa");
+  });
   describe("4xx", () => {
     // Test error functions for 400 - 499
     it("4xx should return an instance of HttpError", () => {
@@ -174,49 +215,5 @@ describe("Function shortcuts", () => {
         );
       });
     });
-  });
-});
-
-describe("ErrorFunctions", () => {
-  it("create", () => {
-    // should return $
-    expect(ErrorFunctions.create).toEqual($);
-  });
-
-  it("$", () => {
-    // should return $
-    expect(ErrorFunctions.$).toEqual($);
-  });
-
-  it("$ errors [should test 200 functions]", () => {
-    for (let i = 400; i < 600; i++) {
-      const fn = ErrorFunctions[`$${i}`];
-      expect(fn).toBeInstanceOf(Function);
-      const httpError = fn();
-      expect(httpError).toBeInstanceOf(HttpError);
-      expect(httpError.status).toEqual(i);
-      expect(httpError.message).toEqual(
-        HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
-      );
-    }
-
-    // @ts-ignore
-    expect(() => ErrorFunctions.$aaa).toThrow("Unknown error function $aaa");
-  });
-
-  it("direct errors [should test 200 functions]", () => {
-    for (let i = 400; i < 600; i++) {
-      const fn = ErrorFunctions[i];
-      expect(fn).toBeInstanceOf(Function);
-      const httpError = fn();
-      expect(httpError).toBeInstanceOf(HttpError);
-      expect(httpError.status).toEqual(i);
-      expect(httpError.message).toEqual(
-        HTTP_ERROR_MESSAGES[i] ?? "Unknown Error"
-      );
-    }
-
-    // @ts-ignore
-    expect(() => ErrorFunctions.aaa).toThrow("Unknown error function aaa");
   });
 });

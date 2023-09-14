@@ -83,5 +83,7 @@ const exitLayer = createDataProcessingLayer(db, {
 }).functions.users.get;
 
 describe("[]", () => {
-  it("[]", () => {});
+  it("[]", () => {
+    expect(exitLayer).toBeDefined();
+  });
 });

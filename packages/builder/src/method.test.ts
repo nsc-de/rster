@@ -18,7 +18,7 @@ describe("RsterApiMethod", () => {
         { returns: undefinedType() },
         "/test",
         "get",
-        (args) => {}
+        () => {}
       );
 
       expect(method.name).toBe("test");
@@ -31,7 +31,7 @@ describe("RsterApiMethod", () => {
         { returns: undefinedType() },
         "/test",
         "get",
-        (args) => {}
+        () => {}
       );
 
       expect(method.description).toEqual(["test description"]);
@@ -44,7 +44,7 @@ describe("RsterApiMethod", () => {
         { returns: undefinedType() },
         "/test",
         "get",
-        (args) => {}
+        () => {}
       );
 
       expect(method.httpPath).toBe("/test");
@@ -57,7 +57,7 @@ describe("RsterApiMethod", () => {
         { returns: undefinedType() },
         "/test",
         "get",
-        (args) => {}
+        () => {}
       );
 
       expect(method.httpMethod).toBe("get");
@@ -70,7 +70,7 @@ describe("RsterApiMethod", () => {
         { returns: undefinedType() },
         "/test",
         "get",
-        (args) => {}
+        () => {}
       );
 
       expect(method.declaration).toEqual({ returns: undefinedType() });
@@ -83,7 +83,7 @@ describe("RsterApiMethod", () => {
         { returns: undefinedType() },
         "/test",
         "get",
-        (args) => {}
+        () => {}
       );
 
       expect(method.action).toBeDefined();
@@ -140,7 +140,7 @@ describe("RsterApiMethod", () => {
         { returns: undefinedType() },
         "/test",
         "get",
-        (args) => {}
+        () => {}
       );
 
       expect(method.json()).toEqual({
@@ -180,7 +180,7 @@ describe("RsterApiMethod", () => {
         },
         "/test",
         "get",
-        (args) => {}
+        () => {}
       );
 
       expect(method.json()).toEqual({
@@ -231,7 +231,7 @@ describe("RsterApiMethod", () => {
         },
         "/test",
         "get",
-        (args) => {}
+        () => {}
       );
       const api = rest(function () {
         method.rest(this);
@@ -828,7 +828,7 @@ describe("RsterApiMethod", () => {
         { returns: string() },
         "/test",
         "get",
-        (args) => {
+        () => {
           return "Hello from the test action 😉";
         }
       );
@@ -1206,7 +1206,7 @@ describe("RsterApiMethod", () => {
         },
         "/test/:test/:test2",
         "get",
-        (args) => {
+        () => {
           return 1;
         }
       );
@@ -1231,7 +1231,7 @@ describe("RsterApiMethod", () => {
         },
         "/test/:test/:test2",
         "get",
-        (args) => {
+        () => {
           return 1;
         }
       );
@@ -1267,7 +1267,7 @@ describe("method()", () => {
       { returns: undefinedType() },
       "/test",
       "get",
-      (args) => {}
+      () => {}
     );
 
     expect(m.name).toBe("test");

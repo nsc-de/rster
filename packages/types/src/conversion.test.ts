@@ -1,5 +1,4 @@
 import { ConversionRegister } from "./conversion";
-import { boolean } from "./types/boolean";
 import { number } from "./types/number";
 import { StringTypeInformation, string } from "./types/string";
 
@@ -1057,7 +1056,6 @@ describe("ConversionRegister", () => {
     it("Test with unsupported type", () => {
       const typeInfo = string();
       const typeInfo2 = number();
-      const typeInfo3 = boolean();
 
       const conversionRegister = new ConversionRegister([
         {

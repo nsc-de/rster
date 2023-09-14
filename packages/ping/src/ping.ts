@@ -1,5 +1,5 @@
 // import { declaration } from "../generator/index";
-import { Context, ContextChildCondition } from "@rster/basic";
+import { Context } from "@rster/basic";
 
 declare module "@rster/basic" {
   interface Context {
@@ -13,8 +13,8 @@ Context.prototype.usePing = function (options?: {
 }): void {
   const path = options?.path ?? "/ping";
   const response = options?.response ?? { message: "Pong! 🏓" };
-  this.any(path, function (ctx) {
-    this.action(async (req, res) => {
+  this.any(path, function () {
+    this.action(async (_req, res) => {
       res.status(200).json(response).end();
     });
   });

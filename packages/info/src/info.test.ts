@@ -485,16 +485,16 @@ describe("Context", () => {
 
         this.get("/test1", function () {
           this.declaration({ name: "test2", returnBody: number() });
-          this.action((req, res) => {});
+          this.action(() => {});
         });
 
         this.get("/test2", function () {
           this.declaration({ name: "test3", returnBody: any() });
-          this.action((req, res) => {});
+          this.action(() => {});
 
           this.get("/test3", function () {
             this.declaration({ name: "test4", returnBody: string() });
-            this.action((req, res) => {});
+            this.action(() => {});
           });
         });
 
@@ -529,23 +529,22 @@ describe("Context", () => {
 
     it("Test collectDeclarations with multiple declarations of another context", () => {
       const ctx = createEmptyContext();
-      const ctx2 = createEmptyContext();
 
       ctx.init(function () {
         this.declaration({ name: "test", returnBody: string() });
 
         this.get("/test1", function () {
           this.declaration({ name: "test2", returnBody: number() });
-          this.action((req, res) => {});
+          this.action(() => {});
         });
 
         this.get("/test2", function () {
           this.declaration({ name: "test3", returnBody: any() });
-          this.action((req, res) => {});
+          this.action(() => {});
 
           this.get("/test3", function () {
             this.declaration({ name: "test4", returnBody: string() });
-            this.action((req, res) => {});
+            this.action(() => {});
           });
         });
 

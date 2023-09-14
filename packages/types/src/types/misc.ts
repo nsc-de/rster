@@ -148,11 +148,11 @@ export class AnyTypeInformation<T = any> extends TypeInformation<T> {
     return "any";
   }
 
-  exportToString(value: T): string {
+  exportToString(_value: T): string {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
-  importFromString(value: string): T {
+  importFromString(_value: string): T {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 

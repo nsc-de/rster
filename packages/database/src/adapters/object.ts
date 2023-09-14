@@ -30,21 +30,21 @@ export const JsObject = createDatabaseAdapter<
     return Promise.resolve(this.__data[table] !== undefined);
   },
 
-  create(table: string, options) {
+  create(table: string) {
     if (!this.__data[table]) {
       this.__data[table] = [];
     }
     return Promise.resolve();
   },
 
-  drop(table: string, options: { ifExists?: boolean | undefined }) {
+  drop(table: string) {
     if (this.__data[table]) {
       delete this.__data[table];
     }
     return Promise.resolve();
   },
 
-  get(table, search, options) {
+  get(table, search) {
     if (!this.__data[table]) {
       throw new Error("Table does not exist");
     }
@@ -65,7 +65,7 @@ export const JsObject = createDatabaseAdapter<
     return Promise.resolve(results);
   },
 
-  insert(table, obj, options) {
+  insert(table, obj) {
     if (!this.__data[table]) {
       throw new Error("Table does not exist");
     }

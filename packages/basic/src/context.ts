@@ -180,7 +180,7 @@ export class Context {
    * @see {@link Context.data}
    * @see {@link Context._data}
    */
-  private _data: { [key: string]: any } = {};
+  private _data: { [key: string]: unknown } = {};
 
   /**
    * {@link Context}'s constructor
@@ -1446,9 +1446,11 @@ export class Context {
                 do_execute(new_collect).then(resolve).catch(reject);
               };
 
-              await (collected[i] as ContextChildUse)
-                .func(req, res, next)
-                ?.catch(next);
+              try {
+                await (collected[i] as ContextChildUse).func(req, res, next);
+              } catch (e) {
+                next(e);
+              }
 
               if (!next_called) {
                 resolve(true);
@@ -1472,7 +1474,7 @@ export class Context {
    * Context.current.data(); // A map with all the data of the context
    * ```
    */
-  data(): { [key: string]: any };
+  data(): { [key: string]: unknown };
 
   /**
    * Get the data with the given key
@@ -1483,8 +1485,8 @@ export class Context {
    * Context.current.data("key"); // The data with the given key
    * ```
    */
-  data(key: string): any;
-  data(arg0?: string): any {
+  data(key: string): unknown;
+  data(arg0?: string): unknown {
     if (typeof arg0 == "undefined") return this._data;
     if (typeof arg0 == "string") return this._data[arg0];
     throw new Error("Invalid arguments");
@@ -1500,7 +1502,7 @@ export class Context {
    * Context.current.setData("key", "value"); // The context itself
    * ```
    */
-  setData(key: string, value: any): this {
+  setData(key: string, value: unknown): this {
     if (!key) throw new Error("No key provided");
     this._data[key] = value;
     return this;
@@ -1514,7 +1516,7 @@ export class Context {
    * Context.current.map; // A map with all the data of the context
    * ```
    */
-  get map(): any {
+  get map(): unknown {
     return (
       this.children.filter(
         (c) => c.type === "condition"
@@ -1662,7 +1664,7 @@ export type ContextInitializer = (
 export type ActionFunction = (
   req: Request,
   res: Response
-) => any | Promise<any>;
+) => unknown | Promise<unknown>;
 
 /**
  * Use function for a context
@@ -1675,10 +1677,10 @@ export type UseFunction = (
   req: Request,
   res: Response,
   next: NextFunction
-) => any | Promise<any>;
+) => unknown | Promise<unknown>;
 
 /**
  * Next function for a context
  * @param err Pass an error to the next function to stop the execution of the context, it will be handled by the error handler
  */
-export type NextFunction = (err?: any) => void;
+export type NextFunction = (err?: unknown) => void;

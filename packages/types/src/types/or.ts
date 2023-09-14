@@ -41,19 +41,21 @@ export class Or<
     return "or";
   }
 
-  exportToString(value: PrimitiveType<T0> | PrimitiveType<T1>): string {
+  exportToString(_value: PrimitiveType<T0> | PrimitiveType<T1>): string {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
-  importFromString(value: string): PrimitiveType<T0> | PrimitiveType<T1> {
+  importFromString(_value: string): PrimitiveType<T0> | PrimitiveType<T1> {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
-  exportToJson(value: PrimitiveType<T0> | PrimitiveType<T1>): JsonCompatible {
+  exportToJson(_value: PrimitiveType<T0> | PrimitiveType<T1>): JsonCompatible {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
-  importFromJson(value: JsonCompatible): PrimitiveType<T0> | PrimitiveType<T1> {
+  importFromJson(
+    _value: JsonCompatible
+  ): PrimitiveType<T0> | PrimitiveType<T1> {
     throw new Error("Method not supported."); // TODO: Possible to implement?
   }
 
