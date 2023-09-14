@@ -7,7 +7,7 @@ import {
   ContextConditionMethod,
   ContextConditionPath,
 } from "@rster/basic";
-import { RsterApi } from "./api";
+import { RsterApi, api } from "./api";
 
 describe("RsterApi", () => {
   describe("#constructor()", () => {
@@ -358,5 +358,12 @@ describe("RsterApi", () => {
 
       expect(native.test.test).toEqual({});
     });
+  });
+});
+
+describe("api", () => {
+  it("should create a new RsterApi", () => {
+    const module = api("test", ["test"], {}, {});
+    expect(module).toBeInstanceOf(RsterApi);
   });
 });

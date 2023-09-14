@@ -1,6 +1,6 @@
 import { undefinedType } from "@rster/types";
 import { RsterApiMethod } from "./method";
-import { RsterApiModule } from "./module";
+import { RsterApiModule, module } from "./module";
 import rest, {
   ContextChildCondition,
   ContextConditionAnd,
@@ -573,5 +573,12 @@ describe("RsterApiModule", () => {
 
       expect(native.test.test).toEqual({});
     });
+  });
+});
+
+describe("module()", () => {
+  it("should create a new RsterApiModule", () => {
+    const m = module("test", ["test"], {}, {}, "/test", "get");
+    expect(m).toBeInstanceOf(RsterApiModule);
   });
 });
