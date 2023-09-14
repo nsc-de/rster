@@ -137,11 +137,30 @@ export class RsterApiMethod<
    * @param action The action of the method. If not provided, it will be defaulted to a method that throws an error.
    */
   constructor(
+    /**
+     * The name of the method.
+     */
     public readonly name: NAME,
+
+    /**
+     * The description of the method.
+     */
     public readonly description: string[],
+
+    /**
+     * The declaration of the method.
+     */
     public readonly declaration: DECLARATION,
     httpPath?: string,
+
+    /**
+     * The http method of the method. If not provided, it will be defaulted to ALL.
+     */
     public readonly httpMethod?: Method,
+
+    /**
+     * The action of the method. If not provided, it will be defaulted to a method that throws an error.
+     */
     public readonly action?: ActionFunction<DECLARATION>
   ) {
     if (!httpPath) {
