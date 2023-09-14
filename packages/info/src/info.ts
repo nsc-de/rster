@@ -7,13 +7,13 @@ const version = "0.1.4";
 export interface Declaration {
   name: string;
   expectBody?: {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+    [key: string]: { type: TypeInformation<unknown>; required: boolean };
   };
   expectQuery?: {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+    [key: string]: { type: TypeInformation<unknown>; required: boolean };
   };
   expectParams?: {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+    [key: string]: { type: TypeInformation<unknown>; required: boolean };
   };
   returnBody: TypeInformation<unknown>;
 }

@@ -1,5 +1,9 @@
 # Changelog for @rster/info
 
+## v0.1.5
+
+- Move declaration `optional` to `required` to make it consistent with `@rster/types`'s `object` type
+
 ## v0.1.4
 
 - Fix bug in `#useInfo`: Logic error with paths & bugged `Context#contextStack()` function of `@rster/basic` used in `#useInfo` (which is now fixed with `@rster/basic@v0.1.3`)
