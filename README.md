@@ -49,18 +49,18 @@
       </ul>
     </li>
     <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
+      <a href="#tutorial-intro">Tutorial Intro</a>
+      <ol>
         <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#what-youll-need">What you'll need</a></li>
         <li><a href="#installation">Installation</a></li>
-      </ul>
+        <li><a href="#getting-started">Getting Started</a></li>
+      </ol>
     </li>
-    <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -189,16 +189,17 @@ _For more examples, please refer to the [Documentation][documentation-url]_
 
 <!-- ROADMAP -->
 
-<!-- ## Roadmap
+## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-  - [ ] Nested Feature
+- [x] Rster base framework
+- [ ] Rster advanced framework
+  - [ ] Rster builder _(in development, heavily worked on right now, will be released soon)_
+  - [ ] Rster database _(in development)_
+  - [ ] Rster generator _(in development)_
 
 See the [open issues](https://github.com/nsc-de/rster/issues) for a full list of proposed features (and known issues).
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
 

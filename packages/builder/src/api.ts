@@ -1,18 +1,8 @@
 import rest, { Context, RestfulApi } from "@rster/basic";
-import { ArrayFinder, NoNever, Value, Values } from "@rster/common";
-import {
-  RsterApiBuilderContextToRsterApi,
-  RsterApiMethodBuilder,
-  RsterApiModuleBuilder,
-} from "./conversion_types";
-import { RsterApiMethodBuilderContext, RsterApiMethodJson } from "./method";
-import { RsterApiModuleBuilderContext, RsterApiModuleJson } from "./module";
-import {
-  MethodBuilderMap,
-  MethodMap,
-  ModuleBuilderMap,
-  ModuleMap,
-} from "./types";
+import { Values } from "@rster/common";
+import { RsterApiMethod, RsterApiMethodJson } from "./method";
+import { RsterApiModule, RsterApiModuleJson } from "./module";
+import { AnyParameterDeclaration, RemoveNeverProperties } from "./types";
 
 /**
  * A type for the json representation of the api class. Returned by the `json` method, used to get info about the api.
@@ -21,12 +11,6 @@ import {
  * @see RsterApi
  */
 export interface RsterApiJson {
-  /**
-   * The version string of the api.
-   * @see RsterApi.version
-   */
-  version: string;
-
   /**
    * The name of the api.
    * @see RsterApi.name
@@ -54,28 +38,75 @@ export interface RsterApiJson {
   methods: RsterApiMethodJson[];
 }
 
-export class RsterApi<MODULES extends ModuleMap, METHODS extends MethodMap> {
+/**
+ * Rster api class. Used to create an api with `@rster/builder`.
+ *
+ * _We use type parameters to more specifically index the typing of the api. This allows us to get the correct typing for the `native` method. From a functional perspective, the type parameters are not needed._
+ * @typeParam NAME - The name of the api.
+ * @typeParam MODULES - The modules of the api.
+ * @typeParam METHODS - The methods of the api.
+ */
+export class RsterApi<
+  NAME extends string,
+  MODULES extends { [key: string]: RsterApiModule<typeof key, any, any> },
+  METHODS extends {
+    [key: string]: RsterApiMethod<typeof key, AnyParameterDeclaration>;
+  }
+> {
+  /**
+   * The constructor of the {@link RsterApi} class.
+   *
+   * @param name The name of the api.
+   * @param description The description of the api.
+   * @param modules The modules of the api.
+   * @param methods The methods of the api.
+   */
+
   constructor(
-    public readonly version: string,
-    public readonly name: string,
+    /**
+     * The name of the api.
+     */
+    public readonly name: NAME,
+
+    /**
+     * The description of the api.
+     */
     public readonly description: string[],
-    public readonly moduleList: Values<MODULES>,
-    public readonly methodList: Values<METHODS>
-  ) {}
 
-  public readonly modules: MODULES = ArrayFinder(
-    this.moduleList,
-    "name"
-  ) as unknown as MODULES;
+    /**
+     * The modules of the api.
+     * @see {@link RsterApi.moduleList}
+     */
+    public readonly modules: MODULES,
 
-  public readonly methods: METHODS = ArrayFinder(
-    this.methodList,
-    "name"
-  ) as unknown as METHODS;
+    /**
+     * The methods of the api.
+     * @see {@link RsterApi.methodList}
+     */
+    public readonly methods: METHODS
+  ) {
+    this.moduleList = Object.values(modules) as Values<MODULES>;
+    this.methodList = Object.values(methods) as Values<METHODS>;
+  }
 
+  /**
+   * A list of the modules of the api.
+   * @see {@link RsterApi.modules}
+   */
+  public readonly moduleList: Values<MODULES>;
+
+  /**
+   * A list of the methods of the api.
+   * @see {@link RsterApi.methods}
+   */
+  public readonly methodList: Values<METHODS>;
+
+  /**
+   * Returns the json representation of the api.
+   * @see RsterApiJson
+   */
   public json(): RsterApiJson {
     return {
-      version: this.version,
       name: this.name,
       description: this.description,
       modules: this.moduleList.map((m) => m.json()),
@@ -83,6 +114,10 @@ export class RsterApi<MODULES extends ModuleMap, METHODS extends MethodMap> {
     };
   }
 
+  /**
+   * Returns the api as a restful api. {@link RestfulApi}
+   * @see {@link RestfulApi}
+   */
   public rest(): RestfulApi {
     return rest(() => {
       Context.current.description(...this.description);
@@ -96,122 +131,66 @@ export class RsterApi<MODULES extends ModuleMap, METHODS extends MethodMap> {
       });
     });
   }
+
+  /**
+   * Returns the api as a native object. This is userful if you want to use the api definition as functions on your server-side, so you don't have to define the functionality in another place
+   */
+  public native(): RemoveNeverProperties<{
+    [key in keyof MODULES]: key extends keyof METHODS
+      ? ReturnType<MODULES[key]["native"]> & ReturnType<METHODS[key]["native"]>
+      : ReturnType<MODULES[key]["native"]>;
+  }> &
+    RemoveNeverProperties<{
+      [key in keyof METHODS]: key extends keyof MODULES
+        ? never
+        : ReturnType<METHODS[key]["native"]>;
+    }> {
+    const moduleList = this.moduleList.map((m) => ({
+      name: m.name,
+      native: m.native(),
+    }));
+    const methodList = this.methodList.map((m) => ({
+      name: m.name,
+      native: m.native(),
+    }));
+
+    const map = methodList.reduce((map, m) => {
+      map[m.name] = m.native;
+      return map;
+    }, {} as Record<string, any>);
+
+    moduleList.forEach((m) => {
+      if (m.name in map) {
+        Object.assign(map[m.name], m.native);
+        return;
+      }
+      map[m.name] = m.native;
+    });
+
+    return map as any;
+  }
 }
 
-export class RsterApiBuilderContext<
-  MODULES extends ModuleBuilderMap<RsterApiModuleBuilderContext<any, any>>,
-  METHODS extends MethodBuilderMap<RsterApiMethodBuilderContext<any>>
-> {
-  private _version?: string;
-  private _name?: string;
-  private _description: string[] = [];
-  public readonly moduleList: Values<MODULES> = [];
-  public readonly methodList: Values<METHODS> = [];
-
-  public readonly modules: MODULES = ArrayFinder(
-    this.moduleList,
-    "name"
-  ) as unknown as MODULES;
-
-  public readonly methods: METHODS = ArrayFinder(
-    this.methodList,
-    "name"
-  ) as unknown as METHODS;
-
-  constructor({
-    version,
-    name,
-    description = [],
-    modules = [],
-    methods = [],
-  }: {
-    version?: string;
-    name?: string;
-    description?: string[];
-    modules?: Values<MODULES>;
-    methods?: Values<METHODS>;
-  } = {}) {
-    this._version = version;
-    this._name = name;
-    this._description = description;
-    this.moduleList.push(...modules);
-    this.methodList.push(...methods);
+/**
+ * Shortcut function to create a {@link RsterApi} object.
+ *
+ * @param name The name of the api.
+ * @param description The description of the api.
+ * @param modules The modules of the api.
+ * @param methods The methods of the api.
+ * @returns A new {@link RsterApi} object.
+ */
+export function api<
+  NAME extends string,
+  MODULES extends { [key: string]: RsterApiModule<typeof key, any, any> },
+  METHODS extends {
+    [key: string]: RsterApiMethod<typeof key, any>;
   }
-
-  public module<T extends Value<MODULES>>(
-    name: string,
-    builder: RsterApiModuleBuilder<NoNever<T, ModuleBuilderMap<any>>>
-  ) {
-    const context = new RsterApiModuleBuilderContext({
-      name,
-    }) as T;
-
-    builder.call(context as NoNever<T, ModuleBuilderMap<any>>);
-    this.moduleList.push(context);
-  }
-
-  public method<T extends Value<METHODS>>(
-    name: string,
-    builder: RsterApiMethodBuilder<NoNever<T, ModuleBuilderMap<any>>>
-  ) {
-    const context = new RsterApiMethodBuilderContext({
-      name,
-    }) as T;
-    builder.call(context as NoNever<T, ModuleBuilderMap<any>>);
-    this.methodList.push(context);
-  }
-
-  public getVersion() {
-    return this._version;
-  }
-
-  public setVersion(version: string) {
-    this._version = version;
-  }
-
-  public version(version: string) {
-    this.setVersion(version);
-  }
-
-  public getName() {
-    return this._name;
-  }
-
-  public setName(name: string) {
-    this._name = name;
-  }
-
-  public name(name: string) {
-    this.setName(name);
-  }
-
-  public getDescription() {
-    return this._description;
-  }
-
-  public setDescription(description: string[]) {
-    this._description = description;
-  }
-
-  public description(...description: string[]) {
-    this._description.push(...description);
-  }
-
-  public getModules() {
-    return this.moduleList;
-  }
-
-  public getMethods() {
-    return this.methodList;
-  }
-
-  public generate() {
-    return new RsterApi(
-      this._version!,
-      this._name!,
-      this._description,
-      this.moduleList.map((m) => m.generate()),
-      this.methodList.map((m) => m.generate())
-    ) as RsterApiBuilderContextToRsterApi<this>;
-  }
+>(
+  name: NAME,
+  description: string[],
+  modules: MODULES,
+  methods: METHODS
+): RsterApi<NAME, MODULES, METHODS> {
+  return new RsterApi(name, description, modules, methods);
 }

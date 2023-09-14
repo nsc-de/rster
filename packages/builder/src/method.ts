@@ -1,13 +1,38 @@
-import { $400, Context } from "@rster/basic";
+import {
+  $400,
+  Context,
+  ContextConditionMethod,
+  ContextConditionPath,
+} from "@rster/basic";
 import { Method } from "@rster/common";
 import {
   AllowAnyTypeInformation,
+  AnyTypeInformation,
   TypeInformation,
-  undefinedType,
 } from "@rster/types";
-import { RsterApiMethodBuilderContextToRsterApiMethod } from "./conversion_types";
-import { ActionFunction, ParameterDeclaration } from "./types";
+import {
+  ActionFunction,
+  AnyParameterDeclaration,
+  RsterArgsType,
+  ParameterDeclaration,
+  RsterReturnType,
+  t,
+} from "./types";
 import "@rster/info";
+
+/**
+ * Utility type to remove all optional properties from a type.
+ */
+type RemoveOptionalProperties<T> = {
+  [K in keyof T as T[K] extends undefined | null ? never : K]: T[K];
+};
+
+/**
+ * Test if an object has any required properties. (so `{}` would return false, {a?: 1} would also return false, {a: 1} would return true)
+ */
+type NeedsProperty<T> = keyof RemoveOptionalProperties<T> extends never
+  ? false
+  : true;
 
 /**
  * A type for the json representation of the method class. Returned by the `json` method, used to get info about the method.
@@ -86,29 +111,75 @@ export interface RsterApiMethodJson {
   };
 }
 
+/**
+ * Rster method class. Used to create a method with `@rster/builder`.
+ *
+ * _We use type parameters to more specifically index the typing of the method. This allows us to get the correct typing for the `native` method. From a functional perspective, the type parameters are not needed._
+ * @typeParam NAME - The name of the method.
+ * @typeParam DECLARATION - The declaration of the method.
+ */
 export class RsterApiMethod<
-  DECLARATION extends ParameterDeclaration<
-    AllowAnyTypeInformation,
-    {
-      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-    },
-    {
-      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-    },
-    {
-      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-    }
-  >
+  NAME extends string,
+  DECLARATION extends AnyParameterDeclaration
 > {
-  constructor(
-    public readonly name: string,
-    public readonly description: string[],
-    public readonly declaration: DECLARATION,
-    public readonly httpPath?: string,
-    public readonly httpMethod?: Method,
-    public readonly action?: ActionFunction<DECLARATION>
-  ) {}
+  /**
+   * The http path of the method. Does not include the parent module's path, only the path for the method's condition.
+   */
+  public readonly httpPath: string;
 
+  /**
+   * The constructor of the {@link RsterApiMethod} class.
+   * @param name The name of the method.
+   * @param description The description of the method.
+   * @param declaration The declaration of the method.
+   * @param httpPath The http path of the method. Does not include the parent module's path, only the path for the method's condition. If not provided, it will be generated from the name and declaration.
+   * @param httpMethod The http method of the method. If not provided, it will be defaulted to ALL.
+   * @param action The action of the method. If not provided, it will be defaulted to a method that throws an error.
+   */
+  constructor(
+    /**
+     * The name of the method.
+     */
+    public readonly name: NAME,
+
+    /**
+     * The description of the method.
+     */
+    public readonly description: string[],
+
+    /**
+     * The declaration of the method.
+     */
+    public readonly declaration: DECLARATION,
+    httpPath?: string,
+
+    /**
+     * The http method of the method. If not provided, it will be defaulted to ALL.
+     */
+    public readonly httpMethod?: Method,
+
+    /**
+     * The action of the method. If not provided, it will be defaulted to a method that throws an error.
+     */
+    public readonly action?: ActionFunction<DECLARATION>
+  ) {
+    if (!httpPath) {
+      // Generate httpPath from name and declaration (expectParams)
+
+      const name = this.name;
+      const params = Object.keys(this.declaration.expectParams ?? {})
+        .map((it) => `:${it}`)
+        .join("/");
+      const httpPath = `/${name}${params ? `/${params}` : ""}`;
+      this.httpPath = httpPath;
+    } else this.httpPath = httpPath;
+  }
+
+  /**
+   * Get the json representation of the method. Used to get info about the method.
+   * @returns The json representation of the method.
+   * @see RsterApiMethodJson
+   */
   public json(): RsterApiMethodJson {
     return {
       name: this.name,
@@ -124,7 +195,7 @@ export class RsterApiMethod<
                     value as { type: AllowAnyTypeInformation }
                   ).type.json(),
 
-                  optional: (value as { optional: boolean }).optional,
+                  required: (value as { required: boolean }).required,
                 },
               }))
               .reduce((prev, curr) => ({ ...prev, ...curr }), {})
@@ -137,7 +208,7 @@ export class RsterApiMethod<
                     value as { type: AllowAnyTypeInformation }
                   ).type.json(),
 
-                  optional: (value as { optional: boolean }).optional,
+                  required: (value as { required: boolean }).required,
                 },
               }))
               .reduce((prev, curr) => ({ ...prev, ...curr }), {})
@@ -150,7 +221,7 @@ export class RsterApiMethod<
                     value as { type: AllowAnyTypeInformation }
                   ).type.json(),
 
-                  optional: (value as { optional: boolean }).optional,
+                  required: (value as { required: boolean }).required,
                 },
               }))
               .reduce((prev, curr) => ({ ...prev, ...curr }), {})
@@ -160,35 +231,122 @@ export class RsterApiMethod<
     };
   }
 
+  /**
+   * Input the method into a {@link Context} object. This will add the method to the context, and it will be used for requests.
+   * Defaults to the current context.
+   * @param ctx The context to add the method to. Defaults to the current context.
+   */
   public rest(ctx?: Context) {
     ctx = ctx ?? Context.current;
 
-    ctx.description(...this.description);
-    ctx.declaration({
-      name: this.name,
-      returnBody: this.declaration.returns,
-      expectBody: this.declaration.expectBody,
-      expectQuery: this.declaration.expectQuery,
-      expectParams: this.declaration.expectParams,
-    });
-    ctx.action(async (req, res) => {
-      const params = req.params;
+    const pathCondition = new ContextConditionPath(this.httpPath ?? "");
+    const methodCondition = this.httpMethod
+      ? new ContextConditionMethod(this.httpMethod)
+      : undefined;
 
+    const condition = methodCondition
+      ? pathCondition.and(methodCondition)
+      : pathCondition;
+
+    const { declaration, action, description, name } = this;
+
+    ctx.when(condition, function () {
+      this.description(...description);
+      this.declaration({
+        name: name,
+        returnBody: declaration.returns as AnyTypeInformation,
+        expectBody: declaration.expectBody,
+        expectQuery: declaration.expectQuery,
+        expectParams: declaration.expectParams,
+      });
+      this.action(async (req, res) => {
+        const params = req.params;
+
+        if (declaration.expectBody) {
+          for (const [key, value] of Object.entries(declaration.expectBody)) {
+            if (!value.required && req.body[key] === undefined) continue;
+            if (req.body[key] === undefined)
+              throw $400(`Missing body parameter ${key}`);
+
+            const type = (value as { type: TypeInformation<unknown> }).type;
+            if (!type.check(req.body[key]))
+              throw $400(
+                `Invalid body parameter ${key}: Expected ${JSON.stringify(
+                  type.json()
+                )}`
+              );
+
+            params[key] = req.body[key];
+          }
+        }
+
+        if (declaration.expectQuery) {
+          for (const [key, value] of Object.entries(declaration.expectQuery)) {
+            if (!value.required && req.query[key] === undefined) continue;
+            if (req.query[key] === undefined)
+              throw $400(`Missing query parameter ${key}`);
+
+            const type = (value as { type: TypeInformation<unknown> }).type;
+            if (!type.check(req.query[key]))
+              throw $400(
+                `Invalid query parameter ${key}: Expected ${JSON.stringify(
+                  type.json()
+                )}`
+              );
+
+            params[key] = req.query[key];
+          }
+        }
+
+        if (declaration.expectParams) {
+          for (const [key, value] of Object.entries(declaration.expectParams)) {
+            if (!value.required && req.params[key] === undefined) continue;
+            if (req.params[key] === undefined)
+              throw $400(`Missing path parameter ${key}`);
+
+            const type = (value as { type: TypeInformation<unknown> }).type;
+            if (!type.check(req.params[key]))
+              // This should basically never happen if it has the right type
+              throw $400(
+                `Invalid param ${key}: Expected ${JSON.stringify(type.json())}`
+              );
+
+            params[key] = req.params[key];
+          }
+        }
+
+        const result = await action?.(params);
+        const exported = declaration.returns?.exportToJson(result);
+        res.status(200).json(exported).end();
+      });
+    });
+  }
+
+  /**
+   * The native method of the method. This method can be used to call the method directly, without using the rest api.
+   * @returns The native method of the method.
+   */
+  public native() {
+    return ((args?: RsterArgsType<DECLARATION>) => {
+      if (!this.action) throw new Error("No action defined");
+
+      // Check args
       if (this.declaration.expectBody) {
         for (const [key, value] of Object.entries(
           this.declaration.expectBody
         )) {
-          if (value.optional && req.body[key] === undefined) continue;
-          if (req.body[key] === undefined)
+          if (!value.required && args?.[key as keyof typeof args] === undefined)
+            continue;
+          if (args?.[key as keyof typeof args] === undefined)
             throw $400(`Missing body parameter ${key}`);
 
           const type = (value as { type: TypeInformation<unknown> }).type;
-          if (!type.check(req.body[key]))
+          if (!type.check(args[key as keyof typeof args]))
             throw $400(
-              `Invalid body parameter ${key}: Expected ${type.json()}`
+              `Invalid body parameter ${key}: Expected ${JSON.stringify(
+                type.json()
+              )}`
             );
-
-          params[key] = req.body[key];
         }
       }
 
@@ -196,17 +354,20 @@ export class RsterApiMethod<
         for (const [key, value] of Object.entries(
           this.declaration.expectQuery
         )) {
-          if (value.optional && req.query[key] === undefined) continue;
-          if (req.query[key] === undefined)
+          if (!value.required && args?.[key as keyof typeof args] === undefined)
+            continue;
+          if (args?.[key as keyof typeof args] === undefined)
             throw $400(`Missing query parameter ${key}`);
-
-          const type = (value as { type: TypeInformation<unknown> }).type;
-          if (!type.check(req.query[key]))
+          if (
+            !(value as { type: TypeInformation<unknown> }).type.check(
+              args[key as keyof typeof args]
+            )
+          )
             throw $400(
-              `Invalid query parameter ${key}: Expected ${type.json()}`
+              `Invalid query parameter ${key}: Expected ${JSON.stringify(
+                (value as { type: TypeInformation<unknown> }).type.json()
+              )}`
             );
-
-          params[key] = req.query[key];
         }
       }
 
@@ -214,158 +375,68 @@ export class RsterApiMethod<
         for (const [key, value] of Object.entries(
           this.declaration.expectParams
         )) {
-          if (value.optional && req.params[key] === undefined) continue;
-          if (req.params[key] === undefined) throw $400(`Missing param ${key}`);
-
-          const type = (value as { type: TypeInformation<unknown> }).type;
-          if (!type.check(req.params[key]))
-            throw $400(`Invalid param ${key}: Expected ${type.json()}`);
-
-          params[key] = req.params[key];
+          if (!value.required && args?.[key as keyof typeof args] === undefined)
+            continue;
+          if (args?.[key as keyof typeof args] === undefined)
+            throw $400(`Missing path parameter ${key}`);
+          if (
+            !(value as { type: TypeInformation<unknown> }).type.check(
+              args[key as keyof typeof args]
+            )
+          )
+            throw $400(
+              `Invalid path parameter ${key}: Expected ${JSON.stringify(
+                (value as { type: TypeInformation<unknown> }).type.json()
+              )}`
+            );
         }
       }
 
-      const result = await this.action?.(params);
-      const exported = this.declaration.returns?.exportToJson(result);
-      res.status(200).json(exported).end();
-    });
+      return this.action(args ?? ({} as RsterArgsType<DECLARATION>));
+    }) as NeedsProperty<RsterArgsType<DECLARATION>> extends true
+      ? (args: t<RsterArgsType<DECLARATION>>) => RsterReturnType<DECLARATION>
+      : (args?: t<RsterArgsType<DECLARATION>>) => RsterReturnType<DECLARATION>;
   }
 }
 
-export class RsterApiMethodBuilderContext<
-  DECLARATION extends ParameterDeclaration<any, any, any, any>
-> {
-  private readonly _name: string;
-  private readonly _description: string[] = [];
-  private _httpPath?: string;
-  private _httpMethod?: Method;
-  private _declaration: DECLARATION;
-
-  public get name() {
-    return this._name;
-  }
-
-  private _action?: ActionFunction<DECLARATION>;
-
-  constructor({
+/**
+ * Shortcut function to create a new {@link RsterApiMethod} object.
+ * @param name The name of the method.
+ * @param description The description of the method.
+ * @param declaration The declaration of the method.
+ * @param httpPath The http path of the method. Does not include the parent module's path, only the path for the method's condition. If not provided, it will be generated from the name and declaration.
+ * @param httpMethod The http method of the method. If not provided, it will be defaulted to ALL.
+ * @param action The action of the method. If not provided, it will be defaulted to a method that throws an error.
+ * @returns The new {@link RsterApiMethod} object.
+ */
+export function method<
+  NAME extends string,
+  DECLARATION extends ParameterDeclaration<
+    AllowAnyTypeInformation,
+    {
+      [key: string]: { type: TypeInformation<unknown>; required: boolean };
+    },
+    {
+      [key: string]: { type: TypeInformation<unknown>; required: boolean };
+    },
+    {
+      [key: string]: { type: TypeInformation<unknown>; required: boolean };
+    }
+  >
+>(
+  name: NAME,
+  description: string[],
+  declaration: DECLARATION,
+  httpPath?: string,
+  httpMethod?: Method,
+  action?: ActionFunction<DECLARATION>
+) {
+  return new RsterApiMethod(
     name,
-    description = [],
+    description,
+    declaration,
     httpPath,
     httpMethod,
-    declaration = {
-      expectBody: {},
-      expectQuery: {},
-      expectParams: {},
-      returns: undefinedType(),
-    } as any as DECLARATION,
-    action,
-  }: {
-    name: string;
-    description?: string[];
-    httpPath?: string;
-    httpMethod?: Method;
-    declaration?: DECLARATION;
-    action?: ActionFunction<DECLARATION>;
-  }) {
-    this._name = name;
-    this._description = description;
-    this._httpPath = httpPath;
-    this._httpMethod = httpMethod;
-    this._declaration = declaration;
-    this._action = action;
-  }
-
-  public description(...description: string[]) {
-    this._description.push(...description);
-  }
-
-  public httpPath(path: string) {
-    this._httpPath = path;
-  }
-
-  public httpMethod(method: Method) {
-    this._httpMethod = method;
-  }
-
-  public declaration(declaration: DECLARATION) {
-    this._declaration = declaration;
-  }
-
-  public getDeclaration() {
-    return this._declaration;
-  }
-
-  public declarationBody(body: {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-  }) {
-    this._declaration.expectBody = body;
-  }
-
-  public declarationBodyParam(name: string, type: TypeInformation<unknown>) {
-    if (!this._declaration.expectBody) this._declaration.expectBody = {};
-    this._declaration.expectBody![name] = { type, optional: false };
-  }
-
-  public declarationBodyParamOptional(
-    name: string,
-    type: TypeInformation<unknown>
-  ) {
-    if (!this._declaration.expectBody) this._declaration.expectBody = {};
-    this._declaration.expectBody![name] = { type, optional: true };
-  }
-
-  public declarationQuery(query: {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-  }) {
-    this._declaration.expectQuery = query;
-  }
-
-  public declarationQueryParam(name: string, type: TypeInformation<unknown>) {
-    if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
-    this._declaration.expectQuery![name] = { type, optional: false };
-  }
-
-  public declarationQueryParamOptional(
-    name: string,
-    type: TypeInformation<unknown>
-  ) {
-    if (!this._declaration.expectQuery) this._declaration.expectQuery = {};
-    this._declaration.expectQuery![name] = { type, optional: true };
-  }
-
-  public declarationParams(params: {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-  }) {
-    this._declaration.expectParams = params;
-  }
-
-  public declarationParam(name: string, type: TypeInformation<unknown>) {
-    if (!this._declaration.expectParams) this._declaration.expectParams = {};
-    this._declaration.expectParams![name] = { type, optional: false };
-  }
-
-  public declarationParamOptional(
-    name: string,
-    type: TypeInformation<unknown>
-  ) {
-    if (!this._declaration.expectParams) this._declaration.expectParams = {};
-    this._declaration.expectParams![name] = { type, optional: true };
-  }
-
-  public action(action: ActionFunction<DECLARATION>) {
-    this._action = action;
-  }
-
-  public generate() {
-    if (this._declaration === undefined)
-      throw new Error("No declaration for method " + this._name);
-    return new RsterApiMethod(
-      this._name,
-      this._description,
-      this._declaration,
-      this._httpPath,
-      this._httpMethod,
-      this._action!
-    ) as RsterApiMethodBuilderContextToRsterApiMethod<this>;
-  }
+    action
+  );
 }
