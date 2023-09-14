@@ -121,7 +121,7 @@ export class RsterApiModule<
 
   public native(): RemoveNeverProperties<{
     [key in keyof MODULES]: key extends keyof METHODS
-      ? ReturnType<METHODS[key]["native"]> // & ReturnType<METHODS[key]["native"]>
+      ? ReturnType<MODULES[key]["native"]> & ReturnType<METHODS[key]["native"]>
       : ReturnType<MODULES[key]["native"]>;
   }> &
     RemoveNeverProperties<{
