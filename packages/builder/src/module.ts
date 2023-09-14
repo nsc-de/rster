@@ -5,7 +5,11 @@ import {
 } from "@rster/basic";
 import { Values, Method } from "@rster/common";
 import { RsterApiMethod, RsterApiMethodJson } from "./method";
-import { AnyParameterDeclaration, RsterArgsType } from "./types";
+import {
+  AnyParameterDeclaration,
+  RemoveNeverProperties,
+  RsterArgsType,
+} from "./types";
 
 /**
  * A type for the json representation of the module class. Returned by the `json` method, used to get info about the module.
@@ -115,16 +119,16 @@ export class RsterApiModule<
     }
   }
 
-  public native(): {
+  public native(): RemoveNeverProperties<{
     [key in keyof MODULES]: key extends keyof METHODS
-      ? ReturnType<METHODS[key]["native"]> & ReturnType<METHODS[key]["native"]>
+      ? ReturnType<METHODS[key]["native"]> // & ReturnType<METHODS[key]["native"]>
       : ReturnType<MODULES[key]["native"]>;
-  } & {
-    [key in keyof Exclude<
-      keyof METHODS,
-      keyof MODULES
-    >]: key extends keyof METHODS ? ReturnType<METHODS[key]["native"]> : never;
-  } {
+  }> &
+    RemoveNeverProperties<{
+      [key in keyof METHODS]: key extends keyof MODULES
+        ? never
+        : ReturnType<METHODS[key]["native"]>;
+    }> {
     const moduleList = this.moduleList.map((m) => ({
       name: m.name,
       native: m.native(),
@@ -147,7 +151,7 @@ export class RsterApiModule<
       map[m.name] = m.native;
     });
 
-    return {} as any;
+    return map as any;
   }
 }
 
