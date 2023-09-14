@@ -1,5 +1,5 @@
 import { string, undefinedType } from "@rster/types";
-import { RsterApiMethod } from "./method";
+import { RsterApiMethod, method } from "./method";
 import {
   ContextChildCondition,
   ContextConditionAnd,
@@ -111,15 +111,15 @@ describe("RsterApiMethod", () => {
       const method = new RsterApiMethod("test", [], {
         returns: undefinedType(),
         expectParams: {
-          test: { type: string(), optional: false },
-          test2: { type: string(), optional: false },
+          test: { type: string(), required: true },
+          test2: { type: string(), required: true },
         },
       });
 
       expect(method.declaration).toEqual({
         expectParams: {
-          test: { type: string(), optional: false },
-          test2: { type: string(), optional: false },
+          test: { type: string(), required: true },
+          test2: { type: string(), required: true },
         },
         returns: undefinedType(),
       });
@@ -165,16 +165,16 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectBody: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           expectQuery: {
-            test3: { type: string(), optional: false },
-            test4: { type: string(), optional: true },
+            test3: { type: string(), required: true },
+            test4: { type: string(), required: false },
           },
           expectParams: {
-            test5: { type: string(), optional: false },
-            test6: { type: string(), optional: true },
+            test5: { type: string(), required: true },
+            test6: { type: string(), required: false },
           },
           returns: undefinedType(),
         },
@@ -190,16 +190,16 @@ describe("RsterApiMethod", () => {
         httpMethod: "get",
         declaration: {
           expectBody: {
-            test: { type: { type: "string" }, optional: false },
-            test2: { type: { type: "string" }, optional: true },
+            test: { type: { type: "string" }, required: true },
+            test2: { type: { type: "string" }, required: false },
           },
           expectQuery: {
-            test3: { type: { type: "string" }, optional: false },
-            test4: { type: { type: "string" }, optional: true },
+            test3: { type: { type: "string" }, required: true },
+            test4: { type: { type: "string" }, required: false },
           },
           expectParams: {
-            test5: { type: { type: "string" }, optional: false },
-            test6: { type: { type: "string" }, optional: true },
+            test5: { type: { type: "string" }, required: true },
+            test6: { type: { type: "string" }, required: false },
           },
           returns: {
             type: "undefined",
@@ -216,16 +216,16 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectBody: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           expectQuery: {
-            test3: { type: string(), optional: false },
-            test4: { type: string(), optional: true },
+            test3: { type: string(), required: true },
+            test4: { type: string(), required: false },
           },
           expectParams: {
-            test5: { type: string(), optional: false },
-            test6: { type: string(), optional: true },
+            test5: { type: string(), required: true },
+            test6: { type: string(), required: false },
           },
           returns: undefinedType(),
         },
@@ -258,16 +258,16 @@ describe("RsterApiMethod", () => {
       expect(ctx.declaration()).toEqual({
         name: "test",
         expectBody: {
-          test: { type: string(), optional: false },
-          test2: { type: string(), optional: true },
+          test: { type: string(), required: true },
+          test2: { type: string(), required: false },
         },
         expectQuery: {
-          test3: { type: string(), optional: false },
-          test4: { type: string(), optional: true },
+          test3: { type: string(), required: true },
+          test4: { type: string(), required: false },
         },
         expectParams: {
-          test5: { type: string(), optional: false },
-          test6: { type: string(), optional: true },
+          test5: { type: string(), required: true },
+          test6: { type: string(), required: false },
         },
         returnBody: undefinedType(),
       });
@@ -336,8 +336,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectBody: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -382,8 +382,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectBody: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -427,8 +427,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectBody: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -472,8 +472,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectBody: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -518,8 +518,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectQuery: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -564,8 +564,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectQuery: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -609,8 +609,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectQuery: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -654,8 +654,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectQuery: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -701,8 +701,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectParams: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -743,8 +743,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectParams: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -784,8 +784,8 @@ describe("RsterApiMethod", () => {
         ["test description"],
         {
           expectParams: {
-            test: { type: string(), optional: false },
-            test2: { type: string(), optional: true },
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
           },
           returns: string(),
         },
@@ -818,5 +818,152 @@ describe("RsterApiMethod", () => {
         sendFile: undefined,
       });
     });
+  });
+
+  describe("#native()", () => {
+    it("Test without parameters", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        { returns: string() },
+        "/test",
+        "get",
+        (args) => {
+          return "Hello from the test action 😉";
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      expect(native({})).toBe("Hello from the test action 😉");
+    });
+
+    it("Test with body parameters", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectBody: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      expect(native({ test: "test", test2: "test2" })).toBe(
+        "Hello from the test action 😉 test,test2"
+      );
+    });
+
+    it("Test with query parameters", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectQuery: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      expect(native({ test: "test", test2: "test2" })).toBe(
+        "Hello from the test action 😉 test,test2"
+      );
+    });
+
+    it("Test with params", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectParams: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test/:test/:test2",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      expect(native({ test: "test", test2: "test2" })).toBe(
+        "Hello from the test action 😉 test,test2"
+      );
+    });
+
+    it("Test with params (optional parameter not set)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectParams: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test/:test/:test2",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      expect(native({ test: "test" })).toBe(
+        "Hello from the test action 😉 test,"
+      );
+    });
+  });
+});
+
+describe("method()", () => {
+  it("should create a method with the given parameters", () => {
+    const m = method(
+      "test",
+      [],
+      { returns: undefinedType() },
+      "/test",
+      "get",
+      (args) => {}
+    );
+
+    expect(m.name).toBe("test");
+    expect(m.description).toEqual([]);
+    expect(m.httpPath).toBe("/test");
+    expect(m.httpMethod).toBe("get");
+    expect(m.declaration).toEqual({ returns: undefinedType() });
+    expect(m.action).toBeDefined();
   });
 });

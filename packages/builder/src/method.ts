@@ -12,8 +12,17 @@ import {
   RsterArgsType,
   ParameterDeclaration,
   RsterReturnType,
+  t,
 } from "./types";
 import "@rster/info";
+
+type RemoveOptionalProperties<T> = {
+  [K in keyof T as T[K] extends undefined | null ? never : K]: T[K];
+};
+
+type NeedsProperty<T> = keyof RemoveOptionalProperties<T> extends never
+  ? false
+  : true;
 
 /**
  * A type for the json representation of the method class. Returned by the `json` method, used to get info about the method.
@@ -130,7 +139,7 @@ export class RsterApiMethod<
                     value as { type: AllowAnyTypeInformation }
                   ).type.json(),
 
-                  optional: (value as { optional: boolean }).optional,
+                  required: (value as { required: boolean }).required,
                 },
               }))
               .reduce((prev, curr) => ({ ...prev, ...curr }), {})
@@ -143,7 +152,7 @@ export class RsterApiMethod<
                     value as { type: AllowAnyTypeInformation }
                   ).type.json(),
 
-                  optional: (value as { optional: boolean }).optional,
+                  required: (value as { required: boolean }).required,
                 },
               }))
               .reduce((prev, curr) => ({ ...prev, ...curr }), {})
@@ -156,7 +165,7 @@ export class RsterApiMethod<
                     value as { type: AllowAnyTypeInformation }
                   ).type.json(),
 
-                  optional: (value as { optional: boolean }).optional,
+                  required: (value as { required: boolean }).required,
                 },
               }))
               .reduce((prev, curr) => ({ ...prev, ...curr }), {})
@@ -194,7 +203,7 @@ export class RsterApiMethod<
 
         if (declaration.expectBody) {
           for (const [key, value] of Object.entries(declaration.expectBody)) {
-            if (value.optional && req.body[key] === undefined) continue;
+            if (!value.required && req.body[key] === undefined) continue;
             if (req.body[key] === undefined)
               throw $400(`Missing body parameter ${key}`);
 
@@ -212,7 +221,7 @@ export class RsterApiMethod<
 
         if (declaration.expectQuery) {
           for (const [key, value] of Object.entries(declaration.expectQuery)) {
-            if (value.optional && req.query[key] === undefined) continue;
+            if (!value.required && req.query[key] === undefined) continue;
             if (req.query[key] === undefined)
               throw $400(`Missing query parameter ${key}`);
 
@@ -230,7 +239,7 @@ export class RsterApiMethod<
 
         if (declaration.expectParams) {
           for (const [key, value] of Object.entries(declaration.expectParams)) {
-            if (value.optional && req.params[key] === undefined) continue;
+            if (!value.required && req.params[key] === undefined) continue;
             if (req.params[key] === undefined)
               throw $400(`Missing path parameter ${key}`);
 
@@ -251,12 +260,13 @@ export class RsterApiMethod<
     });
   }
 
-  public native(): (
-    args: RsterArgsType<DECLARATION>
-  ) => RsterReturnType<DECLARATION> {
-    return this.action as unknown as (
-      args: RsterArgsType<DECLARATION>
-    ) => RsterReturnType<DECLARATION>;
+  public native() {
+    return ((args?: RsterArgsType<DECLARATION>) => {
+      if (!this.action) throw new Error("No action defined");
+      return this.action(args ?? ({} as RsterArgsType<DECLARATION>));
+    }) as NeedsProperty<RsterArgsType<DECLARATION>> extends true
+      ? (args: t<RsterArgsType<DECLARATION>>) => RsterReturnType<DECLARATION>
+      : (args?: t<RsterArgsType<DECLARATION>>) => RsterReturnType<DECLARATION>;
   }
 }
 
@@ -265,13 +275,13 @@ export function method<
   DECLARATION extends ParameterDeclaration<
     AllowAnyTypeInformation,
     {
-      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+      [key: string]: { type: TypeInformation<unknown>; required: boolean };
     },
     {
-      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+      [key: string]: { type: TypeInformation<unknown>; required: boolean };
     },
     {
-      [key: string]: { type: TypeInformation<unknown>; optional: boolean };
+      [key: string]: { type: TypeInformation<unknown>; required: boolean };
     }
   >
 >(

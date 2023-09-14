@@ -1,6 +1,5 @@
 import {
   AllowAnyTypeInformation,
-  MapToPrimitiveType,
   NoUndefined,
   PrimitiveType,
   TypeInformation,
@@ -11,14 +10,13 @@ import { RsterApiModule } from "./module";
 
 export type AnyParameterDeclaration = ParameterDeclaration<any, any, any, any>;
 
-export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
-  (
-    args: MapToPrimitiveType<NoUndefined<D["expectBody"], object>> &
-      MapToPrimitiveType<NoUndefined<D["expectQuery"], object>> &
-      MapToPrimitiveType<NoUndefined<D["expectParams"], object>>
-  ) => AllowVoidIfUndefined<
-    PrimitiveType<D["returns"]> | Promise<PrimitiveType<D["returns"]>>
-  >;
+export type ActionFunction<D extends AnyParameterDeclaration> = (
+  args: RsterArgsType<D>
+) => AllowVoidIfUndefined<RsterReturnType<D>>;
+
+export type ParameterList = {
+  [key: string]: { type: TypeInformation<unknown>; required: true | false };
+};
 
 /**
  * Declaration for method parameters.
@@ -35,15 +33,9 @@ export type ActionFunction<D extends ParameterDeclaration<any, any, any, any>> =
  */
 export interface ParameterDeclaration<
   RETURNS extends TypeInformation<unknown>,
-  EXPECT_BODY extends {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-  },
-  EXPECT_QUERY extends {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-  },
-  EXPECT_PARAMS extends {
-    [key: string]: { type: TypeInformation<unknown>; optional: boolean };
-  }
+  EXPECT_BODY extends ParameterList,
+  EXPECT_QUERY extends ParameterList,
+  EXPECT_PARAMS extends ParameterList
 > {
   expectBody?: EXPECT_BODY;
   expectQuery?: EXPECT_QUERY;
@@ -51,14 +43,42 @@ export interface ParameterDeclaration<
   returns: RETURNS;
 }
 
-export type RsterArgsType<D extends AnyParameterDeclaration> =
-  | MapToPrimitiveType<NoUndefined<D["expectBody"], Record<string, never>>> &
-      MapToPrimitiveType<NoUndefined<D["expectQuery"], Record<string, never>>> &
-      MapToPrimitiveType<NoUndefined<D["expectParams"], Record<string, never>>>;
+type RemoveNeverProperties<T> = {
+  [K in keyof T as T[K] extends never ? never : K]: T[K];
+};
 
-export type RsterReturnType<D extends AnyParameterDeclaration> = PrimitiveType<
-  D["returns"]
+type ObjectType<
+  T extends {
+    [key: string]: { required: boolean; type: AllowAnyTypeInformation };
+  }
+> = t<
+  RemoveNeverProperties<{
+    [key in keyof T]: T[key]["required"] extends boolean
+      ? PrimitiveType<T[key]["type"]>
+      : never;
+  }> &
+    Partial<
+      RemoveNeverProperties<{
+        [key in keyof T]: T[key]["required"] extends false
+          ? PrimitiveType<T[key]["type"]>
+          : never;
+      }>
+    >
 >;
+
+export type t<T> = T;
+
+export type RsterArgsType<D extends AnyParameterDeclaration> = t<
+  ObjectType<
+    NoUndefined<D["expectBody"], Record<string, never>> &
+      NoUndefined<D["expectQuery"], Record<string, never>> &
+      NoUndefined<D["expectParams"], Record<string, never>>
+  >
+>;
+
+export type RsterReturnType<D extends AnyParameterDeclaration> =
+  | PrimitiveType<D["returns"]>
+  | Promise<PrimitiveType<D["returns"]>>;
 
 /**
  * A map of modules of the api or it's submodules. (Contained once in each module and submodule and once on the api itself)
