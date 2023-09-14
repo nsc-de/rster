@@ -57,6 +57,14 @@ export interface RsterApiModuleJson {
   httpMethod?: Method;
 }
 
+/**
+ * Rster module class. Used to create a module with `@rster/builder`.
+ *
+ * _We use type parameters to more specifically index the typing of the module. This allows us to get the correct typing for the `native` method. From a functional perspective, the type parameters are not needed._
+ * @typeParam NAME - The name of the module.
+ * @typeParam MODULES - The modules of the module.
+ * @typeParam METHODS - The methods of the module.
+ */
 export class RsterApiModule<
   NAME extends string,
   MODULES extends { [key: string]: RsterApiModule<typeof key, any, any> },
@@ -64,21 +72,70 @@ export class RsterApiModule<
     [key: string]: RsterApiMethod<typeof key, AnyParameterDeclaration>;
   }
 > {
+  /**
+   * The constructor of the {@link RsterApiModule} class.
+   *
+   * @param name The name of the module.
+   * @param description The description of the module.
+   * @param modules The modules of the module.
+   * @param methods The methods of the module.
+   * @param httpPath The http path of the module. Will be joined with the parent module's path.
+   * @param httpMethod The http method of the module.
+   */
   constructor(
+    /**
+     * The name of the module.
+     */
     public readonly name: NAME,
+
+    /**
+     * The description of the module.
+     */
     public readonly description: string[],
+
+    /**
+     * The modules of the module.
+     * @see {@link RsterApiModule.moduleList}
+     */
     public readonly modules: MODULES,
+
+    /**
+     * The methods of the module.
+     * @see {@link RsterApiModule.methodList}
+     */
     public readonly methods: METHODS,
+
+    /**
+     * The http path of the module. Will be joined with the parent module's path.
+     */
     public readonly httpPath?: string,
+
+    /**
+     * The http method of the module.
+     */
     public readonly httpMethod?: Method
   ) {
     this.moduleList = Object.values(modules) as Values<MODULES>;
     this.methodList = Object.values(methods) as Values<METHODS>;
   }
 
+  /**
+   * A list of the modules of the module.
+   * @see {@link RsterApiModule.modules}
+   */
   public readonly moduleList: Values<MODULES>;
+
+  /**
+   * A list of the methods of the module.
+   * @see {@link RsterApiModule.methods}
+   */
   public readonly methodList: Values<METHODS>;
 
+  /**
+   * The json representation of the module.
+   * @returns The json representation of the module.
+   * @see {@link RsterApiModuleJson}
+   */
   public json(): RsterApiModuleJson {
     return {
       name: this.name,
@@ -90,6 +147,11 @@ export class RsterApiModule<
     };
   }
 
+  /**
+   * Adds the module to the context.
+   * @param ctx The context to add the module to.
+   * @see {@link Context}
+   */
   public rest(ctx?: Context) {
     ctx = ctx ?? Context.current;
 
@@ -115,6 +177,10 @@ export class RsterApiModule<
     }
   }
 
+  /**
+   * Returns the native representation of the module.
+   * @returns The native representation of the module.
+   */
   public native(): RemoveNeverProperties<{
     [key in keyof MODULES]: key extends keyof METHODS
       ? ReturnType<MODULES[key]["native"]> & ReturnType<METHODS[key]["native"]>
@@ -151,6 +217,16 @@ export class RsterApiModule<
   }
 }
 
+/**
+ * Shortcut function to create a {@link RsterApiModule} object.
+ * @param name The name of the module.
+ * @param description The description of the module.
+ * @param modules The modules of the module.
+ * @param methods The methods of the module.
+ * @param httpPath The http path of the module. Will be joined with the parent module's path.
+ * @param httpMethod The http method of the module.
+ * @returns A new {@link RsterApiModule} object.
+ */
 export function module<
   NAME extends string,
   MODULES extends { [key: string]: RsterApiModule<typeof key, any, any> },
