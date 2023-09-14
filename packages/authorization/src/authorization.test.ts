@@ -28,7 +28,7 @@ describe("useAuthentification", () => {
   });
 
   it("should pass", async () => {
-    const app = rest(function () {
+    rest(function () {
       this.useAuthentification(() => {
         return true;
       });
@@ -36,7 +36,7 @@ describe("useAuthentification", () => {
   });
 
   it("should pass with async function", async () => {
-    const app = rest(function () {
+    rest(function () {
       this.useAuthentification(async () => {
         return true;
       });

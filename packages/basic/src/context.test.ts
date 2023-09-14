@@ -12,7 +12,7 @@ import {
   ContextChildUse,
 } from "./context";
 import { $404 } from "./error";
-import { Request, Response, createSyntheticContext } from "@rster/common";
+import { createSyntheticContext } from "@rster/common";
 
 // @ts-ignore
 const createEmptyContext = () => new Context();
@@ -179,7 +179,8 @@ describe("Context", () => {
 
     it("Should add passed actions as children with string path", () => {
       const context = createEmptyContext();
-      context.describe("test", (req, res) => {});
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      context.describe("test", (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -194,7 +195,8 @@ describe("Context", () => {
 
     it("Should add passed actions as children with RegExp path", () => {
       const context = createEmptyContext();
-      context.describe(/test/, (req, res) => {});
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      context.describe(/test/, (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -238,7 +240,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with string path", () => {
       const context = createEmptyContext();
-      context.any("test", (req, res) => {});
+      context.any("test", (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -253,7 +255,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with RegExp path", () => {
       const context = createEmptyContext();
-      context.any(/test/, (req, res) => {});
+      context.any(/test/, (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -327,7 +329,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with string path", () => {
       const context = createEmptyContext();
-      context.get("test", (req, res) => {});
+      context.get("test", (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -342,7 +344,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with RegExp path", () => {
       const context = createEmptyContext();
-      context.get(/test/, (req, res) => {});
+      context.get(/test/, (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -357,7 +359,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children without path", () => {
       const context = createEmptyContext();
-      context.get((req, res) => {});
+      context.get((_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -440,7 +442,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with string path", () => {
       const context = createEmptyContext();
-      context.post("test", (req, res) => {});
+      context.post("test", (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -455,7 +457,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with RegExp path", () => {
       const context = createEmptyContext();
-      context.post(/test/, (req, res) => {});
+      context.post(/test/, (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -470,7 +472,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children without path", () => {
       const context = createEmptyContext();
-      context.post((req, res) => {});
+      context.post((_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -553,7 +555,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with string path", () => {
       const context = createEmptyContext();
-      context.put("test", (req, res) => {});
+      context.put("test", (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -568,7 +570,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with RegExp path", () => {
       const context = createEmptyContext();
-      context.put(/test/, (req, res) => {});
+      context.put(/test/, (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -584,7 +586,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children without path", () => {
       const context = createEmptyContext();
-      context.put((req, res) => {});
+      context.put((_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -667,7 +669,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with string path", () => {
       const context = createEmptyContext();
-      context.patch("test", (req, res) => {});
+      context.patch("test", (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -682,7 +684,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with RegExp path", () => {
       const context = createEmptyContext();
-      context.patch(/test/, (req, res) => {});
+      context.patch(/test/, (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -698,7 +700,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children without path", () => {
       const context = createEmptyContext();
-      context.patch((req, res) => {});
+      context.patch((_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -780,7 +782,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with string path", () => {
       const context = createEmptyContext();
-      context.delete("test", (req, res) => {});
+      context.delete("test", (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -795,7 +797,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with RegExp path", () => {
       const context = createEmptyContext();
-      context.delete(/test/, (req, res) => {});
+      context.delete(/test/, (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -811,7 +813,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children without path", () => {
       const context = createEmptyContext();
-      context.delete((req, res) => {});
+      context.delete((_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -889,7 +891,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with string path", () => {
       const context = createEmptyContext();
-      context.head("test", (req, res) => {});
+      context.head("test", (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -905,7 +907,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with RegExp path", () => {
       const context = createEmptyContext();
-      context.head(/test/, (req, res) => {});
+      context.head(/test/, (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -921,7 +923,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children without path", () => {
       const context = createEmptyContext();
-      context.head((req, res) => {});
+      context.head((_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
       expect(
@@ -1003,7 +1005,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with string path", () => {
       const context = createEmptyContext();
-      context.options("test", (req, res) => {});
+      context.options("test", (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -1018,7 +1020,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children with RegExp path", () => {
       const context = createEmptyContext();
-      context.options(/test/, (req, res) => {});
+      context.options(/test/, (_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -1033,7 +1035,7 @@ describe("Context", () => {
 
     it("Should add passed actions as children without path", () => {
       const context = createEmptyContext();
-      context.options((req, res) => {});
+      context.options((_req, _res) => {});
       expect(context.children).toHaveLength(1);
       expect(context.children[0].type).toEqual("condition");
 
@@ -1230,7 +1232,7 @@ describe("Context", () => {
         path: "/test",
       });
 
-      context.use((reqq, ress, next) => {
+      context.use((reqq, ress, _next) => {
         executed = true;
         expect(reqq).toEqual(req);
         expect(ress).toEqual(res);
@@ -1263,7 +1265,7 @@ describe("Context", () => {
     it("Should provide a next function", async () => {
       const context = createEmptyContext();
       let executed = false;
-      context.use((req, res, next) => {
+      context.use((_req, _res, next) => {
         executed = true;
         expect(next).not.toBeUndefined();
         expect(typeof next).toBe("function");
@@ -1282,7 +1284,7 @@ describe("Context", () => {
     it("Should execute the next middleware if next is called", async () => {
       const context = createEmptyContext();
       let executed = false;
-      context.use((req, res, next) => {
+      context.use((_req, _res, next) => {
         executed = true;
         next();
       });
@@ -1303,7 +1305,7 @@ describe("Context", () => {
     it("Should not execute the next middleware if next not is called", async () => {
       const context = createEmptyContext();
       let executed = false;
-      context.use((req, res, next) => {
+      context.use(() => {
         executed = true;
       });
       context.use(() => {
@@ -1337,11 +1339,7 @@ describe("Context", () => {
     it("Test on empty context", async () => {
       const context = createEmptyContext();
 
-      const {
-        pass,
-        request: req,
-        response: res,
-      } = createSyntheticContext({
+      const { pass } = createSyntheticContext({
         method: "get",
         path: "/test",
       });
@@ -1363,11 +1361,7 @@ describe("Context", () => {
         this.use(function () {});
       });
 
-      const {
-        pass,
-        request: req,
-        response: res,
-      } = createSyntheticContext({
+      const { pass } = createSyntheticContext({
         method: "get",
         path: "/test",
       });
@@ -1425,11 +1419,7 @@ describe("Context", () => {
         this.use(function () {});
       });
 
-      const {
-        pass,
-        request: req,
-        response: res,
-      } = createSyntheticContext({
+      const { pass } = createSyntheticContext({
         method: "get",
         path: "/test",
       });
@@ -1482,11 +1472,7 @@ describe("Context", () => {
         });
       });
 
-      const {
-        pass,
-        request: req,
-        response: res,
-      } = createSyntheticContext({
+      const { pass } = createSyntheticContext({
         method: "get",
         path: "/hello/world",
       });
@@ -1609,7 +1595,7 @@ describe("Context", () => {
 
     it("Test middleware with error thrown", async () => {
       const context = createEmptyContext();
-      context.use(async (req, res, next) => {
+      context.use(async () => {
         throw new Error("test");
       });
 
@@ -1640,10 +1626,10 @@ describe("Context", () => {
       const context = createEmptyContext();
       let executed = false;
       let executed2 = false;
-      context.use(async (req, res, next) => {
+      context.use(async () => {
         executed = true;
       });
-      context.use(async (req, res, next) => {
+      context.use(async () => {
         executed2 = true;
       });
 
@@ -1662,11 +1648,11 @@ describe("Context", () => {
       const context = createEmptyContext();
       let executed = false;
       let executed2 = false;
-      context.use(async (req, res, next) => {
+      context.use(async (_req, _res, next) => {
         executed = true;
         await next();
       });
-      context.action(async (req, res) => {
+      context.action(async () => {
         executed2 = true;
       });
 
@@ -1685,7 +1671,7 @@ describe("Context", () => {
       const context = createEmptyContext();
       let executed = false;
       let executed2 = false;
-      context.use(async (req, res, next) => {
+      context.use(async (_req, _res, next) => {
         executed = true;
         await next();
       });
@@ -1727,10 +1713,10 @@ describe("Context", () => {
     it("Test middleware with next called activating next action", async () => {
       const context = createEmptyContext();
       let executed = false;
-      context.use(async (req, res, next) => {
+      context.use(async (_req, _res, next) => {
         await next();
       });
-      context.action(async (req, res) => {
+      context.action(async () => {
         executed = true;
       });
       const { pass } = createSyntheticContext({
@@ -1814,10 +1800,10 @@ describe("Context", () => {
               path: "/test",
             },
             {
-              json(body) {
+              json() {
                 return this;
               },
-              status(code) {
+              status() {
                 return this;
               },
 

@@ -5,7 +5,6 @@ import {
   ContextConditionPath2,
   ContextConditionMethod,
   ConditionChain,
-  ContextCondition,
 } from "./condition";
 
 describe("ContextCondition", () => {

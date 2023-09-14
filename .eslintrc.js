@@ -18,7 +18,14 @@ module.exports = {
   ignorePatterns: ["node_modules/", "lib/", "dist/", "coverage/"],
   rules: {
     "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      },
+    ],
     "no-empty": "warn",
   },
 
@@ -36,7 +43,14 @@ module.exports = {
         "jest/prefer-to-have-length": "warn",
         "jest/valid-expect": "error",
         "@typescript-eslint/no-explicit-any": "warn",
-        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            argsIgnorePattern: "^_",
+            varsIgnorePattern: "^_",
+            caughtErrorsIgnorePattern: "^_",
+          },
+        ],
         "@typescript-eslint/ban-ts-comment": 0,
         "no-empty": "warn",
       },
@@ -63,6 +77,24 @@ module.exports = {
         "jest/no-identical-title": "error",
         "jest/prefer-to-have-length": "warn",
         "jest/valid-expect": "error",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            argsIgnorePattern: "^_",
+            varsIgnorePattern: "^_",
+            caughtErrorsIgnorePattern: "^_",
+          },
+        ],
+        "no-empty": "warn",
+      },
+    },
+    {
+      files: ["**/docusaurus.config.js"],
+      env: {
+        jest: true,
+      },
+      plugins: [],
+      rules: {
         "@typescript-eslint/no-var-requires": "off",
         "no-empty": "warn",
       },

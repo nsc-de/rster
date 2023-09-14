@@ -246,7 +246,7 @@ export class ContextConditionPath2 extends ContextCondition {
   parse(req: Request): ConditionParseResult {
     const match = this.path.exec(req.path);
 
-    if (!match) {
+    if (!match || match.index !== 0) {
       return {
         applies: false,
         parameters: () => {
@@ -372,13 +372,6 @@ export class ConditionChain {
       conditions: this.conditions.map((c) => c.toJson()),
     };
   }
-}
-
-function startsWithRegex(str: string, regex: RegExp) {
-  const regexFlags = regex.flags;
-  const regexPattern = regex.source;
-  const patternRegExp = new RegExp(`^${regexPattern}`, regexFlags);
-  return patternRegExp.test(str);
 }
 
 export interface ConditionInfo {
