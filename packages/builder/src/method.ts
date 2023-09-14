@@ -20,10 +20,16 @@ import {
 } from "./types";
 import "@rster/info";
 
+/**
+ * Utility type to remove all optional properties from a type.
+ */
 type RemoveOptionalProperties<T> = {
   [K in keyof T as T[K] extends undefined | null ? never : K]: T[K];
 };
 
+/**
+ * Test if an object has any required properties. (so `{}` would return false, {a?: 1} would also return false, {a: 1} would return true)
+ */
 type NeedsProperty<T> = keyof RemoveOptionalProperties<T> extends never
   ? false
   : true;
@@ -105,11 +111,31 @@ export interface RsterApiMethodJson {
   };
 }
 
+/**
+ * Rster method class. Used to create a method with `@rster/builder`.
+ *
+ * _We use type parameters to more specifically index the typing of the method. This allows us to get the correct typing for the `native` method. From a functional perspective, the type parameters are not needed._
+ * @typeParam NAME - The name of the method.
+ * @typeParam DECLARATION - The declaration of the method.
+ */
 export class RsterApiMethod<
   NAME extends string,
   DECLARATION extends AnyParameterDeclaration
 > {
+  /**
+   * The http path of the method. Does not include the parent module's path, only the path for the method's condition.
+   */
   public readonly httpPath: string;
+
+  /**
+   * The constructor of the {@link RsterApiMethod} class.
+   * @param name The name of the method.
+   * @param description The description of the method.
+   * @param declaration The declaration of the method.
+   * @param httpPath The http path of the method. Does not include the parent module's path, only the path for the method's condition. If not provided, it will be generated from the name and declaration.
+   * @param httpMethod The http method of the method. If not provided, it will be defaulted to ALL.
+   * @param action The action of the method. If not provided, it will be defaulted to a method that throws an error.
+   */
   constructor(
     public readonly name: NAME,
     public readonly description: string[],
@@ -119,6 +145,8 @@ export class RsterApiMethod<
     public readonly action?: ActionFunction<DECLARATION>
   ) {
     if (!httpPath) {
+      // Generate httpPath from name and declaration (expectParams)
+
       const name = this.name;
       const params = Object.keys(this.declaration.expectParams ?? {})
         .map((it) => `:${it}`)
@@ -128,6 +156,11 @@ export class RsterApiMethod<
     } else this.httpPath = httpPath;
   }
 
+  /**
+   * Get the json representation of the method. Used to get info about the method.
+   * @returns The json representation of the method.
+   * @see RsterApiMethodJson
+   */
   public json(): RsterApiMethodJson {
     return {
       name: this.name,
@@ -179,6 +212,11 @@ export class RsterApiMethod<
     };
   }
 
+  /**
+   * Input the method into a {@link Context} object. This will add the method to the context, and it will be used for requests.
+   * Defaults to the current context.
+   * @param ctx The context to add the method to. Defaults to the current context.
+   */
   public rest(ctx?: Context) {
     ctx = ctx ?? Context.current;
 
@@ -265,6 +303,10 @@ export class RsterApiMethod<
     });
   }
 
+  /**
+   * The native method of the method. This method can be used to call the method directly, without using the rest api.
+   * @returns The native method of the method.
+   */
   public native() {
     return ((args?: RsterArgsType<DECLARATION>) => {
       if (!this.action) throw new Error("No action defined");
@@ -338,6 +380,16 @@ export class RsterApiMethod<
   }
 }
 
+/**
+ * Shortcut function to create a new {@link RsterApiMethod} object.
+ * @param name The name of the method.
+ * @param description The description of the method.
+ * @param declaration The declaration of the method.
+ * @param httpPath The http path of the method. Does not include the parent module's path, only the path for the method's condition. If not provided, it will be generated from the name and declaration.
+ * @param httpMethod The http method of the method. If not provided, it will be defaulted to ALL.
+ * @param action The action of the method. If not provided, it will be defaulted to a method that throws an error.
+ * @returns The new {@link RsterApiMethod} object.
+ */
 export function method<
   NAME extends string,
   DECLARATION extends ParameterDeclaration<
