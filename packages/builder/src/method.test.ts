@@ -1,4 +1,4 @@
-import { string, undefinedType } from "@rster/types";
+import { number, string, undefinedType } from "@rster/types";
 import { RsterApiMethod, method } from "./method";
 import {
   ContextChildCondition,
@@ -865,6 +865,117 @@ describe("RsterApiMethod", () => {
       );
     });
 
+    it("Test with body params (optional parameter not set)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectBody: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      expect(native({ test: "test" })).toBe(
+        "Hello from the test action 😉 test,"
+      );
+    });
+
+    it("Test with body params (required parameter not set)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectBody: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      // @ts-ignore
+      expect(() => native({ test2: "test2" })).toThrow(
+        "Missing body parameter test"
+      );
+    });
+
+    it("Test with body params (wrong type on optional parameter)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectBody: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      // @ts-ignore
+      expect(() => native({ test: 1, test2: "test2" })).toThrow(
+        'Invalid body parameter test: Expected {"type":"string"}'
+      );
+    });
+
+    it("Test with body params (wrong type on required parameter)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectBody: {
+            test: { type: number(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "post",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      // @ts-ignore
+      expect(() => native({ test: "test", test2: "test2" })).toThrow(
+        'Invalid body parameter test: Expected {"type":"number"}'
+      );
+    });
+
     it("Test with query parameters", () => {
       const method = new RsterApiMethod(
         "test",
@@ -889,6 +1000,116 @@ describe("RsterApiMethod", () => {
       expect(native).toBeInstanceOf(Function);
       expect(native({ test: "test", test2: "test2" })).toBe(
         "Hello from the test action 😉 test,test2"
+      );
+    });
+
+    it("Test with query params (optional parameter not set)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectQuery: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      expect(native({ test: "test" })).toBe(
+        "Hello from the test action 😉 test,"
+      );
+    });
+
+    it("Test with query params (required parameter not set)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectQuery: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      // @ts-ignore
+      expect(() => native({ test2: "test2" })).toThrow(
+        "Missing query parameter test"
+      );
+    });
+
+    it("Test with query params (wrong type on optional parameter)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectQuery: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      // @ts-ignore
+      expect(() => native({ test: 1, test2: "test2" })).toThrow(
+        'Invalid query parameter test: Expected {"type":"string"}'
+      );
+    });
+
+    it("Test with query params (wrong type on required parameter)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectQuery: {
+            test: { type: number(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test",
+        "post",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      // @ts-ignore
+      expect(() => native({ test: "test", test2: "test2" })).toThrow(
+        'Invalid query parameter test: Expected {"type":"number"}'
       );
     });
 
@@ -930,7 +1151,7 @@ describe("RsterApiMethod", () => {
           },
           returns: string(),
         },
-        "/test/:test/:test2",
+        "/test/:test/:test3",
         "get",
         (args) => {
           return (
@@ -938,12 +1159,102 @@ describe("RsterApiMethod", () => {
           );
         }
       );
-
       const native = method.native();
       expect(native).toBeInstanceOf(Function);
       expect(native({ test: "test" })).toBe(
         "Hello from the test action 😉 test,"
       );
+    });
+
+    it("Test with params (required parameter not set)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectParams: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: string(),
+        },
+        "/test/:test1/:test2",
+        "get",
+        (args) => {
+          return (
+            "Hello from the test action 😉 " + [args.test, args.test2].join(",")
+          );
+        }
+      );
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      // @ts-ignore
+      expect(() => native({ test2: "test2" })).toThrow(
+        "Missing path parameter test"
+      );
+    });
+
+    it("Test with params (wrong type on optional parameter)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectParams: {
+            test: { type: string(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: number(),
+        },
+        "/test/:test/:test2",
+        "get",
+        (args) => {
+          return 1;
+        }
+      );
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      // @ts-ignore
+      expect(() => native({ test: 1, test2: "test2" })).toThrow(
+        'Invalid path parameter test: Expected {"type":"string"}'
+      );
+    });
+
+    it("Test with params (wrong type on required parameter)", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        {
+          expectParams: {
+            test: { type: number(), required: true },
+            test2: { type: string(), required: false },
+          },
+          returns: number(),
+        },
+        "/test/:test/:test2",
+        "get",
+        (args) => {
+          return 1;
+        }
+      );
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      // @ts-ignore
+      expect(() => native({ test: "test", test2: "test2" })).toThrow(
+        'Invalid path parameter test: Expected {"type":"number"}'
+      );
+    });
+
+    it("Test error on no action defined", () => {
+      const method = new RsterApiMethod(
+        "test",
+        ["test description"],
+        { returns: string() },
+        "/test",
+        "get"
+      );
+
+      const native = method.native();
+      expect(native).toBeInstanceOf(Function);
+      expect(() => native()).toThrow("No action defined");
     });
   });
 });

@@ -268,6 +268,69 @@ export class RsterApiMethod<
   public native() {
     return ((args?: RsterArgsType<DECLARATION>) => {
       if (!this.action) throw new Error("No action defined");
+
+      // Check args
+      if (this.declaration.expectBody) {
+        for (const [key, value] of Object.entries(
+          this.declaration.expectBody
+        )) {
+          if (!value.required && args?.[key as keyof typeof args] === undefined)
+            continue;
+          if (args?.[key as keyof typeof args] === undefined)
+            throw $400(`Missing body parameter ${key}`);
+
+          const type = (value as { type: TypeInformation<unknown> }).type;
+          if (!type.check(args[key as keyof typeof args]))
+            throw $400(
+              `Invalid body parameter ${key}: Expected ${JSON.stringify(
+                type.json()
+              )}`
+            );
+        }
+      }
+
+      if (this.declaration.expectQuery) {
+        for (const [key, value] of Object.entries(
+          this.declaration.expectQuery
+        )) {
+          if (!value.required && args?.[key as keyof typeof args] === undefined)
+            continue;
+          if (args?.[key as keyof typeof args] === undefined)
+            throw $400(`Missing query parameter ${key}`);
+          if (
+            !(value as { type: TypeInformation<unknown> }).type.check(
+              args[key as keyof typeof args]
+            )
+          )
+            throw $400(
+              `Invalid query parameter ${key}: Expected ${JSON.stringify(
+                (value as { type: TypeInformation<unknown> }).type.json()
+              )}`
+            );
+        }
+      }
+
+      if (this.declaration.expectParams) {
+        for (const [key, value] of Object.entries(
+          this.declaration.expectParams
+        )) {
+          if (!value.required && args?.[key as keyof typeof args] === undefined)
+            continue;
+          if (args?.[key as keyof typeof args] === undefined)
+            throw $400(`Missing path parameter ${key}`);
+          if (
+            !(value as { type: TypeInformation<unknown> }).type.check(
+              args[key as keyof typeof args]
+            )
+          )
+            throw $400(
+              `Invalid path parameter ${key}: Expected ${JSON.stringify(
+                (value as { type: TypeInformation<unknown> }).type.json()
+              )}`
+            );
+        }
+      }
+
       return this.action(args ?? ({} as RsterArgsType<DECLARATION>));
     }) as NeedsProperty<RsterArgsType<DECLARATION>> extends true
       ? (args: t<RsterArgsType<DECLARATION>>) => RsterReturnType<DECLARATION>
