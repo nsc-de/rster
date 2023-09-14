@@ -8,17 +8,17 @@ title: API Reference
 
 Rster consists of a number of packages. The main package is `rster`. All other packages are accessible through `@rster/{package-name}`. The packages are listed below with a link to their API reference.
 
-- [rster](rster)
-- [@rster/authorization](authorization)
-- [@rster/basic](basic)
-- [@rster/builder](builder)
-- [@rster/common](common)
-- [@rster/generator](generator)
-- [@rster/info](info)
-- [@rster/ping](ping)
-- [@rster/types](types)
-- [@rster/util](util)
-- [@rster/worker-express](worker-express)
+- [rster](api-reference/rster)
+- [@rster/authorization](api-reference/authorization)
+- [@rster/basic](api-reference/basic)
+- [@rster/builder](api-reference/builder)
+- [@rster/common](api-reference/common)
+- [@rster/generator](api-reference/generator)
+- [@rster/info](api-reference/info)
+- [@rster/ping](api-reference/ping)
+- [@rster/types](api-reference/types)
+- [@rster/util](api-reference/util)
+- [@rster/worker-express](api-reference/worker-express)
 
 ---
 
