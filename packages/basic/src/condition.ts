@@ -477,6 +477,19 @@ function parsePathDescriptor(str: string): ParsedPathDescriptor {
   return result;
 }
 
+function parsedPathToRegExp(parsed: ParsedPathDescriptor): RegExp {
+  const regexp = parsed
+    .map((entry) => {
+      if (entry.type === "path")
+        return entry.path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (entry.type === "param") return `(?<${entry.name}>[\\w-]+)`;
+      throw new Error("Unexpected entry type");
+    })
+    .join("");
+
+  return new RegExp(`^${regexp}`, "i");
+}
+
 function parsePath(
   path: string,
   descriptor: ParsedPathDescriptor
