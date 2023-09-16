@@ -59,6 +59,12 @@ export type DataProcessingBaseSchema<
     | DataProcessingFunction<NEXT_LAYER>;
 };
 
+/**
+ * The schema definition for data processing layers. Can contain PassThrough to pass the function/function map to the previous layer. (See {@link PassThrough})
+ *
+ * @param NEXT_LAYER the next layer of the data processing schema.
+ * @param NEXT_SCHEMA the schema of the next layer. Automatically inferred from {@link NEXT_LAYER}.
+ */
 export type DataProcessingSchema<
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown,
   NEXT_SCHEMA extends DataProcessingBaseSchema<NEXT_LAYER> = DataProcessingBaseSchema<NEXT_LAYER>
@@ -69,6 +75,13 @@ export type DataProcessingSchema<
     >
   | DataProcessingBaseSchema<NEXT_LAYER>;
 
+/**
+ * Deeply maps a DataProcessingSchema (recursively) to replace PassThrough with the equivalent value from the next layer.
+ *
+ * @param T the schema to map
+ * @param EQUIVALENT the equivalent value from the next layer
+ * @param NEXT_LAYER the next layer of the data processing schema (for PassThrough)
+ */
 export type DeepMapDataProcessingSchema<
   T,
   EQUIVALENT,
@@ -89,10 +102,17 @@ export type DeepMapDataProcessingSchema<
     : undefined;
 } & DataProcessingBaseSchema<NEXT_LAYER>;
 
+/**
+ * The DataProcessingSchema in its simple form (how the first layer should look like and how each layer should look like after PassThrough is replaced).
+ */
 export type DataProcessingSchemaExternal = {
   [key: string]: DataProcessingSchemaExternal | DataProcessingFunctionExternal;
 };
 
+/**
+ * Deeply removes this parameter from functions in Object (recursively). Utility type to convert DataProcessingSchema to DataProcessingSchemaExternal.
+ * (There would be issues with typescript if the this parameter is not removed, as we call the functions on a different object, but `this` is added via bind)
+ */
 export type DeepMapRemoveThisParam<T> = T extends object
   ? {
       [P in keyof T]: T[P] extends (...args: any) => any
@@ -103,6 +123,9 @@ export type DeepMapRemoveThisParam<T> = T extends object
     }
   : T;
 
+/**
+ * Converts a DataProcessingSchema to a DataProcessingSchemaExternal
+ */
 export type DataProcessingSchemaToExternal<
   T extends DataProcessingSchema<any>,
   EQUIVALENT,
@@ -111,15 +134,28 @@ export type DataProcessingSchemaToExternal<
   DeepMapDataProcessingSchema<T, EQUIVALENT, NEXT_LAYER>
 >;
 
+/**
+ * The DataProcessingLayer is the main class for data processing. It contains the functions and the schema.
+ */
 export class DataProcessingLayer<
   INPUT_SCHEMA extends DataProcessingSchema<NEXT_LAYER>,
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
 > {
   constructor(
+    /**
+     * The next layer of the data processing schema.
+     */
     public readonly nextLayer: NEXT_LAYER,
+
+    /**
+     * The schema of the data processing layer.
+     */
     public readonly inputSchema: INPUT_SCHEMA
   ) {}
 
+  /**
+   * The function map of the data processing layer (created from the schema)
+   */
   public functions: DataProcessingSchemaToExternal<
     INPUT_SCHEMA,
     NEXT_LAYER,
@@ -182,6 +218,11 @@ export class DataProcessingLayer<
     return functions;
   }
 
+  /**
+   * Stack a new layer on top of the current layer. (returns a new DataProcessingLayer)
+   * @param inputSchema the schema of the new layer
+   * @returns the new DataProcessingLayer
+   */
   public layer<
     INPUT_SCHEMA extends DataProcessingSchema<typeof this.functions>
   >(inputSchema: INPUT_SCHEMA) {
@@ -189,9 +230,35 @@ export class DataProcessingLayer<
   }
 }
 
+/**
+ * Creates a new DataProcessingLayer
+ * @param nextLayer The next layer of the data processing schema
+ * @param inputSchema The schema of the data processing layer
+ * @returns a new DataProcessingLayer
+ */
 export function createDataProcessingLayer<
   INPUT_SCHEMA extends DataProcessingSchema<NEXT_LAYER>,
   NEXT_LAYER
->(nextLayer: NEXT_LAYER, inputSchema: INPUT_SCHEMA) {
+>(
+  nextLayer: NEXT_LAYER,
+  inputSchema: INPUT_SCHEMA
+): DataProcessingLayer<INPUT_SCHEMA, NEXT_LAYER>;
+
+/**
+ * Creates a new DataProcessingLayer
+ * @param inputSchema The schema of the data processing layer
+ * @returns a new DataProcessingLayer
+ */
+export function createDataProcessingLayer<
+  INPUT_SCHEMA extends DataProcessingSchema<undefined>
+>(inputSchema: INPUT_SCHEMA): DataProcessingLayer<INPUT_SCHEMA, undefined>;
+
+export function createDataProcessingLayer(
+  nextLayer: any,
+  inputSchema?: any
+): any {
+  if (inputSchema === undefined) {
+    return new DataProcessingLayer(undefined, nextLayer);
+  }
   return new DataProcessingLayer(nextLayer, inputSchema);
 }
