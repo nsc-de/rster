@@ -1,20 +1,133 @@
 import { Method, Request } from "@rster/common";
 
-export type ContextConditionJson =
-  | { type: "and"; conditions: ContextConditionJson[] }
-  | { type: "path"; path: string }
-  | { type: "path2"; path: string; flags: string }
-  | { type: "method"; method: Method };
+/**
+ * JSON representation of {@link ContextConditionAnd}
+ */
+export type ConditionAndJson = {
+  /**
+   * Type of the condition (always "and" for {@link ContextConditionAnd})
+   */
+  type: "and";
 
+  /**
+   * Conditions that are chained together
+   * @example [{ type: "path", path: "/api/:id" }, { type: "method", method: "GET" }]
+   */
+  conditions: ContextConditionJson[];
+};
+
+/**
+ * JSON representation of {@link ContextConditionPath}
+ */
+export type ConditionPathJson = {
+  /**
+   * Type of the condition (always "path" for {@link ContextConditionPath})
+   */
+  type: "path";
+
+  /**
+   * Path that is matched
+   * @example "/api/:id"
+   */
+  path: string;
+};
+
+/**
+ * JSON representation of {@link ContextConditionPath2} (RegExp path)
+ * @example { type: "path2", path: "/api/([\\w-]+)", flags: "i" }
+ * @example { type: "path2", path: "/api/([\\w-]+)" }
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp}
+ */
+export type ConditionPath2Json = {
+  /**
+   * Type of the condition (always "path2" for {@link ContextConditionPath2})
+   */
+  type: "path2";
+
+  /**
+   * RegExp path that is matched
+   * @example "/api/([\\w-]+)"
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp}
+   */
+  path: string;
+
+  /**
+   * RegExp flags
+   * @example "i"
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp}
+   */
+  flags: string;
+};
+
+/**
+ * JSON representation of {@link ContextConditionMethod}
+ *
+ * @example { type: "method", method: "GET" }
+ * @example { type: "method", method: "POST" }
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods}
+ * @see {@link import("@rster/common").Method} {@link https://nsc-de.github.io/rster/docs/api-reference/common/modules#method}
+ */
+export type ConditionMethodJson = { type: "method"; method: Method };
+
+/**
+ * JSON representation of a {@link ContextCondition} (one of {@link ConditionAndJson}, {@link ConditionPathJson}, {@link ConditionPath2Json}, {@link ConditionMethodJson})
+ */
+export type ContextConditionJson =
+  | ConditionAndJson
+  | ConditionPathJson
+  | ConditionPath2Json
+  | ConditionMethodJson;
+
+/**
+ * JSON representation of {@link ContextCondition}'s info (for collecting info about conditions and squashing them together)
+ * @example { path: "/api/:id", method: "GET" }
+ * @example { path2: "/api/([\\w-]+)", method: "GET" }
+ */
 export type ContextConditionInfoJson = {
+  /**
+   * Path that is matched
+   * @example "/api/:id"
+   */
   path?: string;
+
+  /**
+   * RegExp path that is matched
+   * @example "/api/([\\w-]+)"
+   */
   path2?: string;
+
+  /**
+   * Method that is matched
+   * @example "GET"
+   */
   method?: Method;
 };
 
+/**
+ * Result of {@link ContextCondition#parse} (used for {@link ContextCondition#appliesTo} and {@link ContextCondition#subRequest})
+ * Parses the condition, checks if it applies to a request and returns all this information (to avoid double parsing)
+ * @example { applies: true, parameters: () => ({ id: "123" }), subRequest: (req) => ({ ...req, path: "/api", params: { id: "123" } }) }
+ */
 export type ConditionParseResult = {
+  /**
+   * Whether the condition applies to the request
+   */
   applies: boolean;
+
+  /**
+   * Parameters of the condition (if it applies)
+   * @example { id: "123" }
+   */
   parameters(): Record<string, string>;
+
+  /**
+   * SubRequest of the condition (if it applies) (used for routing and sub-routing)
+   * @example { method: "GET", path: "/api", params: { id: "123" } }
+   */
   subRequest(req: Request): Request;
 };
 
