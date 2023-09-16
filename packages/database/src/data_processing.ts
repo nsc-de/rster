@@ -151,7 +151,13 @@ export class DataProcessingLayer<
      * The schema of the data processing layer.
      */
     public readonly inputSchema: INPUT_SCHEMA
-  ) {}
+  ) {
+    this.functions = this._createFunctionMap(
+      this.inputSchema,
+      this.nextLayer,
+      []
+    );
+  }
 
   /**
    * The function map of the data processing layer (created from the schema)
@@ -160,7 +166,7 @@ export class DataProcessingLayer<
     INPUT_SCHEMA,
     NEXT_LAYER,
     NEXT_LAYER
-  > = this._createFunctionMap(this.inputSchema, this.nextLayer, []);
+  >;
 
   private _createFunctionMap(
     inputSchema: Record<string, any>,
@@ -250,15 +256,15 @@ export function createDataProcessingLayer<
  * @returns a new DataProcessingLayer
  */
 export function createDataProcessingLayer<
-  INPUT_SCHEMA extends DataProcessingSchema<undefined>
->(inputSchema: INPUT_SCHEMA): DataProcessingLayer<INPUT_SCHEMA, undefined>;
+  INPUT_SCHEMA extends DataProcessingSchema<null>
+>(inputSchema: INPUT_SCHEMA): DataProcessingLayer<INPUT_SCHEMA, null>;
 
 export function createDataProcessingLayer(
   nextLayer: any,
   inputSchema?: any
 ): any {
   if (inputSchema === undefined) {
-    return new DataProcessingLayer(undefined, nextLayer);
+    return new DataProcessingLayer(null, nextLayer);
   }
   return new DataProcessingLayer(nextLayer, inputSchema);
 }

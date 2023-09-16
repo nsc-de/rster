@@ -1,89 +1,60 @@
-import * as database from "./database";
-import { JSONAdapter } from "./adapters/json";
-import { number, object, string } from "@rster/types";
-import crypto from "crypto";
-import { PassThrough, createDataProcessingLayer } from "./data_processing";
+import { DataProcessingLayer, PassThrough } from "./data_processing";
 
-const db = database.createDatabase(
-  {
-    tables: {
-      users: object({
-        id: { type: number(), required: true },
-        name: { type: string(), required: true },
-        password: { type: string(), required: true },
-      }),
-    },
-  },
-  JSONAdapter("./test.json"),
-  {
-    users: {
-      input: {
-        transform(data: {
-          id: number;
-          name: string;
-          password: string;
-          salt?: string;
-        }) {
-          const salt = data.salt ?? crypto.randomBytes(16).toString("hex");
+describe("DataProcessingLayer", () => {
+  it("should create a DataProcessingLayer", () => {
+    const layer = new DataProcessingLayer(null, {});
+    expect(layer).toBeDefined();
+  });
+  it("should create a DataProcessingLayer with a next layer", () => {
+    const layer = new DataProcessingLayer({}, {});
+    expect(layer).toBeDefined();
+  });
 
-          return {
-            id: data.id,
-            name: data.name,
-            password:
-              btoa(salt) +
-              ":" +
-              crypto
-                .createHash("sha512", {})
-                .update(data.password)
-                .update(salt)
-                .digest("hex"),
-          };
+  it("should throw an error if the schema is invalid", () => {
+    expect(() => new DataProcessingLayer(null, { a: 1 })).toThrowError(
+      "Invalid schema, key a is not a function or object"
+    );
+  });
+
+  it("should passthrough a function if passthrough is given", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
         },
-        type: object({
-          id: { type: number(), required: true },
-          name: { type: string(), required: true },
-          password: { type: string(), required: true },
-          salt: { type: string(), required: false },
-        }),
       },
+      { a: PassThrough }
+    );
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+  });
 
-      output: {
-        transform(data: { id: number; name: string; password: string }) {
-          const [salt, hash] = data.password.split(":");
-
-          return {
-            id: data.id,
-            name: data.name,
-            password: hash,
-            salt: atob(salt),
-          };
+  it("should passthrough an object if passthrough is given", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: {
+          b: () => {
+            return 1;
+          },
         },
-        type: object({
-          id: { type: number(), required: true },
-          name: { type: string(), required: true },
-          password: { type: string(), required: true },
-          salt: { type: string(), required: true },
-        }),
       },
-    },
-  }
-);
+      { a: { b: PassThrough } }
+    );
+    expect(layer.functions.a.b).toBeInstanceOf(Function);
+    expect(layer.functions.a.b()).toBe(1);
+  });
 
-const exitLayer = createDataProcessingLayer(db, {
-  users: {
-    get(search: { id: number }) {
-      return db.users.get(search);
-    },
-  },
-}).layer({
-  users: {
-    get: PassThrough,
-    // a: PassThrough,
-  },
-}).functions.users.get;
-
-describe("[]", () => {
-  it("[]", () => {
-    expect(exitLayer).toBeDefined();
+  it("should throw an error if passthrough is given but the function is not available", () => {
+    expect(
+      () =>
+        new DataProcessingLayer(
+          {},
+          {
+            a: PassThrough,
+          }
+        )
+    ).toThrowError(
+      "Invalid schema, cannot passthrough key a as it does not exist in output layer"
+    );
   });
 });
