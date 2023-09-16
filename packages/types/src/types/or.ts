@@ -33,10 +33,6 @@ export class Or<
     return this.value0.sendableVia().filter((v) => this.value1.sendableVia(v));
   }
 
-  get type(): T0 | T1 {
-    return this.value0.type ?? this.value1.type;
-  }
-
   get identifier(): string {
     return "or";
   }

@@ -2,6 +2,7 @@ import { ConversionRegister } from "../conversion";
 import {
   AllowAnyTypeInformation,
   JsonCompatible,
+  PrimitiveType,
   SendMethod,
   TypeInformation,
 } from "../types";
@@ -13,7 +14,7 @@ import {
  */
 export class ArrayTypeInformation<
   T extends AllowAnyTypeInformation
-> extends TypeInformation<T["type"][]> {
+> extends TypeInformation<PrimitiveType<T>[]> {
   minItems?: number;
   maxItems?: number;
   constructor(
@@ -31,7 +32,7 @@ export class ArrayTypeInformation<
     this.maxItems = maxItems;
   }
 
-  check(value: any): value is T["type"][] {
+  check(value: any): value is PrimitiveType<T>[] {
     return (
       Array.isArray(value) &&
       value.length >= (this.minItems ?? 0) &&
@@ -49,15 +50,11 @@ export class ArrayTypeInformation<
     return ["body"];
   }
 
-  get type(): T["type"][] {
-    return [this.values.type];
-  }
-
   get identifier(): string {
     return "array";
   }
 
-  exportToString(value: T["type"][]): string {
+  exportToString(value: PrimitiveType<T>[]): string {
     return JSON.stringify(
       value.map((v) =>
         v !== null &&
@@ -70,7 +67,7 @@ export class ArrayTypeInformation<
     );
   }
 
-  importFromString(value: string): T["type"][] {
+  importFromString(value: string): PrimitiveType<T>[] {
     return JSON.parse(value).map((v: any) =>
       typeof v === "string"
         ? ConversionRegister.instance.importFromString(v)
@@ -78,11 +75,11 @@ export class ArrayTypeInformation<
     );
   }
 
-  exportToJson(value: T["type"][]): JsonCompatible {
+  exportToJson(value: PrimitiveType<T>[]): JsonCompatible {
     return value.map((v) => this.values.exportToJson(v));
   }
 
-  importFromJson(value: JsonCompatible): T["type"][] {
+  importFromJson(value: JsonCompatible): PrimitiveType<T>[] {
     if (!Array.isArray(value)) {
       throw new Error(`Expected array, got ${typeof value}`);
     }

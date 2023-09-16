@@ -22,10 +22,6 @@ export class DateTypeInformation extends TypeInformation<Date> {
     return ["body"];
   }
 
-  get type(): Date {
-    return new Date();
-  }
-
   get identifier(): string {
     return "date";
   }

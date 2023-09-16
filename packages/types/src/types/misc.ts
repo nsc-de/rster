@@ -24,10 +24,6 @@ export class NullTypeInformation extends TypeInformation<null> {
     return ["param", "body", "query"];
   }
 
-  get type(): null {
-    return null;
-  }
-
   get identifier(): string {
     return "null";
   }
@@ -83,10 +79,6 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
     return ["param", "body", "query"];
   }
 
-  get type(): undefined {
-    return undefined;
-  }
-
   get identifier(): string {
     return "undefined";
   }
@@ -138,10 +130,6 @@ export class AnyTypeInformation<T = any> extends TypeInformation<T> {
       return this.sendableVia().includes(m);
     }
     return ["body"];
-  }
-
-  get type(): T {
-    return null as T;
   }
 
   get identifier(): string {

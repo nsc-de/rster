@@ -23,11 +23,6 @@ export class StringTypeInformation<
     }
     return ["param", "body", "query"];
   }
-
-  get type(): T {
-    return this.value;
-  }
-
   get identifier(): string {
     return "string";
   }
@@ -81,10 +76,6 @@ export class AnyStringTypeInformation extends TypeInformation<string> {
       return this.sendableVia().includes(m);
     }
     return ["param", "body", "query"];
-  }
-
-  get type(): string {
-    return "";
   }
 
   get identifier(): string {

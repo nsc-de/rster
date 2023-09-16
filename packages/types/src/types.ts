@@ -53,7 +53,7 @@ export abstract class TypeInformation<T> {
       this,
       this.identifier,
       this.exportToString.bind(this),
-      this.importFromString.bind(this)
+      this.importFromString.bind(this) as (value: string) => PrimitiveType<this>
     );
   }
 
@@ -75,20 +75,6 @@ export abstract class TypeInformation<T> {
    * @param m - The method to check
    */
   abstract sendableVia(m: SendMethod): boolean;
-
-  /**
-   * This is not a real property, but a hack to get the type of the type information
-   * This is used to get the type of the type information for typescript to infer
-   * It's return type should represent the typescript type of the type information
-   * It can return or do basically anything, as it will never be called by the API and
-   * SHOULD NOT be called by the user, only using `typeof` operator
-   *
-   * @readonly This is not a real property, but a hack to get the type of the type information
-   * @abstract This is not a real property, but a hack to get the type of the type information
-   * @type {T} This is the important part, it should represent the typescript type of the type information
-   * @memberof TypeInformation This is not a real property, but a hack to get the type of the type information
-   */
-  abstract get type(): T;
 
   abstract get identifier(): string;
   abstract exportToString(value: T): string;
@@ -114,7 +100,8 @@ export type NoUndefined<TYPE, ALTERNATIVE> = TYPE extends undefined
  * @see MapToPrimitiveType
  * @see TypeInformationFor
  */
-export type PrimitiveType<TYPE extends AllowAnyTypeInformation> = TYPE["type"];
+export type PrimitiveType<TYPE extends AllowAnyTypeInformation> =
+  TYPE extends TypeInformation<infer T> ? T : never;
 
 /**
  * Type utility for converting typescript types to type information

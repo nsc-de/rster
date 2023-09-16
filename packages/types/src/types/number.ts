@@ -24,9 +24,6 @@ export class NumberTypeInformation<
     }
     return ["param", "body", "query"];
   }
-  get type(): T {
-    return this.value;
-  }
   get identifier(): string {
     return "number";
   }
@@ -86,10 +83,6 @@ export class NumberRangeTypeInformation<
     return ["param", "body", "query"];
   }
 
-  get type(): IntRange<MIN, MAX> {
-    return this.min as any;
-  }
-
   get identifier(): string {
     return "number";
   }
@@ -144,10 +137,6 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
       return this.sendableVia().includes(m);
     }
     return ["param", "body", "query"];
-  }
-
-  get type(): number {
-    return 0;
   }
 
   get identifier(): string {

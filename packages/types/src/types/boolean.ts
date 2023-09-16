@@ -28,10 +28,6 @@ export class BooleanTypeInformation<
     return ["body"];
   }
 
-  get type(): T {
-    return this.value;
-  }
-
   get identifier(): string {
     return "boolean";
   }
@@ -85,10 +81,6 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
       return this.sendableVia().includes(m);
     }
     return ["param", "body", "query"];
-  }
-
-  get type(): boolean {
-    return false;
   }
 
   get identifier(): string {

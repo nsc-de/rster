@@ -1,4 +1,4 @@
-import { AllowAnyTypeInformation } from "./types";
+import { AllowAnyTypeInformation, PrimitiveType } from "./types";
 
 /**
  * Entry for a type in the conversion register. The Identifier is used to identify the type in the string representation of the value and then to
@@ -24,13 +24,13 @@ export interface ConversionRegisterEntry<T extends AllowAnyTypeInformation> {
    * Function to convert the value to a string
    * @readonly
    */
-  exportToString: (value: T["type"]) => string;
+  exportToString: (value: PrimitiveType<T>) => string;
 
   /**
    * Function to convert the value from a string
    * @readonly
    */
-  importFromString: (value: string) => T["type"];
+  importFromString: (value: string) => PrimitiveType<T>;
 }
 
 /**
@@ -84,8 +84,8 @@ export class ConversionRegister {
   register<T extends AllowAnyTypeInformation>(
     type: T,
     identifier: string,
-    exportToString: (value: T["type"]) => string,
-    importFromString: (value: string) => T["type"]
+    exportToString: (value: PrimitiveType<T>) => string,
+    importFromString: (value: string) => PrimitiveType<T>
   ) {
     // Check if the identifier is already registered
     if (this.entries.some((e) => e.identifier === identifier)) {
@@ -107,7 +107,7 @@ export class ConversionRegister {
    *
    * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
    */
-  exportToString(value: AllowAnyTypeInformation["type"]): string {
+  exportToString(value: unknown): string {
     const entry = this.entries.find((e) => e.type.check(value));
     if (!entry) {
       throw new ConversionRegisterUnsupportedTypeError(
@@ -125,7 +125,7 @@ export class ConversionRegister {
    * @returns {AllowAnyTypeInformation["type"]} - Imported value
    * @throws {ConversionRegisterUnsupportedTypeError} - Unsupported type
    */
-  importFromString(value: string): AllowAnyTypeInformation["type"] {
+  importFromString(value: string): unknown {
     if (value.startsWith("@")) {
       const [identifier, stringValue] = value.substring(1).split(":");
       const entry = this.entries.find((e) => e.identifier === identifier);

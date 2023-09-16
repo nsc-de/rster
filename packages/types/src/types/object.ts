@@ -65,14 +65,6 @@ export class ObjectTypeInformation<
     return ["body"];
   }
 
-  get type(): ObjectType<T> {
-    return Object.keys(this.properties).reduce((acc, key) => {
-      const value = this.properties[key];
-      acc[key] = value.type.type;
-      return acc;
-    }, {} as any);
-  }
-
   get identifier(): string {
     return "object";
   }
