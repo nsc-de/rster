@@ -3,7 +3,7 @@ import { Method, Request } from "@rster/common";
 /**
  * JSON representation of {@link ContextConditionAnd}
  */
-export type ConditionAndJson = {
+export type ContextConditionAndJson = {
   /**
    * Type of the condition (always "and" for {@link ContextConditionAnd})
    */
@@ -19,7 +19,7 @@ export type ConditionAndJson = {
 /**
  * JSON representation of {@link ContextConditionPath}
  */
-export type ConditionPathJson = {
+export type ContextConditionPathJson = {
   /**
    * Type of the condition (always "path" for {@link ContextConditionPath})
    */
@@ -39,7 +39,7 @@ export type ConditionPathJson = {
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp}
  */
-export type ConditionPath2Json = {
+export type ContextConditionPath2Json = {
   /**
    * Type of the condition (always "path2" for {@link ContextConditionPath2})
    */
@@ -71,16 +71,16 @@ export type ConditionPath2Json = {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods}
  * @see {@link import("@rster/common").Method} {@link https://nsc-de.github.io/rster/docs/api-reference/common/modules#method}
  */
-export type ConditionMethodJson = { type: "method"; method: Method };
+export type ContextConditionMethodJson = { type: "method"; method: Method };
 
 /**
- * JSON representation of a {@link ContextCondition} (one of {@link ConditionAndJson}, {@link ConditionPathJson}, {@link ConditionPath2Json}, {@link ConditionMethodJson})
+ * JSON representation of a {@link ContextCondition} (one of {@link ContextConditionAndJson}, {@link ContextConditionPathJson}, {@link ContextConditionPath2Json}, {@link ContextConditionMethodJson})
  */
 export type ContextConditionJson =
-  | ConditionAndJson
-  | ConditionPathJson
-  | ConditionPath2Json
-  | ConditionMethodJson;
+  | ContextConditionAndJson
+  | ContextConditionPathJson
+  | ContextConditionPath2Json
+  | ContextConditionMethodJson;
 
 /**
  * JSON representation of {@link ContextCondition}'s info (for collecting info about conditions and squashing them together)
@@ -131,50 +131,203 @@ export type ConditionParseResult = {
   subRequest(req: Request): Request;
 };
 
+/**
+ * Condition for {@link Context} used for routing and sub-routing
+ */
 export abstract class ContextCondition {
+  /**
+   * Chain this condition with another condition
+   *
+   * @param other Condition to chain with
+   * @returns New condition that applies if both conditions apply
+   */
   and(other: ContextCondition): ContextConditionAnd {
     return new ContextConditionAnd([this, other]);
   }
+
+  /**
+   * Chain this condition with another condition  (used for sub-routing)
+   */
   chain(other: ContextCondition): ConditionChain {
     return new ConditionChain([this, other]);
   }
 
   /**
+   * Check if the condition applies to a request (used for routing) (parses the request itself, so use {@link ContextCondition#parse} for performance reasons)
+   *
    * @deprecated Use `#parse().applies` instead (For performance reasons, as this method parses the request itself and subRequest again)
    * @param req Request to check
    * @returns Whether the condition applies to the request
+   *
+   * @see {@link ContextCondition#parse}
+   * @see {@link ConditionParseResult#applies}
    */
   appliesTo(req: Request): boolean {
+    console.warn(
+      "ContextCondition#appliesTo is deprecated, use ContextCondition#parse().applies for performance reasons instead. appliesTo parses the request itself, so you will potentially parse the request twice."
+    );
     return this.parse(req).applies;
   }
 
   /**
+   * Check if the condition applies to a request (used for routing) (parses the request itself, so use {@link ContextCondition#parse} for performance reasons)
+   *
    * @deprecated Use `#parse().parameters` instead (For performance reasons, as this method parses the request itself and appliesTo again)
    * @param req Request to check
    * @returns Parameters of the condition
+   *
+   * @see {@link ContextCondition#parse}
+   * @see {@link ConditionParseResult#subRequest}
    */
   subRequest(req: Request): Request {
     return this.parse(req).subRequest(req);
   }
 
+  /**
+   * Parse the condition (used for routing and sub-routing)
+   * @param req Request to parse
+   * @returns Result of the parsing
+   *
+   * @example
+   * ```ts
+   * const condition = new ContextConditionPath("/api/:id");
+   * const result = condition.parse({ method: "GET", path: "/api/123", params: {} });
+   *
+   * result.applies // true
+   * result.parameters() // { id: "123" }
+   * result.subRequest({ method: "GET", path: "/api/123", params: {} }) // { method: "GET", path: "", params: { id: "123" } }
+   * ```
+   *
+   * @see {@link ConditionParseResult}
+   */
   abstract parse(req: Request): ConditionParseResult;
 
+  /**
+   * Get info about the condition (used for collecting info about conditions and squashing them together)
+   *
+   * @example
+   * ```ts
+   * const condition = new ContextConditionPath("/api/:id");
+   * const info = condition.info(); // { path: "/api/:id" , method: undefined, path2: undefined }
+   * ```
+   *
+   * @example
+   * ```ts
+   * const condition = new ContextConditionAnd([
+   *   new ContextConditionPath("/api/:id"),
+   *   new ContextConditionMethod("GET"),
+   * ]);
+   * const info = condition.info(); // { path: "/api/:id" , method: "GET", path2: undefined }
+   * ```
+   *
+   * @see {@link ContextCondition#infoJson}
+   */
   abstract info(): ConditionInfo;
 
+  /**
+   * Get info about the condition (used for collecting info about conditions and squashing them together)
+   *
+   * @example
+   * ```ts
+   * const condition = new ContextConditionPath("/api/:id");
+   * const info = condition.toJson(); // { type: "path", path: "/api/:id" }
+   * ```
+   *
+   * @see {@link ContextConditionJson}
+   */
   abstract toJson(): ContextConditionJson;
+
+  /**
+   * Get info about the condition (used for collecting info about conditions and squashing them together)
+   * @example
+   * ```ts
+   * const condition = new ContextConditionPath("/api/:id");
+   * const info = condition.infoJson(); // { path: "/api/:id" , method: undefined, path2: undefined }
+   * ```
+   */
   abstract infoJson(): ContextConditionInfoJson;
+
+  /**
+   * Check if the condition is equal to another condition
+   * @param other Condition to check
+   * @returns Whether the conditions are equal
+   * @example
+   * ```ts
+   * const condition = new ContextConditionPath("/api/:id");
+   * const other = new ContextConditionPath("/api/:id");
+   * const other2 = new ContextConditionPath("/api/:id2");
+   *
+   * condition.equals(other) // true
+   * condition.equals(other2) // false
+   * ```
+   */
   abstract equals(other: ContextCondition): boolean;
 }
 
+/**
+ * Condition that applies if all conditions apply
+ * @example
+ * ```ts
+ * const condition = new ContextConditionAnd([
+ *   new ContextConditionPath("/api/:id"),
+ *   new ContextConditionMethod("GET"),
+ * ]);
+ *
+ * @see {@link ContextCondition}
+ * @see {@link ContextConditionAndJson}
+ */
 export class ContextConditionAnd extends ContextCondition {
-  constructor(readonly conditions: ContextCondition[]) {
+  /**
+   * Create a new condition that applies if all conditions apply
+   * @param conditions The conditions that are chained together
+   */
+  constructor(
+    /**
+     * Conditions that are chained together
+     */
+    readonly conditions: ContextCondition[]
+  ) {
     super();
   }
 
+  /**
+   * Chain this condition with another condition
+   * @param other The condition to chain with
+   * @returns The new condition that applies if both conditions apply
+   *
+   * @example
+   * ```ts
+   * const condition = new ContextConditionAnd([
+   *   new ContextConditionPath("/api/:id"),
+   *   new ContextConditionMethod("GET"),
+   * ]);
+   *
+   * const other = new ContextConditionPath("/api/:id2");
+   * const newCondition = condition.and(other);
+   * ```
+   */
   and(other: ContextCondition): ContextConditionAnd {
     return new ContextConditionAnd([...this.conditions, other]);
   }
 
+  /**
+   * Parse the condition (used for routing and sub-routing)
+   * @param req The request to parse
+   * @returns The result of the parsing
+   *
+   * @example
+   * ```ts
+   * const condition = new ContextConditionAnd([
+   *   new ContextConditionPath("/api/:id"),
+   *   new ContextConditionMethod("GET"),
+   * ]);
+   * const result = condition.parse({ method: "GET", path: "/api/123", params: {} });
+   * result.applies // true
+   * result.parameters() // { id: "123" }
+   * result.subRequest({ method: "GET", path: "/api/123", params: {} }) // { method: "GET", path: "", params: { id: "123" } }
+   * ```
+   * @see {@link ConditionParseResult}
+   */
   parse(req: Request): ConditionParseResult {
     const parsed = this.conditions.map((c) => c.parse(req));
     return {
@@ -186,12 +339,44 @@ export class ContextConditionAnd extends ContextCondition {
     };
   }
 
+  /**
+   * Get info about the condition (used for collecting info about conditions and squashing them together)
+   * @returns Info about the condition (used for collecting info about conditions and squashing them together)
+   *
+   * @example
+   * ```ts
+   * const condition = new ContextConditionAnd([
+   *   new ContextConditionPath("/api/:id"),
+   *   new ContextConditionMethod("GET"),
+   * ]);
+   * const info = condition.info(); // { path: "/api/:id" , method: "GET", path2: undefined }
+   * ```
+   *
+   * @see {@link ContextCondition#infoJson}
+   */
   info(): ConditionInfo {
     return this.conditions
       .map((c) => c.info())
       .reduce((a, b) => ({ ...a, ...b }));
   }
 
+  /**
+   * Get JSON representation of the condition (used for collecting info about conditions and squashing them together)
+   * @returns JSON representation of the condition (used for collecting info about conditions and squashing them together)
+   *
+   * @example
+   * ```ts
+   * const condition = new ContextConditionAnd([
+   *   new ContextConditionPath("/api/:id"),
+   *   new ContextConditionMethod("GET"),
+   * ]);
+   *
+   * const json = condition.toJson(); // { type: "and", conditions: [{ type: "path", path: "/api/:id" }, { type: "method", method: "GET" }] }
+   * ```
+   *
+   * @see {@link ContextConditionAndJson}
+   * @see {@link ContextConditionJson}
+   */
   toJson(): ContextConditionJson {
     return {
       type: "and",
@@ -199,6 +384,20 @@ export class ContextConditionAnd extends ContextCondition {
     };
   }
 
+  /**
+   * Get info about the condition (used for collecting info about conditions and squashing them together)
+   * @returns Info about the condition (used for collecting info about conditions and squashing them together)
+   * @example
+   * ```ts
+   * const condition = new ContextConditionAnd([
+   *   new ContextConditionPath("/api/:id"),
+   *   new ContextConditionMethod("GET"),
+   * ]);
+   * const info = condition.infoJson(); // { path: "/api/:id" , method: "GET", path2: undefined }
+   * ```
+   * @see {@link ContextCondition#info}
+   * @see {@link ContextConditionInfoJson}
+   */
   infoJson(): ContextConditionInfoJson {
     let it = {};
 
@@ -209,6 +408,32 @@ export class ContextConditionAnd extends ContextCondition {
     return it;
   }
 
+  /**
+   * Check if the condition is equal to another condition
+   * @param other Condition to check
+   * @returns Whether the conditions are equal
+   * @example
+   * ```ts
+   * const condition = new ContextConditionAnd([
+   *   new ContextConditionPath("/api/:id"),
+   *   new ContextConditionMethod("GET"),
+   * ]);
+   *
+   * const other = new ContextConditionAnd([
+   *   new ContextConditionPath("/api/:id"),
+   *   new ContextConditionMethod("GET"),
+   * ]);
+   *
+   * const other2 = new ContextConditionAnd([
+   *   new ContextConditionPath("/api/:id"),
+   *   new ContextConditionMethod("POST"),
+   * ]);
+   *
+   * condition.equals(other) // true
+   * condition.equals(other2) // false
+   * ```
+   * @see {@link ContextCondition#equals}
+   */
   equals(other: ContextCondition): boolean {
     // TODO: Add checking if conditions are equal but in different order
     if (!(other instanceof ContextConditionAnd)) {
