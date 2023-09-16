@@ -1,11 +1,4 @@
-import {
-  RsterApiBuilderContext,
-  RsterApiMethodBuilderContext,
-  RsterApiModuleBuilderContext,
-  api,
-  method,
-  module,
-} from "@rster/builder";
+import { api, method, module } from "@rster/builder";
 import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
@@ -330,89 +323,6 @@ class $Database<
     return this.adapter.disconnect();
   }
 
-  public createRestApi<INCLUDE extends RsterDatabaseToApiInclude<DEF>>({
-    name,
-    description,
-    include,
-  }: {
-    name: string;
-    description: string[];
-    include: INCLUDE;
-  }): RsterDatabaseToApiBuilder<this, INCLUDE> {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const db = this;
-    return api({
-      name,
-      description,
-      modules: Object.entries(include).map(([table, include]) => {
-        const tableInputTypes = db.inputTypes[table as keyof DEF["tables"]];
-        const tableOutputTypes = db.outputTypes[table as keyof DEF["tables"]];
-
-        const inputTypes = Object.entries(include as Record<string, boolean>)
-          .map(([key, value]) => {
-            return [
-              key,
-              value
-                ? tableInputTypes[key as keyof typeof tableInputTypes]
-                : undefined,
-            ];
-          })
-          .map(([key, value]) => [key, value])
-          .filter(([_key, value]) => value !== undefined) as [
-          string,
-          (typeof tableInputTypes)[keyof typeof tableInputTypes]
-        ][];
-
-        const outputTypes = Object.entries(include)
-          .map(([key, value]) => [
-            key,
-            value
-              ? tableOutputTypes[key as keyof typeof tableOutputTypes]
-              : undefined,
-          ])
-          .filter(([_key, value]) => value !== undefined) as [
-          string,
-          (typeof tableOutputTypes)[keyof typeof tableOutputTypes]
-        ][];
-
-        return module({
-          name: table,
-          description: [],
-          httpPath: `/${table}`,
-          methods: [
-            method({
-              name: "get",
-              declaration: {
-                returns: object(
-                  Object.fromEntries(
-                    outputTypes.map(([key, value]) => [
-                      key,
-                      { type: value, required: true },
-                    ])
-                  )
-                ),
-                expectBody: {
-                  query: object(
-                    Object.fromEntries(
-                      inputTypes.map(([key, value]) => [
-                        key,
-                        { type: value, required: false },
-                      ])
-                    )
-                  ),
-                },
-              },
-              httpPath: "/get",
-              action: async ({ query }) => {
-                return await db.get(table, query);
-              },
-            }) as any,
-          ],
-        });
-      }),
-    });
-  }
-
   public layer<INPUT_SCHEMA extends DataProcessingSchema<typeof this>>(
     inputSchema: INPUT_SCHEMA
   ) {
@@ -544,44 +454,3 @@ export type RsterDatabaseToApiInclude<DEF extends DatabaseDefinition> = {
     [key2 in keyof DEF["tables"][key]["properties"]]?: boolean;
   };
 };
-
-export type RsterDatabaseToApiBuilder<
-  DB extends $Database<any>,
-  INCLUDE extends RsterDatabaseToApiInclude<DB["definition"]>
-> = RsterApiBuilderContext<
-  {
-    [key in keyof INCLUDE]: RsterApiModuleBuilderContext<
-      Record<string, never>,
-      {
-        get: RsterApiMethodBuilderContext<{
-          returns: {
-            [key2 in keyof INCLUDE[key]]: INCLUDE[key][key2] extends true
-              ? key extends keyof DB["definition"]["tables"] // This is a hack to make sure that the key is a valid table name. It should always be true.
-                ? key2 extends keyof DB["definition"]["tables"][key]["properties"] // This is a hack to make sure that the key2 is a valid property name. It should always be true.
-                  ? {
-                      type: DB["definition"]["tables"][key]["properties"][key2];
-                      required: true;
-                    }
-                  : never
-                : never
-              : never;
-          };
-
-          expectBody: {
-            [key2 in keyof INCLUDE[key]]: INCLUDE[key][key2] extends true
-              ? key extends keyof DB["definition"]["tables"] // This is a hack to make sure that the key is a valid table name. It should always be true.
-                ? key2 extends keyof DB["definition"]["tables"][key]["properties"] // This is a hack to make sure that the key2 is a valid property name. It should always be true.
-                  ? {
-                      type: DB["definition"]["tables"][key]["properties"][key2];
-                      required: false;
-                    }
-                  : never
-                : never
-              : never;
-          };
-        }>;
-      }
-    >;
-  },
-  Record<string, never>
->;

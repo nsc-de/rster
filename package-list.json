@@ -4,6 +4,7 @@
     { "name": "basic" },
     { "name": "builder" },
     { "name": "common" },
+    { "name": "database" },
     { "name": "generator" },
     { "name": "info" },
     { "name": "info-client" },
