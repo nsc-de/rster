@@ -1,15 +1,17 @@
 import { DeepMapOptional, RemoveThisParam } from "@rster/common";
 
+class $$PASSTHROUGHCLASS {}
+
 /**
  * PassThrough is a special value that can be used in the schema to indicate that the value should be passed through to the next layer.
  * PassThrough is only valid if the next layer is an object and the key exists in the next layer.
  */
-export const PassThrough = "$__passThrough__";
+export const PassThrough = new $$PASSTHROUGHCLASS();
 
 /**
  * Type for {@link PassThrough}
  */
-export type PassThroughType = typeof PassThrough;
+export type PassThroughType = $$PASSTHROUGHCLASS;
 
 /**
  * The this object provided to the data processing functions.
@@ -17,7 +19,7 @@ export type PassThroughType = typeof PassThrough;
  * {@link NEXT_LAYER} is the next layer of the data processing schema. Available as `this.nextLayer`.
  */
 export type DataProcessingThis<
-  NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
+  NEXT_LAYER extends DataProcessingBaseSchema<unknown> | undefined | unknown
 > = {
   nextLayer: NEXT_LAYER;
 };
@@ -29,14 +31,14 @@ export type DataProcessingThis<
  */
 export type DataProcessingFunction<NEXT_LAYER> = (
   this: DataProcessingThis<NEXT_LAYER>,
-  ...args: any
-) => any;
+  ...args: unknown[]
+) => unknown | Promise<unknown> | void | Promise<void>;
 
 /**
  * A data processing function in external form. It's the same as {@link DataProcessingFunction} but without the this parameter.
  * The this parameter would cause issues on calling because typescript would find that the this parameter will not match it's type.
  */
-export type DataProcessingFunctionExternal = (...data: any) => any;
+export type DataProcessingFunctionExternal = (...data: unknown[]) => unknown;
 
 /**
  * Converts a {@link DataProcessingFunction} to a {@link DataProcessingFunctionExternal}
@@ -44,7 +46,7 @@ export type DataProcessingFunctionExternal = (...data: any) => any;
  * @returns the converted function
  */
 export type DataProcessingFunctionToExternal<
-  func extends DataProcessingFunction<any>
+  func extends DataProcessingFunction<unknown>
 > = RemoveThisParam<func>;
 
 /**
@@ -52,7 +54,7 @@ export type DataProcessingFunctionToExternal<
  * @param NEXT_LAYER the next layer of the data processing schema. Available as `this.nextLayer`.
  */
 export type DataProcessingBaseSchema<
-  NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
+  NEXT_LAYER extends DataProcessingBaseSchema<unknown> | undefined | unknown
 > = {
   [key: string]:
     | DataProcessingBaseSchema<NEXT_LAYER>
@@ -66,7 +68,7 @@ export type DataProcessingBaseSchema<
  * @param NEXT_SCHEMA the schema of the next layer. Automatically inferred from {@link NEXT_LAYER}.
  */
 export type DataProcessingSchema<
-  NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown,
+  NEXT_LAYER extends DataProcessingBaseSchema<unknown> | undefined | unknown,
   NEXT_SCHEMA extends DataProcessingBaseSchema<NEXT_LAYER> = DataProcessingBaseSchema<NEXT_LAYER>
 > =
   | DeepMapOptional<
@@ -99,7 +101,7 @@ export type DeepMapDataProcessingSchema<
         P extends keyof EQUIVALENT ? EQUIVALENT[P] : never,
         NEXT_LAYER
       >
-    : undefined;
+    : T[P];
 } & DataProcessingBaseSchema<NEXT_LAYER>;
 
 /**
@@ -139,7 +141,7 @@ export type DataProcessingSchemaToExternal<
  */
 export class DataProcessingLayer<
   INPUT_SCHEMA extends DataProcessingSchema<NEXT_LAYER>,
-  NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
+  NEXT_LAYER extends DataProcessingBaseSchema<unknown> | undefined | unknown
 > {
   constructor(
     /**
