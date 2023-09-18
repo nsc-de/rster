@@ -170,28 +170,38 @@ export class DataProcessingLayer<
 
   private _createFunctionMap(
     inputSchema: Record<string, any>,
-    outputSchema: DataProcessingBaseSchema<any> | undefined | unknown,
+    nextLayer: DataProcessingBaseSchema<any> | undefined | unknown,
     path: string[]
   ): any {
+    // This is a recursive function that creates the function map from the schema.
+    // Its main purpose is to replace PassThrough with the equivalent value from the next layer.
+    // Also we catch the coresponding path for error messages.
+
     const functions: Record<string, any> = {};
     const functionThis = { nextLayer: this.nextLayer };
 
     for (const [key, value] of Object.entries(inputSchema)) {
       if (value === PassThrough) {
-        if (typeof outputSchema !== "object" || outputSchema === null) {
+        if (typeof nextLayer !== "object" || nextLayer === null) {
           throw new Error(
-            `Invalid schema, cannot passthrough if output layer is not existent`
+            `Invalid schema, cannot passthrough if output layer is not existent in path ${[
+              ...path,
+              key,
+            ].join(".")}`
           );
         }
-        if (outputSchema === undefined || !(key in outputSchema)) {
+        if (nextLayer === undefined || !(key in nextLayer)) {
           throw new Error(
             `Invalid schema, cannot passthrough key ${[...path, key].join(
               "."
-            )} as it does not exist in output layer`
+            )} as it does not exist in output layer in path ${[
+              ...path,
+              key,
+            ].join(".")}`
           );
         }
 
-        functions[key] = (outputSchema as any)[key];
+        functions[key] = (nextLayer as any)[key];
         continue;
       }
       if (typeof value === "function") {
@@ -205,10 +215,10 @@ export class DataProcessingLayer<
       if (typeof value === "object") {
         functions[key] = this._createFunctionMap(
           value,
-          typeof outputSchema === "object" &&
-            outputSchema !== null &&
-            key in outputSchema
-            ? (outputSchema as any)[key]
+          typeof nextLayer === "object" &&
+            nextLayer !== null &&
+            key in nextLayer
+            ? (nextLayer as any)[key]
             : undefined,
           [...path, key]
         );
@@ -217,7 +227,7 @@ export class DataProcessingLayer<
       throw new Error(
         `Invalid schema, key ${[...path, key].join(
           "."
-        )} is not a function or object`
+        )} is not a function or object in path ${[...path, key].join(".")}`
       );
     }
 
