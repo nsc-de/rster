@@ -10,6 +10,34 @@ describe("DataProcessingLayer", () => {
     expect(layer).toBeDefined();
   });
 
+  it("should work with function schemas", () => {
+    const layer = new DataProcessingLayer(
+      {},
+      {
+        a: () => {
+          return 1;
+        },
+      }
+    );
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+  });
+
+  it("should work with object schemas", () => {
+    const layer = new DataProcessingLayer(
+      {},
+      {
+        a: {
+          b: () => {
+            return 1;
+          },
+        },
+      }
+    );
+    expect(layer.functions.a.b).toBeInstanceOf(Function);
+    expect(layer.functions.a.b()).toBe(1);
+  });
+
   it("should throw an error if the schema is invalid", () => {
     expect(() => new DataProcessingLayer(null, { a: 1 })).toThrowError(
       "Invalid schema, key a is not a function or object"
@@ -44,7 +72,7 @@ describe("DataProcessingLayer", () => {
     expect(layer.functions.a.b()).toBe(1);
   });
 
-  it("should throw an error if passthrough is given but the function is not available", () => {
+  it("should throw an error if passthrough is given but the function is not available in next layer", () => {
     expect(
       () =>
         new DataProcessingLayer(
@@ -54,7 +82,7 @@ describe("DataProcessingLayer", () => {
           }
         )
     ).toThrowError(
-      "Invalid schema, cannot passthrough key a as it does not exist in output layer"
+      "Invalid schema, cannot passthrough key a as it does not exist in next layer"
     );
   });
 });

@@ -182,22 +182,16 @@ export class DataProcessingLayer<
 
     for (const [key, value] of Object.entries(inputSchema)) {
       if (value === PassThrough) {
-        if (typeof nextLayer !== "object" || nextLayer === null) {
-          throw new Error(
-            `Invalid schema, cannot passthrough if output layer is not existent in path ${[
-              ...path,
-              key,
-            ].join(".")}`
-          );
-        }
-        if (nextLayer === undefined || !(key in nextLayer)) {
+        if (
+          typeof nextLayer !== "object" ||
+          nextLayer === null ||
+          nextLayer === undefined ||
+          !(key in nextLayer)
+        ) {
           throw new Error(
             `Invalid schema, cannot passthrough key ${[...path, key].join(
               "."
-            )} as it does not exist in output layer in path ${[
-              ...path,
-              key,
-            ].join(".")}`
+            )} as it does not exist in next layer`
           );
         }
 
