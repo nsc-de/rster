@@ -291,7 +291,7 @@ class $Database<
   ) {
     const result = (await this.adapter.get(
       table as string,
-      await this.transformInput(table, data),
+      await this.transformInputOptional(table, data),
       options
     )) as unknown as PrimitiveType<DEF["tables"][TABLE_NAME]>;
     return await this.transformOutput(table, result);
@@ -334,7 +334,7 @@ class $Database<
   ): Promise<number> {
     return await this.adapter.delete(
       table as string,
-      await this.transformInput(table, data),
+      await this.transformInputOptional(table, data),
       options
     );
   }
@@ -351,7 +351,7 @@ class $Database<
   ): Promise<number> {
     return await this.adapter.count(
       table as string,
-      await this.transformInput(table, data),
+      await this.transformInputOptional(table, data),
       options
     );
   }

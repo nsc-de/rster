@@ -158,5 +158,49 @@ describe("database", () => {
         expect(adapter.__data).toEqual({ users: [{ id: 1, name: "test2" }] });
       });
     });
+
+    describe("delete", () => {
+      it("should delete a row", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = { users: [{ id: 1, name: "test" }] };
+
+        await database.delete("users", { id: 1 });
+        expect(adapter.__data).toEqual({ users: [] });
+      });
+    });
+
+    describe("get", () => {
+      it("should search rows", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = { users: [{ id: 1, name: "test" }] };
+
+        const rows = await database.get("users", { id: 1 });
+        expect(rows).toEqual([{ id: 1, name: "test" }]);
+      });
+    });
   });
 });
