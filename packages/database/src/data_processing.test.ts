@@ -27,6 +27,30 @@ describe("DataProcessingLayer", () => {
     expect(layer.functions.a()).toBe(1);
   });
 
+  it("test PassThrough to copy next layer", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      PassThrough
+    );
+
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+  });
+
+  it("test PassThrough to copy next layer without a next layer", () => {
+    expect(() => new DataProcessingLayer(null, PassThrough)).toThrowError(
+      "Invalid schema, cannot passthrough in path  as there is no next layer"
+    );
+
+    expect(() => new DataProcessingLayer(undefined, PassThrough)).toThrowError(
+      "Invalid schema, cannot passthrough in path  as there is no next layer"
+    );
+  });
+
   it("should work with object schemas", () => {
     const layer = new DataProcessingLayer(
       {},
@@ -138,6 +162,20 @@ describe("DataProcessingLayer", () => {
     );
     expect(layer.functions.add).toBeInstanceOf(Function);
     expect(layer.functions.add(1, 2)).toBe(3);
+  });
+
+  it("Test .layer(Passthrough) for a copy of the layer", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      { a: PassThrough }
+    );
+    const layer2 = layer.layer(PassThrough);
+    expect(layer2.functions.a).toBeInstanceOf(Function);
+    expect(layer2.functions.a()).toBe(1);
   });
 });
 

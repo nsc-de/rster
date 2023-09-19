@@ -96,9 +96,10 @@ export type DataProcessingSchema<
 > =
   | DeepMapOptional<
       NEXT_SCHEMA,
-      PassThroughType | DataProcessingBaseSchema<NEXT_LAYER> //TODO
+      PassThroughType | DataProcessingBaseSchema<NEXT_LAYER>
     >
-  | DataProcessingBaseSchema<NEXT_LAYER>;
+  | DataProcessingBaseSchema<NEXT_LAYER>
+  | PassThroughType;
 
 /**
  * Deeply maps a DataProcessingSchema (recursively) to replace PassThrough with the equivalent
@@ -112,21 +113,23 @@ export type DeepMapDataProcessingSchema<
   T,
   EQUIVALENT,
   NEXT_LAYER extends DataProcessingBaseSchema<any> | undefined | unknown
-> = {
-  [P in keyof T]: T[P] extends PassThroughType
-    ? P extends keyof EQUIVALENT
-      ? EQUIVALENT[P]
-      : TYPE_ERROR_0
-    : T[P] extends (...args: any) => any
-    ? T[P]
-    : T[P] extends object
-    ? DeepMapDataProcessingSchema<
-        T[P],
-        P extends keyof EQUIVALENT ? EQUIVALENT[P] : never,
-        NEXT_LAYER
-      >
-    : T[P];
-} & DataProcessingBaseSchema<NEXT_LAYER>;
+> = T extends PassThroughType
+  ? EQUIVALENT
+  : {
+      [P in keyof T]: T[P] extends PassThroughType
+        ? P extends keyof EQUIVALENT
+          ? EQUIVALENT[P]
+          : TYPE_ERROR_0
+        : T[P] extends (...args: any) => any
+        ? T[P]
+        : T[P] extends object
+        ? DeepMapDataProcessingSchema<
+            T[P],
+            P extends keyof EQUIVALENT ? EQUIVALENT[P] : never,
+            NEXT_LAYER
+          >
+        : T[P];
+    } & DataProcessingBaseSchema<NEXT_LAYER>;
 
 /**
  * The DataProcessingSchema in its simple form (how the first layer should look like
@@ -214,6 +217,25 @@ export class DataProcessingLayer<
 
     const functions: Record<string, any> = {};
     const functionThis = { nextLayer: this.nextLayer };
+
+    if (inputSchema === null || inputSchema === undefined) {
+      throw new Error(
+        `Invalid schema, input schema is ${inputSchema} in path ${path.join(
+          "."
+        )}`
+      );
+    }
+
+    if (inputSchema === PassThrough) {
+      if (nextLayer === null || nextLayer === undefined) {
+        throw new Error(
+          `Invalid schema, cannot passthrough in path ${path.join(
+            "."
+          )} as there is no next layer`
+        );
+      }
+      return nextLayer;
+    }
 
     for (const [key, value] of Object.entries(inputSchema)) {
       if (value === PassThrough) {
