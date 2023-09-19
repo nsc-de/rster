@@ -93,7 +93,7 @@ export const JsObject = createDatabaseAdapter<
         }
       }
       if (match) {
-        for (const key in this.__data) {
+        for (const key in obj) {
           row[key] = obj[key];
         }
         count++;

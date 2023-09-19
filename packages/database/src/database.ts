@@ -297,7 +297,7 @@ class $Database<
     return await this.transformOutput(table, result);
   }
 
-  public async update<TABLE_NAME extends keyof DEF["tables"]>(
+  public async update<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
     search: Partial<
       GetTransformerInput<
@@ -311,10 +311,13 @@ class $Database<
     >,
     options?: { limit?: number }
   ): Promise<number> {
+    const transformedSearch = await this.transformInputOptional(table, search); // We allow partial search
+    const transformedData = await this.transformInputOptional(table, data); // We allow partial data
+
     return await this.adapter.update(
-      table as string,
-      await this.transformInputOptional(table, search), // We allow partial search
-      await this.transformInputOptional(table, data), // We allow partial data
+      table,
+      transformedSearch,
+      transformedData,
       options
     );
   }
