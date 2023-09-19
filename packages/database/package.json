@@ -8,7 +8,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "@rster/basic": "^0.1.1",
-    "@rster/builder": "file:../builder",
+    "@rster/builder": "^0.1.0",
     "@rster/common": "^0.1.1",
     "@rster/info": "^0.1.1",
     "@rster/types": "^0.1.4",
