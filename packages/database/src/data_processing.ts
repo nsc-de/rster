@@ -1,6 +1,28 @@
+// This file contains complex type structures and is difficult to debug (and understand).
+// We use a lot of recursive types and conditional types, workarounds, etc. Some of these
+// are just trial and error, any small change can break the whole thing. We have to be
+// careful when editing this file.
+// If you edit this file, make sure to build and test the package before committing.
+// Type errors in tests will cause the build to fail. You HAVE TO CHECK MANUALLY
+// Type structure is no "essential" part, it is qol, but it is what makes rster fun to use.
+
 import { DeepMapOptional, RemoveThisParam } from "@rster/common";
 
-class $$PASSTHROUGHCLASS {}
+type TYPE_ERROR_0 =
+  "TYPE ERROR 0: The next layer does not contain the key you are trying to passthrough.";
+
+/**
+ * This class is used as a unique value for PassThrough. (See {@link PassThrough})
+ * In the past, we used a special string value, but this caused issues with typescript, as
+ * typescript would just infer the string type and not the PassThroughType. We found the
+ * best way to prevent this is to use a unique class. The change of a similar class being created
+ * by the user and accidently being put into the type is much lower, so it will also be safer
+ * in runtime.
+ * @internal
+ */
+class $$PASSTHROUGHCLASS {
+  public readonly $$PASSTHROUGHCLASS = true;
+}
 
 /**
  * PassThrough is a special value that can be used in the schema to indicate that the value should be passed through to the next layer.
@@ -15,7 +37,6 @@ export type PassThroughType = $$PASSTHROUGHCLASS;
 
 /**
  * The this object provided to the data processing functions.
- *
  * {@link NEXT_LAYER} is the next layer of the data processing schema. Available as `this.nextLayer`.
  */
 export type DataProcessingThis<
@@ -50,7 +71,8 @@ export type DataProcessingFunctionToExternal<
 > = RemoveThisParam<func>;
 
 /**
- * The base schema for data processing. It does not contain PassThrough, so it can be used for the base layer.
+ * The base schema for data processing. It does not contain PassThrough, so it can be used
+ * for the base layer.
  * @param NEXT_LAYER the next layer of the data processing schema. Available as `this.nextLayer`.
  */
 export type DataProcessingBaseSchema<
@@ -62,7 +84,8 @@ export type DataProcessingBaseSchema<
 };
 
 /**
- * The schema definition for data processing layers. Can contain PassThrough to pass the function/function map to the previous layer. (See {@link PassThrough})
+ * The schema definition for data processing layers. Can contain PassThrough to pass the
+ * function/function map to the previous layer. (See {@link PassThrough})
  *
  * @param NEXT_LAYER the next layer of the data processing schema.
  * @param NEXT_SCHEMA the schema of the next layer. Automatically inferred from {@link NEXT_LAYER}.
@@ -78,7 +101,8 @@ export type DataProcessingSchema<
   | DataProcessingBaseSchema<NEXT_LAYER>;
 
 /**
- * Deeply maps a DataProcessingSchema (recursively) to replace PassThrough with the equivalent value from the next layer.
+ * Deeply maps a DataProcessingSchema (recursively) to replace PassThrough with the equivalent
+ * value from the next layer.
  *
  * @param T the schema to map
  * @param EQUIVALENT the equivalent value from the next layer
@@ -92,7 +116,7 @@ export type DeepMapDataProcessingSchema<
   [P in keyof T]: T[P] extends PassThroughType
     ? P extends keyof EQUIVALENT
       ? EQUIVALENT[P]
-      : never
+      : TYPE_ERROR_0
     : T[P] extends (...args: any) => any
     ? T[P]
     : T[P] extends object
@@ -105,15 +129,18 @@ export type DeepMapDataProcessingSchema<
 } & DataProcessingBaseSchema<NEXT_LAYER>;
 
 /**
- * The DataProcessingSchema in its simple form (how the first layer should look like and how each layer should look like after PassThrough is replaced).
+ * The DataProcessingSchema in its simple form (how the first layer should look like
+ * and how each layer should look like after PassThrough is replaced).
  */
 export type DataProcessingSchemaExternal = {
   [key: string]: DataProcessingSchemaExternal | DataProcessingFunctionExternal;
 };
 
 /**
- * Deeply removes this parameter from functions in Object (recursively). Utility type to convert DataProcessingSchema to DataProcessingSchemaExternal.
- * (There would be issues with typescript if the this parameter is not removed, as we call the functions on a different object, but `this` is added via bind)
+ * Deeply removes this parameter from functions in Object (recursively). Utility type to
+ * convert DataProcessingSchema to DataProcessingSchemaExternal. (There would be issues with
+ * typescript if the this parameter is not removed, as we call the functions on a different
+ * object, but `this` is added via bind)
  */
 export type DeepMapRemoveThisParam<T> = T extends object
   ? {
@@ -127,6 +154,9 @@ export type DeepMapRemoveThisParam<T> = T extends object
 
 /**
  * Converts a DataProcessingSchema to a DataProcessingSchemaExternal
+ * Mainly removes the this parameter from functions. This is needed because typescript would find
+ * that the this parameter will not match the object the function is inside and therefore called on.
+ * This is not a problem in runtime, as we bind the functions to the correct object.
  */
 export type DataProcessingSchemaToExternal<
   T extends DataProcessingSchema<any>,
@@ -137,7 +167,10 @@ export type DataProcessingSchemaToExternal<
 >;
 
 /**
- * The DataProcessingLayer is the main class for data processing. It contains the functions and the schema.
+ * The DataProcessingLayer is the main class for data processing. It is created by
+ * providing a input schema and a next layer. The input schema is used to create a function map
+ * that can be used to process data. The next layer is used to replace PassThrough values in the
+ * input schema and it can be accessed via `this.nextLayer` in the functions.
  */
 export class DataProcessingLayer<
   INPUT_SCHEMA extends DataProcessingSchema<NEXT_LAYER>,
@@ -237,7 +270,9 @@ export class DataProcessingLayer<
    */
   public layer<
     INPUT_SCHEMA extends DataProcessingSchema<typeof this.functions>
-  >(inputSchema: INPUT_SCHEMA) {
+  >(
+    inputSchema: INPUT_SCHEMA
+  ): DataProcessingLayer<INPUT_SCHEMA, typeof this.functions> {
     return new DataProcessingLayer(this.functions, inputSchema);
   }
 }

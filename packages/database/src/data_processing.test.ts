@@ -85,4 +85,20 @@ describe("DataProcessingLayer", () => {
       "Invalid schema, cannot passthrough key a as it does not exist in next layer"
     );
   });
+
+  it("test #layer() to put another layer on top of the current one", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      { a: PassThrough }
+    );
+    const layer2 = layer.layer({ b: () => 2, a: PassThrough });
+    expect(layer2.functions.a).toBeInstanceOf(Function);
+    expect(layer2.functions.b).toBeInstanceOf(Function);
+    expect(layer2.functions.a()).toBe(1);
+    expect(layer2.functions.b()).toBe(2);
+  });
 });
