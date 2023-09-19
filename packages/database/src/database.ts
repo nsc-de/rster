@@ -101,6 +101,33 @@ class $Database<
   DEF extends DatabaseDefinition,
   TRANSFORMER extends DatabaseTransformerMap<DEF> = DatabaseTransformerMap<DEF>
 > {
+  public readonly tables: {
+    [key in keyof DEF["tables"] & string]: TableTool<
+      DEF,
+      key,
+      $Database<DEF>,
+      DEF["tables"][key]
+    >;
+  };
+
+  public readonly inputTypes: {
+    [key in keyof DEF["tables"]]: {
+      [key2 in keyof DEF["tables"][key]]: GetTransformerInput<
+        TRANSFORMER[key],
+        PrimitiveType<DEF["tables"][key]>
+      >[key2];
+    };
+  };
+
+  public readonly outputTypes: {
+    [key in keyof DEF["tables"]]: {
+      [key2 in keyof DEF["tables"][key]]: GetTransformerOutput<
+        TRANSFORMER[key],
+        PrimitiveType<DEF["tables"][key]>
+      >[key2];
+    };
+  };
+
   constructor(
     public readonly definition: DEF,
     public readonly adapter: DatabaseAdapter<AllowAnyTypeInformation>,
@@ -154,8 +181,6 @@ class $Database<
       };
     };
   }
-
-  public readonly tables;
 
   private getTransformer<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME
@@ -235,10 +260,6 @@ class $Database<
     if (!inputType.allOptional().check(data)) throw $400("Invalid input data");
     return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
-
-  public readonly inputTypes;
-
-  public readonly outputTypes;
 
   private async transformOutput<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
