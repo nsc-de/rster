@@ -1,4 +1,8 @@
-import { DataProcessingLayer, PassThrough } from "./data_processing";
+import {
+  DataProcessingLayer,
+  PassThrough,
+  createDataProcessingLayer,
+} from "./data_processing";
 
 describe("DataProcessingLayer", () => {
   it("should create a DataProcessingLayer", () => {
@@ -100,5 +104,73 @@ describe("DataProcessingLayer", () => {
     expect(layer2.functions.b).toBeInstanceOf(Function);
     expect(layer2.functions.a()).toBe(1);
     expect(layer2.functions.b()).toBe(2);
+  });
+
+  it("test this.nextLayer to get the next layer", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      {
+        a: PassThrough,
+        b: function () {
+          return this.nextLayer.a();
+        },
+      }
+    );
+    expect(layer.nextLayer).toBeDefined();
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+    expect(layer.functions.b).toBeInstanceOf(Function);
+    expect(layer.functions.b()).toBe(1);
+  });
+
+  it("test arguments", () => {
+    const layer = new DataProcessingLayer(
+      {},
+      {
+        add: function (a: number, b: number) {
+          return a + b;
+        },
+      }
+    );
+    expect(layer.functions.add).toBeInstanceOf(Function);
+    expect(layer.functions.add(1, 2)).toBe(3);
+  });
+});
+
+describe("createDataProcessingLayer", () => {
+  it("should create a DataProcessingLayer", () => {
+    const layer = createDataProcessingLayer({
+      a: () => {
+        return 1;
+      },
+    });
+    expect(layer).toBeDefined();
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+  });
+
+  it("should create a DataProcessingLayer with a next layer", () => {
+    const layer = createDataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      {
+        b: () => {
+          return 2;
+        },
+        a: PassThrough,
+      }
+    );
+    expect(layer).toBeDefined();
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+    expect(layer.functions.b).toBeInstanceOf(Function);
+    expect(layer.functions.b()).toBe(2);
   });
 });
