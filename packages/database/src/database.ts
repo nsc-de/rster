@@ -1,10 +1,8 @@
-import { api, method, module } from "@rster/builder";
 import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
   TypeInformationFor,
-  object,
 } from "@rster/types";
 import { DatabaseAdapter } from "./adapter";
 import {
@@ -12,7 +10,6 @@ import {
   DataProcessingSchema,
   createDataProcessingLayer,
 } from "./data_processing";
-import { AllOptional } from "@rster/common";
 import { $400 } from "@rster/basic";
 
 export type NoNever<TYPE, ALTERNATIVE> = TYPE extends never
@@ -168,7 +165,7 @@ class $Database<
 
   private async transformInput<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -179,7 +176,8 @@ class $Database<
     if (fn) {
       // Check the input data
       const inputType = this.inputTypes[table];
-      if (!this.inputTypes[table]) throw $400("Table does not exist");
+      if (!inputType) throw $400("Table does not exist");
+      if (!inputType.check(data)) throw $400("Invalid input data");
       const processed = await fn(data);
       // Check the output data
       const outputType = this.definition.tables[table as string];
@@ -189,7 +187,7 @@ class $Database<
           "Invalid data returned from transformer. This is propably a bug in the transformer."
         );
 
-      return processed;
+      return processed as PrimitiveType<DEF["tables"][TABLE_NAME]>; // TODO: Check if this cast is correct
     }
     // Check the input data
     const inputType = this.definition.tables[table as string];
@@ -198,6 +196,43 @@ class $Database<
         "Table does not exist, you are trying to insert data into a table that does not exist. This seems to be a bug."
       );
     if (!inputType.check(data)) throw $400("Invalid input data");
+    return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
+  }
+
+  private async transformInputOptional<TABLE_NAME extends keyof DEF["tables"]>(
+    table: TABLE_NAME,
+    data: Partial<
+      GetTransformerInput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >
+    >
+  ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
+    const fn = await this.getTransformer(table)?.input?.transform;
+    if (fn) {
+      // Check the input data
+      const inputType = this.inputTypes[table];
+      if (!inputType) throw $400("Table does not exist");
+      if (!inputType.allOptional().check(data))
+        throw $400("Invalid input data");
+      const processed = await fn(data);
+      // Check the output data
+      const outputType = this.definition.tables[table as string];
+      if (!outputType) throw new Error("Table does not exist. This is a bug.");
+      if (!outputType.allOptional().check(processed))
+        throw new Error(
+          "Invalid data returned from transformer. This is propably a bug in the transformer."
+        );
+
+      return processed as PrimitiveType<DEF["tables"][TABLE_NAME]>; // TODO: Check if this cast is correct
+    }
+    // Check the input data
+    const inputType = this.definition.tables[table as string];
+    if (!inputType)
+      throw new Error(
+        "Table does not exist, you are trying to insert data into a table that does not exist. This seems to be a bug."
+      );
+    if (!inputType.allOptional().check(data)) throw $400("Invalid input data");
     return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
 
@@ -216,7 +251,7 @@ class $Database<
   > {
     const fn = await this.getTransformer(table)?.output?.transform;
     if (fn)
-      return (await fn(data)) as GetTransformerOutput<
+      return (await fn(data as any)) as GetTransformerOutput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
       >;
@@ -246,7 +281,7 @@ class $Database<
 
   public async get<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -258,13 +293,13 @@ class $Database<
       table as string,
       await this.transformInput(table, data),
       options
-    )) as unknown as Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>>;
+    )) as unknown as PrimitiveType<DEF["tables"][TABLE_NAME]>;
     return await this.transformOutput(table, result);
   }
 
   public async update<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    search: AllOptional<
+    search: Partial<
       GetTransformerInput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -278,15 +313,15 @@ class $Database<
   ): Promise<number> {
     return await this.adapter.update(
       table as string,
-      await this.transformInput(table, search),
-      await this.transformInput(table, data),
+      await this.transformInputOptional(table, search), // We allow partial search
+      await this.transformInputOptional(table, data), // We allow partial data
       options
     );
   }
 
   public async delete<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -303,7 +338,7 @@ class $Database<
 
   public async count<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -391,7 +426,7 @@ export class TableTool<
   }
 
   public async get(
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
     >,
     options?: Record<string, never>
@@ -400,7 +435,7 @@ export class TableTool<
   }
 
   public async update(
-    search: AllOptional<
+    search: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
     >,
     data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
@@ -410,7 +445,7 @@ export class TableTool<
   }
 
   public async delete(
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
     >,
     options?: { limit?: number }
@@ -419,7 +454,7 @@ export class TableTool<
   }
 
   public async count(
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
     >,
     options?: { limit?: number }
