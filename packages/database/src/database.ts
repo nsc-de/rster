@@ -118,7 +118,7 @@ class $Database<
         ];
       })
     ) as {
-      [key in keyof DEF["tables"]]: TableTool<
+      [key in keyof DEF["tables"] & string]: TableTool<
         DEF,
         key,
         $Database<DEF>,
@@ -404,7 +404,7 @@ class $Database<
 
 export class TableTool<
   DATABASE_DEFINITION extends DatabaseDefinition,
-  TABLE_NAME extends keyof DATABASE_DEFINITION["tables"],
+  TABLE_NAME extends keyof DATABASE_DEFINITION["tables"] & string,
   DATABASE extends $Database<DATABASE_DEFINITION>,
   TABLE_DEFINITION extends DATABASE_DEFINITION["tables"][TABLE_NAME] = DATABASE_DEFINITION["tables"][TABLE_NAME],
   TRANSFORMER extends
@@ -482,7 +482,7 @@ export type Database<
   DEF extends DatabaseDefinition,
   TRANSFORMER extends DatabaseTransformerMap<DEF> = DatabaseTransformerMap<DEF>
 > = {
-  [key in keyof DEF["tables"]]: TableTool<
+  [key in keyof DEF["tables"] & string]: TableTool<
     DEF,
     key,
     Database<DEF>,
@@ -494,7 +494,7 @@ export type Database<
       inputSchema: INPUT_SCHEMA
     ): DataProcessingLayer<INPUT_SCHEMA, Database<DEF>>;
     tables: {
-      [key in keyof DEF["tables"]]: TableTool<
+      [key in keyof DEF["tables"] & string]: TableTool<
         DEF,
         key,
         Database<DEF>,
