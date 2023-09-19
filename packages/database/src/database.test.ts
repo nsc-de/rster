@@ -1,6 +1,7 @@
 import { number, object, string } from "@rster/types";
 import { createDatabase } from "./database";
 import { JsObject } from "./adapters/object";
+import { DatabaseAdapter } from "./adapter";
 
 describe("createDatabase", () => {
   it("should be defined", () => {
@@ -39,6 +40,40 @@ describe("createDatabase", () => {
 });
 
 describe("database", () => {
+  describe("connect", () => {
+    it("should connect", async () => {
+      const connect = jest.fn().mockResolvedValue(undefined);
+
+      const database = createDatabase(
+        {
+          tables: {},
+        },
+        // @ts-ignore
+        { connect }
+      );
+
+      await database.connect();
+      expect(connect).toHaveBeenCalled();
+    });
+  });
+
+  describe("disconnect", () => {
+    it("should disconnect", async () => {
+      const disconnect = jest.fn().mockResolvedValue(undefined);
+
+      const database = createDatabase(
+        {
+          tables: {},
+        },
+        // @ts-ignore
+        { disconnect }
+      );
+
+      await database.disconnect();
+      expect(disconnect).toHaveBeenCalled();
+    });
+  });
+
   describe("create", () => {
     it("should create a table", async () => {
       const adapter = JsObject();
