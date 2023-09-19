@@ -157,6 +157,75 @@ describe("database", () => {
         await database.update("users", { id: 1 }, { name: "test2" });
         expect(adapter.__data).toEqual({ users: [{ id: 1, name: "test2" }] });
       });
+
+      it("should update multiple rows", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = {
+          users: [
+            { id: 1, name: "test" },
+            { id: 2, name: "test" },
+          ],
+        };
+
+        await database.update("users", { name: "test" }, { name: "test2" });
+        expect(adapter.__data).toEqual({
+          users: [
+            { id: 1, name: "test2" },
+            { id: 2, name: "test2" },
+          ],
+        });
+      });
+
+      it("should update multiple rows with a limit", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = {
+          users: [
+            { id: 1, name: "test" },
+            { id: 2, name: "test" },
+            { id: 3, name: "test" },
+          ],
+        };
+
+        await database.update(
+          "users",
+          { name: "test" },
+          { name: "test2" },
+          {
+            limit: 2,
+          }
+        );
+        expect(adapter.__data).toEqual({
+          users: [
+            { id: 1, name: "test2" },
+            { id: 2, name: "test2" },
+            { id: 3, name: "test" },
+          ],
+        });
+      });
     });
 
     describe("delete", () => {
@@ -179,6 +248,57 @@ describe("database", () => {
         await database.delete("users", { id: 1 });
         expect(adapter.__data).toEqual({ users: [] });
       });
+
+      it("should delete multiple rows", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = {
+          users: [
+            { id: 1, name: "test" },
+            { id: 2, name: "test" },
+          ],
+        };
+
+        await database.delete("users", { name: "test" });
+        expect(adapter.__data).toEqual({ users: [] });
+      });
+
+      it("should delete multiple rows with a limit", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = {
+          users: [
+            { id: 1, name: "test" },
+            { id: 2, name: "test" },
+            { id: 3, name: "test" },
+          ],
+        };
+
+        await database.delete("users", { name: "test" }, { limit: 2 });
+        expect(adapter.__data).toEqual({ users: [{ id: 3, name: "test" }] });
+      });
     });
 
     describe("get", () => {
@@ -200,6 +320,80 @@ describe("database", () => {
 
         const rows = await database.get("users", { id: 1 });
         expect(rows).toEqual([{ id: 1, name: "test" }]);
+      });
+    });
+
+    describe("count", () => {
+      it("should count rows matching filter", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = {
+          users: [{ id: 1 }, { id: 2 }],
+        };
+
+        const count = await database.count("users", { id: 1 });
+        expect(count).toEqual(1);
+      });
+
+      it("test on multiple rows", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = {
+          users: [
+            { id: 1, name: "test" },
+            { id: 2, name: "test" },
+            { id: 3, name: "test2" },
+          ],
+        };
+
+        const count = await database.count("users", { name: "test" });
+        expect(count).toEqual(2);
+      });
+
+      it("test on multiple rows with a limit", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = {
+          users: [{ name: "test" }, { name: "test" }, { name: "test" }],
+        };
+
+        const count = await database.count(
+          "users",
+          { name: "test" },
+          { limit: 2 }
+        );
+        expect(count).toEqual(2);
       });
     });
   });

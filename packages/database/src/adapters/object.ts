@@ -122,7 +122,7 @@ export const JsObject = createDatabaseAdapter<
         }
       }
       if (match) {
-        this.__data[table].splice(i, 1);
+        this.__data[table].splice(i--, 1);
         count++;
       }
     }
