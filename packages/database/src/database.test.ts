@@ -1,102 +1,105 @@
-import * as database from "./database";
-import { JSONAdapter } from "./adapters/json";
 import { number, object, string } from "@rster/types";
-import crypto from "crypto";
+import { createDatabase } from "./database";
+import { JsObject } from "./adapters/object";
 
-const db = database.createDatabase(
-  {
-    tables: {
-      users: object({
-        id: { type: number(), required: true },
-        name: { type: string(), required: true },
-        password: { type: string(), required: true },
-      }),
-    },
-  },
-  JSONAdapter("./test.json"),
-  {
-    users: {
-      input: {
-        transform(data: {
-          id: number;
-          name: string;
-          password: string;
-          salt?: string;
-        }) {
-          const salt = data.salt ?? crypto.randomBytes(16).toString("hex");
-
-          return {
-            id: data.id,
-            name: data.name,
-            password:
-              btoa(salt) +
-              ":" +
-              crypto
-                .createHash("sha512", {})
-                .update(data.password)
-                .update(salt)
-                .digest("hex"),
-          };
-        },
-        type: object({
-          id: { type: number(), required: true },
-          name: { type: string(), required: true },
-          password: { type: string(), required: true },
-          salt: { type: string(), required: false },
-        }),
-      },
-
-      output: {
-        transform(data: { id: number; name: string; password: string }) {
-          const [salt, hash] = data.password.split(":");
-
-          return {
-            id: data.id,
-            name: data.name,
-            password: hash,
-            salt: atob(salt),
-          };
-        },
-        type: object({
-          id: { type: number(), required: true },
-          name: { type: string(), required: true },
-          password: { type: string(), required: true },
-          salt: { type: string(), required: true },
-        }),
-      },
-    },
-  }
-);
-
-describe("database", () => {
-  it("should create table", async () => {
-    await db.connect();
-    const create = await db.users.create();
-    db.users.insert({ id: 1, name: "test", password: "test" });
-    expect(create).toBe(undefined);
-    expect(await db.users.exists()).toBe(true);
+describe("createDatabase", () => {
+  it("should be defined", () => {
+    expect(createDatabase).toBeDefined();
   });
-  it("should insert into table", async () => {
-    const insert = await db.users.insert({
-      id: 2,
-      name: "test2",
-      password: "test2",
-      salt: "test",
-    });
-    expect(insert).toBe(undefined);
-    expect(await db.users.exists()).toBe(true);
+
+  it("should create a database", () => {
+    const database = createDatabase(
+      {
+        tables: {},
+      },
+      JsObject()
+    );
+
+    expect(database).toBeDefined();
+    expect(database.tables).toBeDefined();
+    expect(database.tables).toEqual({});
+  });
+
+  it("should create a database with tables", () => {
+    const database = createDatabase(
+      {
+        tables: {
+          users: object({
+            id: { required: true, type: number() },
+            name: { required: true, type: string() },
+          }),
+        },
+      },
+      JsObject()
+    );
+
+    expect(database).toBeDefined();
+    expect(database.tables).toBeDefined();
   });
 });
 
-db
-  .createRestApi({
-    name: "Test Database",
-    description: ["This is a test database."],
-    include: {
-      users: {
-        id: true,
-        name: true,
-      },
-    },
-  })
-  .generate().modules.users.methods.get;
+describe("database", () => {
+  describe("create", () => {
+    it("should create a table", async () => {
+      const adapter = JsObject();
+      const database = createDatabase(
+        {
+          tables: {
+            users: object({
+              id: { required: true, type: number() },
+              name: { required: true, type: string() },
+            }),
+          },
+        },
+        adapter
+      );
+
+      await database.create("users");
+      expect(adapter.__data).toEqual({ users: [] });
+    });
+
+    describe("drop", () => {
+      it("should drop a table", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = { users: [] };
+
+        await database.drop("users");
+        expect(adapter.__data).toEqual({});
+      });
+    });
+
+    describe("insert", () => {
+      it("should insert a row", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        adapter.__data = { users: [] };
+
+        await database.insert("users", { id: 1, name: "test" });
+        expect(adapter.__data).toEqual({ users: [{ id: 1, name: "test" }] });
+      });
+    });
+  });
+});

@@ -13,6 +13,7 @@ import {
   createDataProcessingLayer,
 } from "./data_processing";
 import { AllOptional } from "@rster/common";
+import { $400 } from "@rster/basic";
 
 export type NoNever<TYPE, ALTERNATIVE> = TYPE extends never
   ? ALTERNATIVE
@@ -107,27 +108,57 @@ class $Database<
     public readonly definition: DEF,
     public readonly adapter: DatabaseAdapter<AllowAnyTypeInformation>,
     public transformer: TRANSFORMER = {} as TRANSFORMER
-  ) {}
-
-  public readonly tables = Object.fromEntries(
-    Object.entries(this.definition.tables).map(([name, table]) => {
-      return [
-        name,
-        new TableTool<DEF, string, $Database<DEF>>(
-          table as DEF["tables"][typeof name],
+  ) {
+    this.tables = Object.fromEntries(
+      Object.entries(this.definition.tables).map(([name, table]) => {
+        return [
           name,
-          this
-        ),
-      ];
-    })
-  ) as {
-    [key in keyof DEF["tables"]]: TableTool<
-      DEF,
-      key,
-      $Database<DEF>,
-      DEF["tables"][key]
-    >;
-  };
+          new TableTool<DEF, string, $Database<DEF>>(
+            table as DEF["tables"][typeof name],
+            name,
+            this
+          ),
+        ];
+      })
+    ) as {
+      [key in keyof DEF["tables"]]: TableTool<
+        DEF,
+        key,
+        $Database<DEF>,
+        DEF["tables"][key]
+      >;
+    };
+
+    this.inputTypes = Object.fromEntries(
+      Object.entries(this.transformer).map(([key, value]) => [
+        key,
+        value?.input?.type ?? this.definition.tables[key],
+      ])
+    ) as {
+      [key in keyof DEF["tables"]]: {
+        [key2 in keyof DEF["tables"][key]]: GetTransformerInput<
+          TRANSFORMER[key],
+          PrimitiveType<DEF["tables"][key]>
+        >[key2];
+      };
+    };
+
+    this.outputTypes = Object.fromEntries(
+      Object.entries(this.transformer).map(([key, value]) => [
+        key,
+        value?.output?.type ?? this.definition.tables[key],
+      ])
+    ) as {
+      [key in keyof DEF["tables"]]: {
+        [key2 in keyof DEF["tables"][key]]: GetTransformerOutput<
+          TRANSFORMER[key],
+          PrimitiveType<DEF["tables"][key]>
+        >[key2];
+      };
+    };
+  }
+
+  public readonly tables;
 
   private getTransformer<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME
@@ -145,37 +176,34 @@ class $Database<
     >
   ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
     const fn = await this.getTransformer(table)?.input?.transform;
-    if (fn) return await fn(data);
-    else return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
+    if (fn) {
+      // Check the input data
+      const inputType = this.inputTypes[table];
+      if (!this.inputTypes[table]) throw $400("Table does not exist");
+      const processed = await fn(data);
+      // Check the output data
+      const outputType = this.definition.tables[table as string];
+      if (!outputType) throw new Error("Table does not exist. This is a bug.");
+      if (!outputType.check(processed))
+        throw new Error(
+          "Invalid data returned from transformer. This is propably a bug in the transformer."
+        );
+
+      return processed;
+    }
+    // Check the input data
+    const inputType = this.definition.tables[table as string];
+    if (!inputType)
+      throw new Error(
+        "Table does not exist, you are trying to insert data into a table that does not exist. This seems to be a bug."
+      );
+    if (!inputType.check(data)) throw $400("Invalid input data");
+    return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
 
-  public readonly inputTypes = Object.fromEntries(
-    Object.entries(this.transformer).map(([key, value]) => [
-      key,
-      value?.input?.type ?? this.definition.tables[key],
-    ])
-  ) as {
-    [key in keyof DEF["tables"]]: {
-      [key2 in keyof DEF["tables"][key]]: GetTransformerInput<
-        TRANSFORMER[key],
-        PrimitiveType<DEF["tables"][key]>
-      >[key2];
-    };
-  };
+  public readonly inputTypes;
 
-  public readonly outputTypes = Object.fromEntries(
-    Object.entries(this.transformer).map(([key, value]) => [
-      key,
-      value?.output?.type ?? this.definition.tables[key],
-    ])
-  ) as {
-    [key in keyof DEF["tables"]]: {
-      [key2 in keyof DEF["tables"][key]]: GetTransformerOutput<
-        TRANSFORMER[key],
-        PrimitiveType<DEF["tables"][key]>
-      >[key2];
-    };
-  };
+  public readonly outputTypes;
 
   private async transformOutput<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
@@ -207,6 +235,8 @@ class $Database<
     >,
     options?: Record<string, never>
   ): Promise<void> {
+    // Check the input data
+
     await this.adapter.insert(
       table as string,
       await this.transformInput(table, data),
@@ -290,14 +320,18 @@ class $Database<
 
   public async create<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    definition: {
-      [key in keyof DEF["tables"][TABLE_NAME]]: DEF["tables"][TABLE_NAME][key];
-    },
     options?: {
       ifNotExists?: boolean;
+    },
+    definition?: {
+      [key in keyof DEF["tables"][TABLE_NAME]]: DEF["tables"][TABLE_NAME][key];
     }
   ): Promise<void> {
-    return this.adapter.create(table as string, definition as any, options);
+    return this.adapter.create(
+      table as string,
+      definition ?? (this.definition.tables[table as string] as any),
+      options
+    );
   }
 
   public async drop<TABLE_NAME extends keyof DEF["tables"]>(
@@ -394,7 +428,7 @@ export class TableTool<
   }
 
   public async create(options?: { ifNotExists?: boolean }): Promise<void> {
-    return this.database.create(this.name, this.definition as any, options);
+    return this.database.create(this.name, options, this.definition as any);
   }
 
   public async drop(options?: { ifExists?: boolean }): Promise<void> {

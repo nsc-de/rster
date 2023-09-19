@@ -1,6 +1,6 @@
 /**
- * @file JSON Adapter
- * @module rster/database/adapters/obhect
+ * @file Object Adapter
+ * @module rster/database/adapters/object
  * @version 0.1.0
  *
  * A very primitive database adapter that just stores the database as jsobject in memory.
