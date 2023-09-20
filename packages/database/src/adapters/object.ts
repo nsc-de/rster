@@ -44,13 +44,15 @@ export const JsObject = createDatabaseAdapter<
     return Promise.resolve();
   },
 
-  get(table, search) {
+  get(table, search, { limit } = {}) {
     if (!this.__data[table]) {
       throw new Error("Table does not exist");
     }
 
     const results: any[] = [];
     for (const row of this.__data[table]) {
+      // Break if we've reached the limit
+      if (limit && limit > -1 && results.length >= limit) break;
       let match = true;
       for (const key in search) {
         if (search[key] !== row[key]) {

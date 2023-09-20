@@ -32,9 +32,6 @@ export function AdapterTests(
       await adapter.connect();
     });
 
-    const supportsNesting = adapter.supportsNesting;
-    const supports = adapter.supports;
-
     describe("table creation", () => {
       it("should create a table", async () => {
         await adapter.create("test", {
@@ -93,6 +90,47 @@ export function AdapterTests(
 
         const rows2 = await adapter.get("test", {});
         expect(rows2).toHaveLength(4);
+
+        const rows3 = await adapter.get(
+          "test",
+          {},
+          {
+            limit: 2,
+          }
+        );
+        expect(rows3).toHaveLength(2);
+      });
+
+      it("should update a row", async () => {
+        await adapter.update(
+          "test",
+          {
+            id: "1",
+          },
+          {
+            name: "hello world",
+          }
+        );
+
+        const rows = await adapter.get("test", {
+          id: "1",
+        });
+
+        expect(rows).toHaveLength(1);
+        expect(rows[0].id).toBe("1");
+        expect(rows[0].name).toBe("hello world");
+      });
+
+      it("should delete a row", async () => {
+        await adapter.delete("test", {
+          id: "1",
+        });
+
+        const rows = await adapter.get("test", {
+          id: "1",
+        });
+
+        expect(rows).toHaveLength(0);
       });
 
       afterAll(async () => {
