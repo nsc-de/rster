@@ -57,7 +57,10 @@ export const JSONAdapter = createDatabaseAdapter<
       await fs.ensureFile(path);
       await fs.writeJSON(path, this.__data);
 
+      this.savePromise = undefined;
+
       if (this.waitingSaveProcess) {
+        console.log("Waiting save process");
         this.savePromise = this.waitingSaveProcess();
         this.waitingSaveProcess = undefined;
       }
@@ -122,7 +125,7 @@ export const JSONAdapter = createDatabaseAdapter<
       return Promise.resolve();
     },
 
-    get(table, search) {
+    get(table, search, { limit } = {}) {
       if (!this.__conected) throw new Error("Not connected");
       if (!this.__data[table]) {
         throw new Error("Table does not exist");
@@ -130,6 +133,8 @@ export const JSONAdapter = createDatabaseAdapter<
 
       const results: any[] = [];
       for (const row of this.__data[table]) {
+        // Break if we've reached the limit
+        if (limit && results.length >= limit) break;
         let match = true;
         for (const key in search) {
           if (search[key] !== row[key]) {
@@ -174,7 +179,7 @@ export const JSONAdapter = createDatabaseAdapter<
           }
         }
         if (match) {
-          for (const key in this.__data) {
+          for (const key in obj) {
             row[key] = obj[key];
           }
           count++;
