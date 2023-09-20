@@ -1,4 +1,4 @@
-import { AllowAnyTypeInformation } from "@rster/types";
+import { AllowAnyTypeInformation, PrimitiveType } from "@rster/types";
 
 /**
  * Database Adapter Level 1 with nesting support
@@ -8,7 +8,7 @@ export interface DatabaseAdapter<T extends AllowAnyTypeInformation> {
   readonly supportsNesting: boolean;
   get(
     table: string,
-    search: Record<string, T>,
+    search: Record<string, PrimitiveType<T>>,
     options?: {
       limit?: number;
     }
@@ -16,14 +16,14 @@ export interface DatabaseAdapter<T extends AllowAnyTypeInformation> {
 
   insert(
     table: string,
-    data: Record<string, T>,
+    data: Record<string, PrimitiveType<T>>,
     options?: Record<string, never>
   ): Promise<void>;
 
   update(
     table: string,
-    search: Record<string, T>,
-    data: Record<string, T>,
+    search: Record<string, PrimitiveType<T>>,
+    data: Record<string, PrimitiveType<T>>,
     options?: {
       limit?: number;
     }
@@ -31,7 +31,7 @@ export interface DatabaseAdapter<T extends AllowAnyTypeInformation> {
 
   delete(
     table: string,
-    search: Record<string, T>,
+    search: Record<string, PrimitiveType<T>>,
     options?: {
       limit?: number;
     }
@@ -39,7 +39,7 @@ export interface DatabaseAdapter<T extends AllowAnyTypeInformation> {
 
   count(
     table: string,
-    search: Record<string, T>,
+    search: Record<string, PrimitiveType<T>>,
     options?: {
       limit?: number;
     }
