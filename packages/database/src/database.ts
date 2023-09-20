@@ -194,6 +194,12 @@ class $Database<
           "Invalid data returned from transformer. This is propably a bug in the transformer."
         );
 
+      for (const key of Object.keys(processed)) {
+        if (processed[key as keyof typeof processed] === undefined) {
+          delete processed[key as keyof typeof processed];
+        }
+      }
+
       return processed as PrimitiveType<DEF["tables"][TABLE_NAME]>; // TODO: Check if this cast is correct
     }
     // Check the input data
@@ -259,8 +265,8 @@ class $Database<
       table as string,
       await this.transformInputOptional(table, data),
       options
-    )) as unknown as PrimitiveType<DEF["tables"][TABLE_NAME]>;
-    return await this.transformOutput(table, result);
+    )) as PrimitiveType<DEF["tables"][TABLE_NAME]>[];
+    return await Promise.all(result.map((r) => this.transformOutput(table, r)));
   }
 
   public async update<TABLE_NAME extends keyof DEF["tables"] & string>(

@@ -175,6 +175,45 @@ describe("database", () => {
         await database.insert("users", { id: 1, name: "test" });
         expect(adapter.__data).toEqual({ users: [{ id: 1, name: "test" }] });
       });
+
+      it("should work with transformers", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: string() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        adapter.__data = { users: [] };
+
+        await database.insert("users", { id: 1, name: "test" });
+        expect(adapter.__data).toEqual({ users: [{ id: "1", name: "test" }] });
+      });
     });
 
     describe("update", () => {
@@ -266,6 +305,45 @@ describe("database", () => {
           ],
         });
       });
+
+      it("should work with transformers", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: string() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id?.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        adapter.__data = { users: [{ id: "1", name: "test" }] };
+
+        await database.update("users", { id: 1 }, { name: "test2" });
+        expect(adapter.__data).toEqual({ users: [{ id: "1", name: "test2" }] });
+      });
     });
 
     describe("delete", () => {
@@ -339,6 +417,45 @@ describe("database", () => {
         await database.delete("users", { name: "test" }, { limit: 2 });
         expect(adapter.__data).toEqual({ users: [{ id: 3, name: "test" }] });
       });
+
+      it("should work with transformers", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: string() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id?.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        adapter.__data = { users: [{ id: "1", name: "test" }] };
+
+        await database.delete("users", { id: 1 });
+        expect(adapter.__data).toEqual({ users: [] });
+      });
     });
 
     describe("get", () => {
@@ -357,6 +474,45 @@ describe("database", () => {
         );
 
         adapter.__data = { users: [{ id: 1, name: "test" }] };
+
+        const rows = await database.get("users", { id: 1 });
+        expect(rows).toEqual([{ id: 1, name: "test" }]);
+      });
+
+      it("should work with transformers", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: string() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id?.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        adapter.__data = { users: [{ id: "1", name: "test" }] };
 
         const rows = await database.get("users", { id: 1 });
         expect(rows).toEqual([{ id: 1, name: "test" }]);
@@ -434,6 +590,44 @@ describe("database", () => {
           { limit: 2 }
         );
         expect(count).toEqual(2);
+      });
+
+      it("should work with transformers", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id }) => ({ id: id?.toString() }),
+                type: object({
+                  id: { required: true, type: number() },
+                }),
+              },
+
+              output: {
+                transform: ({ id }) => ({ id: parseInt(id) }),
+                type: object({
+                  id: { required: true, type: number() },
+                }),
+              },
+            },
+          }
+        );
+
+        adapter.__data = {
+          users: [{ id: "1" }, { id: "2" }],
+        };
+
+        const count = await database.count("users", { id: 1 });
+        expect(count).toEqual(1);
       });
     });
 
