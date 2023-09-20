@@ -2,7 +2,6 @@ import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
-  TypeInformationFor,
 } from "@rster/types";
 import { DatabaseAdapter } from "./adapter";
 import {
@@ -11,13 +10,19 @@ import {
   createDataProcessingLayer,
 } from "./data_processing";
 import { $400 } from "@rster/basic";
+import {
+  DatabaseTransformer,
+  DatabaseTransformerMap,
+  GetTransformerInput,
+  GetTransformerOutput,
+} from "./data_transformer";
 
 export type NoNever<TYPE, ALTERNATIVE> = TYPE extends never
   ? ALTERNATIVE
   : TYPE;
 
 /**
- * Define a Database
+ * Schema for defining a {@link Database}
  */
 export interface DatabaseDefinition {
   /**
@@ -36,66 +41,6 @@ export interface DatabaseDefinition {
     >
   >;
 }
-
-export interface DatabaseTransformer<
-  DATA_TYPE extends ObjectTypeInformation<
-    Record<
-      string,
-      {
-        type: AllowAnyTypeInformation;
-        required: boolean;
-      }
-    >
-  >,
-  INPUT_TYPE,
-  OUTPUT_TYPE,
-  DATA extends PrimitiveType<DATA_TYPE> = PrimitiveType<DATA_TYPE>
-> {
-  input?: {
-    transform(data: INPUT_TYPE): Promise<DATA> | DATA;
-    type: TypeInformationFor<INPUT_TYPE>;
-  };
-  output?: {
-    transform(data: DATA): Promise<OUTPUT_TYPE> | OUTPUT_TYPE;
-    type: TypeInformationFor<OUTPUT_TYPE>;
-  };
-}
-
-export type NoTransformer<
-  DATA_TYPE extends ObjectTypeInformation<
-    Record<
-      string,
-      {
-        type: AllowAnyTypeInformation;
-        required: boolean;
-      }
-    >
-  >
-> = DatabaseTransformer<DATA_TYPE, DATA_TYPE, DATA_TYPE>;
-
-export type DatabaseTransformerMap<
-  DATABASE_DEFINITION extends DatabaseDefinition
-> = {
-  [TABLE_NAME in keyof DATABASE_DEFINITION["tables"]]?: DatabaseTransformer<
-    DATABASE_DEFINITION["tables"][TABLE_NAME],
-    any,
-    any
-  >;
-};
-
-export type GetTransformerInput<
-  TRANSFORMER extends DatabaseTransformer<any, any, any> | undefined,
-  ALT = never
-> = TRANSFORMER extends DatabaseTransformer<any, infer DATA_TYPE, any>
-  ? DATA_TYPE
-  : ALT;
-
-export type GetTransformerOutput<
-  TRANSFORMER extends DatabaseTransformer<any, any, any> | undefined,
-  ALT = never
-> = TRANSFORMER extends DatabaseTransformer<any, any, infer OUTPUT_TYPE>
-  ? OUTPUT_TYPE
-  : ALT;
 
 class $Database<
   DEF extends DatabaseDefinition,
