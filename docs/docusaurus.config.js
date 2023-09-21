@@ -5,7 +5,6 @@ const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 const path = require("path");
-const fs = require("fs");
 
 const packages = require("../package-list.json").packages.map((it) => ({
   ...it,
@@ -59,7 +58,7 @@ const config = {
           editUrl: "https://github.com/nsc-de/rster/tree/master/docs/",
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
+          customCss: [require.resolve("./src/css/custom.css")],
         },
       }),
     ],
@@ -160,14 +159,11 @@ const config = {
         tsconfig: path.resolve(`../packages/${it.name}/tsconfig.json`),
         id: `@typedoc/${it.name}`,
         plugin: ["typedoc-plugin-mdn-links"],
-        sidebar: {
-          autoConfiguration: true,
-          position: 0,
-        },
         skipErrorChecking: true,
         cleanOutputDir: true,
         out: `api-reference/${it.name}`,
         sidebar: {
+          autoConfiguration: true,
           categoryLabel: it.packageJson.name,
           position: i,
         },
