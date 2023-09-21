@@ -2,6 +2,7 @@ import { number, object, string } from "@rster/types";
 import { createDatabase } from "./database";
 import { JsObject } from "./adapters/object";
 import { DatabaseAdapter } from "./adapter";
+import { DataProcessingLayer, PassThrough } from "./data_processing";
 
 describe("createDatabase", () => {
   it("should be defined", () => {
@@ -1451,6 +1452,26 @@ describe("database", () => {
           expect(rows).toEqual([{ id: 1, name: "test" }]);
         });
       });
+    });
+  });
+
+  describe("#layer()", () => {
+    it("should create a DataProcessingLayer", async () => {
+      const adapter = JsObject();
+      const database = createDatabase(
+        {
+          tables: {
+            users: object({
+              id: { required: true, type: number() },
+              name: { required: true, type: string() },
+            }),
+          },
+        },
+        adapter
+      );
+
+      const layer = database.layer(PassThrough);
+      expect(layer).toBeInstanceOf(DataProcessingLayer);
     });
   });
 });
