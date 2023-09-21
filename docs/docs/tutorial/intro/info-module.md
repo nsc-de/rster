@@ -108,6 +108,51 @@ const api = rest(function () {
 });
 ```
 
+#### Route Declaration
+
+It may be useful to add a declaration to your routes. This declaration can be used to generate documentation, to validate requests and responses, to generate client libraries, and more. The `declaration` function allows you to add a declaration to your routes.
+
+A declaration tells rster about the required parameters of a route (body parameters, url parameters, query parameters) as well as it's response body.
+Data types are defined using the `@rster/types` api.
+
+```typescript
+const api = rest(function () {
+  // ...
+
+  this.get("/hello", function () {
+    // ...
+
+    this.declaration({
+      name: "Hello",
+      expectBody: {
+        name: { type: string(), required: true },
+      },
+
+      // Params via expectParams
+      // expectParams: {
+      //   name: { type: string(), required: true },
+      // },
+
+      // Query via expectQuery
+      // expectQuery: {
+      //   name: { type: string(), required: true },
+      // },
+
+      returnBody: object({
+        message: { type: string(), required: true },
+      }),
+    });
+
+    this.action(function (req, res) {
+      res
+        .status(200)
+        .json({ message: `Hello ${req.body.name}!` })
+        .end();
+    });
+  });
+});
+```
+
 ### The info endpoint
 
 The info module can also directly add a info endpoint to your api that can be used to retrieve information about your api at runtime. The info endpoint is a `GET` (It works with any method, but `GET` is preferred) endpoint at the `/info` path (or any path you prefer). It returns a json object with information about your api. Just use the useInfo() function in your api declaration.
