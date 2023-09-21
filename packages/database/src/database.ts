@@ -146,7 +146,6 @@ class $Database<
     if (fn) {
       // Check the input data
       const inputType = this.inputTypes[table];
-      if (!inputType) throw $400(`Table '${table}' does not exist`);
       if (!inputType.check(data)) throw $400("Invalid input data");
       const processed = await fn(data);
       // Check the output data
@@ -181,7 +180,6 @@ class $Database<
     if (fn) {
       // Check the input data
       const inputType = this.inputTypes[table];
-      if (!inputType) throw $400(`Table '${table}' does not exist`);
       if (!inputType.allOptional().check(data))
         throw $400("Invalid input data");
       const processed = await fn(data);
