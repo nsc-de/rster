@@ -214,6 +214,112 @@ describe("database", () => {
         await database.insert("users", { id: 1, name: "test" });
         expect(adapter.__data).toEqual({ users: [{ id: "1", name: "test" }] });
       });
+
+      it("should throw on non-existing table", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter
+        );
+
+        await expect(
+          // @ts-ignore
+          database.insert("users", { id: 1, name: "test" })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        await expect(
+          database.insert("users", { id: "1", name: "test" })
+        ).rejects.toThrow("Invalid input data");
+      });
+
+      it("should throw on non-existing table (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(
+          // @ts-ignore
+          database.insert("users", { id: 1, name: "test" })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: string() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(
+          database.insert("users", { id: "1", name: "test" })
+        ).rejects.toThrow("Invalid input data");
+      });
     });
 
     describe("update", () => {
@@ -344,6 +450,112 @@ describe("database", () => {
         await database.update("users", { id: 1 }, { name: "test2" });
         expect(adapter.__data).toEqual({ users: [{ id: "1", name: "test2" }] });
       });
+
+      it("should throw on non-existing table", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter
+        );
+
+        await expect(
+          // @ts-ignore
+          database.update("users", { id: 1 }, { name: "test2" })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        await expect(
+          database.update("users", { id: "1" }, { name: "test2" })
+        ).rejects.toThrow("Invalid input data");
+      });
+
+      it("should throw on non-existing table (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id?.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(
+          // @ts-ignore
+          database.update("users", { id: 1 }, { name: "test2" })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: string() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id?.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(
+          database.update("users", { id: "1" }, { name: "test2" })
+        ).rejects.toThrow("Invalid input data");
+      });
     });
 
     describe("delete", () => {
@@ -456,6 +668,112 @@ describe("database", () => {
         await database.delete("users", { id: 1 });
         expect(adapter.__data).toEqual({ users: [] });
       });
+
+      it("should throw on non-existing table", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter
+        );
+
+        await expect(
+          // @ts-ignore
+          database.delete("users", { id: 1 })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        await expect(database.delete("users", { id: "1" })).rejects.toThrow(
+          "Invalid input data"
+        );
+      });
+
+      it("should throw on non-existing table (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id?.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(
+          // @ts-ignore
+          database.delete("users", { id: 1 })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: string() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id?.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(database.delete("users", { id: "1" })).rejects.toThrow(
+          "Invalid input data"
+        );
+      });
     });
 
     describe("get", () => {
@@ -516,6 +834,112 @@ describe("database", () => {
 
         const rows = await database.get("users", { id: 1 });
         expect(rows).toEqual([{ id: 1, name: "test" }]);
+      });
+
+      it("should throw on non-existing table", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter
+        );
+
+        await expect(
+          // @ts-ignore
+          database.get("users", { id: 1 })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: number() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter
+        );
+
+        await expect(database.get("users", { id: "1" })).rejects.toThrow(
+          "Invalid input data"
+        );
+      });
+
+      it("should throw on non-existing table (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id?.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(
+          // @ts-ignore
+          database.get("users", { id: 1 })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { required: true, type: string() },
+                name: { required: true, type: string() },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id, name }) => ({ id: id?.toString(), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+
+              output: {
+                transform: ({ id, name }) => ({ id: parseInt(id), name }),
+                type: object({
+                  id: { required: true, type: number() },
+                  name: { required: true, type: string() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(database.get("users", { id: "1" })).rejects.toThrow(
+          "Invalid input data"
+        );
       });
     });
 
@@ -628,6 +1052,106 @@ describe("database", () => {
 
         const count = await database.count("users", { id: 1 });
         expect(count).toEqual(1);
+      });
+
+      it("should throw on non-existing table", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter
+        );
+
+        await expect(
+          // @ts-ignore
+          database.count("users", { id: 1 })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { type: number(), required: true },
+              }),
+            },
+          },
+          adapter
+        );
+
+        await expect(database.count("users", { id: "1" })).rejects.toThrow(
+          "Invalid input data"
+        );
+      });
+
+      it("should throw on non-existing table (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {},
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                transform: ({ id }) => ({ id: id?.toString() }),
+                type: object({
+                  id: { required: true, type: number() },
+                }),
+              },
+
+              output: {
+                transform: ({ id }) => ({ id: parseInt(id) }),
+                type: object({
+                  id: { required: true, type: number() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(
+          // @ts-ignore
+          database.count("users", { id: 1 })
+        ).rejects.toThrow("Table 'users' does not exist");
+      });
+
+      it("should throw on invalid data (transformers)", async () => {
+        const adapter = JsObject();
+        const database = createDatabase(
+          {
+            tables: {
+              users: object({
+                id: { type: string(), required: true },
+              }),
+            },
+          },
+          adapter,
+          {
+            users: {
+              input: {
+                type: object({
+                  id: { required: true, type: number() },
+                }),
+                transform: ({ id }) => ({ id: id?.toString() }),
+              },
+
+              output: {
+                transform: ({ id }) => ({ id: parseInt(id) }),
+                type: object({
+                  id: { required: true, type: number() },
+                }),
+              },
+            },
+          }
+        );
+
+        await expect(database.count("users", { id: "1" })).rejects.toThrow(
+          "Invalid input data"
+        );
       });
     });
 

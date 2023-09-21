@@ -133,7 +133,7 @@ class $Database<
     return this.transformer[table] as TRANSFORMER[TABLE_NAME];
   }
 
-  private async transformInput<TABLE_NAME extends keyof DEF["tables"]>(
+  private async transformInput<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
     data: Partial<
       GetTransformerInput<
@@ -146,12 +146,12 @@ class $Database<
     if (fn) {
       // Check the input data
       const inputType = this.inputTypes[table];
-      if (!inputType) throw $400("Table does not exist");
+      if (!inputType) throw $400(`Table '${table}' does not exist`);
       if (!inputType.check(data)) throw $400("Invalid input data");
       const processed = await fn(data);
       // Check the output data
       const outputType = this.definition.tables[table as string];
-      if (!outputType) throw new Error("Table does not exist. This is a bug.");
+      if (!outputType) throw new Error(`Table '${table}' does not exist.`);
       if (!outputType.check(processed))
         throw new Error(
           "Invalid data returned from transformer. This is propably a bug in the transformer."
@@ -161,15 +161,14 @@ class $Database<
     }
     // Check the input data
     const inputType = this.definition.tables[table as string];
-    if (!inputType)
-      throw new Error(
-        "Table does not exist, you are trying to insert data into a table that does not exist. This seems to be a bug."
-      );
+    if (!inputType) throw new Error(`Table '${table}' does not exist.`);
     if (!inputType.check(data)) throw $400("Invalid input data");
     return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
 
-  private async transformInputOptional<TABLE_NAME extends keyof DEF["tables"]>(
+  private async transformInputOptional<
+    TABLE_NAME extends keyof DEF["tables"] & string
+  >(
     table: TABLE_NAME,
     data: Partial<
       GetTransformerInput<
@@ -182,13 +181,13 @@ class $Database<
     if (fn) {
       // Check the input data
       const inputType = this.inputTypes[table];
-      if (!inputType) throw $400("Table does not exist");
+      if (!inputType) throw $400(`Table '${table}' does not exist`);
       if (!inputType.allOptional().check(data))
         throw $400("Invalid input data");
       const processed = await fn(data);
       // Check the output data
       const outputType = this.definition.tables[table as string];
-      if (!outputType) throw new Error("Table does not exist. This is a bug.");
+      if (!outputType) throw new Error(`Table '${table}' does not exist.`);
       if (!outputType.allOptional().check(processed))
         throw new Error(
           "Invalid data returned from transformer. This is propably a bug in the transformer."
@@ -204,10 +203,7 @@ class $Database<
     }
     // Check the input data
     const inputType = this.definition.tables[table as string];
-    if (!inputType)
-      throw new Error(
-        "Table does not exist, you are trying to insert data into a table that does not exist. This seems to be a bug."
-      );
+    if (!inputType) throw new Error(`Table '${table}' does not exist.`);
     if (!inputType.allOptional().check(data)) throw $400("Invalid input data");
     return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
@@ -234,7 +230,7 @@ class $Database<
       >;
   }
 
-  public async insert<TABLE_NAME extends keyof DEF["tables"]>(
+  public async insert<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
     data: GetTransformerInput<
       TRANSFORMER[TABLE_NAME],
@@ -251,7 +247,7 @@ class $Database<
     );
   }
 
-  public async get<TABLE_NAME extends keyof DEF["tables"]>(
+  public async get<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
     data: Partial<
       GetTransformerInput<
@@ -294,7 +290,7 @@ class $Database<
     );
   }
 
-  public async delete<TABLE_NAME extends keyof DEF["tables"]>(
+  public async delete<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
     data: Partial<
       GetTransformerInput<
@@ -311,7 +307,7 @@ class $Database<
     );
   }
 
-  public async count<TABLE_NAME extends keyof DEF["tables"]>(
+  public async count<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
     data: Partial<
       GetTransformerInput<
