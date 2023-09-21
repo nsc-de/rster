@@ -57,7 +57,7 @@ yarn add @rster/worker-express
 Firstly we want to import the rest function from rster as well as our worker's implementation. (we'll use express in this example)
 
 ```typescript
-import { rest } from "rster";
+import rest from "rster";
 import "@rster/worker-express";
 ```
 
