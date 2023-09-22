@@ -19,7 +19,7 @@ packages.forEach((pkg) => {
   );
 
   gulp.task(`packages:${pkg.name}:upgrade`, () =>
-    run(`npm upgrade`, { cwd: `./packages/${pkg.name}` }).exec()
+    run(`npm run upgrade`, { cwd: `./packages/${pkg.name}` }).exec()
   );
 
   gulp.task(`packages:${pkg.name}:test`, () =>
