@@ -27,9 +27,13 @@ export const ProxyRequestMethod = Method(
       method,
     });
     const responseBody = await response.text();
+    const resHeaders: string[][] = [];
+    response.headers.forEach((value, key) => {
+      resHeaders.push([key, value]);
+    });
     return {
       body: responseBody,
-      headers: response.headers.raw(),
+      headers: Object.fromEntries(resHeaders),
       statusCode: response.status,
     };
   }
