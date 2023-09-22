@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "upgrade": "npm install --save @rster/basic @rster/builder @rster/common @rster/info @rster/info-client @rster/ping @rster/types @rster/util @rster/worker-express express rster @types/express"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,7 @@
   "homepage": "https://github.com/nsc-de/rster#readme",
   "dependencies": {
     "@rster/basic": "^0.1.4",
-    "@rster/builder": "^0.1.0",
+    "@rster/builder": "^0.1.1",
     "@rster/common": "^0.1.2",
     "@rster/info": "^0.1.5",
     "@rster/info-client": "^0.1.0",
