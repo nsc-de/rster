@@ -1,5 +1,9 @@
 # Changelog for @rster/builder
 
+## v0.1.3
+
+- Fix `@rster/builder` module type definition
+
 ## v0.1.2
 
 - Make `@rster/builder` compatible with `@rster/common@0.1.2`
