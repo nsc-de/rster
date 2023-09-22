@@ -67,35 +67,66 @@ Rster builder has 3 main functions to create your api:
   - `httpMethod` - The http method of the method, this will be used to generate the method http method. (Defaults to `ANY`)
   - `action` - The action of the method, this is the actual functionality of the method. (Defaults to a method that throws an error saying that the method is not implemented)
 
-_We will continue writing this tutorial soon._
-
-<!--
 ### Creating a new api
 
-Lets just start with a simple example. We will create a new api that has a `user` module with a `createUser` method.
+Lets just start with a simple example. We will create a new api that has a `user` module with a `createUser` and `listUsers` method.
 
 ```typescript
-const users = [];
+const users: {
+  name: string;
+  age: number;
+}[] = [];
 
-const api = api(
-  "MyApi",
-  ["My api"],
-  [
-    module(
+const API = api(
+  "api",
+  ["a simple demo api"],
+  {
+    users: module(
       "users",
-      ["User module"],
-      [],
-      [
-        method(
-          "createUser",
-          ["Creates a new user"],
-          (name: string, age: number) => {
-            users.push({ name, age });
+      ["module to handle users"],
+      {},
+      {
+        create: method(
+          "create",
+          ["create a user"],
+          {
+            expectBody: {
+              name: { required: true, type: string() },
+              age: { required: true, type: number() },
+            },
+            returns: undefinedType(),
+          },
+          "/users",
+          "post",
+          ({ age, name }) => {
+            users.push({ age, name });
           }
         ),
-      ],
-      "/users"
+
+        list: method(
+          "list",
+          ["list users"],
+          {
+            returns: array(
+              object({
+                name: { type: string(), required: true },
+                age: { type: number(), required: true },
+              })
+            ),
+          },
+          "/users",
+          "get",
+          () => users
+        ),
+      }
     ),
-  ]
+  },
+  {}
 );
-``` -->
+```
+
+We can now convert this to a basic api by calling the `rest` function on the api.
+
+```typescript
+const rster = API.rest();
+```
