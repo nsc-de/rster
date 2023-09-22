@@ -1,7 +1,6 @@
 import { api as Api, method as Method, module as Module } from "@rster/builder";
-import "@rster/worker-express";
 import { object, string, any, number } from "@rster/types";
-import fetch from "node-fetch";
+import fetch from "cross-fetch";
 
 export const ProxyRequestMethod = Method(
   "request",
@@ -42,7 +41,8 @@ export const ProxyModule = Module(
   {},
   {
     request: ProxyRequestMethod,
-  }
+  },
+  "/proxy"
 );
 
 export const ProxyApi = Api(
