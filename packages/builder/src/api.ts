@@ -1,8 +1,8 @@
 import rest, { Context, RestfulApi } from "@rster/basic";
 import { Values } from "@rster/common";
-import { RsterApiMethod, RsterApiMethodJson } from "./method";
+import { RsterApiMethodJson } from "./method";
 import { RsterApiModule, RsterApiModuleJson } from "./module";
-import { AnyParameterDeclaration, RemoveNeverProperties } from "./types";
+import { AnyRsterApiMethod, RemoveNeverProperties } from "./types";
 
 /**
  * A type for the json representation of the api class. Returned by the `json` method, used to get info about the api.
@@ -50,7 +50,7 @@ export class RsterApi<
   NAME extends string,
   MODULES extends { [key: string]: RsterApiModule<typeof key, any, any> },
   METHODS extends {
-    [key: string]: RsterApiMethod<typeof key, AnyParameterDeclaration>;
+    [key: string]: AnyRsterApiMethod<typeof key>;
   }
 > {
   /**
@@ -184,7 +184,7 @@ export function api<
   NAME extends string,
   MODULES extends { [key: string]: RsterApiModule<typeof key, any, any> },
   METHODS extends {
-    [key: string]: RsterApiMethod<typeof key, any>;
+    [key: string]: AnyRsterApiMethod<typeof key>;
   }
 >(
   name: NAME,

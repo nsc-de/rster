@@ -8,6 +8,11 @@ import { AllowVoidIfUndefined } from "@rster/common";
 import { RsterApiMethod } from "./method";
 import { RsterApiModule } from "./module";
 
+export type AnyRsterApiMethod<key extends string = string> = RsterApiMethod<
+  key,
+  any
+>;
+
 export type AnyParameterDeclaration = ParameterDeclaration<
   TypeInformation<unknown>,
   ParameterList,
