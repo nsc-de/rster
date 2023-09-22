@@ -68,6 +68,7 @@ declare module "@rster/common" {
 }
 
 Context.prototype.useAuthentification = function (
+  this: Context,
   verificationFunction: AuthentificationVerificationFunction
 ) {
   this.use(async (req, res, next) => {
@@ -79,22 +80,22 @@ Context.prototype.useAuthentification = function (
       res.status(401).json({ message: "Unauthorized" }).end();
     }
   });
-};
+} as any;
 
 Context.prototype.permissions = function (
+  this: Context,
   permission?: Permission | Permission[]
 ) {
-  const required_permissions = this.data("required_permissions") ?? [];
+  const required_permissions =
+    (this.data("required_permissions") as Permission[]) ?? [];
 
   if (permission === undefined) return required_permissions;
 
-  if (Array.isArray(permission)) {
-    required_permissions.push(...permission);
-  }
-  required_permissions.push(permission);
+  if (Array.isArray(permission)) required_permissions.push(...permission);
+  else required_permissions.push(permission);
   this.setData("required_permissions", required_permissions);
   this.field("required_permissions", required_permissions);
-};
+} as any;
 
 /**
  * The function that will be called to verify the json web token.
