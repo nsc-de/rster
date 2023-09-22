@@ -5,7 +5,7 @@ import {
 } from "@rster/basic";
 import { Method } from "@rster/common";
 import { Values } from "@rster/util";
-import { RsterApiMethod, RsterApiMethodJson } from "./method";
+import { RsterApiMethodJson } from "./method";
 import { AnyRsterApiMethod, RemoveNeverProperties } from "./types";
 
 /**
