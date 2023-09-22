@@ -3,13 +3,10 @@ import {
   ContextConditionMethod,
   ContextConditionPath,
 } from "@rster/basic";
-import { Values, Method } from "@rster/common";
+import { Method } from "@rster/common";
+import { Values } from "@rster/util";
 import { RsterApiMethod, RsterApiMethodJson } from "./method";
-import {
-  AnyParameterDeclaration,
-  AnyRsterApiMethod,
-  RemoveNeverProperties,
-} from "./types";
+import { AnyParameterDeclaration, RemoveNeverProperties } from "./types";
 
 /**
  * A type for the json representation of the module class. Returned by the `json` method, used to get info about the module.
@@ -73,7 +70,7 @@ export class RsterApiModule<
   NAME extends string,
   MODULES extends { [key: string]: RsterApiModule<typeof key, any, any> },
   METHODS extends {
-    [key: string]: AnyRsterApiMethod<typeof key>;
+    [key: string]: RsterApiMethod<typeof key, AnyParameterDeclaration>;
   }
 > {
   /**
@@ -235,7 +232,7 @@ export function module<
   NAME extends string,
   MODULES extends { [key: string]: RsterApiModule<typeof key, any, any> },
   METHODS extends {
-    [key: string]: AnyRsterApiMethod<typeof key>;
+    [key: string]: RsterApiMethod<typeof key, AnyParameterDeclaration>;
   }
 >(
   name: NAME,

@@ -1,5 +1,5 @@
 import rest, { Context, RestfulApi } from "@rster/basic";
-import { Values } from "@rster/common";
+import { Values } from "@rster/util";
 import { RsterApiMethodJson } from "./method";
 import { RsterApiModule, RsterApiModuleJson } from "./module";
 import { AnyRsterApiMethod, RemoveNeverProperties } from "./types";
