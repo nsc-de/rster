@@ -22,6 +22,7 @@ function createExpressApp(api: basic.RestfulApi) {
     server: ReturnType<Express["listen"]>;
   }>((resolve, reject) => {
     const app = express();
+    app.use(express.json());
     app.use("/api", api.express());
     const server = app.listen(0, () => {
       const address = server.address();
@@ -93,14 +94,12 @@ describe("proxy", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
-      body: "pong",
-      headers: {
-        "content-length": ["4"],
-        "content-type": ["text/plain; charset=utf-8"],
-      },
-      statusCode: 200,
-    });
+    expect(await response.json()).toEqual(
+      expect.objectContaining({
+        body: '{"message":"Pong! 🏓"}',
+        statusCode: 200,
+      })
+    );
   });
 
   afterAll(() => {

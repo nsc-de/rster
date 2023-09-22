@@ -22,7 +22,7 @@ export const ProxyRequestMethod = Method(
   "post",
   async ({ body, headers, method, url }) => {
     const response = await fetch(url, {
-      body,
+      body: body ? body : undefined,
       headers,
       method,
     });
