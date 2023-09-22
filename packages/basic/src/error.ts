@@ -1,4 +1,4 @@
-import { StringToNumber, SubString } from "@rster/common";
+import { StringToNumber, SubString } from "@rster/util";
 
 /**
  * Throw this error to return an HTTP error response.

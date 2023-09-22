@@ -1,6 +1,6 @@
 {
   "name": "@rster/basic",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -9,6 +9,7 @@
   "dependencies": {
     "@rster/common": "^0.1.2",
     "@rster/types": "^0.1.4",
+    "@rster/util": "^0.1.0",
     "debug": "^4.3.4"
   },
   "devDependencies": {
@@ -21,7 +22,7 @@
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "upgrade": "npm install @rster/common@latest @rster/types@latest"
+    "upgrade": "npm install @rster/common@latest @rster/types@latest @rster/util@latest"
   },
   "repository": {
     "type": "git",
