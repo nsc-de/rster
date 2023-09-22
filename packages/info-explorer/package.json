@@ -9,7 +9,7 @@
   "devDependencies": {
     "@mdi/js": "^7.2.96",
     "@mdi/react": "^1.6.1",
-    "@rster/basic": "^0.1.4",
+    "@rster/basic": "^0.1.5",
     "@rster/info": "^0.1.5",
     "@rster/info-client": "^0.1.0",
     "@rster/worker-express": "^0.1.2",

@@ -7,7 +7,7 @@
   "author": "Nicolas Schmidt",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@rster/basic": "^0.1.4",
+    "@rster/basic": "^0.1.5",
     "@rster/common": "^0.1.2",
     "@rster/info": "^0.1.5",
     "@rster/types": "^0.1.4",
