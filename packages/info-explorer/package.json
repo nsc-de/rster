@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@rster/builder": "^0.1.2",
     "debug": "^4.3.4",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@mdi/js": "^7.2.96",
@@ -21,6 +23,7 @@
     "@types/morgan": "^1.9.5",
     "bootstrap": "^5.3.1",
     "cors": "^2.8.5",
+    "cross-fetch": "^4.0.0",
     "helmet": "^7.0.0",
     "morgan": "^1.10.0",
     "react": "^18.2.0",
@@ -28,13 +31,13 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.15.0",
     "react-scripts": "5.0.1",
-    "rster": "^0.1.2",
+    "rster": "^0.1.3",
     "sass": "^1.66.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && tsc",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "upgrade": "npm install --save-dev @rster/basic@latest @rster/info@latest @rster/info-client@latest @rster/worker-express@latest"
