@@ -13,6 +13,7 @@
   "devDependencies": {
     "@rster/basic": "^0.1.5",
     "@rster/info": "^0.1.5",
+    "@rster/proxy": "^0.1.0",
     "@rster/worker-express": "^0.1.2",
     "@types/debug": "^4.1.8",
     "express": "^4.18.2",
