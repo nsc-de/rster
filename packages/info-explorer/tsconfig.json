@@ -9,7 +9,7 @@
   "include": [
     "lib-src/**/*.ts",
     "lib-src/request-backend.mts",
-    "lib-src/index.mts"
+    "lib-src/index.ts"
   ],
   "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

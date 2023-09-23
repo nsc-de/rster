@@ -13,8 +13,15 @@ import Sidebar from "./sidebar";
 import { InfoClient } from "@rster/info-client";
 import { useEffect, useState } from "react";
 
+async function getInfoClientSettings() {
+  const res = await fetch(
+    `${process.env.PUBLIC_URL}/info-client-settings.json`
+  );
+  const json = await res.json();
+  return json;
+}
+
 /**
- *
  * @param {import("@rster/info-client").InfoMap} map
  */
 async function generateNavbarIndex(map) {
@@ -36,34 +43,50 @@ export default function App() {
   const [apiBaseUrl, setApiBaseUrl] = useState(
     "http://localhost:3001/api/info"
   );
-  const url = new URL(apiBaseUrl);
 
+  const [infoClientSettings, setInfoClientSettings] = useState();
+
+  useEffect(() => {
+    (async () => {
+      setInfoClientSettings(await getInfoClientSettings());
+    })();
+  }, []);
+
+  const url = new URL(apiBaseUrl);
   const { protocol, host, pathname } = url;
 
-  const [infoClient, setInfoClient] = useState(
-    () =>
-      new InfoClient({
-        basePath: pathname,
-        url: `${protocol}//${host}`,
-      })
-  );
+  /**
+   * @type {[InfoClient, (infoClient: InfoClient) => void]}
+   */
+  const [infoClient, setInfoClient] = useState();
 
+  /**
+   * @type {[import("@rster/info-client").InfoMap, (index: import("@rster/info-client").InfoMap) => void]}
+   */
   const [index, setIndex] = useState(null);
+
+  /**
+   * @type {[import("@rster/info-client").InfoMap, (index: import("@rster/info-client").InfoMap) => void]}
+   */
   const [indexElement, setIndexElement] = useState(null);
 
-  if (
-    infoClient.options.basePath !== pathname ||
-    infoClient.options.url !== `${protocol}//${host}`
-  ) {
+  useEffect(() => {
+    if (!infoClientSettings) return;
+    console.log("infoClientSettings", infoClientSettings);
+    if (infoClientSettings.proxy)
+      console.log("Using proxy", infoClientSettings.proxy);
+
     setInfoClient(
       new InfoClient({
         basePath: pathname,
         url: `${protocol}//${host}`,
+        proxy: infoClientSettings.proxy ?? undefined,
       })
     );
-  }
+  }, [pathname, protocol, host, infoClientSettings]);
 
   useEffect(() => {
+    if (!infoClient) return;
     infoClient
       .getIndex()
       .then((it) => {
