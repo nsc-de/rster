@@ -162,21 +162,6 @@ export class InfoClient {
   constructor(readonly options: InfoClientOptions) {}
 
   private requestViaProxy(path: string) {
-    console.log("proxying", path);
-    console.log(this.options.proxy!, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        headers: {
-          "Content-Type": "application/json",
-        },
-        url: `${this.options.url ?? ""}${this.options.basePath ?? ""}${path}`,
-        method: "GET",
-      }),
-    });
-
     return handleErrors(
       fetch(this.options.proxy!, {
         method: "POST",
