@@ -123,12 +123,14 @@ export class InfoClientResponseError extends Error {
     const body = await jsonPipe(response);
     if (response.status === 404) {
       return new InfoClientNotFoundError(
-        body.message ?? response.statusText,
+        body.error.message ?? response.statusText,
         response
       );
     }
     return new InfoClientResponseError(
-      body.message ?? `${response.status} (${response.statusText})`,
+      body.error.message ??
+        JSON.stringify(body) ??
+        `${response.status} (${response.statusText})`,
       response
     );
   }
@@ -160,10 +162,31 @@ export class InfoClient {
   constructor(readonly options: InfoClientOptions) {}
 
   private requestViaProxy(path: string) {
+    console.log("proxying", path);
+    console.log(this.options.proxy!, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        headers: {
+          "Content-Type": "application/json",
+        },
+        url: `${this.options.url ?? ""}${this.options.basePath ?? ""}${path}`,
+        method: "GET",
+      }),
+    });
+
     return handleErrors(
       fetch(this.options.proxy!, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
+          headers: {
+            "Content-Type": "application/json",
+          },
           url: `${this.options.url ?? ""}${this.options.basePath ?? ""}${path}`,
           body: "",
           method: "GET",
@@ -273,23 +296,29 @@ async function jsonPipe(response: Response) {
 
 async function jsonPipeProxy(response: Response) {
   const text = await response.text();
+
+  let json: any;
   try {
-    const json = JSON.parse(text);
-
-    const code = json.code;
-
-    if (code !== 200) {
-      throw new InfoClientResponseError(
-        "Unable to parse json response! Proxy returned " + code,
-        response
-      );
-    }
-
-    const body = JSON.parse(json.body);
-    return body;
+    json = JSON.parse(text);
   } catch (err) {
     throw new InfoClientResponseError(
-      "Unable to parse json response!\n" + text,
+      "Unable to parse json response (Response of proxy)!\n" + text,
+      response
+    );
+  }
+  const code = json.statusCode;
+
+  if (code !== 200) {
+    throw new InfoClientResponseError(
+      "Unable to parse json response! Proxy returned " + code,
+      response
+    );
+  }
+  try {
+    return JSON.parse(json.body);
+  } catch (err) {
+    throw new InfoClientResponseError(
+      "Unable to parse json response (proxied response)!\n" + json.body,
       response
     );
   }
