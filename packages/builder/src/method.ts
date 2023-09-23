@@ -260,58 +260,58 @@ export class RsterApiMethod<
         expectParams: declaration.expectParams,
       });
       this.action(async (req, res) => {
-        const params = req.params;
+        const params = req.params ?? {};
+        const body = req.body ?? {};
+        const query = req.query ?? {};
 
         if (declaration.expectBody) {
           for (const [key, value] of Object.entries(declaration.expectBody)) {
-            if (!value.required && req.body[key] === undefined) continue;
-            if (req.body[key] === undefined)
+            if (!value.required && body[key] === undefined) continue;
+            if (body[key] === undefined)
               throw $400(`Missing body parameter ${key}`);
 
             const type = (value as { type: TypeInformation<unknown> }).type;
-            if (!type.check(req.body[key]))
+            if (!type.check(body[key]))
               throw $400(
                 `Invalid body parameter ${key}: Expected ${JSON.stringify(
                   type.json()
                 )}`
               );
 
-            params[key] = req.body[key];
+            params[key] = body[key];
           }
         }
 
         if (declaration.expectQuery) {
           for (const [key, value] of Object.entries(declaration.expectQuery)) {
-            if (!value.required && req.query[key] === undefined) continue;
-            if (req.query[key] === undefined)
+            if (!value.required && query[key] === undefined) continue;
+            if (query[key] === undefined)
               throw $400(`Missing query parameter ${key}`);
 
             const type = (value as { type: TypeInformation<unknown> }).type;
-            if (!type.check(req.query[key]))
+            if (!type.check(query[key]))
               throw $400(
                 `Invalid query parameter ${key}: Expected ${JSON.stringify(
                   type.json()
                 )}`
               );
 
-            params[key] = req.query[key];
+            params[key] = query[key];
           }
         }
 
         if (declaration.expectParams) {
           for (const [key, value] of Object.entries(declaration.expectParams)) {
-            if (!value.required && req.params[key] === undefined) continue;
-            if (req.params[key] === undefined)
+            if (!value.required && params[key] === undefined) continue;
+            if (params[key] === undefined)
               throw $400(`Missing path parameter ${key}`);
 
             const type = (value as { type: TypeInformation<unknown> }).type;
-            if (!type.check(req.params[key]))
+            if (!type.check(params[key]))
               // This should basically never happen if it has the right type
               throw $400(
                 `Invalid param ${key}: Expected ${JSON.stringify(type.json())}`
               );
-
-            params[key] = req.params[key];
           }
         }
 
