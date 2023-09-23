@@ -158,7 +158,7 @@ describe("info", () => {
     it("should return info for /hello", async () => {
       const client = new InfoClient({
         basePath: "/api/info",
-        proxy: `http://localhost:${proxyPort}/api/proxy/request`,o
+        proxy: `http://localhost:${proxyPort}/api/proxy/request`,
         url: `http://localhost:${port}`,
       });
 
