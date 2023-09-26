@@ -41,7 +41,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && tsc",
-    "test": "react-scripts test",
+    "test": "react-scripts test --passWithNoTests",
     "eject": "react-scripts eject",
     "upgrade": "npm install --save-dev @rster/basic@latest @rster/info@latest @rster/info-client@latest @rster/worker-express@latest @rster/builder@latest @rster/proxy@latest"
   },
