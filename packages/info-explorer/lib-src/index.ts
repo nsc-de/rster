@@ -24,9 +24,16 @@ app.get("/info-client-settings.json", (req, res) => {
     proxy: "/api/proxy/request",
   });
 });
+
+const apiExpress = express.Router();
+apiExpress.use(express.json());
+apiExpress.use(api.express({ basePath: "" }));
+app.use("/api", apiExpress);
+
 app.use(express.static("build"));
-app.use(express.json());
-app.use(api.express({ basePath: "/api" }));
+app.use("/", (req, res) => {
+  res.sendFile("index.html", { root: "build" });
+});
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
