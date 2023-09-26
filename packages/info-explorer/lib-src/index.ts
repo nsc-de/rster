@@ -19,13 +19,14 @@ const PORT = process.env.PORT ?? 3000;
 const app = express();
 app.use(helmet());
 app.use(morgan("combined"));
-app.use(api.express({ basePath: "/api" }));
 app.get("/info-client-settings.json", (req, res) => {
   res.json({
     proxy: "/api/proxy/request",
   });
 });
 app.use(express.static("build"));
+app.use(express.json());
+app.use(api.express({ basePath: "/api" }));
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);

@@ -264,7 +264,7 @@ function PathInfo({ info }) {
           </span>
         </h1>
       ) : null}
-      <p>{description.join(" ")}</p>
+      <p>{description?.join("\n") ?? <i>No description defined</i>}</p>
 
       <h2>Fields</h2>
       {fields
