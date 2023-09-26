@@ -13,8 +13,15 @@ import Sidebar from "./sidebar";
 import { InfoClient } from "@rster/info-client";
 import { useEffect, useState } from "react";
 
+async function getInfoClientSettings() {
+  const res = await fetch(
+    `${process.env.PUBLIC_URL}/info-client-settings.json`
+  );
+  const json = await res.json();
+  return json;
+}
+
 /**
- *
  * @param {import("@rster/info-client").InfoMap} map
  */
 async function generateNavbarIndex(map) {
@@ -36,34 +43,52 @@ export default function App() {
   const [apiBaseUrl, setApiBaseUrl] = useState(
     "http://localhost:3001/api/info"
   );
-  const url = new URL(apiBaseUrl);
 
+  const [infoClientSettings, setInfoClientSettings] = useState();
+
+  useEffect(() => {
+    (async () => {
+      const settings = await getInfoClientSettings();
+      setInfoClientSettings(settings);
+      setApiBaseUrl(settings.address);
+    })();
+  }, []);
+
+  const url = new URL(apiBaseUrl);
   const { protocol, host, pathname } = url;
 
-  const [infoClient, setInfoClient] = useState(
-    () =>
-      new InfoClient({
-        basePath: pathname,
-        url: `${protocol}//${host}`,
-      })
-  );
+  /**
+   * @type {[InfoClient, (infoClient: InfoClient) => void]}
+   */
+  const [infoClient, setInfoClient] = useState();
 
+  /**
+   * @type {[import("@rster/info-client").InfoMap, (index: import("@rster/info-client").InfoMap) => void]}
+   */
   const [index, setIndex] = useState(null);
+
+  /**
+   * @type {[import("@rster/info-client").InfoMap, (index: import("@rster/info-client").InfoMap) => void]}
+   */
   const [indexElement, setIndexElement] = useState(null);
 
-  if (
-    infoClient.options.basePath !== pathname ||
-    infoClient.options.url !== `${protocol}//${host}`
-  ) {
+  useEffect(() => {
+    if (!infoClientSettings) return;
+    console.log("infoClientSettings", infoClientSettings);
+    if (infoClientSettings.proxy)
+      console.log("Using proxy", infoClientSettings.proxy);
+
     setInfoClient(
       new InfoClient({
         basePath: pathname,
         url: `${protocol}//${host}`,
+        proxy: infoClientSettings.proxy ?? undefined,
       })
     );
-  }
+  }, [pathname, protocol, host, infoClientSettings]);
 
   useEffect(() => {
+    if (!infoClient) return;
     infoClient
       .getIndex()
       .then((it) => {
@@ -87,7 +112,13 @@ export default function App() {
         }}
       >
         <header className="App-header">
-          <Navbar className="bg-body-tertiary border-bottom">
+          <Navbar
+            className="bg-body-tertiary border-bottom position-fixed w-100"
+            style={{
+              zIndex: 3,
+              backgroundColor: "#f8f9fa",
+            }}
+          >
             <Container>
               <Navbar.Brand href="#home">
                 <img
@@ -161,16 +192,25 @@ export default function App() {
           }
           style={{
             width: "320px",
+            position: "fixed",
+            height: "calc(100% - 56px)",
+            top: "56px",
+            backgroundColor: "#f8f9fa",
+            zIndex: 2,
           }}
         ></Sidebar>
 
-        <main
+        <div
           className="App-main"
           style={{
             marginLeft: "320px",
             width: "calc(100% - 320px)",
             padding: "2rem",
             position: "relative",
+            zIndex: 1,
+            height: "calc(100% - 56px)",
+            overflow: "auto",
+            top: "56px",
           }}
         >
           <Routes>
@@ -191,7 +231,7 @@ export default function App() {
             <Route path="/" element={<PathInfo info={indexElement} />} />
             <Route path="*" element={<div className="p-3">Not found</div>} />
           </Routes>
-        </main>
+        </div>
       </div>
     </Router>
   );
@@ -241,7 +281,7 @@ function PathInfo({ info }) {
           </span>
         </h1>
       ) : null}
-      <p>{description.join(" ")}</p>
+      <p>{description?.join("\n") ?? <i>No description defined</i>}</p>
 
       <h2>Fields</h2>
       {fields

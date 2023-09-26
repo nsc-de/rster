@@ -24,6 +24,7 @@ export interface InfoResponseMap {
 export interface InfoClientOptions {
   url: string;
   basePath: string;
+  proxy?: string;
   customFetchFunction?: (
     input: RequestInfo | URL,
     init?: RequestInit | undefined
@@ -122,12 +123,14 @@ export class InfoClientResponseError extends Error {
     const body = await jsonPipe(response);
     if (response.status === 404) {
       return new InfoClientNotFoundError(
-        body.message ?? response.statusText,
+        body.error.message ?? response.statusText,
         response
       );
     }
     return new InfoClientResponseError(
-      body.message ?? response.statusText,
+      body.error.message ??
+        JSON.stringify(body) ??
+        `${response.status} (${response.statusText})`,
       response
     );
   }
@@ -158,7 +161,42 @@ export class InfoClientCorsError extends Error {
 export class InfoClient {
   constructor(readonly options: InfoClientOptions) {}
 
-  private request(path: string) {
+  private requestViaProxy(path: string) {
+    return handleErrors(
+      fetch(this.options.proxy!, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          headers: {
+            "Content-Type": "application/json",
+          },
+          url: `${this.options.url ?? ""}${this.options.basePath ?? ""}${path}`,
+          body: "",
+          method: "GET",
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw InfoClientResponseError.fromResponse(response);
+          }
+          return response;
+        })
+        .catch((error) => {
+          if (error instanceof InfoClientResponseError) {
+            throw error;
+          }
+          if (error instanceof Response) {
+            throw InfoClientResponseError.fromResponse(error);
+          }
+
+          throw error;
+        })
+    );
+  }
+
+  private requestNoProxy(path: string) {
     return handleErrors(
       (this.options.customFetchFunction ?? fetch)(
         `${this.options.url ?? ""}${this.options.basePath ?? ""}${path}`,
@@ -185,21 +223,27 @@ export class InfoClient {
     );
   }
 
+  async request(path: string) {
+    if (this.options.proxy) {
+      return jsonPipeProxy(await this.requestViaProxy(path));
+    } else {
+      return jsonPipe(await this.requestNoProxy(path));
+    }
+  }
+
   async getIndex(): Promise<InfoMap> {
-    const response = await this.request(`/`);
     return new InfoMapImpl(
       this,
-      await jsonPipe(response),
+      await this.request("/"),
       this.options.basePath,
       undefined
     );
   }
 
   async getInfo(path: string): Promise<InfoMap> {
-    const response = await this.request(path);
     return new InfoMapImpl(
       this,
-      await jsonPipe(response),
+      await this.request(path),
       this.options.basePath,
       undefined
     ); // TODO: parent
@@ -230,6 +274,36 @@ async function jsonPipe(response: Response) {
   } catch (err) {
     throw new InfoClientResponseError(
       "Unable to parse json response!\n" + text,
+      response
+    );
+  }
+}
+
+async function jsonPipeProxy(response: Response) {
+  const text = await response.text();
+
+  let json: any;
+  try {
+    json = JSON.parse(text);
+  } catch (err) {
+    throw new InfoClientResponseError(
+      "Unable to parse json response (Response of proxy)!\n" + text,
+      response
+    );
+  }
+  const code = json.statusCode;
+
+  if (code !== 200) {
+    throw new InfoClientResponseError(
+      "Unable to parse json response! Proxy returned " + code,
+      response
+    );
+  }
+  try {
+    return JSON.parse(json.body);
+  } catch (err) {
+    throw new InfoClientResponseError(
+      "Unable to parse json response (proxied response)!\n" + json.body,
       response
     );
   }
