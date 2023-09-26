@@ -4,37 +4,54 @@ import { api as Api } from "@rster/builder";
 import helmet from "helmet";
 import morgan from "morgan";
 import "@rster/worker-express";
+import debug from "debug";
 
-const api = Api(
-  "Info Explorer Backend",
-  ["Backend for Info Explorer"],
-  {
-    Proxy: ProxyModule,
-  },
-  {}
-).rest();
+export function openServer({
+  port,
+  debug: debugEnabled,
+  address,
+}: {
+  port: number;
+  debug: boolean;
+  address: string;
+}) {
+  const api = Api(
+    "Info Explorer Backend",
+    ["Backend for Info Explorer"],
+    {
+      Proxy: ProxyModule,
+    },
+    {}
+  ).rest();
 
-const PORT = process.env.PORT ?? 3000;
+  if (debugEnabled) {
+    debug.enable("rster:*");
+  }
 
-const app = express();
-app.use(helmet());
-app.use(morgan("combined"));
-app.get("/info-client-settings.json", (req, res) => {
-  res.json({
-    proxy: "/api/proxy/request",
+  const app = express();
+  app.use(helmet());
+  app.use(morgan("combined"));
+  app.get(
+    "/info-client-settings.json",
+    (_req: express.Request, res: express.Response) => {
+      res.json({
+        proxy: "/api/proxy/request",
+        address,
+      });
+    }
+  );
+
+  const apiExpress = express.Router();
+  apiExpress.use(express.json());
+  apiExpress.use(api.express({ basePath: "" }));
+  app.use("/api", apiExpress);
+
+  app.use(express.static("build"));
+  app.use("/", (_req: express.Request, res: express.Response) => {
+    res.sendFile("index.html", { root: "build" });
   });
-});
 
-const apiExpress = express.Router();
-apiExpress.use(express.json());
-apiExpress.use(api.express({ basePath: "" }));
-app.use("/api", apiExpress);
-
-app.use(express.static("build"));
-app.use("/", (req, res) => {
-  res.sendFile("index.html", { root: "build" });
-});
-
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
-});
+  app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
+  });
+}
