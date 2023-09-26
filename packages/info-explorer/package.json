@@ -11,6 +11,7 @@
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@mdi/js": "^7.2.96",
     "@mdi/react": "^1.6.1",
     "@rster/basic": "^0.1.5",
