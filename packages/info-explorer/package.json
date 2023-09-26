@@ -44,12 +44,6 @@
     "eject": "react-scripts eject",
     "upgrade": "npm install --save-dev @rster/basic@latest @rster/info@latest @rster/info-client@latest @rster/worker-express@latest @rster/builder@latest @rster/proxy@latest"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
