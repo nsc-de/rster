@@ -48,7 +48,9 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
-      setInfoClientSettings(await getInfoClientSettings());
+      const settings = await getInfoClientSettings();
+      setInfoClientSettings(settings);
+      setApiBaseUrl(settings.address);
     })();
   }, []);
 
