@@ -98,7 +98,7 @@ export default function App() {
       .then((index) => {
         setIndex(index);
       })
-      .catch((err) => {
+      .catch((_err) => {
         setIndex(null);
       });
   }, [infoClient]);
