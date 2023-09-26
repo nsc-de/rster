@@ -110,7 +110,13 @@ export default function App() {
         }}
       >
         <header className="App-header">
-          <Navbar className="bg-body-tertiary border-bottom">
+          <Navbar
+            className="bg-body-tertiary border-bottom position-fixed w-100"
+            style={{
+              zIndex: 3,
+              backgroundColor: "#f8f9fa",
+            }}
+          >
             <Container>
               <Navbar.Brand href="#home">
                 <img
@@ -184,16 +190,25 @@ export default function App() {
           }
           style={{
             width: "320px",
+            position: "fixed",
+            height: "calc(100% - 56px)",
+            top: "56px",
+            backgroundColor: "#f8f9fa",
+            zIndex: 2,
           }}
         ></Sidebar>
 
-        <main
+        <div
           className="App-main"
           style={{
             marginLeft: "320px",
             width: "calc(100% - 320px)",
             padding: "2rem",
             position: "relative",
+            zIndex: 1,
+            height: "calc(100% - 56px)",
+            overflow: "auto",
+            top: "56px",
           }}
         >
           <Routes>
@@ -214,7 +229,7 @@ export default function App() {
             <Route path="/" element={<PathInfo info={indexElement} />} />
             <Route path="*" element={<div className="p-3">Not found</div>} />
           </Routes>
-        </main>
+        </div>
       </div>
     </Router>
   );
