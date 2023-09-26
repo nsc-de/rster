@@ -1,5 +1,9 @@
 # Changelog for @rster/builder
 
+## v0.1.5
+
+- Bugfix: `@rster/builder` throws an error (500) if no body is provided in a request. This is confusing, because the error message is not helpful. This is now fixed.
+
 ## v0.1.4
 
 - Bugfix: `@rster/builder` throws an error (500) if no body is provided in a request. This is confusing, because the error message is not helpful. This is now fixed.
