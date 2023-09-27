@@ -133,6 +133,17 @@ export function AdapterTests(
         expect(rows).toHaveLength(0);
       });
 
+      it("should count rows", async () => {
+        const count = await adapter.count("test", {});
+        expect(count).toBe(3);
+
+        const count2 = await adapter.count("test", {
+          name: "hello",
+        });
+
+        expect(count2).toBe(0);
+      });
+
       afterAll(async () => {
         await adapter.drop("test");
       });
