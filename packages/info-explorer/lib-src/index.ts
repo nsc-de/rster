@@ -4,6 +4,7 @@ import { api as Api } from "@rster/builder";
 import helmet from "helmet";
 import morgan from "morgan";
 import "@rster/worker-express";
+import cors from "cors";
 import debug from "debug";
 
 export function openServer({
@@ -43,6 +44,7 @@ export function openServer({
 
   const apiExpress = express.Router();
   apiExpress.use(express.json());
+  apiExpress.use(cors({ origin: "*" }));
   apiExpress.use(api.express({ basePath: "" }));
   app.use("/api", apiExpress);
 
