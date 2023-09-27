@@ -32,6 +32,6 @@ describe("MongoDBAdapter", () => {
   AdapterTests(adapter);
 
   afterAll(async () => {
-    // await mongoServer.stop();
+    await mongoServer.stop();
   });
 });
