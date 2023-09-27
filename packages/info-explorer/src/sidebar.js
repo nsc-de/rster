@@ -3,7 +3,7 @@ import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import { Link } from "react-router-dom";
 
-function RenderDropdown({ className, format, path, title }) {
+function RenderDropdown({ _className, format, path, title }) {
   const [open, setOpen] = useState(false);
 
   return (

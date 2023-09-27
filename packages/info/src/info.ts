@@ -66,7 +66,7 @@ Context.prototype.description = function (...description: any[]): any {
   }
 
   this.setData("@info/description", [
-    ...(this.data("@info/description") ?? []),
+    ...((this.data("@info/description") as unknown[]) ?? []),
     ...description,
   ]);
 };
@@ -74,12 +74,12 @@ Context.prototype.description = function (...description: any[]): any {
 Context.prototype.field = function (arg0: any, arg1?: any, arg2?: any): any {
   if (typeof arg0 === "string") {
     if (typeof arg1 === "undefined") {
-      const fields = this.data(`@info/fields`);
+      const fields = this.data(`@info/fields`) as FieldMap;
       if (!fields) return undefined;
       return fields[arg0];
     }
 
-    const fields = this.data(`@info/fields`) ?? {};
+    const fields = (this.data(`@info/fields`) as FieldMap) ?? ({} as FieldMap);
     fields[arg0] = arg1;
     this.setData(`@info/fields`, fields);
     return this;
@@ -168,14 +168,16 @@ Context.prototype.useInfo = function (options?: { path?: string }) {
 };
 
 Context.prototype.declaration = function (
+  this: Context,
   context?: Context | Declaration,
   decl?: Declaration
 ) {
-  if (typeof context === "undefined") return this.data("@info/declaration");
+  if (typeof context === "undefined")
+    return this.data("@info/declaration") as Declaration;
 
   if (typeof context === "object" && context instanceof Context) {
     if (typeof decl === "undefined") {
-      return context.data("@info/declaration");
+      return context.data("@info/declaration") as Declaration;
     }
 
     if (typeof decl !== "object") throw new Error("Invalid arguments");
@@ -189,7 +191,7 @@ Context.prototype.declaration = function (
   }
 
   throw new Error("Invalid arguments");
-};
+} as any;
 
 Context.prototype.hasDeclaration = function (context?: Context): boolean {
   if (typeof context === "undefined")

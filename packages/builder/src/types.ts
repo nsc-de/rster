@@ -4,9 +4,14 @@ import {
   PrimitiveType,
   TypeInformation,
 } from "@rster/types";
-import { AllowVoidIfUndefined } from "@rster/common";
+import { AllowVoidIfUndefined } from "@rster/util";
 import { RsterApiMethod } from "./method";
 import { RsterApiModule } from "./module";
+
+export type AnyRsterApiMethod<key extends string = string> = RsterApiMethod<
+  key,
+  any
+>;
 
 export type AnyParameterDeclaration = ParameterDeclaration<
   TypeInformation<unknown>,

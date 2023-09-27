@@ -4,5 +4,6 @@ export * as types from "@rster/types";
 import "@rster/info";
 import "@rster/ping";
 
-import rster from "@rster/basic";
-export default rster;
+import rest from "@rster/basic";
+export { rest };
+export default rest;

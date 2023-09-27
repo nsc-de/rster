@@ -62,7 +62,7 @@ interface FunctionInformation {
 interface ParameterInformation<T> {
   name: string;
   type: TypeInformation<T>;
-  optional: boolean;
+  required: boolean;
   where: string;
 }
 
@@ -223,13 +223,13 @@ function generateUnauthenticatedFunction(
     Object.fromEntries(
       functionInformation.parameters.map((p) => [
         p.name,
-        { type: p.type, required: !p.optional },
+        { type: p.type, required: p.required },
       ])
     )
   ).toTypeScript();
   const parametersIsEmptyOrAllOptional =
     functionInformation.parameters.length === 0 ||
-    functionInformation.parameters.every((p) => p.optional);
+    functionInformation.parameters.every((p) => !p.required);
 
   // Create Promise<ReturnType>
   const returnType = ts.factory.createTypeReferenceNode(
@@ -298,13 +298,13 @@ function generateAuthenticatedFunction(
     Object.fromEntries(
       functionInformation.parameters.map((p) => [
         p.name,
-        { type: p.type, required: !p.optional },
+        { type: p.type, required: p.required },
       ])
     )
   ).toTypeScript();
   const parametersIsEmptyOrAllOptional =
     functionInformation.parameters.length === 0 ||
-    functionInformation.parameters.every((p) => p.optional);
+    functionInformation.parameters.every((p) => !p.required);
 
   // Create Promise<ReturnType>
   const returnType = ts.factory.createTypeReferenceNode(
@@ -562,28 +562,28 @@ export function declarationsToApiInformation(
         name: name,
         parameters: [
           ...Object.entries(declaration.expectParams ?? {}).map(
-            ([name, { type, optional }]) => ({
+            ([name, { type, required }]) => ({
               name: name,
               type: type,
-              optional: optional,
+              required,
               where: "param",
             })
           ),
 
           ...Object.entries(declaration.expectQuery ?? {}).map(
-            ([name, { type, optional }]) => ({
+            ([name, { type, required }]) => ({
               name: name,
               type: type,
-              optional: optional,
+              required,
               where: "query",
             })
           ),
 
           ...Object.entries(declaration.expectBody ?? {}).map(
-            ([name, { type, optional }]) => ({
+            ([name, { type, required }]) => ({
               name: name,
               type: type,
-              optional: optional,
+              required,
               where: "body",
             })
           ),

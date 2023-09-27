@@ -2,11 +2,11 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# Getting Started
 
 Let's rster **rster in less than 5 minutes**.
 
-## Getting Started
+## Let's get started with rster
 
 ### Prerequisites
 
@@ -57,13 +57,21 @@ yarn add @rster/worker-express
 Firstly we want to import the rest function from rster as well as our worker's implementation. (we'll use express in this example)
 
 ```typescript
-import { rest } from "rster";
+import rest from "rster";
 import "@rster/worker-express";
 ```
 
 The worker will extend the prototype of our rest api object. Types are automatically extended as well.
 
-Next we can define the pattern of our api. We will create a simple api that returns a string when we call the `/hello` endpoint.
+We will now add a simple ping endpoint. As ping endpoints are very common, we have a helper function for that.
+
+```typescript
+const api = rest(function () {
+  this.usePing(); // Adds a ping endpoint to our api
+});
+```
+
+Great. This time we want to add a custom endpoint. We will add a simple hello world endpoint.
 
 ```typescript
 const api = rest(function () {

@@ -1,0 +1,4 @@
+{
+  "proxy": null,
+  "address": "http://localhost:3001/api/info"
+}

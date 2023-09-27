@@ -1,5 +1,9 @@
 # Changelog for @rster/basic
 
+## v0.1.5
+
+- Make `@rster/basic` compatible with `@rster/common@0.1.2`
+
 ## v0.1.4
 
 - Introduce shortcuts for actions inside of `Context#describe()`, `Context#any()`, `Context#post()`, `Context#put()`, `Context#patch()`, `Context#delete()`, `Context#options()`, `Context#head()`, `Context#get()`
