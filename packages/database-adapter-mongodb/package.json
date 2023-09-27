@@ -1,5 +1,5 @@
 {
-  "name": "@rster/database",
+  "name": "@rster/database-adapter-mongodb",
   "version": "0.1.0",
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
