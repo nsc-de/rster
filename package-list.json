@@ -5,6 +5,7 @@
     { "name": "builder" },
     { "name": "common" },
     { "name": "database" },
+    { "name": "database-adapter-tests" },
     { "name": "generator" },
     { "name": "info" },
     { "name": "info-client" },
