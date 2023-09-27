@@ -1,17 +1,7 @@
 import {
-  RsterApiBuilderContext,
-  RsterApiMethodBuilderContext,
-  RsterApiModuleBuilderContext,
-  api,
-  method,
-  module,
-} from "@rster/builder";
-import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
-  TypeInformationFor,
-  object,
 } from "@rster/types";
 import { DatabaseAdapter } from "./adapter";
 import {
@@ -19,14 +9,20 @@ import {
   DataProcessingSchema,
   createDataProcessingLayer,
 } from "./data_processing";
-import { AllOptional } from "@rster/common";
+import { $400 } from "@rster/basic";
+import {
+  DatabaseTransformer,
+  DatabaseTransformerMap,
+  GetTransformerInput,
+  GetTransformerOutput,
+} from "./data_transformer";
 
 export type NoNever<TYPE, ALTERNATIVE> = TYPE extends never
   ? ALTERNATIVE
   : TYPE;
 
 /**
- * Define a Database
+ * Schema for defining a {@link Database}
  */
 export interface DatabaseDefinition {
   /**
@@ -46,89 +42,12 @@ export interface DatabaseDefinition {
   >;
 }
 
-export interface DatabaseTransformer<
-  DATA_TYPE extends ObjectTypeInformation<
-    Record<
-      string,
-      {
-        type: AllowAnyTypeInformation;
-        required: boolean;
-      }
-    >
-  >,
-  INPUT_TYPE,
-  OUTPUT_TYPE,
-  DATA extends PrimitiveType<DATA_TYPE> = PrimitiveType<DATA_TYPE>
-> {
-  input?: {
-    transform(data: INPUT_TYPE): Promise<DATA> | DATA;
-    type: TypeInformationFor<INPUT_TYPE>;
-  };
-  output?: {
-    transform(data: DATA): Promise<OUTPUT_TYPE> | OUTPUT_TYPE;
-    type: TypeInformationFor<OUTPUT_TYPE>;
-  };
-}
-
-export type NoTransformer<
-  DATA_TYPE extends ObjectTypeInformation<
-    Record<
-      string,
-      {
-        type: AllowAnyTypeInformation;
-        required: boolean;
-      }
-    >
-  >
-> = DatabaseTransformer<DATA_TYPE, DATA_TYPE, DATA_TYPE>;
-
-export type DatabaseTransformerMap<
-  DATABASE_DEFINITION extends DatabaseDefinition
-> = {
-  [TABLE_NAME in keyof DATABASE_DEFINITION["tables"]]?: DatabaseTransformer<
-    DATABASE_DEFINITION["tables"][TABLE_NAME],
-    any,
-    any
-  >;
-};
-
-export type GetTransformerInput<
-  TRANSFORMER extends DatabaseTransformer<any, any, any> | undefined,
-  ALT = never
-> = TRANSFORMER extends DatabaseTransformer<any, infer DATA_TYPE, any>
-  ? DATA_TYPE
-  : ALT;
-
-export type GetTransformerOutput<
-  TRANSFORMER extends DatabaseTransformer<any, any, any> | undefined,
-  ALT = never
-> = TRANSFORMER extends DatabaseTransformer<any, any, infer OUTPUT_TYPE>
-  ? OUTPUT_TYPE
-  : ALT;
-
 class $Database<
   DEF extends DatabaseDefinition,
   TRANSFORMER extends DatabaseTransformerMap<DEF> = DatabaseTransformerMap<DEF>
 > {
-  constructor(
-    public readonly definition: DEF,
-    public readonly adapter: DatabaseAdapter<AllowAnyTypeInformation>,
-    public transformer: TRANSFORMER = {} as TRANSFORMER
-  ) {}
-
-  public readonly tables = Object.fromEntries(
-    Object.entries(this.definition.tables).map(([name, table]) => {
-      return [
-        name,
-        new TableTool<DEF, string, $Database<DEF>>(
-          table as DEF["tables"][typeof name],
-          name,
-          this
-        ),
-      ];
-    })
-  ) as {
-    [key in keyof DEF["tables"]]: TableTool<
+  public readonly tables: {
+    [key in keyof DEF["tables"] & string]: TableTool<
       DEF,
       key,
       $Database<DEF>,
@@ -136,32 +55,7 @@ class $Database<
     >;
   };
 
-  private getTransformer<TABLE_NAME extends keyof DEF["tables"]>(
-    table: TABLE_NAME
-  ): TRANSFORMER[TABLE_NAME] {
-    return this.transformer[table] as TRANSFORMER[TABLE_NAME];
-  }
-
-  private async transformInput<TABLE_NAME extends keyof DEF["tables"]>(
-    table: TABLE_NAME,
-    data: AllOptional<
-      GetTransformerInput<
-        TRANSFORMER[TABLE_NAME],
-        PrimitiveType<DEF["tables"][TABLE_NAME]>
-      >
-    >
-  ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
-    const fn = await this.getTransformer(table)?.input?.transform;
-    if (fn) return await fn(data);
-    else return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
-  }
-
-  public readonly inputTypes = Object.fromEntries(
-    Object.entries(this.transformer).map(([key, value]) => [
-      key,
-      value?.input?.type ?? this.definition.tables[key],
-    ])
-  ) as {
+  public readonly inputTypes: {
     [key in keyof DEF["tables"]]: {
       [key2 in keyof DEF["tables"][key]]: GetTransformerInput<
         TRANSFORMER[key],
@@ -170,12 +64,7 @@ class $Database<
     };
   };
 
-  public readonly outputTypes = Object.fromEntries(
-    Object.entries(this.transformer).map(([key, value]) => [
-      key,
-      value?.output?.type ?? this.definition.tables[key],
-    ])
-  ) as {
+  public readonly outputTypes: {
     [key in keyof DEF["tables"]]: {
       [key2 in keyof DEF["tables"][key]]: GetTransformerOutput<
         TRANSFORMER[key],
@@ -183,6 +72,139 @@ class $Database<
       >[key2];
     };
   };
+
+  constructor(
+    public readonly definition: DEF,
+    public readonly adapter: DatabaseAdapter<AllowAnyTypeInformation>,
+    public transformer: TRANSFORMER = {} as TRANSFORMER
+  ) {
+    this.tables = Object.fromEntries(
+      Object.entries(this.definition.tables).map(([name, table]) => {
+        return [
+          name,
+          new TableTool<DEF, string, $Database<DEF>>(
+            table as DEF["tables"][typeof name],
+            name,
+            this
+          ),
+        ];
+      })
+    ) as {
+      [key in keyof DEF["tables"] & string]: TableTool<
+        DEF,
+        key,
+        $Database<DEF>,
+        DEF["tables"][key]
+      >;
+    };
+
+    this.inputTypes = Object.fromEntries(
+      Object.entries(this.transformer).map(([key, value]) => [
+        key,
+        value?.input?.type ?? this.definition.tables[key],
+      ])
+    ) as {
+      [key in keyof DEF["tables"]]: {
+        [key2 in keyof DEF["tables"][key]]: GetTransformerInput<
+          TRANSFORMER[key],
+          PrimitiveType<DEF["tables"][key]>
+        >[key2];
+      };
+    };
+
+    this.outputTypes = Object.fromEntries(
+      Object.entries(this.transformer).map(([key, value]) => [
+        key,
+        value?.output?.type ?? this.definition.tables[key],
+      ])
+    ) as {
+      [key in keyof DEF["tables"]]: {
+        [key2 in keyof DEF["tables"][key]]: GetTransformerOutput<
+          TRANSFORMER[key],
+          PrimitiveType<DEF["tables"][key]>
+        >[key2];
+      };
+    };
+  }
+
+  private getTransformer<TABLE_NAME extends keyof DEF["tables"]>(
+    table: TABLE_NAME
+  ): TRANSFORMER[TABLE_NAME] {
+    return this.transformer[table] as TRANSFORMER[TABLE_NAME];
+  }
+
+  private async transformInput<TABLE_NAME extends keyof DEF["tables"] & string>(
+    table: TABLE_NAME,
+    data: Partial<
+      GetTransformerInput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >
+    >
+  ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
+    const fn = await this.getTransformer(table)?.input?.transform;
+    if (fn) {
+      // Check the input data
+      const inputType = this.inputTypes[table];
+      if (!inputType.check(data)) throw $400("Invalid input data");
+      const processed = await fn(data);
+      // Check the output data
+      const outputType = this.definition.tables[table as string];
+      if (!outputType) throw new Error(`Table '${table}' does not exist.`);
+      if (!outputType.check(processed))
+        throw new Error(
+          "Invalid data returned from transformer. This is propably a bug in the transformer."
+        );
+
+      return processed as PrimitiveType<DEF["tables"][TABLE_NAME]>; // TODO: Check if this cast is correct
+    }
+    // Check the input data
+    const inputType = this.definition.tables[table as string];
+    if (!inputType) throw new Error(`Table '${table}' does not exist.`);
+    if (!inputType.check(data)) throw $400("Invalid input data");
+    return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
+  }
+
+  private async transformInputOptional<
+    TABLE_NAME extends keyof DEF["tables"] & string
+  >(
+    table: TABLE_NAME,
+    data: Partial<
+      GetTransformerInput<
+        TRANSFORMER[TABLE_NAME],
+        PrimitiveType<DEF["tables"][TABLE_NAME]>
+      >
+    >
+  ): Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>> {
+    const fn = await this.getTransformer(table)?.input?.transform;
+    if (fn) {
+      // Check the input data
+      const inputType = this.inputTypes[table];
+      if (!inputType.allOptional().check(data))
+        throw $400("Invalid input data");
+      const processed = await fn(data);
+      // Check the output data
+      const outputType = this.definition.tables[table as string];
+      if (!outputType) throw new Error(`Table '${table}' does not exist.`);
+      if (!outputType.allOptional().check(processed))
+        throw new Error(
+          "Invalid data returned from transformer. This is propably a bug in the transformer."
+        );
+
+      for (const key of Object.keys(processed)) {
+        if (processed[key as keyof typeof processed] === undefined) {
+          delete processed[key as keyof typeof processed];
+        }
+      }
+
+      return processed as PrimitiveType<DEF["tables"][TABLE_NAME]>; // TODO: Check if this cast is correct
+    }
+    // Check the input data
+    const inputType = this.definition.tables[table as string];
+    if (!inputType) throw new Error(`Table '${table}' does not exist.`);
+    if (!inputType.allOptional().check(data)) throw $400("Invalid input data");
+    return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
+  }
 
   private async transformOutput<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
@@ -195,7 +217,7 @@ class $Database<
   > {
     const fn = await this.getTransformer(table)?.output?.transform;
     if (fn)
-      return (await fn(data)) as GetTransformerOutput<
+      return (await fn(data as any)) as GetTransformerOutput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
       >;
@@ -206,7 +228,7 @@ class $Database<
       >;
   }
 
-  public async insert<TABLE_NAME extends keyof DEF["tables"]>(
+  public async insert<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
     data: GetTransformerInput<
       TRANSFORMER[TABLE_NAME],
@@ -214,6 +236,8 @@ class $Database<
     >,
     options?: Record<string, never>
   ): Promise<void> {
+    // Check the input data
+
     await this.adapter.insert(
       table as string,
       await this.transformInput(table, data),
@@ -221,9 +245,9 @@ class $Database<
     );
   }
 
-  public async get<TABLE_NAME extends keyof DEF["tables"]>(
+  public async get<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -233,15 +257,15 @@ class $Database<
   ) {
     const result = (await this.adapter.get(
       table as string,
-      await this.transformInput(table, data),
+      await this.transformInputOptional(table, data),
       options
-    )) as unknown as Promise<PrimitiveType<DEF["tables"][TABLE_NAME]>>;
-    return await this.transformOutput(table, result);
+    )) as PrimitiveType<DEF["tables"][TABLE_NAME]>[];
+    return await Promise.all(result.map((r) => this.transformOutput(table, r)));
   }
 
-  public async update<TABLE_NAME extends keyof DEF["tables"]>(
+  public async update<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
-    search: AllOptional<
+    search: Partial<
       GetTransformerInput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -253,17 +277,20 @@ class $Database<
     >,
     options?: { limit?: number }
   ): Promise<number> {
+    const transformedSearch = await this.transformInputOptional(table, search); // We allow partial search
+    const transformedData = await this.transformInputOptional(table, data); // We allow partial data
+
     return await this.adapter.update(
-      table as string,
-      await this.transformInput(table, search),
-      await this.transformInput(table, data),
+      table,
+      transformedSearch,
+      transformedData,
       options
     );
   }
 
-  public async delete<TABLE_NAME extends keyof DEF["tables"]>(
+  public async delete<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -273,14 +300,14 @@ class $Database<
   ): Promise<number> {
     return await this.adapter.delete(
       table as string,
-      await this.transformInput(table, data),
+      await this.transformInputOptional(table, data),
       options
     );
   }
 
-  public async count<TABLE_NAME extends keyof DEF["tables"]>(
+  public async count<TABLE_NAME extends keyof DEF["tables"] & string>(
     table: TABLE_NAME,
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<
         TRANSFORMER[TABLE_NAME],
         PrimitiveType<DEF["tables"][TABLE_NAME]>
@@ -290,21 +317,25 @@ class $Database<
   ): Promise<number> {
     return await this.adapter.count(
       table as string,
-      await this.transformInput(table, data),
+      await this.transformInputOptional(table, data),
       options
     );
   }
 
   public async create<TABLE_NAME extends keyof DEF["tables"]>(
     table: TABLE_NAME,
-    definition: {
-      [key in keyof DEF["tables"][TABLE_NAME]]: DEF["tables"][TABLE_NAME][key];
-    },
     options?: {
       ifNotExists?: boolean;
+    },
+    definition?: {
+      [key in keyof DEF["tables"][TABLE_NAME]]: DEF["tables"][TABLE_NAME][key];
     }
   ): Promise<void> {
-    return this.adapter.create(table as string, definition as any, options);
+    return this.adapter.create(
+      table as string,
+      definition ?? (this.definition.tables[table as string] as any),
+      options
+    );
   }
 
   public async drop<TABLE_NAME extends keyof DEF["tables"]>(
@@ -330,89 +361,6 @@ class $Database<
     return this.adapter.disconnect();
   }
 
-  public createRestApi<INCLUDE extends RsterDatabaseToApiInclude<DEF>>({
-    name,
-    description,
-    include,
-  }: {
-    name: string;
-    description: string[];
-    include: INCLUDE;
-  }): RsterDatabaseToApiBuilder<this, INCLUDE> {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const db = this;
-    return api({
-      name,
-      description,
-      modules: Object.entries(include).map(([table, include]) => {
-        const tableInputTypes = db.inputTypes[table as keyof DEF["tables"]];
-        const tableOutputTypes = db.outputTypes[table as keyof DEF["tables"]];
-
-        const inputTypes = Object.entries(include as Record<string, boolean>)
-          .map(([key, value]) => {
-            return [
-              key,
-              value
-                ? tableInputTypes[key as keyof typeof tableInputTypes]
-                : undefined,
-            ];
-          })
-          .map(([key, value]) => [key, value])
-          .filter(([_key, value]) => value !== undefined) as [
-          string,
-          (typeof tableInputTypes)[keyof typeof tableInputTypes]
-        ][];
-
-        const outputTypes = Object.entries(include)
-          .map(([key, value]) => [
-            key,
-            value
-              ? tableOutputTypes[key as keyof typeof tableOutputTypes]
-              : undefined,
-          ])
-          .filter(([_key, value]) => value !== undefined) as [
-          string,
-          (typeof tableOutputTypes)[keyof typeof tableOutputTypes]
-        ][];
-
-        return module({
-          name: table,
-          description: [],
-          httpPath: `/${table}`,
-          methods: [
-            method({
-              name: "get",
-              declaration: {
-                returns: object(
-                  Object.fromEntries(
-                    outputTypes.map(([key, value]) => [
-                      key,
-                      { type: value, required: true },
-                    ])
-                  )
-                ),
-                expectBody: {
-                  query: object(
-                    Object.fromEntries(
-                      inputTypes.map(([key, value]) => [
-                        key,
-                        { type: value, required: false },
-                      ])
-                    )
-                  ),
-                },
-              },
-              httpPath: "/get",
-              action: async ({ query }) => {
-                return await db.get(table, query);
-              },
-            }) as any,
-          ],
-        });
-      }),
-    });
-  }
-
   public layer<INPUT_SCHEMA extends DataProcessingSchema<typeof this>>(
     inputSchema: INPUT_SCHEMA
   ) {
@@ -422,7 +370,7 @@ class $Database<
 
 export class TableTool<
   DATABASE_DEFINITION extends DatabaseDefinition,
-  TABLE_NAME extends keyof DATABASE_DEFINITION["tables"],
+  TABLE_NAME extends keyof DATABASE_DEFINITION["tables"] & string,
   DATABASE extends $Database<DATABASE_DEFINITION>,
   TABLE_DEFINITION extends DATABASE_DEFINITION["tables"][TABLE_NAME] = DATABASE_DEFINITION["tables"][TABLE_NAME],
   TRANSFORMER extends
@@ -447,7 +395,7 @@ export class TableTool<
   }
 
   public async get(
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
     >,
     options?: Record<string, never>
@@ -456,7 +404,7 @@ export class TableTool<
   }
 
   public async update(
-    search: AllOptional<
+    search: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
     >,
     data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
@@ -466,7 +414,7 @@ export class TableTool<
   }
 
   public async delete(
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
     >,
     options?: { limit?: number }
@@ -475,7 +423,7 @@ export class TableTool<
   }
 
   public async count(
-    data: AllOptional<
+    data: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
     >,
     options?: { limit?: number }
@@ -484,7 +432,7 @@ export class TableTool<
   }
 
   public async create(options?: { ifNotExists?: boolean }): Promise<void> {
-    return this.database.create(this.name, this.definition as any, options);
+    return this.database.create(this.name, options, this.definition as any);
   }
 
   public async drop(options?: { ifExists?: boolean }): Promise<void> {
@@ -500,7 +448,7 @@ export type Database<
   DEF extends DatabaseDefinition,
   TRANSFORMER extends DatabaseTransformerMap<DEF> = DatabaseTransformerMap<DEF>
 > = {
-  [key in keyof DEF["tables"]]: TableTool<
+  [key in keyof DEF["tables"] & string]: TableTool<
     DEF,
     key,
     Database<DEF>,
@@ -512,7 +460,7 @@ export type Database<
       inputSchema: INPUT_SCHEMA
     ): DataProcessingLayer<INPUT_SCHEMA, Database<DEF>>;
     tables: {
-      [key in keyof DEF["tables"]]: TableTool<
+      [key in keyof DEF["tables"] & string]: TableTool<
         DEF,
         key,
         Database<DEF>,
@@ -544,44 +492,3 @@ export type RsterDatabaseToApiInclude<DEF extends DatabaseDefinition> = {
     [key2 in keyof DEF["tables"][key]["properties"]]?: boolean;
   };
 };
-
-export type RsterDatabaseToApiBuilder<
-  DB extends $Database<any>,
-  INCLUDE extends RsterDatabaseToApiInclude<DB["definition"]>
-> = RsterApiBuilderContext<
-  {
-    [key in keyof INCLUDE]: RsterApiModuleBuilderContext<
-      Record<string, never>,
-      {
-        get: RsterApiMethodBuilderContext<{
-          returns: {
-            [key2 in keyof INCLUDE[key]]: INCLUDE[key][key2] extends true
-              ? key extends keyof DB["definition"]["tables"] // This is a hack to make sure that the key is a valid table name. It should always be true.
-                ? key2 extends keyof DB["definition"]["tables"][key]["properties"] // This is a hack to make sure that the key2 is a valid property name. It should always be true.
-                  ? {
-                      type: DB["definition"]["tables"][key]["properties"][key2];
-                      required: true;
-                    }
-                  : never
-                : never
-              : never;
-          };
-
-          expectBody: {
-            [key2 in keyof INCLUDE[key]]: INCLUDE[key][key2] extends true
-              ? key extends keyof DB["definition"]["tables"] // This is a hack to make sure that the key is a valid table name. It should always be true.
-                ? key2 extends keyof DB["definition"]["tables"][key]["properties"] // This is a hack to make sure that the key2 is a valid property name. It should always be true.
-                  ? {
-                      type: DB["definition"]["tables"][key]["properties"][key2];
-                      required: false;
-                    }
-                  : never
-                : never
-              : never;
-          };
-        }>;
-      }
-    >;
-  },
-  Record<string, never>
->;

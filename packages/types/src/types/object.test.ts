@@ -105,6 +105,38 @@ describe("ObjectTypeInformation", () => {
       },
     });
   });
+
+  it("allOptional", () => {
+    const typeInfo = new ObjectTypeInformation({
+      name: { required: true, type: new StringTypeInformation("John") },
+      age: { required: false, type: new NumberTypeInformation(30) },
+    });
+    const allOptional = typeInfo.allOptional();
+    expect(allOptional.properties).toEqual({
+      name: { required: false, type: new StringTypeInformation("John") },
+      age: { required: false, type: new NumberTypeInformation(30) },
+    });
+  });
+
+  it("allRequired", () => {
+    const typeInfo = new ObjectTypeInformation({
+      name: { required: false, type: new StringTypeInformation("John") },
+      age: { required: false, type: new NumberTypeInformation(30) },
+    });
+    const allRequired = typeInfo.allRequired();
+    expect(allRequired.properties).toEqual({
+      name: { required: true, type: new StringTypeInformation("John") },
+      age: { required: true, type: new NumberTypeInformation(30) },
+    });
+  });
+
+  it("keys", () => {
+    const typeInfo = new ObjectTypeInformation({
+      name: { required: false, type: new StringTypeInformation("John") },
+      age: { required: false, type: new NumberTypeInformation(30) },
+    });
+    expect(typeInfo.keys()).toEqual(["name", "age"]);
+  });
 });
 
 describe("object()", () => {

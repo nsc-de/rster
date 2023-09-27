@@ -1,6 +1,6 @@
 /**
- * @file JSON Adapter
- * @module rster/database/adapters/obhect
+ * @file Object Adapter
+ * @module rster/database/adapters/object
  * @version 0.1.0
  *
  * A very primitive database adapter that just stores the database as jsobject in memory.
@@ -44,13 +44,15 @@ export const JsObject = createDatabaseAdapter<
     return Promise.resolve();
   },
 
-  get(table, search) {
+  get(table, search, { limit } = {}) {
     if (!this.__data[table]) {
       throw new Error("Table does not exist");
     }
 
     const results: any[] = [];
     for (const row of this.__data[table]) {
+      // Break if we've reached the limit
+      if (limit && limit > -1 && results.length >= limit) break;
       let match = true;
       for (const key in search) {
         if (search[key] !== row[key]) {
@@ -93,7 +95,7 @@ export const JsObject = createDatabaseAdapter<
         }
       }
       if (match) {
-        for (const key in this.__data) {
+        for (const key in obj) {
           row[key] = obj[key];
         }
         count++;
@@ -122,7 +124,7 @@ export const JsObject = createDatabaseAdapter<
         }
       }
       if (match) {
-        this.__data[table].splice(i, 1);
+        this.__data[table].splice(i--, 1);
         count++;
       }
     }

@@ -148,6 +148,48 @@ export class ObjectTypeInformation<
       ),
     };
   }
+
+  /**
+   * Create a type information for this object with all properties optional
+   * @returns A type information for this object with all properties optional
+   */
+  allOptional() {
+    return new ObjectTypeInformation(
+      Object.fromEntries(
+        Object.entries(this.properties).map(([key, value]) => [
+          key,
+          { required: false, type: value.type },
+        ])
+      ) as {
+        [key in keyof T]: { required: false; type: T[key]["type"] };
+      }
+    );
+  }
+
+  /**
+   * Create a type information for this object with all properties required
+   * @returns A type information for this object with all properties required
+   */
+  allRequired() {
+    return new ObjectTypeInformation(
+      Object.fromEntries(
+        Object.entries(this.properties).map(([key, value]) => [
+          key,
+          { required: true, type: value.type },
+        ])
+      ) as {
+        [key in keyof T]: { required: true; type: T[key]["type"] };
+      }
+    );
+  }
+
+  /**
+   * Get keys of this object
+   * @returns Keys of this object
+   */
+  keys(): (keyof T)[] {
+    return Object.keys(this.properties) as (keyof T)[];
+  }
 }
 
 /**

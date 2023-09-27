@@ -1,89 +1,214 @@
-import * as database from "./database";
-import { JSONAdapter } from "./adapters/json";
-import { number, object, string } from "@rster/types";
-import crypto from "crypto";
-import { PassThrough, createDataProcessingLayer } from "./data_processing";
+import {
+  DataProcessingLayer,
+  PassThrough,
+  createDataProcessingLayer,
+} from "./data_processing";
 
-const db = database.createDatabase(
-  {
-    tables: {
-      users: object({
-        id: { type: number(), required: true },
-        name: { type: string(), required: true },
-        password: { type: string(), required: true },
-      }),
-    },
-  },
-  JSONAdapter("./test.json"),
-  {
-    users: {
-      input: {
-        transform(data: {
-          id: number;
-          name: string;
-          password: string;
-          salt?: string;
-        }) {
-          const salt = data.salt ?? crypto.randomBytes(16).toString("hex");
+describe("DataProcessingLayer", () => {
+  it("should create a DataProcessingLayer", () => {
+    const layer = new DataProcessingLayer(null, {});
+    expect(layer).toBeDefined();
+  });
+  it("should create a DataProcessingLayer with a next layer", () => {
+    const layer = new DataProcessingLayer({}, {});
+    expect(layer).toBeDefined();
+  });
 
-          return {
-            id: data.id,
-            name: data.name,
-            password:
-              btoa(salt) +
-              ":" +
-              crypto
-                .createHash("sha512", {})
-                .update(data.password)
-                .update(salt)
-                .digest("hex"),
-          };
+  it("should work with function schemas", () => {
+    const layer = new DataProcessingLayer(
+      {},
+      {
+        a: () => {
+          return 1;
         },
-        type: object({
-          id: { type: number(), required: true },
-          name: { type: string(), required: true },
-          password: { type: string(), required: true },
-          salt: { type: string(), required: false },
-        }),
-      },
+      }
+    );
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+  });
 
-      output: {
-        transform(data: { id: number; name: string; password: string }) {
-          const [salt, hash] = data.password.split(":");
-
-          return {
-            id: data.id,
-            name: data.name,
-            password: hash,
-            salt: atob(salt),
-          };
+  it("test PassThrough to copy next layer", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
         },
-        type: object({
-          id: { type: number(), required: true },
-          name: { type: string(), required: true },
-          password: { type: string(), required: true },
-          salt: { type: string(), required: true },
-        }),
       },
-    },
-  }
-);
+      PassThrough
+    );
 
-const exitLayer = createDataProcessingLayer(db, {
-  users: {
-    get(search: { id: number }) {
-      return db.users.get(search);
-    },
-  },
-}).layer({
-  users: {
-    get: PassThrough,
-    // a: PassThrough,
-  },
-}).functions.users.get;
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+  });
 
-describe("[]", () => {
-  it("[]", () => {
-    expect(exitLayer).toBeDefined();
+  it("test PassThrough to copy next layer without a next layer", () => {
+    expect(() => new DataProcessingLayer(null, PassThrough)).toThrowError(
+      "Invalid schema, cannot passthrough in path  as there is no next layer"
+    );
+
+    expect(() => new DataProcessingLayer(undefined, PassThrough)).toThrowError(
+      "Invalid schema, cannot passthrough in path  as there is no next layer"
+    );
+  });
+
+  it("should work with object schemas", () => {
+    const layer = new DataProcessingLayer(
+      {},
+      {
+        a: {
+          b: () => {
+            return 1;
+          },
+        },
+      }
+    );
+    expect(layer.functions.a.b).toBeInstanceOf(Function);
+    expect(layer.functions.a.b()).toBe(1);
+  });
+
+  it("should throw an error if the schema is invalid", () => {
+    expect(() => new DataProcessingLayer(null, { a: 1 })).toThrowError(
+      "Invalid schema, key a is not a function or object"
+    );
+  });
+
+  it("should passthrough a function if passthrough is given", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      { a: PassThrough }
+    );
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+  });
+
+  it("should passthrough an object if passthrough is given", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: {
+          b: () => {
+            return 1;
+          },
+        },
+      },
+      { a: { b: PassThrough } }
+    );
+    expect(layer.functions.a.b).toBeInstanceOf(Function);
+    expect(layer.functions.a.b()).toBe(1);
+  });
+
+  it("should throw an error if passthrough is given but the function is not available in next layer", () => {
+    expect(
+      () =>
+        new DataProcessingLayer(
+          {},
+          {
+            a: PassThrough,
+          }
+        )
+    ).toThrowError(
+      "Invalid schema, cannot passthrough key a as it does not exist in next layer"
+    );
+  });
+
+  it("test #layer() to put another layer on top of the current one", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      { a: PassThrough }
+    );
+    const layer2 = layer.layer({ b: () => 2, a: PassThrough });
+    expect(layer2.functions.a).toBeInstanceOf(Function);
+    expect(layer2.functions.b).toBeInstanceOf(Function);
+    expect(layer2.functions.a()).toBe(1);
+    expect(layer2.functions.b()).toBe(2);
+  });
+
+  it("test this.nextLayer to get the next layer", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      {
+        a: PassThrough,
+        b: function () {
+          return this.nextLayer.a();
+        },
+      }
+    );
+    expect(layer.nextLayer).toBeDefined();
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+    expect(layer.functions.b).toBeInstanceOf(Function);
+    expect(layer.functions.b()).toBe(1);
+  });
+
+  it("test arguments", () => {
+    const layer = new DataProcessingLayer(
+      {},
+      {
+        add: function (a: number, b: number) {
+          return a + b;
+        },
+      }
+    );
+    expect(layer.functions.add).toBeInstanceOf(Function);
+    expect(layer.functions.add(1, 2)).toBe(3);
+  });
+
+  it("Test .layer(Passthrough) for a copy of the layer", () => {
+    const layer = new DataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      { a: PassThrough }
+    );
+    const layer2 = layer.layer(PassThrough);
+    expect(layer2.functions.a).toBeInstanceOf(Function);
+    expect(layer2.functions.a()).toBe(1);
+  });
+});
+
+describe("createDataProcessingLayer", () => {
+  it("should create a DataProcessingLayer", () => {
+    const layer = createDataProcessingLayer({
+      a: () => {
+        return 1;
+      },
+    });
+    expect(layer).toBeDefined();
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+  });
+
+  it("should create a DataProcessingLayer with a next layer", () => {
+    const layer = createDataProcessingLayer(
+      {
+        a: () => {
+          return 1;
+        },
+      },
+      {
+        b: () => {
+          return 2;
+        },
+        a: PassThrough,
+      }
+    );
+    expect(layer).toBeDefined();
+    expect(layer.functions.a).toBeInstanceOf(Function);
+    expect(layer.functions.a()).toBe(1);
+    expect(layer.functions.b).toBeInstanceOf(Function);
+    expect(layer.functions.b()).toBe(2);
   });
 });

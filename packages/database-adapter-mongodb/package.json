@@ -1,16 +1,15 @@
 {
-  "name": "@rster/types",
-  "version": "0.1.4",
+  "name": "@rster/database",
+  "version": "0.1.0",
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "Nicolas Schmidt",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "debug": "^4.3.4"
-  },
-  "devDependencies": {
-    "@types/debug": "^4.1.8"
+    "@rster/types": "^0.1.4",
+    "debug": "^4.3.4",
+    "mongodb": "^6.1.0"
   },
   "scripts": {
     "test": "jest --config=jest.config.js",
@@ -19,10 +18,13 @@
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "upgrade": "echo \"no rster packages to upgrade in types\""
+    "upgrade": "npm install @rster/basic@latest @rster/builder@latest @rster/common@latest @rster/info@latest @rster/types@latest --save"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/nsc-de/rster"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.9"
   }
 }

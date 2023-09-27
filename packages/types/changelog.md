@@ -1,5 +1,9 @@
 # Changelog for @rster/types
 
+## v0.1.4
+
+- Create ObjectTypeInformation#allOptional() and ObjectTypeInformation#allRequired() and ObjectTypeInformation#keys()
+
 ## v0.1.3
 
 - Fix package index
