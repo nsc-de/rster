@@ -31,11 +31,11 @@ jobs:
           VERSION=${TAG#*/v}
 
           if [[ $VERSION == *"alpha" ]]; then
-            RELEASE_TAG="-alpha"
+            RELEASE_TAG="alpha"
           elif [[ $VERSION == *"beta" ]]; then
-            RELEASE_TAG="-beta"
+            RELEASE_TAG="beta"
           elif [[ $VERSION == *"next" ]]; then
-            RELEASE_TAG="-next"
+            RELEASE_TAG="next"
           else
             RELEASE_TAG="release"
           fi
