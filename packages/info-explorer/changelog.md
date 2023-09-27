@@ -1,5 +1,9 @@
 # Changelog for @rster/info-explorer
 
+## v0.1.2
+
+- Fix dependencies
+
 ## v0.1.1
 
 - Fix dependencies
