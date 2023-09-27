@@ -7,6 +7,16 @@
 // Type structure is no "essential" part, it is qol, but it is what makes rster fun to use.
 
 import { DeepMapOptional, RemoveThisParam } from "@rster/util";
+import {
+  api as buildApi,
+  module as buildModule,
+  method as buildMethod,
+  RsterApiModule,
+  RsterApiMethod,
+  ParameterDeclaration,
+  AnyParameterDeclaration,
+} from "@rster/builder";
+import { TypeInformation } from "@rster/types";
 
 type TYPE_ERROR_0 =
   "TYPE ERROR 0: The next layer does not contain the key you are trying to passthrough.";
@@ -297,6 +307,110 @@ export class DataProcessingLayer<
   ): DataProcessingLayer<INPUT_SCHEMA, typeof this.functions> {
     return new DataProcessingLayer(this.functions, inputSchema);
   }
+
+  /**
+   * Create `@rster/builder` api from the data processing layer.
+   */
+  public build(
+    declaration: DeclarationForDataProcessingModule<typeof this.functions>
+  ) {
+    function convertToMethod(
+      name: string,
+      method: DataProcessingFunction<undefined>,
+      declaration: AnyParameterDeclaration
+    ) {
+      return buildMethod(
+        name,
+        [`Data processing method for ${name}`],
+        declaration,
+        `/${name}`,
+        undefined,
+        method
+      );
+    }
+
+    function convertToModule(
+      name: string,
+      module: DataProcessingBaseSchema<undefined>,
+      declaration: DeclarationForDataProcessingModule<unknown>
+    ) {
+      const modules: { [key: string]: RsterApiModule<typeof key, any, any> } =
+        {};
+
+      const methods: { [key: string]: RsterApiMethod<any, any> } = {};
+
+      for (const [key, value] of Object.entries(module)) {
+        if (typeof value === "function") {
+          methods[key] = convertToMethod(
+            key,
+            value,
+            declaration[key as keyof typeof declaration]
+          );
+          continue;
+        }
+        if (typeof value === "object") {
+          modules[key] = convertToModule(
+            key,
+            value,
+            declaration[key as keyof typeof declaration]
+          );
+          continue;
+        }
+        throw new Error(
+          `Invalid schema, key ${key} is not a function or object in path ${name}`
+        );
+      }
+
+      return buildModule(
+        name,
+        [`Data processing module for ${name}`],
+        modules,
+        methods
+      );
+    }
+
+    function convertToApi(
+      name: string,
+      module: DataProcessingBaseSchema<undefined>,
+      declaration: DeclarationForDataProcessingModule<unknown>
+    ) {
+      const modules: { [key: string]: RsterApiModule<typeof key, any, any> } =
+        {};
+
+      const methods: { [key: string]: RsterApiMethod<any, any> } = {};
+
+      for (const [key, value] of Object.entries(module)) {
+        if (typeof value === "function") {
+          methods[key] = convertToMethod(
+            key,
+            value,
+            declaration[key as keyof typeof declaration]
+          );
+          continue;
+        }
+        if (typeof value === "object") {
+          modules[key] = convertToModule(
+            key,
+            value,
+            declaration[key as keyof typeof declaration]
+          );
+          continue;
+        }
+        throw new Error(
+          `Invalid schema, key ${key} is not a function or object in path ${name}`
+        );
+      }
+
+      return buildApi(
+        name,
+        [`Data processing module for ${name}`],
+        modules,
+        methods
+      );
+    }
+
+    return convertToApi("API", this.functions!, declaration);
+  }
 }
 
 /**
@@ -331,3 +445,45 @@ export function createDataProcessingLayer(
   }
   return new DataProcessingLayer(nextLayer, inputSchema);
 }
+
+export type RemoveUndefinedProperties<T> = {
+  [K in keyof T as T[K] extends undefined ? never : K]: T[K];
+};
+
+export type DeclarationForDataProcessingFunction<
+  FUNCTION extends DataProcessingFunction<unknown>
+> = FUNCTION extends (
+  this: DataProcessingThis<unknown>,
+  ...args: infer ARGS
+) => infer RETURN
+  ? ARGS["length"] extends 1
+    ? ParameterDeclaration<
+        TypeInformation<RETURN>,
+        {
+          [key in keyof ARGS[0]]:
+            | { type: TypeInformation<ARGS[0][key]>; required: true }
+            | { type: TypeInformation<ARGS[0][key]>; required: false };
+        },
+        {
+          [key in keyof ARGS[0]]:
+            | { type: TypeInformation<ARGS[0][key]>; required: true }
+            | { type: TypeInformation<ARGS[0][key]>; required: false };
+        },
+        {
+          [key in keyof ARGS[0]]:
+            | { type: TypeInformation<ARGS[0][key]>; required: true }
+            | { type: TypeInformation<ARGS[0][key]>; required: false };
+        }
+      >
+    : "TYPE ERROR 1: The function has more than one argument."
+  : never;
+
+export type DeclarationForDataProcessingModule<
+  MODULE extends DataProcessingBaseSchema<unknown> | undefined | unknown
+> = {
+  [key in keyof MODULE]: MODULE[key] extends DataProcessingFunction<unknown>
+    ? DeclarationForDataProcessingFunction<MODULE[key]>
+    : MODULE[key] extends DataProcessingBaseSchema<unknown>
+    ? DeclarationForDataProcessingModule<MODULE[key]>
+    : never;
+};
