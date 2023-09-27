@@ -1,5 +1,5 @@
 {
-  "name": "@rster/database",
+  "name": "@rster/database-adapter-tests",
   "version": "0.1.0",
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
@@ -10,7 +10,6 @@
     "@rster/database": "^0.1.0",
     "@rster/types": "^0.1.4",
     "debug": "^4.3.4",
-    "jest": "^29.7.0",
     "mongodb": "^6.1.0"
   },
   "scripts": {

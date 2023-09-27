@@ -19,7 +19,10 @@ import {
   BooleanType,
   DateTypeInformation,
 } from "@rster/types";
-import { DatabaseAdapter, createDatabaseAdapter } from "../adapter";
+import {
+  DatabaseAdapter,
+  createDatabaseAdapter,
+} from "../../database-adapter-tests/src/adapter";
 import { MongoClient, MongoClientOptions } from "mongodb";
 import debug from "debug";
 
