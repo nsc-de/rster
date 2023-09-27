@@ -6,7 +6,7 @@
 // Type errors in tests will cause the build to fail. You HAVE TO CHECK MANUALLY
 // Type structure is no "essential" part, it is qol, but it is what makes rster fun to use.
 
-import { DeepMapOptional, RemoveThisParam } from "@rster/common";
+import { DeepMapOptional, RemoveThisParam } from "@rster/util";
 
 type TYPE_ERROR_0 =
   "TYPE ERROR 0: The next layer does not contain the key you are trying to passthrough.";
