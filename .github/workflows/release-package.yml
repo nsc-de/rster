@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - "release/*/v*"
+      - "release/*/v*-release"
+      - "release/*/v*-beta"
+      - "release/*/v*-alpha"
+      - "release/*/v*-next"
 
 jobs:
   extract_info:
@@ -13,6 +17,7 @@ jobs:
     outputs:
       release_type: ${{ steps.extract_info.outputs.release_type }}
       version: ${{ steps.extract_info.outputs.version }}
+      release_tag: ${{ steps.extract_info.outputs.release_tag }}
 
     steps:
       - name: Checkout Code
@@ -24,8 +29,20 @@ jobs:
           TAG=${GITHUB_REF#refs/tags/release/}
           RELEASE_TYPE=${TAG%%/v*}
           VERSION=${TAG#*/v}
+
+          if [[ $VERSION == *"alpha" ]]; then
+            RELEASE_TAG="-alpha"
+          elif [[ $VERSION == *"beta" ]]; then
+            RELEASE_TAG="-beta"
+          elif [[ $VERSION == *"next" ]]; then
+            RELEASE_TAG="-next"
+          else
+            RELEASE_TAG="release"
+          fi
+
           echo "release_type=${RELEASE_TYPE}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "release_tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Dump Release Info
         run: |
@@ -72,7 +89,7 @@ jobs:
         run: npm ci
 
       - name: Publish ☁️
-        run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:publish:npm
+        run: npm run gulp packages:${{needs.extract_info.outputs.release_type}}:publish:npm:${{needs.extract_info.outputs.release_tag}}
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 

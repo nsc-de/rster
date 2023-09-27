@@ -98,9 +98,93 @@ packages.forEach((pkg) => {
   );
 
   gulp.task(
+    `packages:${pkg.name}:publish:gpr:release`,
+    gulp.series(`packages:${pkg.name}:pack`, () =>
+      run(
+        `npm publish --access=public --registry https://npm.pkg.github.com/`,
+        {
+          cwd: `./packages/${pkg.name}`,
+        }
+      ).exec()
+    )
+  );
+
+  gulp.task(
+    `packages:${pkg.name}:publish:gpr:next`,
+    gulp.series(`packages:${pkg.name}:pack`, () =>
+      run(
+        `npm publish --access=public --tag next --registry https://npm.pkg.github.com/`,
+        {
+          cwd: `./packages/${pkg.name}`,
+        }
+      ).exec()
+    )
+  );
+
+  gulp.task(
+    `packages:${pkg.name}:publish:gpr:beta`,
+    gulp.series(`packages:${pkg.name}:pack`, () =>
+      run(
+        `npm publish --access=public --tag beta --registry https://npm.pkg.github.com/`,
+        {
+          cwd: `./packages/${pkg.name}`,
+        }
+      ).exec()
+    )
+  );
+
+  gulp.task(
+    `packages:${pkg.name}:publish:gpr:alpha`,
+    gulp.series(`packages:${pkg.name}:pack`, () =>
+      run(
+        `npm publish --access=public --tag alpha --registry https://npm.pkg.github.com/`,
+        {
+          cwd: `./packages/${pkg.name}`,
+        }
+      ).exec()
+    )
+  );
+
+  gulp.task(
     `packages:${pkg.name}:publish:npm`,
     gulp.series(`packages:${pkg.name}:prepack`, () =>
       run(`npm publish --access=public`, {
+        cwd: `./packages/${pkg.name}`,
+      }).exec()
+    )
+  );
+
+  gulp.task(
+    `packages:${pkg.name}:publish:npm:release`,
+    gulp.series(`packages:${pkg.name}:prepack`, () =>
+      run(`npm publish --access=public`, {
+        cwd: `./packages/${pkg.name}`,
+      }).exec()
+    )
+  );
+
+  gulp.task(
+    `packages:${pkg.name}:publish:npm:next`,
+    gulp.series(`packages:${pkg.name}:prepack`, () =>
+      run(`npm publish --access=public --tag next`, {
+        cwd: `./packages/${pkg.name}`,
+      }).exec()
+    )
+  );
+
+  gulp.task(
+    `packages:${pkg.name}:publish:npm:beta`,
+    gulp.series(`packages:${pkg.name}:prepack`, () =>
+      run(`npm publish --access=public --tag beta`, {
+        cwd: `./packages/${pkg.name}`,
+      }).exec()
+    )
+  );
+
+  gulp.task(
+    `packages:${pkg.name}:publish:npm:alpha`,
+    gulp.series(`packages:${pkg.name}:prepack`, () =>
+      run(`npm publish --access=public --tag alpha`, {
         cwd: `./packages/${pkg.name}`,
       }).exec()
     )
