@@ -1,6 +1,6 @@
 {
   "name": "@rster/database-adapter-tests",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -9,8 +9,7 @@
   "dependencies": {
     "@rster/database": "^0.1.0",
     "@rster/types": "^0.1.4",
-    "debug": "^4.3.4",
-    "mongodb": "^6.1.0"
+    "debug": "^4.3.4"
   },
   "scripts": {
     "test": "jest --config=jest.config.js",
@@ -19,7 +18,7 @@
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "upgrade": "npm install @rster/basic@latest @rster/builder@latest @rster/common@latest @rster/info@latest @rster/types@latest --save"
+    "upgrade": "npm install @rster/database@latest @rster/types@latest"
   },
   "repository": {
     "type": "git",
