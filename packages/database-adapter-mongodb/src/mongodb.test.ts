@@ -15,8 +15,8 @@ describe("MongoDBAdapter", () => {
     }
   );
   beforeAll(async () => {
-    // mongoServer = await MongoMemoryServer.create();
-    mongoUri = "mongodb://localhost:27017"; //await mongoServer.getUri();
+    mongoServer = await MongoMemoryServer.create();
+    mongoUri = await mongoServer.getUri();
     const mongoClient = new MongoClient(mongoUri);
     await mongoClient.connect();
     await mongoClient.db("test").collection("aa").insertOne({ test: 1 });
