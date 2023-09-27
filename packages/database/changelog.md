@@ -1,4 +1,4 @@
-# Changelog for @rster/generator
+# Changelog for @rster/database
 
 ## v0.1.0
 

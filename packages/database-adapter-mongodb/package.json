@@ -7,17 +7,9 @@
   "author": "Nicolas Schmidt",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@rster/basic": "^0.1.1",
-    "@rster/builder": "^0.1.0",
-    "@rster/common": "^0.1.1",
-    "@rster/info": "^0.1.1",
     "@rster/types": "^0.1.4",
     "debug": "^4.3.4",
-    "fs-extra": "^11.1.1"
-  },
-  "devDependencies": {
-    "@types/debug": "^4.1.8",
-    "@types/fs-extra": "^11.0.1"
+    "mongodb": "^6.1.0"
   },
   "scripts": {
     "test": "jest --config=jest.config.js",
@@ -31,5 +23,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/nsc-de/rster"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.9"
   }
 }
