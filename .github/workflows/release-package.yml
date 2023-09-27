@@ -46,7 +46,7 @@ jobs:
 
       - name: Dump Release Info
         run: |
-          echo "Release Type: ${{ steps.extract_info.outputs.release_type }} Version: ${{ steps.extract_info.outputs.version }} extracted from ${GITHUB_REF}"
+          echo "Release Type: ${{ steps.extract_info.outputs.release_type }} Version: ${{ steps.extract_info.outputs.version }} extracted from ${GITHUB_REF}, Release Tag: ${{ steps.extract_info.outputs.release_tag }}"
 
   build:
     name: Build 🛠️
