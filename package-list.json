@@ -6,6 +6,7 @@
     { "name": "common" },
     { "name": "database" },
     { "name": "database-adapter-tests" },
+    { "name": "database-adapter-mongodb" },
     { "name": "generator" },
     { "name": "info" },
     { "name": "info-client" },
