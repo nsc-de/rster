@@ -1,6 +1,6 @@
 {
   "name": "@rster/info-explorer",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "dependencies": {
     "@rster/builder": "^0.1.5",
     "@rster/proxy": "^0.1.0",

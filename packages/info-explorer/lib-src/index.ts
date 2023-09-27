@@ -6,6 +6,7 @@ import morgan from "morgan";
 import "@rster/worker-express";
 import cors from "cors";
 import debug from "debug";
+import path from "path";
 
 export function openServer({
   port,
@@ -50,7 +51,9 @@ export function openServer({
 
   app.use(express.static("build"));
   app.use("/", (_req: express.Request, res: express.Response) => {
-    res.sendFile("index.html", { root: "build" });
+    res.sendFile("index.html", {
+      root: path.resolve(__dirname, "..", "build"),
+    });
   });
 
   app.listen(port, () => {
