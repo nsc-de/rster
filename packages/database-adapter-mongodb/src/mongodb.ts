@@ -19,10 +19,7 @@ import {
   BooleanType,
   DateTypeInformation,
 } from "@rster/types";
-import {
-  DatabaseAdapter,
-  createDatabaseAdapter,
-} from "../../database-adapter-tests/src/adapter";
+import { DatabaseAdapter, createDatabaseAdapter } from "@rster/database";
 import { MongoClient, MongoClientOptions } from "mongodb";
 import debug from "debug";
 
@@ -99,7 +96,7 @@ export const MongoDBAdapterFactory = createDatabaseAdapter<
         log("Connecting to MongoDB server %s", connection.url);
 
         this.__db = new MongoClient(connection.url, connection.options);
-        this.__db.connect();
+        await this.__db.connect();
         return;
       }
 
