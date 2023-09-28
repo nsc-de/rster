@@ -2,11 +2,15 @@ import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
+  number,
+  object,
+  undefinedType,
 } from "@rster/types";
 import { DatabaseAdapter } from "./adapter";
 import {
   DataProcessingLayer,
   DataProcessingSchema,
+  PassThrough,
   createDataProcessingLayer,
 } from "./data_processing";
 import { $400 } from "@rster/basic";
@@ -55,7 +59,7 @@ class $Database<
     >;
   };
 
-  public readonly inputTypes: {
+  public readonly transformerInputTypes: {
     [key in keyof DEF["tables"]]: {
       [key2 in keyof DEF["tables"][key]]: GetTransformerInput<
         TRANSFORMER[key],
@@ -64,12 +68,40 @@ class $Database<
     };
   };
 
+  public readonly transformerOutputTypes: {
+    [key in keyof DEF["tables"]]: {
+      [key2 in keyof DEF["tables"][key]]?: GetTransformerOutput<
+        TRANSFORMER[key],
+        PrimitiveType<DEF["tables"][key]>
+      >[key2];
+    };
+  };
+
+  public readonly inputTypes: {
+    [key in keyof DEF["tables"]]: {
+      [key2 in keyof DEF["tables"][key]]: GetTransformerInput<
+        TRANSFORMER[key],
+        PrimitiveType<DEF["tables"][key]>
+      >[key2] extends never | undefined
+        ? DEF["tables"][key][key2]
+        : GetTransformerInput<
+            TRANSFORMER[key],
+            PrimitiveType<DEF["tables"][key]>
+          >[key2];
+    };
+  };
+
   public readonly outputTypes: {
     [key in keyof DEF["tables"]]: {
       [key2 in keyof DEF["tables"][key]]: GetTransformerOutput<
         TRANSFORMER[key],
         PrimitiveType<DEF["tables"][key]>
-      >[key2];
+      >[key2] extends never | undefined
+        ? DEF["tables"][key][key2]
+        : GetTransformerOutput<
+            TRANSFORMER[key],
+            PrimitiveType<DEF["tables"][key]>
+          >[key2];
     };
   };
 
@@ -98,7 +130,7 @@ class $Database<
       >;
     };
 
-    this.inputTypes = Object.fromEntries(
+    this.transformerInputTypes = Object.fromEntries(
       Object.entries(this.transformer).map(([key, value]) => [
         key,
         value?.input?.type ?? this.definition.tables[key],
@@ -112,7 +144,7 @@ class $Database<
       };
     };
 
-    this.outputTypes = Object.fromEntries(
+    this.transformerOutputTypes = Object.fromEntries(
       Object.entries(this.transformer).map(([key, value]) => [
         key,
         value?.output?.type ?? this.definition.tables[key],
@@ -123,6 +155,54 @@ class $Database<
           TRANSFORMER[key],
           PrimitiveType<DEF["tables"][key]>
         >[key2];
+      };
+    };
+
+    this.inputTypes = Object.fromEntries(
+      Object.entries(this.definition.tables).map(([name, table]) => {
+        console.log(name, table);
+        return [
+          name,
+          this.transformerInputTypes?.[
+            name as keyof typeof this.transformerInputTypes
+          ] ?? table,
+        ];
+      })
+    ) as {
+      [key in keyof DEF["tables"]]: {
+        [key2 in keyof DEF["tables"][key]]: GetTransformerInput<
+          TRANSFORMER[key],
+          PrimitiveType<DEF["tables"][key]>
+        >[key2] extends never | undefined
+          ? DEF["tables"][key][key2]
+          : GetTransformerInput<
+              TRANSFORMER[key],
+              PrimitiveType<DEF["tables"][key]>
+            >[key2];
+      };
+    };
+
+    this.outputTypes = Object.fromEntries(
+      Object.entries(this.definition.tables).map(([name, table]) => {
+        console.log(name, table);
+        return [
+          name,
+          this.transformerOutputTypes?.[
+            name as keyof typeof this.transformerOutputTypes
+          ] ?? table,
+        ];
+      })
+    ) as {
+      [key in keyof DEF["tables"]]: {
+        [key2 in keyof DEF["tables"][key]]: GetTransformerOutput<
+          TRANSFORMER[key],
+          PrimitiveType<DEF["tables"][key]>
+        >[key2] extends never | undefined
+          ? DEF["tables"][key][key2]
+          : GetTransformerOutput<
+              TRANSFORMER[key],
+              PrimitiveType<DEF["tables"][key]>
+            >[key2];
       };
     };
   }
@@ -145,7 +225,7 @@ class $Database<
     const fn = await this.getTransformer(table)?.input?.transform;
     if (fn) {
       // Check the input data
-      const inputType = this.inputTypes[table];
+      const inputType = this.transformerInputTypes[table];
       if (!inputType.check(data)) throw $400("Invalid input data");
       const processed = await fn(data);
       // Check the output data
@@ -179,7 +259,7 @@ class $Database<
     const fn = await this.getTransformer(table)?.input?.transform;
     if (fn) {
       // Check the input data
-      const inputType = this.inputTypes[table];
+      const inputType = this.transformerInputTypes[table];
       if (!inputType.allOptional().check(data))
         throw $400("Invalid input data");
       const processed = await fn(data);
@@ -361,10 +441,114 @@ class $Database<
     return this.adapter.disconnect();
   }
 
-  public layer<INPUT_SCHEMA extends DataProcessingSchema<typeof this>>(
-    inputSchema: INPUT_SCHEMA
-  ) {
-    return createDataProcessingLayer(this.tables, inputSchema);
+  public layeringBase() {
+    const { inputTypes, outputTypes } = this;
+
+    return createDataProcessingLayer(
+      Object.fromEntries(
+        Object.entries(this.tables).map(([key, value]) => [
+          key,
+          {
+            insert: (it: any) => value.insert(it),
+            get: (it: any) => value.get(it),
+            update: (it: any) => value.update(it),
+            delete: (it: any) => value.delete(it),
+            count: (it: any) => value.count(it),
+            create: (it: any) => value.create(it),
+            drop: (it: any) => value.drop(it),
+            exists: () => value.exists(),
+          },
+        ])
+      ) as unknown as {
+        [key in keyof typeof this.tables]: {
+          insert: (it: {
+            data: (typeof inputTypes)[key];
+            options?: Record<string, never>;
+          }) => Promise<void>;
+
+          get: (it: {
+            search: (typeof inputTypes)[key]["allOptional"];
+            options?: Record<string, never>;
+          }) => Promise<(typeof outputTypes)[key]>;
+
+          update: (it: {
+            search: (typeof inputTypes)[key]["allOptional"];
+            data: (typeof inputTypes)[key]["allOptional"];
+            options?: { limit?: number };
+          }) => Promise<number>;
+
+          delete: (it: {
+            search: (typeof inputTypes)[key]["allOptional"];
+            options?: { limit?: number };
+          }) => Promise<number>;
+
+          count: (it: {
+            search: (typeof inputTypes)[key]["allOptional"];
+            options?: { limit?: number };
+          }) => Promise<number>;
+
+          create: (it: {
+            options?: { ifNotExists?: boolean };
+            definition?: (typeof inputTypes)[key];
+          }) => Promise<void>;
+
+          drop: (it: { options?: { ifExists?: boolean } }) => Promise<void>;
+
+          exists: () => Promise<boolean>;
+        };
+      }
+    );
+  }
+
+  public layer<
+    INPUT_SCHEMA extends DataProcessingSchema<ReturnType<this["layeringBase"]>>
+  >(inputSchema: INPUT_SCHEMA) {
+    return createDataProcessingLayer(this.layeringBase(), inputSchema);
+  }
+
+  public build() {
+    console.log(this.inputTypes);
+    console.log(this.outputTypes);
+
+    return this.layer(PassThrough).build(
+      Object.fromEntries(
+        Object.entries(this.tables).map(([key]) => [
+          key,
+          {
+            insert: {
+              returns: undefinedType(),
+              bodyParameters: this.inputTypes[key],
+            },
+            get: {
+              returns: this.outputTypes[key],
+              bodyParameters: this.inputTypes[key].allOptional(),
+            },
+            update: {
+              returns: undefinedType(),
+              bodyParameters: this.inputTypes[key].allOptional(),
+            },
+            delete: {
+              returns: undefinedType(),
+              bodyParameters: this.inputTypes[key].allOptional(),
+            },
+            count: {
+              returns: number(),
+              bodyParameters: this.inputTypes[key].allOptional(),
+            },
+            create: {
+              returns: undefinedType(),
+              bodyParameters: this.definition.tables[key],
+            },
+            drop: {
+              returns: undefinedType(),
+            },
+            exists: {
+              returns: undefinedType(),
+            },
+          },
+        ])
+      ) as any
+    );
   }
 }
 
@@ -387,55 +571,79 @@ export class TableTool<
     public readonly database: DATABASE
   ) {}
 
-  public async insert(
-    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
-    options?: Record<string, never>
-  ) {
+  public async insert({
+    data,
+    options,
+  }: {
+    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>;
+    options?: Record<string, never>;
+  }) {
     return this.database.insert(this.name, data, options);
   }
 
-  public async get(
-    data: Partial<
+  public async get({
+    search: data,
+    options,
+  }: {
+    search: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
-    >,
-    options?: Record<string, never>
-  ) {
+    >;
+    options?: Record<string, never>;
+  }) {
     return this.database.get(this.name, data, options);
   }
 
-  public async update(
+  public async update({
+    search,
+    data,
+    options,
+  }: {
     search: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
-    >,
-    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>,
-    options?: { limit?: number }
-  ) {
+    >;
+    data: GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>;
+    options?: { limit?: number };
+  }) {
     return this.database.update(this.name, search, data, options);
   }
 
-  public async delete(
-    data: Partial<
+  public async delete({
+    search: data,
+    options,
+  }: {
+    search: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
-    >,
-    options?: { limit?: number }
-  ) {
+    >;
+    options?: { limit?: number };
+  }) {
     return this.database.delete(this.name, data, options);
   }
 
-  public async count(
-    data: Partial<
+  public async count({
+    search: data,
+    options,
+  }: {
+    search: Partial<
       GetTransformerInput<TRANSFORMER, PrimitiveType<TABLE_DEFINITION>>
-    >,
-    options?: { limit?: number }
-  ) {
+    >;
+    options?: { limit?: number };
+  }) {
     return this.database.count(this.name, data, options);
   }
 
-  public async create(options?: { ifNotExists?: boolean }): Promise<void> {
+  public async create({
+    options,
+  }: {
+    options?: { ifNotExists?: boolean };
+  } = {}): Promise<void> {
     return this.database.create(this.name, options, this.definition as any);
   }
 
-  public async drop(options?: { ifExists?: boolean }): Promise<void> {
+  public async drop({
+    options,
+  }: {
+    options?: { ifExists?: boolean };
+  } = {}): Promise<void> {
     return this.database.drop(this.name, options);
   }
 

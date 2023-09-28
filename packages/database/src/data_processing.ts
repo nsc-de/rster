@@ -339,6 +339,11 @@ export class DataProcessingLayer<
 
       const methods: { [key: string]: RsterApiMethod<any, any> } = {};
 
+      if (!declaration)
+        throw new Error(
+          `Invalid schema, declaration is ${declaration} in path "${name}"`
+        );
+
       for (const [key, value] of Object.entries(module)) {
         if (typeof value === "function") {
           methods[key] = convertToMethod(
@@ -357,7 +362,7 @@ export class DataProcessingLayer<
           continue;
         }
         throw new Error(
-          `Invalid schema, key ${key} is not a function or object in path ${name}`
+          `Invalid schema, key ${key} is not a function or object in path ${name}, but ${typeof value}`
         );
       }
 
