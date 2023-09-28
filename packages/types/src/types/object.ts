@@ -1,6 +1,7 @@
 import { ConversionRegister } from "../conversion";
 import {
   AllowAnyTypeInformation,
+  Extends,
   JsonCompatible,
   JsonCompatibleObject,
   PrimitiveType,
@@ -43,17 +44,18 @@ export class ObjectTypeInformation<
     super();
   }
 
-  check(value: any): value is ObjectType<T> {
-    return (
-      typeof value === "object" &&
+  check<U>(value: U) {
+    if (value === null) return false as Extends<U, ObjectType<T>>;
+
+    return (typeof value === "object" &&
       Object.keys(this.properties).every((key) => {
         const property = this.properties[key];
         return (
-          (!property.required && value[key] === undefined) || // optional property
-          property.type.check(value[key])
+          (!property.required &&
+            value[key as keyof typeof value] === undefined) || // optional property
+          property.type.check(value[key as keyof typeof value])
         );
-      })
-    );
+      })) as Extends<U, ObjectType<T>>;
   }
 
   sendableVia(): SendMethod[];

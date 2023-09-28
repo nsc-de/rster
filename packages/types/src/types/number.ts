@@ -1,4 +1,4 @@
-import { JsonCompatible, SendMethod, TypeInformation } from "../types";
+import { Extends, JsonCompatible, SendMethod, TypeInformation } from "../types";
 
 /**
  * Type for defining a specific number to be sent. Will not accept any other number.
@@ -12,8 +12,9 @@ export class NumberTypeInformation<
     super();
   }
 
-  check(value: any): value is T {
-    return typeof value === "number" && value === this.value;
+  check<U>(value: U) {
+    return (typeof value === "number" &&
+      (value as unknown) === this.value) as Extends<U, T>;
   }
 
   sendableVia(): SendMethod[];
@@ -66,8 +67,11 @@ export class NumberRangeTypeInformation<
     super();
   }
 
-  check(value: any): value is IntRange<MIN, MAX> {
-    return typeof value === "number" && this.includes(value);
+  check<U>(value: U) {
+    return (typeof value === "number" && this.includes(value)) as Extends<
+      U,
+      IntRange<MIN, MAX>
+    >;
   }
 
   includes(value: number) {
@@ -126,8 +130,8 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
     super();
   }
 
-  check(value: any): value is number {
-    return typeof value === "number";
+  check<T>(value: T) {
+    return (typeof value === "number") as Extends<T, number>;
   }
 
   sendableVia(): SendMethod[];
@@ -205,7 +209,10 @@ export function number<MIN extends number, MAX extends number>(
 export function number(
   value?: number,
   max?: number
-): AnyNumberTypeInformation | NumberTypeInformation<any> {
+):
+  | AnyNumberTypeInformation
+  | NumberTypeInformation<number>
+  | NumberRangeTypeInformation<number, number> {
   if (value || value === 0) {
     if (max || max === 0) {
       return new NumberRangeTypeInformation(value, max);

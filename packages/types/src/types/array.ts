@@ -1,6 +1,7 @@
 import { ConversionRegister } from "../conversion";
 import {
   AllowAnyTypeInformation,
+  Extends,
   JsonCompatible,
   PrimitiveType,
   SendMethod,
@@ -32,13 +33,14 @@ export class ArrayTypeInformation<
     this.maxItems = maxItems;
   }
 
-  check(value: any): value is PrimitiveType<T>[] {
-    return (
-      Array.isArray(value) &&
+  check<U>(value: U) {
+    return (Array.isArray(value) &&
       value.length >= (this.minItems ?? 0) &&
       value.length <= (this.maxItems ?? Infinity) &&
-      value.every((v) => this.values.check(v))
-    );
+      value.every((v) => this.values.check(v))) as Extends<
+      U,
+      PrimitiveType<T>[]
+    >;
   }
 
   sendableVia(): SendMethod[];

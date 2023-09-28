@@ -1,4 +1,4 @@
-import { JsonCompatible, SendMethod, TypeInformation } from "../types";
+import { Extends, JsonCompatible, SendMethod, TypeInformation } from "../types";
 
 /**
  * Type for defining a null value
@@ -11,8 +11,8 @@ export class NullTypeInformation extends TypeInformation<null> {
     super();
   }
 
-  check(value: any): value is null {
-    return value === null;
+  check<T>(value: T) {
+    return (value === null) as Extends<T, null>;
   }
 
   sendableVia(): SendMethod[];
@@ -66,8 +66,8 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
     super();
   }
 
-  check(value: any): value is undefined {
-    return value === undefined;
+  check<T>(value: T) {
+    return (value === undefined) as Extends<T, undefined>;
   }
 
   sendableVia(): SendMethod[];
@@ -120,8 +120,8 @@ export class AnyTypeInformation<T = any> extends TypeInformation<T> {
     super();
   }
 
-  check(value: T): value is T {
-    return true;
+  check<U>(_value: U) {
+    return true as Extends<U, T>;
   }
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;

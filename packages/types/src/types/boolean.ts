@@ -1,4 +1,4 @@
-import { JsonCompatible, SendMethod, TypeInformation } from "../types";
+import { Extends, JsonCompatible, SendMethod, TypeInformation } from "../types";
 
 /**
  * Type for defining a boolean value
@@ -15,8 +15,9 @@ export class BooleanTypeInformation<
     super();
   }
 
-  check(value: any): value is T {
-    return typeof value === "boolean" && value === this.value;
+  check<U>(value: U) {
+    return (typeof value === "boolean" &&
+      (value as unknown) === this.value) as Extends<U, T>;
   }
 
   sendableVia(): SendMethod[];
@@ -70,8 +71,8 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
     super();
   }
 
-  check(value: any): value is boolean {
-    return typeof value === "boolean";
+  check<T>(value: T) {
+    return (typeof value === "boolean") as Extends<T, boolean>;
   }
 
   sendableVia(): SendMethod[];

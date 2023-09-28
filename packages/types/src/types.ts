@@ -62,7 +62,7 @@ export abstract class TypeInformation<T> {
    *
    * @param value - The value to check
    */
-  abstract check(value: any): value is T;
+  abstract check<U>(value: U): Extends<U, T>;
 
   /**
    * Get a list of methods that can be used to send this type to the server
@@ -124,3 +124,9 @@ export type MapToPrimitiveType<
 > = {
   [key in keyof TYPE]: PrimitiveType<TYPE[key]["type"]>;
 };
+
+export type TypeInformationAccepting<TYPE> = TypeInformation<any> & {
+  check(value: TYPE): true;
+};
+
+export type Extends<TYPE, EXTENDS> = TYPE extends EXTENDS ? true : false;

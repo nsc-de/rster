@@ -1,4 +1,9 @@
-import { JsonCompatible, SendMethod, TypeInformation } from "../../types";
+import {
+  Extends,
+  JsonCompatible,
+  SendMethod,
+  TypeInformation,
+} from "../../types";
 
 /**
  * Type for defining a date
@@ -10,8 +15,8 @@ export class DateTypeInformation extends TypeInformation<Date> {
     super();
   }
 
-  check(value: unknown): value is Date {
-    return value instanceof Date;
+  check<T>(value: T): Extends<T, Date> {
+    return (value instanceof Date) as Extends<T, Date>;
   }
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;

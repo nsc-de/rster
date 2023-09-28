@@ -1,5 +1,6 @@
 import {
   AllowAnyTypeInformation,
+  Extends,
   JsonCompatible,
   PrimitiveType,
   SendMethod,
@@ -20,7 +21,7 @@ export class Or<
     super();
   }
 
-  check(value: any): value is T0 | T1 {
+  check<T>(value: T): Extends<T, T0 | T1> {
     return this.value0.check(value) || this.value1.check(value);
   }
 
