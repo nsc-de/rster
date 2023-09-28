@@ -2,6 +2,7 @@ import { number, object, string } from "@rster/types";
 import { createDatabase } from "./database";
 import { JsObject } from "./adapters/object";
 import { DataProcessingLayer, PassThrough } from "./data_processing";
+import { createSyntheticContext } from "@rster/common";
 
 describe("createDatabase", () => {
   it("should be defined", () => {
@@ -1769,7 +1770,38 @@ describe("database", () => {
         adapter
       );
 
+      database.build();
+    });
+
+    it("builder api should insert a row", async () => {
+      const adapter = JsObject();
+      const database = createDatabase(
+        {
+          tables: {
+            users: object({
+              id: { required: true, type: number() },
+              name: { required: true, type: string() },
+            }),
+          },
+        },
+        adapter
+      );
+
       const build = database.build();
+
+      const api = build.rest();
+      const { promise, pass } = createSyntheticContext({
+        path: "/users/insert",
+        body: { data: { id: 1, name: "test" } },
+      });
+
+      api.handle(...pass);
+      const test = api.info();
+
+      await expect(promise).resolves.toEqual({
+        status: 200,
+        body: { data: { id: 1, name: "test" } },
+      });
     });
   });
 });

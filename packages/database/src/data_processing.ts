@@ -314,11 +314,11 @@ export class DataProcessingLayer<
   public build(
     declaration: DeclarationForDataProcessingModule<typeof this.functions>
   ) {
-    function convertToMethod(
+    const convertToMethod = (
       name: string,
       method: DataProcessingFunction<undefined>,
       declaration: AnyParameterDeclaration
-    ) {
+    ) => {
       return buildMethod(
         name,
         [`Data processing method for ${name}`],
@@ -327,13 +327,13 @@ export class DataProcessingLayer<
         undefined,
         method
       );
-    }
+    };
 
-    function convertToModule(
+    const convertToModule = (
       name: string,
       module: DataProcessingBaseSchema<undefined>,
       declaration: DeclarationForDataProcessingModule<unknown>
-    ) {
+    ) => {
       const modules: { [key: string]: RsterApiModule<typeof key, any, any> } =
         {};
 
@@ -370,15 +370,16 @@ export class DataProcessingLayer<
         name,
         [`Data processing module for ${name}`],
         modules,
-        methods
+        methods,
+        `/${name}`
       );
-    }
+    };
 
-    function convertToApi(
+    const convertToApi = (
       name: string,
       module: DataProcessingBaseSchema<undefined>,
       declaration: DeclarationForDataProcessingModule<unknown>
-    ) {
+    ) => {
       const modules: { [key: string]: RsterApiModule<typeof key, any, any> } =
         {};
 
@@ -412,7 +413,7 @@ export class DataProcessingLayer<
         modules,
         methods
       );
-    }
+    };
 
     return convertToApi("API", this.functions!, declaration);
   }
@@ -445,6 +446,10 @@ export function createDataProcessingLayer(
   nextLayer: any,
   inputSchema?: any
 ): any {
+  if (nextLayer instanceof DataProcessingLayer) {
+    nextLayer = nextLayer.functions;
+  }
+
   if (inputSchema === undefined) {
     return new DataProcessingLayer(null, nextLayer);
   }

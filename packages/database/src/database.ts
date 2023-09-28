@@ -160,7 +160,6 @@ class $Database<
 
     this.inputTypes = Object.fromEntries(
       Object.entries(this.definition.tables).map(([name, table]) => {
-        console.log(name, table);
         return [
           name,
           this.transformerInputTypes?.[
@@ -184,7 +183,6 @@ class $Database<
 
     this.outputTypes = Object.fromEntries(
       Object.entries(this.definition.tables).map(([name, table]) => {
-        console.log(name, table);
         return [
           name,
           this.transformerOutputTypes?.[
@@ -241,6 +239,7 @@ class $Database<
     // Check the input data
     const inputType = this.definition.tables[table as string];
     if (!inputType) throw new Error(`Table '${table}' does not exist.`);
+    console.log(inputType, data);
     if (!inputType.check(data)) throw $400("Invalid input data");
     return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
@@ -507,9 +506,6 @@ class $Database<
   }
 
   public build() {
-    console.log(this.inputTypes);
-    console.log(this.outputTypes);
-
     return this.layer(PassThrough).build(
       Object.fromEntries(
         Object.entries(this.tables).map(([key]) => [
