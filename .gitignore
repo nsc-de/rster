@@ -16,3 +16,9 @@ yarn-error.log*
 
 # generated documentation / reports
 /coverage
+
+# TurboRepo
+.turbo
+build/**
+dist/**
+.next/**
