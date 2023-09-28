@@ -2,17 +2,23 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
+      "cache": true,
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": ["lib/**"],
+      "inputs": ["src/**/*"]
     },
     "deploy": {
       "dependsOn": ["build", "test", "lint"]
     },
     "test": {
+      "cache": true,
       "dependsOn": ["build"],
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
+      "inputs": ["src/**/*"]
     },
-    "lint": {},
+    "lint": {
+      "cache": true,
+      "inputs": ["src/**/*"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
