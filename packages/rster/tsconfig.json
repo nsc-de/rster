@@ -1,19 +1,8 @@
 {
+  "extends": "../../common/tsconfig.json",
   "compilerOptions": {
-    "outDir": "lib",
-    "sourceMap": true,
-    "module": "CommonJS",
-    "target": "ES2018",
-    "declaration": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "strict": true,
-    "skipDefaultLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["ES6"],
-    "removeComments": true
+    "outDir": "lib"
   },
-  "include": ["src/**/*.ts", "src/index.js"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }
