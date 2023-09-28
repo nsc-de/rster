@@ -16,7 +16,7 @@ import {
   ParameterDeclaration,
   AnyParameterDeclaration,
 } from "@rster/builder";
-import { TypeInformation } from "@rster/types";
+import { TypeInformationAccepting } from "@rster/types";
 
 type TYPE_ERROR_0 =
   "TYPE ERROR 0: The next layer does not contain the key you are trying to passthrough.";
@@ -493,8 +493,4 @@ export type DeclarationForDataProcessingModule<
     : MODULE[key] extends DataProcessingBaseSchema<unknown>
     ? DeclarationForDataProcessingModule<MODULE[key]>
     : never;
-};
-
-export type TypeInformationAccepting<TYPE> = TypeInformation<any> & {
-  check(value: TYPE): true;
 };

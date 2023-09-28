@@ -4,6 +4,7 @@ import {
   PassThrough,
   createDataProcessingLayer,
 } from "./data_processing";
+import { RsterApiMethod } from "@rster/builder";
 
 describe("DataProcessingLayer", () => {
   it("should create a DataProcessingLayer", () => {
@@ -195,9 +196,68 @@ describe("DataProcessingLayer", () => {
         },
       });
       expect(builder).toBeDefined();
-      expect(builder.a).toBeInstanceOf(Function);
-      expect(builder.a()).toBe(1);
-      2;
+      expect(builder.methods.a).toBeInstanceOf(RsterApiMethod);
+      // @ts-ignore
+      expect(builder.native().a()).toBe(1);
+    });
+
+    it("should build an rster builder api from the layer with a next layer", () => {
+      const layer = new DataProcessingLayer(
+        {
+          a: () => {
+            return 1;
+          },
+        },
+        {
+          a: PassThrough,
+          b: () => {
+            return 2;
+          },
+        }
+      );
+      const builder = layer.build({
+        a: {
+          returns: number(),
+        },
+        b: {
+          returns: number(),
+        },
+      });
+      expect(builder).toBeDefined();
+      expect(builder.methods.a).toBeInstanceOf(RsterApiMethod);
+      // @ts-ignore
+      expect(builder.native().a()).toBe(1);
+      expect(builder.methods.b).toBeInstanceOf(RsterApiMethod);
+      // @ts-ignore
+      expect(builder.native().b()).toBe(2);
+    });
+
+    it("should build an rster builder api from the layer with nested functions", () => {
+      const layer = new DataProcessingLayer(
+        {
+          a: {
+            b: () => {
+              return 1;
+            },
+          },
+        },
+        {
+          a: {
+            b: PassThrough,
+          },
+        }
+      );
+      const builder = layer.build({
+        a: {
+          b: {
+            returns: number(),
+          },
+        },
+      });
+      expect(builder).toBeDefined();
+      expect(builder.modules.a.methods.b).toBeInstanceOf(RsterApiMethod);
+      // @ts-ignore
+      expect(builder.native().a.b()).toBe(1);
     });
   });
 });
