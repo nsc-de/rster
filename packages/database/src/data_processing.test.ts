@@ -1,3 +1,4 @@
+import { number } from "@rster/types";
 import {
   DataProcessingLayer,
   PassThrough,
@@ -176,6 +177,28 @@ describe("DataProcessingLayer", () => {
     const layer2 = layer.layer(PassThrough);
     expect(layer2.functions.a).toBeInstanceOf(Function);
     expect(layer2.functions.a()).toBe(1);
+  });
+
+  describe("#build()", () => {
+    it("should build an rster builder api from the layer", () => {
+      const layer = new DataProcessingLayer(
+        {
+          a: () => {
+            return 1;
+          },
+        },
+        { a: PassThrough }
+      );
+      const builder = layer.build({
+        a: {
+          returns: number(),
+        },
+      });
+      expect(builder).toBeDefined();
+      expect(builder.a).toBeInstanceOf(Function);
+      expect(builder.a()).toBe(1);
+      2;
+    });
   });
 });
 

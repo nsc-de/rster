@@ -458,22 +458,29 @@ export type DeclarationForDataProcessingFunction<
 ) => infer RETURN
   ? ARGS["length"] extends 1
     ? ParameterDeclaration<
-        TypeInformation<RETURN>,
+        TypeInformationAccepting<RETURN>,
         {
           [key in keyof ARGS[0]]:
-            | { type: TypeInformation<ARGS[0][key]>; required: true }
-            | { type: TypeInformation<ARGS[0][key]>; required: false };
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: true }
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: false };
         },
         {
           [key in keyof ARGS[0]]:
-            | { type: TypeInformation<ARGS[0][key]>; required: true }
-            | { type: TypeInformation<ARGS[0][key]>; required: false };
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: true }
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: false };
         },
         {
           [key in keyof ARGS[0]]:
-            | { type: TypeInformation<ARGS[0][key]>; required: true }
-            | { type: TypeInformation<ARGS[0][key]>; required: false };
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: true }
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: false };
         }
+      >
+    : ARGS["length"] extends 0
+    ? ParameterDeclaration<
+        TypeInformationAccepting<RETURN>,
+        Record<string, never>,
+        Record<string, never>,
+        Record<string, never>
       >
     : "TYPE ERROR 1: The function has more than one argument."
   : never;
@@ -486,4 +493,8 @@ export type DeclarationForDataProcessingModule<
     : MODULE[key] extends DataProcessingBaseSchema<unknown>
     ? DeclarationForDataProcessingModule<MODULE[key]>
     : never;
+};
+
+export type TypeInformationAccepting<TYPE> = TypeInformation<any> & {
+  check(value: TYPE): true;
 };
