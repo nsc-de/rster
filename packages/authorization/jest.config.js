@@ -4,5 +4,5 @@
  */
 
 /** @type {import('jest').Config} */
-const config = require("../jest.config");
+const config = require("../../common/jest.config");
 module.exports = config;
