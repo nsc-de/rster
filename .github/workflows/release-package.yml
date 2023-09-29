@@ -15,12 +15,6 @@ jobs:
       version: ${{ steps.extract_info.outputs.version }}
       release_tag: ${{ steps.extract_info.outputs.release_tag }}
 
-    # To use Remote Caching, uncomment the next lines and follow the steps below.
-    env:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-      TURBO_REMOTE_ONLY: true
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2

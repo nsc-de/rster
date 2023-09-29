@@ -9,11 +9,11 @@ jobs:
     name: CI Tests for on Node.js ${{ matrix.node-version }} 🧪
     runs-on: ubuntu-latest
 
-    # To use Remote Caching, uncomment the next lines and follow the steps below.
-    env:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-      TURBO_REMOTE_ONLY: true
+    # # To use Remote Caching, uncomment the next lines and follow the steps below.
+    # env:
+    #   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+    #   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+    #   TURBO_REMOTE_ONLY: true
 
     strategy:
       matrix:
@@ -41,6 +41,11 @@ jobs:
         with:
           path: /cache/ci/module_cache
           key: /cache/ci/module_cache
+
+      - name: Cache Turbo ♻️
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+        with:
+          cache-prefix: turbo-tests-${{ matrix.node-version }}-${{github.ref}}_
 
       - name: Run tests 🔬
         run: npm run test
@@ -81,6 +86,11 @@ jobs:
         with:
           path: /cache/ci/module_cache
           key: /cache/ci/module_cache
+
+      - name: Cache Turbo ♻️
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+        with:
+          cache-prefix: turbo-build-${{github.ref}}_
 
       - name: Build 🔧
         run: npm run build
