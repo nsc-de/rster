@@ -1,5 +1,13 @@
 # Changelog for rster
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @rster/types@0.1.6
+  - @rster/info@0.1.6
+
 ## v0.1.3
 
 - Update bundled dependencies

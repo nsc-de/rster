@@ -1,6 +1,6 @@
 {
   "name": "@rster/info",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -9,7 +9,7 @@
   "dependencies": {
     "@rster/basic": "^0.1.5",
     "@rster/common": "^0.1.2",
-    "@rster/types": "^0.1.4",
+    "@rster/types": "^0.1.6",
     "debug": "^4.3.4"
   },
   "devDependencies": {

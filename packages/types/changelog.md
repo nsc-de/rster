@@ -1,5 +1,11 @@
 # Changelog for @rster/types
 
+## 0.1.6
+
+### Patch Changes
+
+- some small type-related patches
+
 ## v0.1.5
 
 - Introduce TypeInformationAccepting

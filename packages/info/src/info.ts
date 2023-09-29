@@ -1,21 +1,21 @@
 // import { declaration } from "../generator/index";
 import { $404, Context, ContextChildCondition } from "@rster/basic";
-import { TypeInformation } from "@rster/types";
+import { AllowAnyTypeInformation } from "@rster/types";
 
 const version = "0.1.4";
 
 export interface Declaration {
   name: string;
   expectBody?: {
-    [key: string]: { type: TypeInformation<unknown>; required: boolean };
+    [key: string]: { type: AllowAnyTypeInformation; required: boolean };
   };
   expectQuery?: {
-    [key: string]: { type: TypeInformation<unknown>; required: boolean };
+    [key: string]: { type: AllowAnyTypeInformation; required: boolean };
   };
   expectParams?: {
-    [key: string]: { type: TypeInformation<unknown>; required: boolean };
+    [key: string]: { type: AllowAnyTypeInformation; required: boolean };
   };
-  returnBody: TypeInformation<unknown>;
+  returnBody: AllowAnyTypeInformation;
 }
 
 declare module "@rster/basic" {

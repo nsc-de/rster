@@ -1,5 +1,13 @@
 # Changelog for @rster/info
 
+## 0.1.6
+
+### Patch Changes
+
+- some small type-related patches
+- Updated dependencies
+  - @rster/types@0.1.6
+
 ## v0.1.5
 
 - Move declaration `optional` to `required` to make it consistent with `@rster/types`'s `object` type

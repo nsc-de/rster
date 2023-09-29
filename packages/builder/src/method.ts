@@ -270,7 +270,7 @@ export class RsterApiMethod<
             if (body[key] === undefined)
               throw $400(`Missing body parameter ${key}`);
 
-            const type = (value as { type: TypeInformation<unknown> }).type;
+            const type = (value as { type: AllowAnyTypeInformation }).type;
             if (!type.check(body[key]))
               throw $400(
                 `Invalid body parameter ${key}: Expected ${JSON.stringify(
@@ -288,7 +288,7 @@ export class RsterApiMethod<
             if (query[key] === undefined)
               throw $400(`Missing query parameter ${key}`);
 
-            const type = (value as { type: TypeInformation<unknown> }).type;
+            const type = (value as { type: AllowAnyTypeInformation }).type;
             if (!type.check(query[key]))
               throw $400(
                 `Invalid query parameter ${key}: Expected ${JSON.stringify(
@@ -306,7 +306,7 @@ export class RsterApiMethod<
             if (params[key] === undefined)
               throw $400(`Missing path parameter ${key}`);
 
-            const type = (value as { type: TypeInformation<unknown> }).type;
+            const type = (value as { type: AllowAnyTypeInformation }).type;
             if (!type.check(params[key]))
               // This should basically never happen if it has the right type
               throw $400(
@@ -340,7 +340,7 @@ export class RsterApiMethod<
           if (args?.[key as keyof typeof args] === undefined)
             throw $400(`Missing body parameter ${key}`);
 
-          const type = (value as { type: TypeInformation<unknown> }).type;
+          const type = (value as { type: AllowAnyTypeInformation }).type;
           if (!type.check(args[key as keyof typeof args]))
             throw $400(
               `Invalid body parameter ${key}: Expected ${JSON.stringify(
@@ -359,13 +359,13 @@ export class RsterApiMethod<
           if (args?.[key as keyof typeof args] === undefined)
             throw $400(`Missing query parameter ${key}`);
           if (
-            !(value as { type: TypeInformation<unknown> }).type.check(
+            !(value as { type: AllowAnyTypeInformation }).type.check(
               args[key as keyof typeof args]
             )
           )
             throw $400(
               `Invalid query parameter ${key}: Expected ${JSON.stringify(
-                (value as { type: TypeInformation<unknown> }).type.json()
+                (value as { type: AllowAnyTypeInformation }).type.json()
               )}`
             );
         }
@@ -380,13 +380,13 @@ export class RsterApiMethod<
           if (args?.[key as keyof typeof args] === undefined)
             throw $400(`Missing path parameter ${key}`);
           if (
-            !(value as { type: TypeInformation<unknown> }).type.check(
+            !(value as { type: AllowAnyTypeInformation }).type.check(
               args[key as keyof typeof args]
             )
           )
             throw $400(
               `Invalid path parameter ${key}: Expected ${JSON.stringify(
-                (value as { type: TypeInformation<unknown> }).type.json()
+                (value as { type: AllowAnyTypeInformation }).type.json()
               )}`
             );
         }
@@ -414,13 +414,13 @@ export function method<
   DECLARATION extends ParameterDeclaration<
     AllowAnyTypeInformation,
     {
-      [key: string]: { type: TypeInformation<unknown>; required: boolean };
+      [key: string]: { type: AllowAnyTypeInformation; required: boolean };
     },
     {
-      [key: string]: { type: TypeInformation<unknown>; required: boolean };
+      [key: string]: { type: AllowAnyTypeInformation; required: boolean };
     },
     {
-      [key: string]: { type: TypeInformation<unknown>; required: boolean };
+      [key: string]: { type: AllowAnyTypeInformation; required: boolean };
     }
   >
 >(

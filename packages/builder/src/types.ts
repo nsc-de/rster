@@ -14,7 +14,7 @@ export type AnyRsterApiMethod<key extends string = string> = RsterApiMethod<
 >;
 
 export type AnyParameterDeclaration = ParameterDeclaration<
-  TypeInformation<unknown>,
+  AllowAnyTypeInformation,
   ParameterList,
   ParameterList,
   ParameterList
@@ -26,8 +26,8 @@ export type ActionFunction<D extends AnyParameterDeclaration> = (
 
 export type ParameterList = {
   [key: string]:
-    | { type: TypeInformation<unknown>; required: true }
-    | { type: TypeInformation<unknown>; required: false };
+    | { type: AllowAnyTypeInformation; required: true }
+    | { type: AllowAnyTypeInformation; required: false };
 };
 
 /**
@@ -44,7 +44,7 @@ export type ParameterList = {
  * @param returns - The return type.
  */
 export interface ParameterDeclaration<
-  RETURNS extends TypeInformation<unknown>,
+  RETURNS extends AllowAnyTypeInformation,
   EXPECT_BODY extends ParameterList,
   EXPECT_QUERY extends ParameterList,
   EXPECT_PARAMS extends ParameterList
