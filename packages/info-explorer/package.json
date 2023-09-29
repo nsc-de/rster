@@ -75,5 +75,8 @@
   },
   "bin": {
     "rster-explorer": "./bin/rster-explorer.js"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
