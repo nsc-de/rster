@@ -5,7 +5,9 @@
   "main": "lib/index.js",
   "author": "Nicolas Schmidt",
   "license": "BSD-3-Clause",
-  "dependencies": {},
+  "dependencies": {
+    "@changesets/cli": "^2.26.2"
+  },
   "devDependencies": {
     "@babel/cli": "^7.22.15",
     "@babel/core": "^7.22.20",
@@ -28,8 +30,7 @@
     "lint": "turbo run lint",
     "prepare:docs": "cd docs && npm ci && cd ..",
     "build:docs:docusaurus": "npm run prepare:docs && cd docs && npm run build && cd ..",
-    "build:docs": "npm run ci && npm run build:docs:docusaurus",
-    "gulp": "gulp --gulpfile gulpfile.js"
+    "build:docs": "npm run build:docs:docusaurus"
   },
   "publishConfig": {
     "access": "public"
