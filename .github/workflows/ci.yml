@@ -9,6 +9,12 @@ jobs:
     name: CI Tests for on Node.js ${{ matrix.node-version }} 🧪
     runs-on: ubuntu-latest
 
+    # To use Remote Caching, uncomment the next lines and follow the steps below.
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      TURBO_REMOTE_ONLY: true
+
     strategy:
       matrix:
         node-version: [v16.x, v18.x, v19.x, v20.x]
@@ -47,6 +53,12 @@ jobs:
   build:
     name: Build on Node.js v18.x 🔨
     runs-on: ubuntu-latest
+
+    # To use Remote Caching, uncomment the next lines and follow the steps below.
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      TURBO_REMOTE_ONLY: true
 
     steps:
       - name: Checkout 🛎️

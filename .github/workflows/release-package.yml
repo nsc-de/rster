@@ -4,10 +4,6 @@ on:
   push:
     tags:
       - "release/*/v*"
-      # - "release/*/v*-release"
-      # - "release/*/v*-beta"
-      # - "release/*/v*-alpha"
-      # - "release/*/v*-next"
 
 jobs:
   extract_info:
@@ -18,6 +14,12 @@ jobs:
       release_type: ${{ steps.extract_info.outputs.release_type }}
       version: ${{ steps.extract_info.outputs.version }}
       release_tag: ${{ steps.extract_info.outputs.release_tag }}
+
+    # To use Remote Caching, uncomment the next lines and follow the steps below.
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      TURBO_REMOTE_ONLY: true
 
     steps:
       - name: Checkout Code
