@@ -11,6 +11,7 @@
     "skipDefaultLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["ES6"],
-    "removeComments": true
+    "removeComments": true,
+    "skipLibCheck": true
   }
 }

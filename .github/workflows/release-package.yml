@@ -4,10 +4,6 @@ on:
   push:
     tags:
       - "release/*/v*"
-      # - "release/*/v*-release"
-      # - "release/*/v*-beta"
-      # - "release/*/v*-alpha"
-      # - "release/*/v*-next"
 
 jobs:
   extract_info:
