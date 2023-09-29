@@ -29,7 +29,6 @@ jobs:
       - name: Install ⤵️
         run: |
           npm ci
-          npm run ci
 
       - name: Cache ♻️
         uses: actions/cache@v1.2.1
@@ -64,7 +63,6 @@ jobs:
       - name: Install ⤵️
         run: |
           npm ci
-          npm run ci
 
       - name: Cache ♻️
         uses: actions/cache@v1.2.1
