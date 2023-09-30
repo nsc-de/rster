@@ -1,6 +1,6 @@
+import { Extends } from "@rster/util";
 import {
   AllowAnyTypeInformation,
-  Extends,
   JsonCompatible,
   PrimitiveType,
   SendMethod,

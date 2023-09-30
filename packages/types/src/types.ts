@@ -1,3 +1,4 @@
+import { Extends } from "@rster/util";
 import { ConversionRegister } from "./conversion";
 
 /**
@@ -93,13 +94,6 @@ export abstract class TypeInformation<T, U = undefined> {
 }
 
 /**
- * Type utility for converting a type to not include undefined
- */
-export type NoUndefined<TYPE, ALTERNATIVE> = TYPE extends undefined
-  ? ALTERNATIVE
-  : TYPE;
-
-/**
  * Type utility for converting a type a type information to it's typescript equivalent
  * @typeParam TYPE - The type information to convert
  * @see TypeInformation
@@ -135,5 +129,3 @@ export type MapToPrimitiveType<
 export type TypeInformationAccepting<TYPE> = TypeInformation<any> & {
   check(value: TYPE): true;
 };
-
-export type Extends<TYPE, EXTENDS> = TYPE extends EXTENDS ? true : false;

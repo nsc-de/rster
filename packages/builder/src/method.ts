@@ -5,11 +5,7 @@ import {
   ContextConditionPath,
 } from "@rster/basic";
 import { Method } from "@rster/common";
-import {
-  AllowAnyTypeInformation,
-  AnyTypeInformation,
-  TypeInformation,
-} from "@rster/types";
+import { AllowAnyTypeInformation, AnyTypeInformation } from "@rster/types";
 import {
   ActionFunction,
   AnyParameterDeclaration,

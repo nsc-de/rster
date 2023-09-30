@@ -191,4 +191,24 @@ export type Value<T extends Record<string, any>> = T[keyof T];
  */
 export type Values<T extends Record<string, any>> = Value<T>[];
 
+/**
+ * Converts an Object's type to it's key type.
+ */
 export type AllowVoidIfUndefined<T> = T extends undefined ? void | T : T;
+
+/**
+ * Force typescript to infer a type as a specific type.
+ */
+export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+
+/**
+ * Type utility for converting a type to not include undefined
+ */
+export type NoUndefined<TYPE, ALTERNATIVE> = TYPE extends undefined
+  ? ALTERNATIVE
+  : TYPE;
+
+/**
+ * Type utility for converting a type to not include null
+ */
+export type Extends<TYPE, EXTENDS> = TYPE extends EXTENDS ? true : false;

@@ -1,9 +1,5 @@
-import {
-  Extends,
-  JsonCompatible,
-  SendMethod,
-  TypeInformation,
-} from "../../types";
+import { Extends } from "@rster/util";
+import { JsonCompatible, SendMethod, TypeInformation } from "../../types";
 
 /**
  * Type for defining a date

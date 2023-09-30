@@ -1,7 +1,7 @@
+import { Extends } from "@rster/util";
 import { ConversionRegister } from "../conversion";
 import {
   AllowAnyTypeInformation,
-  Extends,
   JsonCompatible,
   PrimitiveType,
   SendMethod,
