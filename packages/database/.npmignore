@@ -24,3 +24,6 @@
 **/*.test.js
 **/*.spec.ts
 **/*.spec.js
+
+# turbo
+.turbo

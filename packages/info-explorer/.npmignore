@@ -32,3 +32,6 @@ test
 # config files
 tsconfig.json
 eslintrc.js
+
+# turbo
+.turbo

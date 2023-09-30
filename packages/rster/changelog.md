@@ -1,5 +1,11 @@
 # Changelog for rster
 
+## 0.1.6
+
+### Patch Changes
+
+- Add rster readme
+
 ## 0.1.5
 
 ### Patch Changes
