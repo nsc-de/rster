@@ -22,7 +22,10 @@ export class Or<
   }
 
   check<T>(value: T): Extends<T, T0 | T1> {
-    return this.value0.check(value) || this.value1.check(value);
+    return (this.value0.check(value) || this.value1.check(value)) as Extends<
+      T,
+      T0 | T1
+    >;
   }
 
   sendableVia(): SendMethod[];

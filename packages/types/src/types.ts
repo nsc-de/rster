@@ -1,18 +1,9 @@
 import { ConversionRegister } from "./conversion";
 
-type RemoveProperty<TYPE, PROPERTY> = {
-  [key in keyof TYPE as key extends PROPERTY ? never : key]: TYPE[key];
-};
-
 /**
  * Shortcut for AllowAnyTypeInformation
  */
-export type AllowAnyTypeInformation = RemoveProperty<
-  TypeInformation<any>,
-  "check"
->; //  & {
-//   check(value: unknown): boolean;
-// };
+export type AllowAnyTypeInformation = TypeInformation<any, any>;
 
 /**
  * Type for destructed type information
@@ -50,7 +41,7 @@ export type JsonCompatible =
   | JsonCompatibleArray
   | JsonCompatibleObject;
 
-export abstract class TypeInformation<T> {
+export abstract class TypeInformation<T, U = undefined> {
   constructor() {
     // Register the type in the conversion register
     this.__registerType();
@@ -71,7 +62,7 @@ export abstract class TypeInformation<T> {
    *
    * @param value - The value to check
    */
-  abstract check<U>(value: U): Extends<U, T>;
+  abstract check<V>(value: V): U extends any ? boolean : Extends<V, T>;
 
   /**
    * Get a list of methods that can be used to send this type to the server
