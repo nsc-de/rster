@@ -85,6 +85,8 @@ _**NOTE**: This project is still in early development and features are added fre
 [![eslint][eslint-shield]][eslint-url]
 [![jest][jest-shield]][jest-url]
 [![express][express-shield]][express-url]
+[![turbo][turbo-shield]][turbo-url]
+[![changesets][changesets-shield]][changesets-url]
 
 - [typescript][typescript-url]
 - [nodejs][nodejs-url]
@@ -92,6 +94,8 @@ _**NOTE**: This project is still in early development and features are added fre
 - [eslint][eslint-url]
 - [jest][jest-url]
 - [express][express-url]
+- [turbo][turbo-url]
+- [changesets][changesets-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -297,6 +301,10 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 [nodejs-url]: https://nodejs.org/en/
 [eslint-shield]: https://img.shields.io/badge/eslint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white
 [eslint-url]: https://eslint.org/
+[turbo-shield]: https://img.shields.io/badge/turbo-000000?style=for-the-badge&logo=turbo&logoColor=white
+[turbo-url]: https://turbo.build/
+[changesets-shield]: https://img.shields.io/badge/changesets-1E1E1E?style=for-the-badge&logo=changesets&logoColor=white
+[changesets-url]: https://github.com/changesets/changesets
 
 <!-- Contact Shields -->
 
