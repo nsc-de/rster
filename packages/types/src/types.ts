@@ -1,9 +1,18 @@
 import { ConversionRegister } from "./conversion";
 
+type RemoveProperty<TYPE, PROPERTY> = {
+  [key in keyof TYPE as key extends PROPERTY ? never : key]: TYPE[key];
+};
+
 /**
  * Shortcut for AllowAnyTypeInformation
  */
-export type AllowAnyTypeInformation = TypeInformation<any>;
+export type AllowAnyTypeInformation = RemoveProperty<
+  TypeInformation<any>,
+  "check"
+>; //  & {
+//   check(value: unknown): boolean;
+// };
 
 /**
  * Type for destructed type information
