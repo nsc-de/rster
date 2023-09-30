@@ -1,5 +1,11 @@
 # Changelog for @rster/types
 
+## 0.1.7
+
+### Patch Changes
+
+- Fix AllowAnyTypeInformation
+
 ## 0.1.6
 
 ### Patch Changes
