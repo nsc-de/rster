@@ -1,5 +1,17 @@
 # Changelog for @rster/basic
 
+## 0.1.6
+
+### Patch Changes
+
+- Update util dependency
+- Updated dependencies [98fa3d0]
+- Updated dependencies [3926989]
+- Updated dependencies
+  - @rster/types@0.1.8
+  - @rster/util@0.1.1
+  - @rster/common@0.1.3
+
 ## v0.1.5
 
 - Make `@rster/basic` compatible with `@rster/common@0.1.2`

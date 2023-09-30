@@ -1,5 +1,11 @@
 # Changelog for @rster/info-client
 
+## 0.1.3
+
+### Patch Changes
+
+- Update util dependency
+
 ## v0.1.2
 
 - Remove debug code from build

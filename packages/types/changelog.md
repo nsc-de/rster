@@ -1,5 +1,14 @@
 # Changelog for @rster/types
 
+## 0.1.8
+
+### Patch Changes
+
+- 98fa3d0: Create TypeInformation#checkError()
+- Update util dependency
+- Updated dependencies [3926989]
+  - @rster/util@0.1.1
+
 ## 0.1.7
 
 ### Patch Changes

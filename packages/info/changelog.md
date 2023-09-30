@@ -1,5 +1,16 @@
 # Changelog for @rster/info
 
+## 0.1.7
+
+### Patch Changes
+
+- Update util dependency
+- Updated dependencies [98fa3d0]
+- Updated dependencies
+  - @rster/types@0.1.8
+  - @rster/common@0.1.3
+  - @rster/basic@0.1.6
+
 ## 0.1.6
 
 ### Patch Changes
