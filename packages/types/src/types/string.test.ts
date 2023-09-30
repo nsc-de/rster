@@ -12,6 +12,15 @@ describe("StringTypeInformation", () => {
     expect(typeInfo.check(123)).toBe(false);
   });
 
+  it("checkError", () => {
+    const typeInfo = new StringTypeInformation("hello");
+    expect(typeInfo.checkError("hello")).toBeUndefined();
+    expect(typeInfo.checkError("world")).toEqual(
+      "Not the string hello, but world"
+    );
+    expect(typeInfo.checkError(123)).toEqual("Not a string, but a number");
+  });
+
   it("sendableVia", () => {
     const typeInfo = new StringTypeInformation("hello");
     expect(typeInfo.sendableVia()).toContain("body");
@@ -70,6 +79,16 @@ describe("AnyStringTypeInformation", () => {
     expect(typeInfo.check(123)).toBe(false);
     expect(typeInfo.check(null)).toBe(false);
     expect(typeInfo.check(undefined)).toBe(false);
+  });
+
+  it("checkError", () => {
+    const typeInfo = new AnyStringTypeInformation();
+    expect(typeInfo.checkError("hello")).toBeUndefined();
+    expect(typeInfo.checkError(123)).toEqual("Not a string, but a number");
+    expect(typeInfo.checkError(null)).toEqual("Not a string, but a object");
+    expect(typeInfo.checkError(undefined)).toEqual(
+      "Not a string, but a undefined"
+    );
   });
 
   it("sendableVia", () => {

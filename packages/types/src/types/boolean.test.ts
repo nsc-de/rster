@@ -15,6 +15,16 @@ describe("BooleanTypeInformation", () => {
     expect(typeInfo.check("true")).toBe(false);
   });
 
+  it("checkError", () => {
+    const typeInfo = new BooleanTypeInformation(true);
+    expect(typeInfo.checkError(true)).toBeUndefined();
+    expect(typeInfo.checkError(false)).toEqual(
+      "Not the boolean true, but false"
+    );
+    expect(typeInfo.checkError(0)).toEqual("Not a boolean, but a number");
+    expect(typeInfo.checkError("true")).toEqual("Not a boolean, but a string");
+  });
+
   it("sendableVia", () => {
     const typeInfo = new BooleanTypeInformation(true);
     expect(typeInfo.sendableVia()).toContain("body");
@@ -60,6 +70,17 @@ describe("AnyBooleanTypeInformation", () => {
     expect(typeInfo.check(0)).toBe(false);
     expect(typeInfo.check(null)).toBe(false);
     expect(typeInfo.check(undefined)).toBe(false);
+  });
+
+  it("checkError", () => {
+    const typeInfo = new AnyBooleanTypeInformation();
+    expect(typeInfo.checkError(true)).toBeUndefined();
+    expect(typeInfo.checkError(false)).toBeUndefined();
+    expect(typeInfo.checkError(0)).toEqual("Not a boolean, but a number");
+    expect(typeInfo.checkError(null)).toEqual("Not a boolean, but a object");
+    expect(typeInfo.checkError(undefined)).toEqual(
+      "Not a boolean, but a undefined"
+    );
   });
 
   it("sendableVia", () => {

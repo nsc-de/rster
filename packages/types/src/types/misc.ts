@@ -15,6 +15,13 @@ export class NullTypeInformation extends TypeInformation<null> {
     return (value === null) as Extends<T, null>;
   }
 
+  checkError(value: unknown): string | undefined {
+    if (value !== null) {
+      return `Not null, but a ${typeof value}`;
+    }
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {
@@ -70,6 +77,13 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
     return (value === undefined) as Extends<T, undefined>;
   }
 
+  checkError(value: unknown): string | undefined {
+    if (value !== undefined) {
+      return `Not undefined, but a ${typeof value}`;
+    }
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {
@@ -123,6 +137,11 @@ export class AnyTypeInformation<T = any> extends TypeInformation<T> {
   check<U>(_value: U) {
     return true as Extends<U, T>;
   }
+
+  checkError(_value: unknown): string | undefined {
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {

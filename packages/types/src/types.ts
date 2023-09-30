@@ -65,6 +65,13 @@ export abstract class TypeInformation<T, U = undefined> {
   abstract check<V>(value: V): U extends any ? boolean : Extends<V, T>;
 
   /**
+   * Returns the check-error for the given value
+   * @param value - The value to check
+   * @returns The error if the value is not of the type defined by this type information
+   */
+  abstract checkError(value: unknown): string | undefined;
+
+  /**
    * Get a list of methods that can be used to send this type to the server
    */
   abstract sendableVia(): SendMethod[];

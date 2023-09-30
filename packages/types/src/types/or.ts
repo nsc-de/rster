@@ -28,6 +28,15 @@ export class Or<
     >;
   }
 
+  checkError(value: unknown): string | undefined {
+    const error0 = this.value0.checkError(value);
+    const error1 = this.value1.checkError(value);
+    if (error0 && error1) {
+      return `All options failed: {${error0}} and {${error1}}`;
+    }
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {

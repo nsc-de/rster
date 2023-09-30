@@ -11,6 +11,14 @@ describe("NullTypeInformation", () => {
     expect(typeInfo.check("")).toBe(false);
   });
 
+  it("checkError", () => {
+    const typeInfo = new NullTypeInformation();
+    expect(typeInfo.checkError(null)).toBeUndefined();
+    expect(typeInfo.checkError(undefined)).toEqual("Not null, but a undefined");
+    expect(typeInfo.checkError(0)).toEqual("Not null, but a number");
+    expect(typeInfo.checkError("")).toEqual("Not null, but a string");
+  });
+
   it("sendableVia", () => {
     const typeInfo = new NullTypeInformation();
     expect(typeInfo.sendableVia()).toContain("body");
@@ -58,6 +66,14 @@ describe("UndefinedTypeInformation", () => {
     expect(typeInfo.check("")).toBe(false);
   });
 
+  it("checkError", () => {
+    const typeInfo = new UndefinedTypeInformation();
+    expect(typeInfo.checkError(undefined)).toBeUndefined();
+    expect(typeInfo.checkError(null)).toEqual("Not undefined, but a object");
+    expect(typeInfo.checkError(0)).toEqual("Not undefined, but a number");
+    expect(typeInfo.checkError("")).toEqual("Not undefined, but a string");
+  });
+
   it("sendableVia", () => {
     const typeInfo = new UndefinedTypeInformation();
     expect(typeInfo.sendableVia()).toContain("body");
@@ -103,6 +119,14 @@ describe("AnyTypeInformation", () => {
     expect(typeInfo.check(42)).toBe(true);
     expect(typeInfo.check("hello")).toBe(true);
     expect(typeInfo.check({ key: "value" })).toBe(true);
+  });
+
+  it("checkError", () => {
+    const typeInfo = new AnyTypeInformation();
+    expect(typeInfo.checkError(true)).toBeUndefined();
+    expect(typeInfo.checkError(42)).toBeUndefined();
+    expect(typeInfo.checkError("hello")).toBeUndefined();
+    expect(typeInfo.checkError({ key: "value" })).toBeUndefined();
   });
 
   it("sendableVia", () => {

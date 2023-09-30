@@ -20,6 +20,16 @@ export class BooleanTypeInformation<
       (value as unknown) === this.value) as Extends<U, T>;
   }
 
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "boolean") {
+      return `Not a boolean, but a ${typeof value}`;
+    }
+    if (value !== this.value) {
+      return `Not the boolean ${this.value}, but ${value}`;
+    }
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {
@@ -73,6 +83,13 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
 
   check<T>(value: T) {
     return (typeof value === "boolean") as Extends<T, boolean>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "boolean") {
+      return `Not a boolean, but a ${typeof value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];

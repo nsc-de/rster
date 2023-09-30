@@ -43,6 +43,31 @@ export class ArrayTypeInformation<
     >;
   }
 
+  checkError(value: unknown): string | undefined {
+    if (!Array.isArray(value)) {
+      return `Not an array, but a ${typeof value}`;
+    }
+    if (this.minItems && value.length < this.minItems) {
+      return `Array is too short, needs to be at least ${this.minItems}`;
+    }
+    if (this.maxItems && value.length > this.maxItems) {
+      return `Array is too long, needs to be at most ${this.maxItems}`;
+    }
+    const errors = value
+      .map((v, i) => {
+        const error = this.values.checkError(v);
+        if (error) {
+          return `${i}: ${error}`;
+        }
+        return undefined;
+      })
+      .filter((v) => v !== undefined);
+    if (errors.length > 0) {
+      return errors.join("\n");
+    }
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {

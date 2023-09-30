@@ -13,6 +13,14 @@ describe("NumberTypeInformation", () => {
     expect(typeInfo.check("42")).toBe(false);
   });
 
+  it("checkError", () => {
+    const typeInfo = new NumberTypeInformation(42);
+    expect(typeInfo.checkError(42)).toBeUndefined();
+    expect(typeInfo.checkError("42")).toEqual("Not a number, but a string");
+    expect(typeInfo.checkError(null)).toEqual("Not a number, but a object");
+    expect(typeInfo.checkError(44)).toEqual("Not the number 42, but 44");
+  });
+
   it("sendableVia", () => {
     const typeInfo = new NumberTypeInformation(42);
     expect(typeInfo.sendableVia()).toContain("body");
@@ -69,6 +77,14 @@ describe("NumberRangeTypeInformation", () => {
     const typeInfo = new NumberRangeTypeInformation(1, 10);
     expect(typeInfo.check(5)).toBe(true);
     expect(typeInfo.check(20)).toBe(false);
+  });
+
+  it("checkError", () => {
+    const typeInfo = new NumberRangeTypeInformation(1, 10);
+    expect(typeInfo.checkError(5)).toBeUndefined();
+    expect(typeInfo.checkError(20)).toEqual("Not in range 1 to 10, but 20");
+    expect(typeInfo.checkError(null)).toEqual("Not a number, but a object");
+    expect(typeInfo.checkError(44)).toEqual("Not in range 1 to 10, but 44");
   });
 
   it("sendableVia", () => {
@@ -129,6 +145,14 @@ describe("AnyNumberTypeInformation", () => {
     expect(typeInfo.check("42")).toBe(false);
     expect(typeInfo.check(null)).toBe(false);
     expect(typeInfo.check(undefined)).toBe(false);
+  });
+
+  it("checkError", () => {
+    const typeInfo = new AnyNumberTypeInformation();
+    expect(typeInfo.checkError(42)).toBeUndefined();
+    expect(typeInfo.checkError("42")).toEqual("Not a number, but a string");
+    expect(typeInfo.checkError(null)).toEqual("Not a number, but a object");
+    expect(typeInfo.checkError(44)).toBeUndefined();
   });
 
   it("sendableVia", () => {

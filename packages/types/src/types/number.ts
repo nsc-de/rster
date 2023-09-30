@@ -17,6 +17,16 @@ export class NumberTypeInformation<
       (value as unknown) === this.value) as Extends<U, T>;
   }
 
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "number") {
+      return `Not a number, but a ${typeof value}`;
+    }
+    if (value !== this.value) {
+      return `Not the number ${this.value}, but ${value}`;
+    }
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {
@@ -72,6 +82,16 @@ export class NumberRangeTypeInformation<
       U,
       IntRange<MIN, MAX>
     >;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "number") {
+      return `Not a number, but a ${typeof value}`;
+    }
+    if (!this.includes(value)) {
+      return `Not in range ${this.min} to ${this.max}, but ${value}`;
+    }
+    return undefined;
   }
 
   includes(value: number) {
@@ -132,6 +152,13 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
 
   check<T>(value: T) {
     return (typeof value === "number") as Extends<T, number>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "number") {
+      return `Not a number, but a ${typeof value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];

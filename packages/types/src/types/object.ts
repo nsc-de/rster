@@ -58,6 +58,33 @@ export class ObjectTypeInformation<
       })) as Extends<U, ObjectType<T>>;
   }
 
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "object" || value === null) {
+      return `Not an object, but a ${typeof value}`;
+    }
+
+    const value_ = value as Record<string, unknown>;
+
+    const errors = Object.entries(this.properties)
+      .map(([key, property]) => {
+        if (!property.required && value_[key] === undefined) {
+          return undefined;
+        }
+        const error = property.type.checkError(value_[key]);
+        if (error) {
+          return `${key}: ${error}`;
+        }
+        return undefined;
+      })
+      .filter((it) => it !== undefined);
+
+    if (errors.length === 0) {
+      return undefined;
+    }
+
+    return `Some properties failed: {${errors.join(", ")}}`;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {

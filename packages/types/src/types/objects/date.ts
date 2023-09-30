@@ -18,6 +18,14 @@ export class DateTypeInformation extends TypeInformation<Date> {
   check<T>(value: T): Extends<T, Date> {
     return (value instanceof Date) as Extends<T, Date>;
   }
+
+  checkError(value: unknown): string | undefined {
+    if (!(value instanceof Date)) {
+      return `Not a date, but a ${typeof value}`;
+    }
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(n?: SendMethod): SendMethod[] | boolean {

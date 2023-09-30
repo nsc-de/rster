@@ -16,6 +16,16 @@ export class StringTypeInformation<
       (value as unknown) === this.value) as Extends<U, T>;
   }
 
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "string") {
+      return `Not a string, but a ${typeof value}`;
+    }
+    if (value !== this.value) {
+      return `Not the string ${this.value}, but ${value}`;
+    }
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {
@@ -68,6 +78,13 @@ export class AnyStringTypeInformation extends TypeInformation<string> {
 
   check<T>(value: T): Extends<T, string> {
     return (typeof value === "string") as Extends<T, string>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "string") {
+      return `Not a string, but a ${typeof value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];
