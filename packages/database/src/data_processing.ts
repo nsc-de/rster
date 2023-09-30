@@ -15,6 +15,7 @@ import {
   RsterApiMethod,
   ParameterDeclaration,
   AnyParameterDeclaration,
+  RsterApi,
 } from "@rster/builder";
 import { TypeInformationAccepting } from "@rster/types";
 
@@ -62,14 +63,14 @@ export type DataProcessingThis<
  */
 export type DataProcessingFunction<NEXT_LAYER> = (
   this: DataProcessingThis<NEXT_LAYER>,
-  ...args: unknown[]
-) => unknown | Promise<unknown> | void | Promise<void>;
+  ...args: any[]
+) => any | Promise<any> | void | Promise<void>;
 
 /**
  * A data processing function in external form. It's the same as {@link DataProcessingFunction} but without the this parameter.
  * The this parameter would cause issues on calling because typescript would find that the this parameter will not match it's type.
  */
-export type DataProcessingFunctionExternal = (...data: unknown[]) => unknown;
+export type DataProcessingFunctionExternal = (...data: any[]) => any;
 
 /**
  * Converts a {@link DataProcessingFunction} to a {@link DataProcessingFunctionExternal}
@@ -139,7 +140,7 @@ export type DeepMapDataProcessingSchema<
             NEXT_LAYER
           >
         : T[P];
-    } & DataProcessingBaseSchema<NEXT_LAYER>;
+    };
 
 /**
  * The DataProcessingSchema in its simple form (how the first layer should look like
@@ -311,12 +312,12 @@ export class DataProcessingLayer<
   /**
    * Create `@rster/builder` api from the data processing layer.
    */
-  public build(
-    declaration: DeclarationForDataProcessingModule<typeof this.functions>
-  ) {
+  public build<
+    U extends DeclarationForDataProcessingModule<typeof this.functions>
+  >(declaration: U) {
     const convertToMethod = (
       name: string,
-      method: DataProcessingFunction<undefined>,
+      method: DataProcessingFunctionExternal,
       declaration: AnyParameterDeclaration
     ) => {
       return buildMethod(
@@ -325,7 +326,10 @@ export class DataProcessingLayer<
         declaration,
         `/${name}`,
         undefined,
-        method
+        (data) => {
+          console.log(data);
+          return method(data);
+        }
       );
     };
 
@@ -415,7 +419,11 @@ export class DataProcessingLayer<
       );
     };
 
-    return convertToApi("API", this.functions!, declaration);
+    return convertToApi(
+      "API",
+      this.functions!,
+      declaration
+    ) as unknown as BuilderApiFor<"API", typeof this.functions>;
   }
 }
 
@@ -461,7 +469,7 @@ export type RemoveUndefinedProperties<T> = {
 };
 
 export type DeclarationForDataProcessingFunction<
-  FUNCTION extends DataProcessingFunction<unknown>
+  FUNCTION extends DataProcessingFunctionExternal
 > = FUNCTION extends (
   this: DataProcessingThis<unknown>,
   ...args: infer ARGS
@@ -492,15 +500,63 @@ export type DeclarationForDataProcessingFunction<
         Record<string, never>,
         Record<string, never>
       >
-    : "TYPE ERROR 1: The function has more than one argument."
+    : "TYPE ERROR 1: The function has more than one argument." & never
   : never;
 
 export type DeclarationForDataProcessingModule<
   MODULE extends DataProcessingBaseSchema<unknown> | undefined | unknown
 > = {
-  [key in keyof MODULE]: MODULE[key] extends DataProcessingFunction<unknown>
+  [key in keyof MODULE]: MODULE[key] extends DataProcessingFunctionExternal
     ? DeclarationForDataProcessingFunction<MODULE[key]>
     : MODULE[key] extends DataProcessingBaseSchema<unknown>
     ? DeclarationForDataProcessingModule<MODULE[key]>
     : never;
 };
+
+export type BuilderMethodFor<
+  NAME extends string,
+  FUNC extends DataProcessingFunctionExternal
+> = RsterApiMethod<NAME, DeclarationForDataProcessingFunction<FUNC>>;
+
+export type BuilderModuleFor<
+  NAME extends string,
+  MODULE extends DataProcessingBaseSchema<unknown> | undefined | unknown
+> = RsterApiModule<
+  NAME,
+  {
+    [K in keyof MODULE &
+      string as MODULE[K] extends DataProcessingFunctionExternal
+      ? never
+      : K]: BuilderModuleFor<K, MODULE[K]>;
+  },
+  {
+    [K in keyof MODULE &
+      string as MODULE[K] extends DataProcessingFunctionExternal
+      ? K
+      : never]: BuilderMethodFor<
+      K,
+      MODULE[K] extends DataProcessingFunctionExternal ? MODULE[K] : never
+    >;
+  }
+>;
+export type BuilderApiFor<
+  NAME extends string,
+  MODULE extends DataProcessingBaseSchema<unknown> | undefined | unknown
+> = RsterApi<
+  NAME,
+  {
+    [K in keyof MODULE &
+      string as MODULE[K] extends DataProcessingFunctionExternal
+      ? never
+      : K]: BuilderModuleFor<K, MODULE[K]>;
+  },
+  {
+    [K in keyof MODULE &
+      string as MODULE[K] extends DataProcessingFunctionExternal
+      ? K
+      : never]: BuilderMethodFor<
+      K,
+      MODULE[K] extends DataProcessingFunctionExternal ? MODULE[K] : never
+    >;
+  }
+>;

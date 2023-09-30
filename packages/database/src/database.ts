@@ -3,7 +3,6 @@ import {
   ObjectTypeInformation,
   PrimitiveType,
   number,
-  object,
   undefinedType,
 } from "@rster/types";
 import { DatabaseAdapter } from "./adapter";
@@ -224,7 +223,8 @@ class $Database<
     if (fn) {
       // Check the input data
       const inputType = this.transformerInputTypes[table];
-      if (!inputType.check(data)) throw $400("Invalid input data");
+      if (!inputType.check(data))
+        throw $400(`Invalid input data: ${inputType.checkError(data)}`);
       const processed = await fn(data);
       // Check the output data
       const outputType = this.definition.tables[table as string];
@@ -239,8 +239,8 @@ class $Database<
     // Check the input data
     const inputType = this.definition.tables[table as string];
     if (!inputType) throw new Error(`Table '${table}' does not exist.`);
-    console.log(inputType, data);
-    if (!inputType.check(data)) throw $400("Invalid input data");
+    if (!inputType.check(data))
+      throw $400(`Invalid input data: ${inputType.checkError(data)}`);
     return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
 
@@ -260,7 +260,7 @@ class $Database<
       // Check the input data
       const inputType = this.transformerInputTypes[table];
       if (!inputType.allOptional().check(data))
-        throw $400("Invalid input data");
+        throw $400(`Invalid input data: ${inputType.checkError(data)}`);
       const processed = await fn(data);
       // Check the output data
       const outputType = this.definition.tables[table as string];
@@ -281,7 +281,8 @@ class $Database<
     // Check the input data
     const inputType = this.definition.tables[table as string];
     if (!inputType) throw new Error(`Table '${table}' does not exist.`);
-    if (!inputType.allOptional().check(data)) throw $400("Invalid input data");
+    if (!inputType.allOptional().check(data))
+      throw $400(`Invalid input data: ${inputType.checkError(data)}`);
     return data as PrimitiveType<DEF["tables"][TABLE_NAME]>;
   }
 

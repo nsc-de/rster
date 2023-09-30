@@ -259,6 +259,34 @@ describe("DataProcessingLayer", () => {
       // @ts-ignore
       expect(builder.native().a.b()).toBe(1);
     });
+
+    it("test method arguments", () => {
+      const layer = new DataProcessingLayer(
+        {},
+        {
+          add: function ({ a, b }: { a: number; b: number }) {
+            return a + b;
+          },
+        }
+      );
+
+      const builder = layer.build({
+        add: {
+          returns: number(),
+          expectBody: {
+            a: { type: number(), required: true },
+            b: { type: number(), required: true },
+          },
+        },
+      });
+      expect(builder).toBeDefined();
+      expect(builder.methods.add).toBeInstanceOf(RsterApiMethod);
+
+      const native = builder.native();
+
+      // @ts-ignore
+      expect(native.add({ a: 1, b: 2 })).toBe(3);
+    });
   });
 });
 
