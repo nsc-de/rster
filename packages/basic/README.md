@@ -46,7 +46,23 @@
 
 <!-- TABLE OF CONTENTS -->
 
-<!-- ## Table of Contents -->
+## Table of Contents
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ol>
+</details>
 
 ## About The Project
 
@@ -57,6 +73,47 @@
 [rster package on npm](https://www.npmjs.com/package/@rster/basic)
 ·
 [rster documentation](https://nsc-de.github.io/rster/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTRIBUTING -->
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
+
+## License
+
+Distributed under the BSD-3-Clause License. See `LICENSE` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTACT -->
+
+## Contact
+
+Nicolas Schmidt <[@nsc-de](https://github.com/nsc-de/)>
+
+[![twitter][contact-twitter-shield]][contact-twitter-url] [![github][contact-github-shield]][contact-github-url]
+
+Project Link: [https://github.com/nsc-de/rster/tree/master/packages/authorization](https://github.com/nsc-de/rster/tree/master/packages/authorization)
+
+[![GitHub][github-shield]][github-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
 
@@ -134,4 +191,4 @@
 [contact-twitter-shield]: https://img.shields.io/badge/@nsc_dev-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white
 [contact-twitter-url]: https://twitter.com/nsc_dev
 [contact-github-shield]: https://img.shields.io/badge/@nsc--de-100000?style=for-the-badge&logo=github&logoColor=white
-[contact-github-url]: github.com/nsc-de
+[contact-github-url]: https://github.com/nsc-de/
