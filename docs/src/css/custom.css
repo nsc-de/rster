@@ -36,3 +36,8 @@ body {
   overflow-x: hidden;
   max-width: 100%;
 }
+
+.height-80px {
+  height: 80px!important;
+  width: auto!important;
+}

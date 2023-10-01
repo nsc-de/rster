@@ -19,13 +19,13 @@
 <br />
 <div align="center">
   <a href="https://github.com/nsc-de/rster">
-    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/logo.png" alt="Logo" height="80" />
+    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/logo.png" alt="Logo" height="80" className="height-80px" />
   </a>
   <a href="https://github.com/nsc-de/rster">
-    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/slash.png" alt="Logo" height="80" />
+    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/slash.png" alt="Logo" height="80" className="height-80px" />
     </a>
     <a href="https://github.com/nsc-de/rster/tree/master/packages/common">
-    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/package-common.png" alt="Logo" height="80" />
+    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/package-common.png" alt="Logo" height="80" className="height-80px" />
   </a>
 
 <h3 align="center">@rster/common</h3>
@@ -105,7 +105,7 @@ Distributed under the BSD-3-Clause License. See `LICENSE` for more information.
 
 ## Contact
 
-Nicolas Schmidt <[@nsc-de](https://github.com/nsc-de/)>
+Nicolas Schmidt &#60;[@nsc-de](https://github.com/nsc-de/)&#62;
 
 [![twitter][contact-twitter-shield]][contact-twitter-url] [![github][contact-github-shield]][contact-github-url]
 
