@@ -24,11 +24,11 @@
   <a href="https://github.com/nsc-de/rster">
     <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/slash.png" alt="Logo" height="80" />
     </a>
-    <a href="https://github.com/nsc-de/rster/tree/master/packages/basic">
-    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/package-basic.png" alt="Logo" height="80" />
+    <a href="https://github.com/nsc-de/rster/tree/master/packages/builder">
+    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/package-builder.png" alt="Logo" height="80" />
   </a>
 
-<h3 align="center">@rster/basic</h3>
+<h3 align="center">@rster/builder</h3>
 
   <p align="center">
     <font color="red"><s>build</s></font> design your backend
@@ -45,18 +45,90 @@
 </div>
 
 <!-- TABLE OF CONTENTS -->
-
-<!-- ## Table of Contents -->
+<!--
+## Table of Contents -->
 
 ## About The Project
 
-`@rster/basic` is a package of the `@rster` project. It provides the basis of the rster server. If you use the default `rster` package, `@rster/basic` will be bundled. Find tutorials and documentation on the [rster website](https://nsc-de.github.io/rster/). The package is available on [npm](https://www.npmjs.com/package/@rster/basic).
+`@rster/builder` is a package of the `@rster` project. It is build on top of the basic rster api to make the definition of your api easier. It does type-checking for you. This is better for security reasons and you will save a lot of time and effort. Find tutorials and documentation on the [rster website](https://nsc-de.github.io/rster/). The package is available on [npm](https://www.npmjs.com/package/@rster/builder).
 
 [rster repository](https://github.com/nsc-de/rster)
 ·
-[rster package on npm](https://www.npmjs.com/package/@rster/basic)
+[rster package on npm](https://www.npmjs.com/package/@rster/builder)
 ·
 [rster documentation](https://nsc-de.github.io/rster/)
+
+## A demo of the builder
+
+```typescript
+import { api, module, method } from "@rster/builder";
+import { undefinedType, string, array, object, number } from "@rster/types";
+import "@rster/worker-express";
+import express from "express";
+
+const users: {
+  name: string;
+  age: number;
+}[] = [];
+
+const API = api(
+  "api",
+  ["a simple demo api"],
+  {
+    users: module(
+      "users",
+      ["module to handle users"],
+      {},
+      {
+        create: method(
+          "create",
+          ["create a user"],
+          {
+            expectBody: {
+              name: { required: true, type: string() },
+              age: { required: true, type: number() },
+            },
+            returns: undefinedType(),
+          },
+          "/users",
+          "post",
+          ({ age, name }) => {
+            users.push({ age, name });
+          }
+        ),
+
+        list: method(
+          "list",
+          ["list users"],
+          {
+            returns: array(
+              object({
+                name: { type: string(), required: true },
+                age: { type: number(), required: true },
+              })
+            ),
+          },
+          "/users",
+          "get",
+          () => users
+        ),
+      }
+    ),
+  },
+  {}
+);
+
+const rster = API.rest();
+
+const app = express();
+app.use(rster.express());
+
+app.listen(3000, () => {
+  console.log("listening on port 3000");
+});
+```
+
+[More examples on the rster website](https://nsc-de.github.io/rster/docs/tutorial/intro/rster-builder)
 
 ### Built With
 
@@ -83,11 +155,11 @@
 <!-- link shields -->
 
 [github-shield]: https://img.shields.io/badge/github-grey?style=for-the-badge&logo=github
-[github-url]: https://github.com/nsc-de/rster/tree/master/packages/basic
+[github-url]: https://github.com/nsc-de/rster/tree/master/packages/builder
 [npm-shield]: https://img.shields.io/badge/npm-red?style=for-the-badge&logo=npm
-[npm-url]: https://www.npmjs.com/package/%40rster/basic
+[npm-url]: https://www.npmjs.com/package/%40rster/builder
 [typedoc-shield]: https://img.shields.io/badge/typedoc-darkblue?style=for-the-badge&logo=typescript
-[typedoc-url]: https://nsc-de.github.io/rster/docs/api-reference/basic/
+[typedoc-url]: https://nsc-de.github.io/rster/docs/api-reference/builder/
 [documentation-shield]: https://img.shields.io/badge/documentation-blue.svg?style=for-the-badge&logo=github
 [documentation-url]: https://nsc-de.github.io/rster/
 
@@ -105,8 +177,8 @@
 [build-url]: https://github.com/nsc-de/rster/actions/workflows/ci.yml
 [contributors-shield]: https://img.shields.io/github/contributors/nsc-de/rster.svg?style=for-the-badge
 [contributors-url]: https://github.com/nsc-de/rster/graphs/contributors
-[version-shield]: https://img.shields.io/npm/v/@rster/basic?style=for-the-badge
-[downloads-shield]: https://img.shields.io/npm/dt/@rster/basic?style=for-the-badge
+[version-shield]: https://img.shields.io/npm/v/@rster/builder?style=for-the-badge
+[downloads-shield]: https://img.shields.io/npm/dt/@rster/builder?style=for-the-badge
 [coverage-shield]: https://img.shields.io/codecov/c/github/nsc-de/rster?style=for-the-badge
 [coverage-url]: https://codecov.io/gh/nsc-de/rster
 

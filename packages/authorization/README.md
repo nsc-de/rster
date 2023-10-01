@@ -20,6 +20,8 @@
 <div align="center">
   <a href="https://github.com/nsc-de/rster">
     <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/logo.png" alt="Logo" height="80" />
+  </a>
+  <a href="https://github.com/nsc-de/rster">
     <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/slash.png" alt="Logo" height="80" />
     </a>
     <a href="https://github.com/nsc-de/rster/tree/master/packages/authorization">
@@ -44,7 +46,7 @@
 
 <!-- TABLE OF CONTENTS -->
 
-## Table of Contents
+<!-- ## Table of Contents -->
 
 ## About The Project
 
