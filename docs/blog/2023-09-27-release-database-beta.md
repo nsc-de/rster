@@ -6,7 +6,7 @@ tags: [state-of-development]
 hide_table_of_contents: false
 ---
 
-# Release builder
+# Release database beta
 
 _Release package `@rster/database@0.1.0 (beta)`_ 🥳
 

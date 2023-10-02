@@ -19,7 +19,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/nsc-de/rster">
-    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/logo.png" alt="Logo" height="80" />
+    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/logo.png" alt="Logo" height="80" className="height-80px"/>
   </a>
 
 <h3 align="center">rster</h3>
@@ -84,14 +84,16 @@ _**NOTE**: This project is still in early development and features are added fre
 [![npm][npm-package-manager-shield]][npm-package-manager-url]
 [![eslint][eslint-shield]][eslint-url]
 [![jest][jest-shield]][jest-url]
-[![express][express-shield]][express-url]
+[![turbo][turbo-shield]][turbo-url]
+[![changesets][changesets-shield]][changesets-url]
 
 - [typescript][typescript-url]
 - [nodejs][nodejs-url]
 - [npm][npm-package-manager-url]
 - [eslint][eslint-url]
 - [jest][jest-url]
-- [express][express-url]
+- [turbo][turbo-url]
+- [changesets][changesets-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -230,7 +232,7 @@ Distributed under the BSD-3-Clause License. See `LICENSE` for more information.
 
 ## Contact
 
-Nicolas Schmidt
+Nicolas Schmidt &#60;[@nsc-de](https://github.com/nsc-de/)&#62;
 
 [![twitter][contact-twitter-shield]][contact-twitter-url] [![github][contact-github-shield]][contact-github-url]
 
@@ -297,10 +299,14 @@ Project Link: [https://github.com/nsc-de/rster](https://github.com/nsc-de/rster)
 [nodejs-url]: https://nodejs.org/en/
 [eslint-shield]: https://img.shields.io/badge/eslint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white
 [eslint-url]: https://eslint.org/
+[turbo-shield]: https://img.shields.io/badge/turbo-000000?style=for-the-badge&logo=turbo&logoColor=white
+[turbo-url]: https://turbo.build/
+[changesets-shield]: https://img.shields.io/badge/changesets-1E1E1E?style=for-the-badge&logo=changesets&logoColor=white
+[changesets-url]: https://github.com/changesets/changesets
 
 <!-- Contact Shields -->
 
 [contact-twitter-shield]: https://img.shields.io/badge/@nsc_dev-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white
 [contact-twitter-url]: https://twitter.com/nsc_dev
 [contact-github-shield]: https://img.shields.io/badge/@nsc--de-100000?style=for-the-badge&logo=github&logoColor=white
-[contact-github-url]: github.com/nsc-de
+[contact-github-url]: https://github.com/nsc-de/

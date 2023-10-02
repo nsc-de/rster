@@ -1,5 +1,5 @@
-import { AllowAnyTypeInformation, PrimitiveType } from "@rster/types";
 import { AllowVoidIfUndefined, NoUndefined } from "@rster/util";
+import { AllowAnyTypeInformation, PrimitiveType } from "@rster/types";
 import { RsterApiMethod } from "./method";
 import { RsterApiModule } from "./module";
 
