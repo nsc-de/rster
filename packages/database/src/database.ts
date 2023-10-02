@@ -116,11 +116,11 @@ class $Database<
           new TableTool<DEF, string, $Database<DEF>>(
             table as DEF["tables"][typeof name],
             name,
-            this
+            this as unknown as $Database<DEF>
           ),
         ];
       })
-    ) as {
+    ) as unknown as {
       [key in keyof DEF["tables"] & string]: TableTool<
         DEF,
         key,
@@ -687,7 +687,7 @@ export function createDatabase<
     definition,
     adapter,
     transformer
-  ) as unknown as Database<DEF>;
+  ) as unknown as Database<DEF, TRANSFORMER>;
   const tables = database.tables;
   return Object.assign(database, tables) as Database<DEF, TRANSFORMER>;
 }
