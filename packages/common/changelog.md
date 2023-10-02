@@ -1,5 +1,13 @@
 # Changelog for @rster/common
 
+## 0.1.3
+
+### Patch Changes
+
+- Update util dependency
+- Updated dependencies [3926989]
+  - @rster/util@0.1.1
+
 ## v0.1.2
 
 **Breaking changes**

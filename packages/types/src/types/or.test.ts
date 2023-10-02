@@ -22,6 +22,18 @@ describe("Or", () => {
     expect(typeInfo.check(true)).toBe(false);
   });
 
+  it("checkError", () => {
+    const typeInfo = new Or(
+      new StringTypeInformation("hello"),
+      new NumberTypeInformation(42)
+    );
+    expect(typeInfo.checkError("hello")).toBeUndefined();
+    expect(typeInfo.checkError(42)).toBeUndefined();
+    expect(typeInfo.checkError(true)).toEqual(
+      "All options failed: {Not a string, but a boolean} and {Not a number, but a boolean}"
+    );
+  });
+
   it("sendableVia", () => {
     const typeInfo = new Or(
       new StringTypeInformation("hello"),

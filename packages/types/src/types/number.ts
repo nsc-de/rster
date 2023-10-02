@@ -1,3 +1,4 @@
+import { Extends } from "@rster/util";
 import { JsonCompatible, SendMethod, TypeInformation } from "../types";
 
 /**
@@ -12,8 +13,19 @@ export class NumberTypeInformation<
     super();
   }
 
-  check(value: any): value is T {
-    return typeof value === "number" && value === this.value;
+  check<U>(value: U) {
+    return (typeof value === "number" &&
+      (value as unknown) === this.value) as Extends<U, T>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "number") {
+      return `Not a number, but a ${typeof value}`;
+    }
+    if (value !== this.value) {
+      return `Not the number ${this.value}, but ${value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];
@@ -66,8 +78,21 @@ export class NumberRangeTypeInformation<
     super();
   }
 
-  check(value: any): value is IntRange<MIN, MAX> {
-    return typeof value === "number" && this.includes(value);
+  check<U>(value: U) {
+    return (typeof value === "number" && this.includes(value)) as Extends<
+      U,
+      IntRange<MIN, MAX>
+    >;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "number") {
+      return `Not a number, but a ${typeof value}`;
+    }
+    if (!this.includes(value)) {
+      return `Not in range ${this.min} to ${this.max}, but ${value}`;
+    }
+    return undefined;
   }
 
   includes(value: number) {
@@ -126,8 +151,15 @@ export class AnyNumberTypeInformation extends TypeInformation<number> {
     super();
   }
 
-  check(value: any): value is number {
-    return typeof value === "number";
+  check<T>(value: T) {
+    return (typeof value === "number") as Extends<T, number>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "number") {
+      return `Not a number, but a ${typeof value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];
@@ -205,7 +237,10 @@ export function number<MIN extends number, MAX extends number>(
 export function number(
   value?: number,
   max?: number
-): AnyNumberTypeInformation | NumberTypeInformation<any> {
+):
+  | AnyNumberTypeInformation
+  | NumberTypeInformation<number>
+  | NumberRangeTypeInformation<number, number> {
   if (value || value === 0) {
     if (max || max === 0) {
       return new NumberRangeTypeInformation(value, max);

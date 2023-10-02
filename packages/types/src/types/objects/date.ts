@@ -1,3 +1,4 @@
+import { Extends } from "@rster/util";
 import { JsonCompatible, SendMethod, TypeInformation } from "../../types";
 
 /**
@@ -10,9 +11,17 @@ export class DateTypeInformation extends TypeInformation<Date> {
     super();
   }
 
-  check(value: unknown): value is Date {
-    return value instanceof Date;
+  check<T>(value: T): Extends<T, Date> {
+    return (value instanceof Date) as Extends<T, Date>;
   }
+
+  checkError(value: unknown): string | undefined {
+    if (!(value instanceof Date)) {
+      return `Not a date, but a ${typeof value}`;
+    }
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(n?: SendMethod): SendMethod[] | boolean {

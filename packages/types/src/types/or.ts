@@ -1,3 +1,4 @@
+import { Extends } from "@rster/util";
 import {
   AllowAnyTypeInformation,
   JsonCompatible,
@@ -20,8 +21,20 @@ export class Or<
     super();
   }
 
-  check(value: any): value is T0 | T1 {
-    return this.value0.check(value) || this.value1.check(value);
+  check<T>(value: T): Extends<T, T0 | T1> {
+    return (this.value0.check(value) || this.value1.check(value)) as Extends<
+      T,
+      T0 | T1
+    >;
+  }
+
+  checkError(value: unknown): string | undefined {
+    const error0 = this.value0.checkError(value);
+    const error1 = this.value1.checkError(value);
+    if (error0 && error1) {
+      return `All options failed: {${error0}} and {${error1}}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];

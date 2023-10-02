@@ -1,14 +1,15 @@
 {
   "name": "@rster/database-adapter-tests",
-  "version": "0.1.2",
+  "version": "0.1.3",
+  "private": true,
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "Nicolas Schmidt",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@rster/database": "^0.1.0",
-    "@rster/types": "^0.1.4",
+    "@rster/database": "^0.1.1",
+    "@rster/types": "^0.1.8",
     "debug": "^4.3.4"
   },
   "scripts": {
@@ -43,5 +44,8 @@
     "source-map-support": "^0.5.21",
     "typedoc": "^0.25.1",
     "typescript": "^5.2.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

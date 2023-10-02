@@ -1,5 +1,41 @@
 # Changelog for rster
 
+## 0.1.7
+
+### Patch Changes
+
+- Update util dependency
+- Updated dependencies [98fa3d0]
+- Updated dependencies [3926989]
+- Updated dependencies
+  - @rster/types@0.1.8
+  - @rster/util@0.1.1
+  - @rster/common@0.1.3
+  - @rster/basic@0.1.6
+  - @rster/info@0.1.7
+  - @rster/ping@0.1.2
+
+## 0.1.6
+
+### Patch Changes
+
+- Add rster readme
+
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @rster/types@0.1.7
+
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @rster/types@0.1.6
+  - @rster/info@0.1.6
+
 ## v0.1.3
 
 - Update bundled dependencies

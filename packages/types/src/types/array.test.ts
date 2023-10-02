@@ -15,6 +15,42 @@ describe("ArrayTypeInformation", () => {
     expect(typeInfo.check([123])).toBe(false);
   });
 
+  it("checkError", () => {
+    const typeInfo = new ArrayTypeInformation(
+      new StringTypeInformation("hello")
+    );
+    expect(typeInfo.checkError(["hello"])).toBeUndefined();
+    expect(typeInfo.checkError(["world"])).toEqual(
+      "0: Not the string hello, but world"
+    );
+    expect(typeInfo.checkError([123])).toEqual("0: Not a string, but a number");
+
+    expect(typeInfo.checkError(null)).toEqual("Not an array, but a object");
+    expect(typeInfo.checkError(undefined)).toEqual(
+      "Not an array, but a undefined"
+    );
+
+    const typeInfo2 = new ArrayTypeInformation(
+      new StringTypeInformation("world"),
+      {
+        maxItems: 4,
+        minItems: 2,
+      }
+    );
+
+    expect(typeInfo2.checkError(["world", "world", "world", "world"])).toBe(
+      undefined
+    );
+
+    expect(
+      typeInfo2.checkError(["world", "world", "world", "world", "world"])
+    ).toBe("Array is too long, needs to be at most 4");
+
+    expect(typeInfo2.checkError(["world"])).toBe(
+      "Array is too short, needs to be at least 2"
+    );
+  });
+
   it("sendableVia", () => {
     const typeInfo = new ArrayTypeInformation(
       new StringTypeInformation("hello")

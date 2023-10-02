@@ -1,3 +1,4 @@
+import { Extends } from "@rster/util";
 import { JsonCompatible, SendMethod, TypeInformation } from "../types";
 
 /**
@@ -11,8 +12,19 @@ export class StringTypeInformation<
   constructor(public readonly value: T) {
     super();
   }
-  check(value: any): value is T {
-    return typeof value === "string" && value === this.value;
+  check<U>(value: U) {
+    return (typeof value === "string" &&
+      (value as unknown) === this.value) as Extends<U, T>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "string") {
+      return `Not a string, but a ${typeof value}`;
+    }
+    if (value !== this.value) {
+      return `Not the string ${this.value}, but ${value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];
@@ -65,8 +77,15 @@ export class AnyStringTypeInformation extends TypeInformation<string> {
     super();
   }
 
-  check(value: any): value is string {
-    return typeof value === "string";
+  check<T>(value: T): Extends<T, string> {
+    return (typeof value === "string") as Extends<T, string>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "string") {
+      return `Not a string, but a ${typeof value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];
@@ -130,7 +149,7 @@ export function string(): AnyStringTypeInformation;
 export function string<T extends string>(value: T): StringTypeInformation<T>;
 export function string(
   value?: string
-): AnyStringTypeInformation | StringTypeInformation<any> {
+): AnyStringTypeInformation | StringTypeInformation<string> {
   if (value || value === "") {
     return new StringTypeInformation(value);
   }

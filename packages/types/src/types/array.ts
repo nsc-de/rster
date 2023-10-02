@@ -1,3 +1,4 @@
+import { Extends } from "@rster/util";
 import { ConversionRegister } from "../conversion";
 import {
   AllowAnyTypeInformation,
@@ -32,13 +33,39 @@ export class ArrayTypeInformation<
     this.maxItems = maxItems;
   }
 
-  check(value: any): value is PrimitiveType<T>[] {
-    return (
-      Array.isArray(value) &&
+  check<U>(value: U) {
+    return (Array.isArray(value) &&
       value.length >= (this.minItems ?? 0) &&
       value.length <= (this.maxItems ?? Infinity) &&
-      value.every((v) => this.values.check(v))
-    );
+      value.every((v) => this.values.check(v))) as Extends<
+      U,
+      PrimitiveType<T>[]
+    >;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (!Array.isArray(value)) {
+      return `Not an array, but a ${typeof value}`;
+    }
+    if (this.minItems && value.length < this.minItems) {
+      return `Array is too short, needs to be at least ${this.minItems}`;
+    }
+    if (this.maxItems && value.length > this.maxItems) {
+      return `Array is too long, needs to be at most ${this.maxItems}`;
+    }
+    const errors = value
+      .map((v, i) => {
+        const error = this.values.checkError(v);
+        if (error) {
+          return `${i}: ${error}`;
+        }
+        return undefined;
+      })
+      .filter((v) => v !== undefined);
+    if (errors.length > 0) {
+      return errors.join("\n");
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];

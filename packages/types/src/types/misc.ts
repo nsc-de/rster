@@ -1,3 +1,4 @@
+import { Extends } from "@rster/util";
 import { JsonCompatible, SendMethod, TypeInformation } from "../types";
 
 /**
@@ -11,8 +12,15 @@ export class NullTypeInformation extends TypeInformation<null> {
     super();
   }
 
-  check(value: any): value is null {
-    return value === null;
+  check<T>(value: T) {
+    return (value === null) as Extends<T, null>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (value !== null) {
+      return `Not null, but a ${typeof value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];
@@ -66,8 +74,15 @@ export class UndefinedTypeInformation extends TypeInformation<undefined> {
     super();
   }
 
-  check(value: any): value is undefined {
-    return value === undefined;
+  check<T>(value: T) {
+    return (value === undefined) as Extends<T, undefined>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (value !== undefined) {
+      return `Not undefined, but a ${typeof value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];
@@ -120,9 +135,14 @@ export class AnyTypeInformation<T = any> extends TypeInformation<T> {
     super();
   }
 
-  check(value: T): value is T {
-    return true;
+  check<U>(_value: U) {
+    return true as Extends<U, T>;
   }
+
+  checkError(_value: unknown): string | undefined {
+    return undefined;
+  }
+
   sendableVia(): SendMethod[];
   sendableVia(m: SendMethod): boolean;
   sendableVia(m?: SendMethod): SendMethod[] | boolean {

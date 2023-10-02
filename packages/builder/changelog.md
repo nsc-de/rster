@@ -1,5 +1,28 @@
 # Changelog for @rster/builder
 
+## 0.1.7
+
+### Patch Changes
+
+- Update util dependency
+- Updated dependencies [98fa3d0]
+- Updated dependencies [3926989]
+- Updated dependencies
+  - @rster/types@0.1.8
+  - @rster/util@0.1.1
+  - @rster/common@0.1.3
+  - @rster/basic@0.1.6
+  - @rster/info@0.1.7
+
+## 0.1.6
+
+### Patch Changes
+
+- some small type-related patches
+- Updated dependencies
+  - @rster/types@0.1.6
+  - @rster/info@0.1.6
+
 ## v0.1.5
 
 - Bugfix: `@rster/builder` throws an error (500) if no body is provided in a request. This is confusing, because the error message is not helpful. This is now fixed.

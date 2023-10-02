@@ -1,5 +1,31 @@
 # Changelog for @rster/types
 
+## 0.1.8
+
+### Patch Changes
+
+- 98fa3d0: Create TypeInformation#checkError()
+- Update util dependency
+- Updated dependencies [3926989]
+  - @rster/util@0.1.1
+
+## 0.1.7
+
+### Patch Changes
+
+- Fix AllowAnyTypeInformation
+
+## 0.1.6
+
+### Patch Changes
+
+- some small type-related patches
+
+## v0.1.5
+
+- Introduce TypeInformationAccepting
+- Improve TypeInformation#check typings
+
 ## v0.1.4
 
 - Create ObjectTypeInformation#allOptional() and ObjectTypeInformation#allRequired() and ObjectTypeInformation#keys()

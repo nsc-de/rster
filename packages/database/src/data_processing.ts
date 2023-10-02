@@ -7,6 +7,17 @@
 // Type structure is no "essential" part, it is qol, but it is what makes rster fun to use.
 
 import { DeepMapOptional, RemoveThisParam } from "@rster/util";
+import {
+  api as buildApi,
+  module as buildModule,
+  method as buildMethod,
+  RsterApiModule,
+  RsterApiMethod,
+  ParameterDeclaration,
+  AnyParameterDeclaration,
+  RsterApi,
+} from "@rster/builder";
+import { TypeInformationAccepting } from "@rster/types";
 
 type TYPE_ERROR_0 =
   "TYPE ERROR 0: The next layer does not contain the key you are trying to passthrough.";
@@ -52,14 +63,14 @@ export type DataProcessingThis<
  */
 export type DataProcessingFunction<NEXT_LAYER> = (
   this: DataProcessingThis<NEXT_LAYER>,
-  ...args: unknown[]
-) => unknown | Promise<unknown> | void | Promise<void>;
+  ...args: any[]
+) => any | Promise<any> | void | Promise<void>;
 
 /**
  * A data processing function in external form. It's the same as {@link DataProcessingFunction} but without the this parameter.
  * The this parameter would cause issues on calling because typescript would find that the this parameter will not match it's type.
  */
-export type DataProcessingFunctionExternal = (...data: unknown[]) => unknown;
+export type DataProcessingFunctionExternal = (...data: any[]) => any;
 
 /**
  * Converts a {@link DataProcessingFunction} to a {@link DataProcessingFunctionExternal}
@@ -129,7 +140,7 @@ export type DeepMapDataProcessingSchema<
             NEXT_LAYER
           >
         : T[P];
-    } & DataProcessingBaseSchema<NEXT_LAYER>;
+    };
 
 /**
  * The DataProcessingSchema in its simple form (how the first layer should look like
@@ -297,6 +308,123 @@ export class DataProcessingLayer<
   ): DataProcessingLayer<INPUT_SCHEMA, typeof this.functions> {
     return new DataProcessingLayer(this.functions, inputSchema);
   }
+
+  /**
+   * Create `@rster/builder` api from the data processing layer.
+   */
+  public build<
+    U extends DeclarationForDataProcessingModule<typeof this.functions>
+  >(declaration: U) {
+    const convertToMethod = (
+      name: string,
+      method: DataProcessingFunctionExternal,
+      declaration: AnyParameterDeclaration
+    ) => {
+      return buildMethod(
+        name,
+        [`Data processing method for ${name}`],
+        declaration,
+        `/${name}`,
+        undefined,
+        (data) => {
+          console.log(data);
+          return method(data);
+        }
+      );
+    };
+
+    const convertToModule = (
+      name: string,
+      module: DataProcessingBaseSchema<undefined>,
+      declaration: DeclarationForDataProcessingModule<unknown>
+    ) => {
+      const modules: { [key: string]: RsterApiModule<typeof key, any, any> } =
+        {};
+
+      const methods: { [key: string]: RsterApiMethod<any, any> } = {};
+
+      if (!declaration)
+        throw new Error(
+          `Invalid schema, declaration is ${declaration} in path "${name}"`
+        );
+
+      for (const [key, value] of Object.entries(module)) {
+        if (typeof value === "function") {
+          methods[key] = convertToMethod(
+            key,
+            value,
+            declaration[key as keyof typeof declaration]
+          );
+          continue;
+        }
+        if (typeof value === "object") {
+          modules[key] = convertToModule(
+            key,
+            value,
+            declaration[key as keyof typeof declaration]
+          );
+          continue;
+        }
+        throw new Error(
+          `Invalid schema, key ${key} is not a function or object in path ${name}, but ${typeof value}`
+        );
+      }
+
+      return buildModule(
+        name,
+        [`Data processing module for ${name}`],
+        modules,
+        methods,
+        `/${name}`
+      );
+    };
+
+    const convertToApi = (
+      name: string,
+      module: DataProcessingBaseSchema<undefined>,
+      declaration: DeclarationForDataProcessingModule<unknown>
+    ) => {
+      const modules: { [key: string]: RsterApiModule<typeof key, any, any> } =
+        {};
+
+      const methods: { [key: string]: RsterApiMethod<any, any> } = {};
+
+      for (const [key, value] of Object.entries(module)) {
+        if (typeof value === "function") {
+          methods[key] = convertToMethod(
+            key,
+            value,
+            declaration[key as keyof typeof declaration]
+          );
+          continue;
+        }
+        if (typeof value === "object") {
+          modules[key] = convertToModule(
+            key,
+            value,
+            declaration[key as keyof typeof declaration]
+          );
+          continue;
+        }
+        throw new Error(
+          `Invalid schema, key ${key} is not a function or object in path ${name}`
+        );
+      }
+
+      return buildApi(
+        name,
+        [`Data processing module for ${name}`],
+        modules,
+        methods
+      );
+    };
+
+    return convertToApi(
+      "API",
+      this.functions!,
+      declaration
+    ) as unknown as BuilderApiFor<"API", typeof this.functions>;
+  }
 }
 
 /**
@@ -326,8 +454,109 @@ export function createDataProcessingLayer(
   nextLayer: any,
   inputSchema?: any
 ): any {
+  if (nextLayer instanceof DataProcessingLayer) {
+    nextLayer = nextLayer.functions;
+  }
+
   if (inputSchema === undefined) {
     return new DataProcessingLayer(null, nextLayer);
   }
   return new DataProcessingLayer(nextLayer, inputSchema);
 }
+
+export type RemoveUndefinedProperties<T> = {
+  [K in keyof T as T[K] extends undefined ? never : K]: T[K];
+};
+
+export type DeclarationForDataProcessingFunction<
+  FUNCTION extends DataProcessingFunctionExternal
+> = FUNCTION extends (
+  this: DataProcessingThis<unknown>,
+  ...args: infer ARGS
+) => infer RETURN
+  ? ARGS["length"] extends 1
+    ? ParameterDeclaration<
+        TypeInformationAccepting<RETURN>,
+        {
+          [key in keyof ARGS[0]]:
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: true }
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: false };
+        },
+        {
+          [key in keyof ARGS[0]]:
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: true }
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: false };
+        },
+        {
+          [key in keyof ARGS[0]]:
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: true }
+            | { type: TypeInformationAccepting<ARGS[0][key]>; required: false };
+        }
+      >
+    : ARGS["length"] extends 0
+    ? ParameterDeclaration<
+        TypeInformationAccepting<RETURN>,
+        Record<string, never>,
+        Record<string, never>,
+        Record<string, never>
+      >
+    : "TYPE ERROR 1: The function has more than one argument." & never
+  : never;
+
+export type DeclarationForDataProcessingModule<
+  MODULE extends DataProcessingBaseSchema<unknown> | undefined | unknown
+> = {
+  [key in keyof MODULE]: MODULE[key] extends DataProcessingFunctionExternal
+    ? DeclarationForDataProcessingFunction<MODULE[key]>
+    : MODULE[key] extends DataProcessingBaseSchema<unknown>
+    ? DeclarationForDataProcessingModule<MODULE[key]>
+    : never;
+};
+
+export type BuilderMethodFor<
+  NAME extends string,
+  FUNC extends DataProcessingFunctionExternal
+> = RsterApiMethod<NAME, DeclarationForDataProcessingFunction<FUNC>>;
+
+export type BuilderModuleFor<
+  NAME extends string,
+  MODULE extends DataProcessingBaseSchema<unknown> | undefined | unknown
+> = RsterApiModule<
+  NAME,
+  {
+    [K in keyof MODULE &
+      string as MODULE[K] extends DataProcessingFunctionExternal
+      ? never
+      : K]: BuilderModuleFor<K, MODULE[K]>;
+  },
+  {
+    [K in keyof MODULE &
+      string as MODULE[K] extends DataProcessingFunctionExternal
+      ? K
+      : never]: BuilderMethodFor<
+      K,
+      MODULE[K] extends DataProcessingFunctionExternal ? MODULE[K] : never
+    >;
+  }
+>;
+export type BuilderApiFor<
+  NAME extends string,
+  MODULE extends DataProcessingBaseSchema<unknown> | undefined | unknown
+> = RsterApi<
+  NAME,
+  {
+    [K in keyof MODULE &
+      string as MODULE[K] extends DataProcessingFunctionExternal
+      ? never
+      : K]: BuilderModuleFor<K, MODULE[K]>;
+  },
+  {
+    [K in keyof MODULE &
+      string as MODULE[K] extends DataProcessingFunctionExternal
+      ? K
+      : never]: BuilderMethodFor<
+      K,
+      MODULE[K] extends DataProcessingFunctionExternal ? MODULE[K] : never
+    >;
+  }
+>;

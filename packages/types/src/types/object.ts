@@ -1,3 +1,4 @@
+import { Extends } from "@rster/util";
 import { ConversionRegister } from "../conversion";
 import {
   AllowAnyTypeInformation,
@@ -43,17 +44,45 @@ export class ObjectTypeInformation<
     super();
   }
 
-  check(value: any): value is ObjectType<T> {
-    return (
-      typeof value === "object" &&
+  check<U>(value: U) {
+    if (value === null) return false as Extends<U, ObjectType<T>>;
+
+    return (typeof value === "object" &&
       Object.keys(this.properties).every((key) => {
         const property = this.properties[key];
         return (
-          (!property.required && value[key] === undefined) || // optional property
-          property.type.check(value[key])
+          (!property.required &&
+            value[key as keyof typeof value] === undefined) || // optional property
+          property.type.check(value[key as keyof typeof value])
         );
+      })) as Extends<U, ObjectType<T>>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "object" || value === null) {
+      return `Not an object, but a ${typeof value}`;
+    }
+
+    const value_ = value as Record<string, unknown>;
+
+    const errors = Object.entries(this.properties)
+      .map(([key, property]) => {
+        if (!property.required && value_[key] === undefined) {
+          return undefined;
+        }
+        const error = property.type.checkError(value_[key]);
+        if (error) {
+          return `${key}: ${error}`;
+        }
+        return undefined;
       })
-    );
+      .filter((it) => it !== undefined);
+
+    if (errors.length === 0) {
+      return undefined;
+    }
+
+    return `Some properties failed: {${errors.join(", ")}}`;
   }
 
   sendableVia(): SendMethod[];

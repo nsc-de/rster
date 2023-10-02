@@ -1,9 +1,10 @@
+import { Extends } from "@rster/util";
 import { ConversionRegister } from "./conversion";
 
 /**
  * Shortcut for AllowAnyTypeInformation
  */
-export type AllowAnyTypeInformation = TypeInformation<any>;
+export type AllowAnyTypeInformation = TypeInformation<any, any>;
 
 /**
  * Type for destructed type information
@@ -41,7 +42,7 @@ export type JsonCompatible =
   | JsonCompatibleArray
   | JsonCompatibleObject;
 
-export abstract class TypeInformation<T> {
+export abstract class TypeInformation<T, U = undefined> {
   constructor() {
     // Register the type in the conversion register
     this.__registerType();
@@ -62,7 +63,14 @@ export abstract class TypeInformation<T> {
    *
    * @param value - The value to check
    */
-  abstract check(value: any): value is T;
+  abstract check<V>(value: V): U extends any ? boolean : Extends<V, T>;
+
+  /**
+   * Returns the check-error for the given value
+   * @param value - The value to check
+   * @returns The error if the value is not of the type defined by this type information
+   */
+  abstract checkError(value: unknown): string | undefined;
 
   /**
    * Get a list of methods that can be used to send this type to the server
@@ -84,13 +92,6 @@ export abstract class TypeInformation<T> {
 
   abstract json(): unknown;
 }
-
-/**
- * Type utility for converting a type to not include undefined
- */
-export type NoUndefined<TYPE, ALTERNATIVE> = TYPE extends undefined
-  ? ALTERNATIVE
-  : TYPE;
 
 /**
  * Type utility for converting a type a type information to it's typescript equivalent
@@ -123,4 +124,8 @@ export type MapToPrimitiveType<
   TYPE extends Record<string, { type: AllowAnyTypeInformation }>
 > = {
   [key in keyof TYPE]: PrimitiveType<TYPE[key]["type"]>;
+};
+
+export type TypeInformationAccepting<TYPE> = TypeInformation<any> & {
+  check(value: TYPE): true;
 };

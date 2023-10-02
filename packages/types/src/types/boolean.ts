@@ -1,3 +1,4 @@
+import { Extends } from "@rster/util";
 import { JsonCompatible, SendMethod, TypeInformation } from "../types";
 
 /**
@@ -15,8 +16,19 @@ export class BooleanTypeInformation<
     super();
   }
 
-  check(value: any): value is T {
-    return typeof value === "boolean" && value === this.value;
+  check<U>(value: U) {
+    return (typeof value === "boolean" &&
+      (value as unknown) === this.value) as Extends<U, T>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "boolean") {
+      return `Not a boolean, but a ${typeof value}`;
+    }
+    if (value !== this.value) {
+      return `Not the boolean ${this.value}, but ${value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];
@@ -70,8 +82,15 @@ export class AnyBooleanTypeInformation extends TypeInformation<boolean> {
     super();
   }
 
-  check(value: any): value is boolean {
-    return typeof value === "boolean";
+  check<T>(value: T) {
+    return (typeof value === "boolean") as Extends<T, boolean>;
+  }
+
+  checkError(value: unknown): string | undefined {
+    if (typeof value !== "boolean") {
+      return `Not a boolean, but a ${typeof value}`;
+    }
+    return undefined;
   }
 
   sendableVia(): SendMethod[];

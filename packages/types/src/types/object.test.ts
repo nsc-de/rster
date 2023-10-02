@@ -15,6 +15,24 @@ describe("ObjectTypeInformation", () => {
     expect(typeInfo.check({ name: "Jane", age: "25" })).toBe(false);
   });
 
+  it("checkError", () => {
+    const typeInfo = new ObjectTypeInformation({
+      name: { required: true, type: new StringTypeInformation("John") },
+      age: { required: false, type: new NumberTypeInformation(30) },
+    });
+    expect(typeInfo.checkError({ name: "John" })).toBeUndefined();
+    expect(typeInfo.checkError({ name: "John", age: 30 })).toBeUndefined();
+    expect(typeInfo.checkError({ name: "Jane", age: 25 })).toEqual(
+      "Some properties failed: {name: Not the string John, but Jane, age: Not the number 30, but 25}"
+    );
+    expect(typeInfo.checkError({ name: "Jane" })).toEqual(
+      "Some properties failed: {name: Not the string John, but Jane}"
+    );
+    expect(typeInfo.checkError({ name: "Jane", age: "25" })).toEqual(
+      "Some properties failed: {name: Not the string John, but Jane, age: Not a number, but a string}"
+    );
+  });
+
   it("sendableVia", () => {
     const typeInfo = new ObjectTypeInformation({
       name: { required: true, type: new StringTypeInformation("John") },

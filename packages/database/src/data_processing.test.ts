@@ -1,8 +1,10 @@
+import { number } from "@rster/types";
 import {
   DataProcessingLayer,
   PassThrough,
   createDataProcessingLayer,
 } from "./data_processing";
+import { RsterApiMethod } from "@rster/builder";
 
 describe("DataProcessingLayer", () => {
   it("should create a DataProcessingLayer", () => {
@@ -176,6 +178,115 @@ describe("DataProcessingLayer", () => {
     const layer2 = layer.layer(PassThrough);
     expect(layer2.functions.a).toBeInstanceOf(Function);
     expect(layer2.functions.a()).toBe(1);
+  });
+
+  describe("#build()", () => {
+    it("should build an rster builder api from the layer", () => {
+      const layer = new DataProcessingLayer(
+        {
+          a: () => {
+            return 1;
+          },
+        },
+        { a: PassThrough }
+      );
+      const builder = layer.build({
+        a: {
+          returns: number(),
+        },
+      });
+      expect(builder).toBeDefined();
+      expect(builder.methods.a).toBeInstanceOf(RsterApiMethod);
+      // @ts-ignore
+      expect(builder.native().a()).toBe(1);
+    });
+
+    it("should build an rster builder api from the layer with a next layer", () => {
+      const layer = new DataProcessingLayer(
+        {
+          a: () => {
+            return 1;
+          },
+        },
+        {
+          a: PassThrough,
+          b: () => {
+            return 2;
+          },
+        }
+      );
+      const builder = layer.build({
+        a: {
+          returns: number(),
+        },
+        b: {
+          returns: number(),
+        },
+      });
+      expect(builder).toBeDefined();
+      expect(builder.methods.a).toBeInstanceOf(RsterApiMethod);
+      // @ts-ignore
+      expect(builder.native().a()).toBe(1);
+      expect(builder.methods.b).toBeInstanceOf(RsterApiMethod);
+      // @ts-ignore
+      expect(builder.native().b()).toBe(2);
+    });
+
+    it("should build an rster builder api from the layer with nested functions", () => {
+      const layer = new DataProcessingLayer(
+        {
+          a: {
+            b: () => {
+              return 1;
+            },
+          },
+        },
+        {
+          a: {
+            b: PassThrough,
+          },
+        }
+      );
+      const builder = layer.build({
+        a: {
+          b: {
+            returns: number(),
+          },
+        },
+      });
+      expect(builder).toBeDefined();
+      expect(builder.modules.a.methods.b).toBeInstanceOf(RsterApiMethod);
+      // @ts-ignore
+      expect(builder.native().a.b()).toBe(1);
+    });
+
+    it("test method arguments", () => {
+      const layer = new DataProcessingLayer(
+        {},
+        {
+          add: function ({ a, b }: { a: number; b: number }) {
+            return a + b;
+          },
+        }
+      );
+
+      const builder = layer.build({
+        add: {
+          returns: number(),
+          expectBody: {
+            a: { type: number(), required: true },
+            b: { type: number(), required: true },
+          },
+        },
+      });
+      expect(builder).toBeDefined();
+      expect(builder.methods.add).toBeInstanceOf(RsterApiMethod);
+
+      const native = builder.native();
+
+      // @ts-ignore
+      expect(native.add({ a: 1, b: 2 })).toBe(3);
+    });
   });
 });
 

@@ -1,5 +1,16 @@
 # Changelog for @rster/worker-express
 
+## 0.1.3
+
+### Patch Changes
+
+- Update util dependency
+- Updated dependencies [98fa3d0]
+- Updated dependencies
+  - @rster/types@0.1.8
+  - @rster/common@0.1.3
+  - @rster/basic@0.1.6
+
 ## v0.1.2
 
 - Expand `RestfulApi` prototype with `express()` method

@@ -2,6 +2,7 @@ import { number, object, string } from "@rster/types";
 import { createDatabase } from "./database";
 import { JsObject } from "./adapters/object";
 import { DataProcessingLayer, PassThrough } from "./data_processing";
+import { createSyntheticContext } from "@rster/common";
 
 describe("createDatabase", () => {
   it("should be defined", () => {
@@ -1258,7 +1259,7 @@ describe("database", () => {
 
         adapter.__data = { users: [] };
 
-        await database.tables.users.insert({ id: 1, name: "test" });
+        await database.tables.users.insert({ data: { id: 1, name: "test" } });
         expect(adapter.__data).toEqual({ users: [{ id: 1, name: "test" }] });
       });
 
@@ -1297,7 +1298,7 @@ describe("database", () => {
 
         adapter.__data = { users: [] };
 
-        await database.tables.users.insert({ id: 1, name: "test" });
+        await database.tables.users.insert({ data: { id: 1, name: "test" } });
         expect(adapter.__data).toEqual({ users: [{ id: "1", name: "test" }] });
       });
     });
@@ -1319,7 +1320,10 @@ describe("database", () => {
 
         adapter.__data = { users: [{ id: 1, name: "test" }] };
 
-        await database.tables.users.update({ id: 1 }, { name: "test2" });
+        await database.tables.users.update({
+          search: { id: 1 },
+          data: { name: "test2" },
+        });
         expect(adapter.__data).toEqual({
           users: [{ id: 1, name: "test2" }],
         });
@@ -1346,7 +1350,10 @@ describe("database", () => {
           ],
         };
 
-        await database.tables.users.update({ name: "test" }, { name: "test2" });
+        await database.tables.users.update({
+          search: { name: "test" },
+          data: { name: "test2" },
+        });
         expect(adapter.__data).toEqual({
           users: [
             { id: 1, name: "test2" },
@@ -1377,13 +1384,13 @@ describe("database", () => {
           ],
         };
 
-        await database.tables.users.update(
-          { name: "test" },
-          { name: "test2" },
-          {
+        await database.tables.users.update({
+          search: { name: "test" },
+          data: { name: "test2" },
+          options: {
             limit: 2,
-          }
-        );
+          },
+        });
         expect(adapter.__data).toEqual({
           users: [
             { id: 1, name: "test2" },
@@ -1428,7 +1435,10 @@ describe("database", () => {
 
         adapter.__data = { users: [{ id: "1", name: "test" }] };
 
-        await database.tables.users.update({ id: 1 }, { name: "test2" });
+        await database.tables.users.update({
+          search: { id: 1 },
+          data: { name: "test2" },
+        });
         expect(adapter.__data).toEqual({
           users: [{ id: "1", name: "test2" }],
         });
@@ -1452,7 +1462,7 @@ describe("database", () => {
 
         adapter.__data = { users: [{ id: 1, name: "test" }] };
 
-        await database.tables.users.delete({ id: 1 });
+        await database.tables.users.delete({ search: { id: 1 } });
         expect(adapter.__data).toEqual({ users: [] });
       });
 
@@ -1477,7 +1487,7 @@ describe("database", () => {
           ],
         };
 
-        await database.tables.users.delete({ name: "test" });
+        await database.tables.users.delete({ search: { name: "test" } });
         expect(adapter.__data).toEqual({ users: [] });
       });
 
@@ -1503,7 +1513,10 @@ describe("database", () => {
           ],
         };
 
-        await database.tables.users.delete({ name: "test" }, { limit: 2 });
+        await database.tables.users.delete({
+          search: { name: "test" },
+          options: { limit: 2 },
+        });
         expect(adapter.__data).toEqual({ users: [{ id: 3, name: "test" }] });
       });
 
@@ -1542,7 +1555,7 @@ describe("database", () => {
 
         adapter.__data = { users: [{ id: "1", name: "test" }] };
 
-        await database.tables.users.delete({ id: 1 });
+        await database.tables.users.delete({ search: { id: 1 } });
         expect(adapter.__data).toEqual({ users: [] });
       });
     });
@@ -1564,7 +1577,7 @@ describe("database", () => {
 
         adapter.__data = { users: [{ id: 1, name: "test" }] };
 
-        const rows = await database.tables.users.get({ id: 1 });
+        const rows = await database.tables.users.get({ search: { id: 1 } });
         expect(rows).toEqual([{ id: 1, name: "test" }]);
       });
 
@@ -1603,7 +1616,7 @@ describe("database", () => {
 
         adapter.__data = { users: [{ id: "1", name: "test" }] };
 
-        const rows = await database.tables.users.get({ id: 1 });
+        const rows = await database.tables.users.get({ search: { id: 1 } });
         expect(rows).toEqual([{ id: 1, name: "test" }]);
       });
     });
@@ -1626,7 +1639,7 @@ describe("database", () => {
           users: [{ id: 1 }, { id: 2 }],
         };
 
-        const count = await database.tables.users.count({ id: 1 });
+        const count = await database.tables.users.count({ search: { id: 1 } });
         expect(count).toEqual(1);
       });
 
@@ -1652,7 +1665,9 @@ describe("database", () => {
           ],
         };
 
-        const count = await database.tables.users.count({ name: "test" });
+        const count = await database.tables.users.count({
+          search: { name: "test" },
+        });
         expect(count).toEqual(2);
       });
 
@@ -1673,10 +1688,10 @@ describe("database", () => {
           users: [{ name: "test" }, { name: "test" }, { name: "test" }],
         };
 
-        const count = await database.tables.users.count(
-          { name: "test" },
-          { limit: 2 }
-        );
+        const count = await database.tables.users.count({
+          search: { name: "test" },
+          options: { limit: 2 },
+        });
         expect(count).toEqual(2);
       });
 
@@ -1714,7 +1729,7 @@ describe("database", () => {
           users: [{ id: "1" }, { id: "2" }],
         };
 
-        const count = await database.tables.users.count({ id: 1 });
+        const count = await database.tables.users.count({ search: { id: 1 } });
         expect(count).toEqual(1);
       });
     });
@@ -1737,6 +1752,56 @@ describe("database", () => {
 
       const layer = database.layer(PassThrough);
       expect(layer).toBeInstanceOf(DataProcessingLayer);
+    });
+  });
+
+  describe("#build()", () => {
+    it("should create a builder api from the database", async () => {
+      const adapter = JsObject();
+      const database = createDatabase(
+        {
+          tables: {
+            users: object({
+              id: { required: true, type: number() },
+              name: { required: true, type: string() },
+            }),
+          },
+        },
+        adapter
+      );
+
+      database.build();
+    });
+
+    it("builder api should insert a row", async () => {
+      const adapter = JsObject();
+      const database = createDatabase(
+        {
+          tables: {
+            users: object({
+              id: { required: true, type: number() },
+              name: { required: true, type: string() },
+            }),
+          },
+        },
+        adapter
+      );
+
+      const build = database.build();
+
+      const api = build.rest();
+      const { promise, pass } = createSyntheticContext({
+        path: "/users/insert",
+        body: { data: { id: 1, name: "test" } },
+      });
+
+      api.handle(...pass);
+      const test = api.info();
+
+      await expect(promise).resolves.toEqual({
+        status: 200,
+        body: { data: { id: 1, name: "test" } },
+      });
     });
   });
 });
