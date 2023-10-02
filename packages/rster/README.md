@@ -84,7 +84,6 @@ _**NOTE**: This project is still in early development and features are added fre
 [![npm][npm-package-manager-shield]][npm-package-manager-url]
 [![eslint][eslint-shield]][eslint-url]
 [![jest][jest-shield]][jest-url]
-[![express][express-shield]][express-url]
 [![turbo][turbo-shield]][turbo-url]
 [![changesets][changesets-shield]][changesets-url]
 
@@ -93,7 +92,6 @@ _**NOTE**: This project is still in early development and features are added fre
 - [npm][npm-package-manager-url]
 - [eslint][eslint-url]
 - [jest][jest-url]
-- [express][express-url]
 - [turbo][turbo-url]
 - [changesets][changesets-url]
 

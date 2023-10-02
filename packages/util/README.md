@@ -24,11 +24,11 @@
   <a href="https://github.com/nsc-de/rster">
     <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/slash.png" alt="Logo" height="80" className="height-80px" />
     </a>
-    <a href="https://github.com/nsc-de/rster/tree/master/packages/authorization">
-    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/package-authorization.png" alt="Logo" height="80" className="height-80px" />
+    <a href="https://github.com/nsc-de/rster/tree/master/packages/util">
+    <img src="https://raw.githubusercontent.com/nsc-de/rster/master/images/%40rster/package-util.png" alt="Logo" height="80" className="height-80px" />
   </a>
 
-<h3 align="center">@rster/authorization</h3>
+<h3 align="center">@rster/util</h3>
 
   <p align="center">
     <font color="red"><s>build</s></font> design your backend
@@ -66,33 +66,13 @@
 
 ## About The Project
 
-`@rster/authorization` is a package of the `@rster` project. It provides a authorization middleware for rster. Find tutorials and documentation on the [rster website](https://nsc-de.github.io/rster/). The package is available on [npm](https://www.npmjs.com/package/@rster/authorization).
+`@rster/util` is a package of the `rster` project. It provides common type utilities used across many rster packages. If you use the default `rster` package, `@rster/util` will be bundled. Find tutorials and documentation on the [rster website](https://nsc-de.github.io/rster/). The package is available on [npm](https://www.npmjs.com/package/@rster/util).
 
 [rster repository](https://github.com/nsc-de/rster)
 ·
-[rster package on npm](https://www.npmjs.com/package/@rster/authorization)
+[rster package on npm](https://www.npmjs.com/package/@rster/util)
 ·
 [rster documentation](https://nsc-de.github.io/rster/)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Built With
-
-[![typescript][typescript-shield]][typescript-url]
-[![nodejs][nodejs-shield]][nodejs-url]
-[![npm][npm-package-manager-shield]][npm-package-manager-url]
-[![eslint][eslint-shield]][eslint-url]
-[![jest][jest-shield]][jest-url]
-[![turbo][turbo-shield]][turbo-url]
-[![changesets][changesets-shield]][changesets-url]
-
-- [typescript][typescript-url]
-- [nodejs][nodejs-url]
-- [npm][npm-package-manager-url]
-- [eslint][eslint-url]
-- [jest][jest-url]
-- [turbo][turbo-url]
-- [changesets][changesets-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -135,14 +115,34 @@ Project Link: [https://github.com/nsc-de/rster/tree/master/packages/authorizatio
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Built With
+
+[![typescript][typescript-shield]][typescript-url]
+[![nodejs][nodejs-shield]][nodejs-url]
+[![npm][npm-package-manager-shield]][npm-package-manager-url]
+[![eslint][eslint-shield]][eslint-url]
+[![jest][jest-shield]][jest-url]
+[![turbo][turbo-shield]][turbo-url]
+[![changesets][changesets-shield]][changesets-url]
+
+- [typescript][typescript-url]
+- [nodejs][nodejs-url]
+- [npm][npm-package-manager-url]
+- [eslint][eslint-url]
+- [jest][jest-url]
+- [turbo][turbo-url]
+- [changesets][changesets-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- link shields -->
 
 [github-shield]: https://img.shields.io/badge/github-grey?style=for-the-badge&logo=github
-[github-url]: https://github.com/nsc-de/rster/tree/master/packages/authorization
+[github-url]: https://github.com/nsc-de/rster/tree/master/packages/util
 [npm-shield]: https://img.shields.io/badge/npm-red?style=for-the-badge&logo=npm
-[npm-url]: https://www.npmjs.com/package/%40rster/authorization
+[npm-url]: https://www.npmjs.com/package/%40rster/util
 [typedoc-shield]: https://img.shields.io/badge/typedoc-darkblue?style=for-the-badge&logo=typescript
-[typedoc-url]: https://nsc-de.github.io/rster/docs/api-reference/authorization/
+[typedoc-url]: https://nsc-de.github.io/rster/docs/api-reference/util/
 [documentation-shield]: https://img.shields.io/badge/documentation-blue.svg?style=for-the-badge&logo=github
 [documentation-url]: https://nsc-de.github.io/rster/
 
@@ -160,8 +160,8 @@ Project Link: [https://github.com/nsc-de/rster/tree/master/packages/authorizatio
 [build-url]: https://github.com/nsc-de/rster/actions/workflows/ci.yml
 [contributors-shield]: https://img.shields.io/github/contributors/nsc-de/rster.svg?style=for-the-badge
 [contributors-url]: https://github.com/nsc-de/rster/graphs/contributors
-[version-shield]: https://img.shields.io/npm/v/@rster/authorization?style=for-the-badge
-[downloads-shield]: https://img.shields.io/npm/dt/@rster/authorization?style=for-the-badge
+[version-shield]: https://img.shields.io/npm/v/@rster/util?style=for-the-badge
+[downloads-shield]: https://img.shields.io/npm/dt/@rster/util?style=for-the-badge
 [coverage-shield]: https://img.shields.io/codecov/c/github/nsc-de/rster?style=for-the-badge
 [coverage-url]: https://codecov.io/gh/nsc-de/rster
 
