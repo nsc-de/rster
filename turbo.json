@@ -22,7 +22,7 @@
     "typedoc": {
       "cache": true,
       "dependsOn": [],
-      "inputs": ["src/**/*"]
+      "inputs": ["src/**/*", "typedoc.config.js", "README.md"]
     },
     "dev": {
       "cache": false,
