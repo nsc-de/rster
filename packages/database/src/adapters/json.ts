@@ -60,7 +60,6 @@ export const JSONAdapter = createDatabaseAdapter<
       this.savePromise = undefined;
 
       if (this.waitingSaveProcess) {
-        console.log("Waiting save process");
         this.savePromise = this.waitingSaveProcess();
         this.waitingSaveProcess = undefined;
       }

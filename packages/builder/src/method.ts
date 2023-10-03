@@ -189,7 +189,7 @@ export class RsterApiMethod<
                 [key]: {
                   type: (
                     value as { type: AllowAnyTypeInformation }
-                  ).type.json(),
+                  ).type?.json(),
 
                   required: (value as { required: boolean }).required,
                 },

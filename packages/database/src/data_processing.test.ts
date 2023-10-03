@@ -5,6 +5,7 @@ import {
   createDataProcessingLayer,
 } from "./data_processing";
 import { RsterApiMethod } from "@rster/builder";
+import { createSyntheticContext } from "@rster/common";
 
 describe("DataProcessingLayer", () => {
   it("should create a DataProcessingLayer", () => {
@@ -260,7 +261,7 @@ describe("DataProcessingLayer", () => {
       expect(builder.native().a.b()).toBe(1);
     });
 
-    it("test method arguments", () => {
+    it("test method arguments", async () => {
       const layer = new DataProcessingLayer(
         {},
         {
@@ -284,8 +285,26 @@ describe("DataProcessingLayer", () => {
 
       const native = builder.native();
 
-      // @ts-ignore
       expect(native.add({ a: 1, b: 2 })).toBe(3);
+
+      const { pass, promise } = createSyntheticContext({
+        path: "/add",
+        body: {
+          a: 1,
+          b: 2,
+        },
+      });
+
+      const api = builder.rest();
+
+      api.handle(...pass);
+
+      await expect(promise).resolves.toEqual({
+        code: 200,
+        data: "3",
+        headers: { "Content-Type": "application/json" },
+        sendFile: undefined,
+      });
     });
   });
 });

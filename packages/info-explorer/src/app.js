@@ -74,17 +74,14 @@ export default function App() {
 
   useEffect(() => {
     if (!infoClientSettings) return;
-    console.log("infoClientSettings", infoClientSettings);
     if (infoClientSettings.proxy)
-      console.log("Using proxy", infoClientSettings.proxy);
-
-    setInfoClient(
-      new InfoClient({
-        basePath: pathname,
-        url: `${protocol}//${host}`,
-        proxy: infoClientSettings.proxy ?? undefined,
-      })
-    );
+      setInfoClient(
+        new InfoClient({
+          basePath: pathname,
+          url: `${protocol}//${host}`,
+          proxy: infoClientSettings.proxy ?? undefined,
+        })
+      );
   }, [pathname, protocol, host, infoClientSettings]);
 
   useEffect(() => {
@@ -216,7 +213,6 @@ export default function App() {
           <Routes>
             {index ? (
               index.map((path) => {
-                console.log(`${path.path}@${path.method}`);
                 return (
                   <Route
                     path={`${path.path}@${path.method}`}
