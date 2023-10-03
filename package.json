@@ -29,7 +29,7 @@
   "scripts": {
     "build": "turbo run build",
     "docs": "npm run build && npm run docs:prepare && npm run docs:build",
-    "docs:build": "npm run prepare:docs && cd docs && npm run build && cd ..",
+    "docs:build": "cd docs && npm run build && cd ..",
     "docs:prepare": "turbo typedoc",
     "lint": "turbo run lint",
     "test": "turbo run test",
