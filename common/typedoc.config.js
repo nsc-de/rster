@@ -6,7 +6,7 @@ module.exports = function (p) {
     entryPoints: [path.resolve(p, "./src/index.ts")],
     out: path.resolve(
       __dirname,
-      "../docs/static/api-reference",
+      "../docs/static/docs/api-reference/",
       path.basename(p)
     ),
     tsconfig: path.resolve(p, "./tsconfig.json"),

@@ -148,27 +148,6 @@ const config = {
         darkTheme: darkCodeTheme,
       },
     }),
-
-  plugins: [
-    // ...packages.map((it, i) => [
-    //   "docusaurus-plugin-typedoc",
-    //   // Plugin / TypeDoc options
-    //   {
-    //     entryPoints: [path.resolve(`../packages/${it.name}/src/index.ts`)],
-    //     tsconfig: path.resolve(`../packages/${it.name}/tsconfig.json`),
-    //     id: `@typedoc/${it.name}`,
-    //     plugin: ["typedoc-plugin-mdn-links"],
-    //     skipErrorChecking: true,
-    //     cleanOutputDir: true,
-    //     out: `api-reference/${it.name}`,
-    //     sidebar: {
-    //       autoConfiguration: true,
-    //       categoryLabel: it.packageJson.name,
-    //       position: i,
-    //     },
-    //   },
-    // ]),
-  ],
 };
 
 module.exports = config;
