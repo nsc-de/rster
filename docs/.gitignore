@@ -25,4 +25,4 @@ typedoc/typedoc/*
 docs/api-reference/*
 !docs/api-reference/index.md
 !docs/api-reference/_category_.yml
-static/typedoc/*
+static/api-reference/*
