@@ -27,11 +27,11 @@
     "typedoc": "^0.25.1"
   },
   "scripts": {
-    "build:docs:docusaurus": "npm run prepare:docs && cd docs && npm run build && cd ..",
-    "build:docs": "npm run build:docs:docusaurus",
     "build": "turbo run build",
+    "docs": "npm run docs:prepare && npm run docs:build",
+    "docs:build": "npm run prepare:docs && cd docs && npm run build && cd ..",
+    "docs:prepare": "turbo typedoc",
     "lint": "turbo run lint",
-    "prepare:docs": "cd docs && npm ci && cd ..",
     "test": "turbo run test",
     "typedoc": "turbo run typedoc"
   },
