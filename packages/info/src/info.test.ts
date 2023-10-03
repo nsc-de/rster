@@ -196,7 +196,6 @@ describe("Context", () => {
           this.description("And another test path");
           this.field("test4", "hello world4");
           this.field("test5", "hello world5");
-          console.log(this.getPath());
           this.action((req, res) => {
             res.send("Hello World").end();
           });

@@ -2,7 +2,9 @@ import {
   AllowAnyTypeInformation,
   ObjectTypeInformation,
   PrimitiveType,
+  array,
   number,
+  object,
   undefinedType,
 } from "@rster/types";
 import { DatabaseAdapter } from "./adapter";
@@ -514,27 +516,55 @@ class $Database<
           {
             insert: {
               returns: undefinedType(),
-              bodyParameters: this.inputTypes[key],
+              expectBody: {
+                data: { type: this.inputTypes[key], required: true },
+              },
             },
             get: {
-              returns: this.outputTypes[key],
-              bodyParameters: this.inputTypes[key].allOptional(),
+              returns: array(
+                this.outputTypes[key] as ObjectTypeInformation<any>
+              ),
+              expectBody: {
+                search: {
+                  type: this.inputTypes[key].allOptional(),
+                  required: true,
+                },
+              },
             },
             update: {
               returns: undefinedType(),
-              bodyParameters: this.inputTypes[key].allOptional(),
+              expectBody: {
+                search: {
+                  type: this.inputTypes[key].allOptional(),
+                  required: true,
+                },
+                data: {
+                  type: this.inputTypes[key].allOptional(),
+                  required: true,
+                },
+              },
             },
             delete: {
               returns: undefinedType(),
-              bodyParameters: this.inputTypes[key].allOptional(),
+              expectBody: {
+                search: {
+                  type: this.inputTypes[key].allOptional(),
+                  required: true,
+                },
+              },
             },
             count: {
               returns: number(),
-              bodyParameters: this.inputTypes[key].allOptional(),
+              expectBody: {
+                search: {
+                  type: this.inputTypes[key].allOptional(),
+                  required: true,
+                },
+              },
             },
             create: {
               returns: undefinedType(),
-              bodyParameters: this.definition.tables[key],
+              expectBody: this.definition.tables[key],
             },
             drop: {
               returns: undefinedType(),

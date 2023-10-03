@@ -1796,11 +1796,30 @@ describe("database", () => {
       });
 
       api.handle(...pass);
-      const test = api.info();
 
       await expect(promise).resolves.toEqual({
-        status: 200,
-        body: { data: { id: 1, name: "test" } },
+        code: 200,
+        data: "null",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        sendFile: undefined,
+      });
+
+      const { promise: promise2, pass: pass2 } = createSyntheticContext({
+        path: "/users/get",
+        body: { search: { id: 1 } },
+      });
+
+      api.handle(...pass2);
+
+      await expect(promise2).resolves.toEqual({
+        code: 200,
+        data: '[{"id":1,"name":"test"}]',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        sendFile: undefined,
       });
     });
   });

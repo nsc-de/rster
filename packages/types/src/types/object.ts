@@ -119,6 +119,9 @@ export class ObjectTypeInformation<
 
   exportToJson(value: ObjectType<T>): JsonCompatible {
     if (Array.isArray(value) || typeof value !== "object" || value === null) {
+      if (value === null) throw new Error("Expected object, got null");
+      if (Array.isArray(value))
+        throw new Error(`Expected object, got array (value: ${value}))`);
       throw new Error(`Expected object, got ${typeof value}`);
     }
     const value_: Record<string, unknown> = value;

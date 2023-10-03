@@ -326,10 +326,7 @@ export class DataProcessingLayer<
         declaration,
         `/${name}`,
         undefined,
-        (data) => {
-          console.log(data);
-          return method(data);
-        }
+        (data) => method(data)
       );
     };
 

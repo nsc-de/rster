@@ -32,8 +32,6 @@ function RenderDropdown({ _className, format, path, title }) {
 function RenderUl({ className, format, path }) {
   path = path ?? [];
 
-  console.log(format);
-
   return (
     <ul className={`list-unstyled ps-0 ${className ?? ""}`}>
       {format.map((item, i) => (
