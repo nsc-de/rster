@@ -8,7 +8,7 @@ title: API Reference
 
 Rster consists of a number of packages. The main package is `rster`. All other packages are accessible through `@rster/{package-name}`. The packages are listed below with a link to their API reference.
 
-- [rster](pathname:///docs/pathname:///docs/api-reference/rster/)
+- [rster](pathname:///docs/api-reference/rster/)
 - [@rster/authorization](pathname:///docs/api-reference/authorization)
 - [@rster/basic](pathname:///docs/api-reference/basic)
 - [@rster/builder](pathname:///docs/api-reference/builder)
