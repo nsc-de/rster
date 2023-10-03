@@ -1,0 +1,82 @@
+[
+  {
+    "name": "@rster/authorization",
+    "path": "authorization",
+    "included_in_rster": false
+  },
+  {
+    "name": "@rster/basic",
+    "path": "basic",
+    "included_in_rster": true
+  },
+  {
+    "name": "@rster/builder",
+    "path": "builder",
+    "included_in_rster": false
+  },
+  {
+    "name": "@rster/common",
+    "path": "common",
+    "included_in_rster": true
+  },
+  {
+    "name": "@rster/database",
+    "path": "database",
+    "included_in_rster": false
+  },
+  {
+    "name": "@rster/database-adapter-mongodb",
+    "path": "database-adapter-mongodb",
+    "included_in_rster": false
+  },
+  {
+    "name": "@rster/database-adapter-tests",
+    "path": "database-adapter-tests",
+    "included_in_rster": false
+  },
+  {
+    "name": "@rster/generator",
+    "path": "generator",
+    "included_in_rster": false
+  },
+  {
+    "name": "@rster/info",
+    "path": "info",
+    "included_in_rster": true
+  },
+  {
+    "name": "@rster/info-client",
+    "path": "info-client",
+    "included_in_rster": false
+  },
+  {
+    "name": "@rster/info-explorer",
+    "path": "info-explorer",
+    "included_in_rster": false
+  },
+  {
+    "name": "@rster/ping",
+    "path": "ping",
+    "included_in_rster": true
+  },
+  {
+    "name": "@rster/proxy",
+    "path": "proxy",
+    "included_in_rster": false
+  },
+  {
+    "name": "@rster/types",
+    "path": "types",
+    "included_in_rster": true
+  },
+  {
+    "name": "@rster/util",
+    "path": "util",
+    "included_in_rster": true
+  },
+  {
+    "name": "@rster/worker-express",
+    "path": "worker-express",
+    "included_in_rster": false
+  }
+]

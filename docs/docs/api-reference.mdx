@@ -1,0 +1,97 @@
+---
+title: API Reference
+---
+
+import ReferenceIndex from "../reference-index.json";
+
+export const PackageList = ({ index }) => (
+  <>
+    {index.map((item) => {
+      console.log(item);
+      return (
+        <li>
+          <a href={`pathname:///docs/api-reference/${item.name}`}>
+            {item.name}
+          </a>
+        </li>
+      );
+    })}
+  </>
+);
+
+export const PackageTable = ({ index }) => (
+  <table>
+    <thead>
+      <tr>
+        <th>Package</th>
+        <th>Description</th>
+        <th>Included in main package</th>
+        <th>Links</th>
+      </tr>
+    </thead>
+    <tbody>
+      {[
+        {
+          name: "rster",
+          path: "authorization",
+          included_in_rster: (
+            <p style={{ textAlign: "center", margin: 0 }}>
+              <i>This is the main package</i>
+            </p>
+          ),
+        },
+        ...index.map(({ name, path, included_in_rster }) => ({
+          name,
+          path,
+          included_in_rster: included_in_rster ? (
+            <p style={{ textAlign: "center", margin: 0 }}>✅</p>
+          ) : (
+            <p style={{ textAlign: "center", margin: 0 }}>❌</p>
+          ),
+        })),
+      ].map(({ name, path, included_in_rster }) => (
+        <tr>
+          <td>
+            <a href={`pathname:///docs/api-reference/${path}`}>{name}</a>
+          </td>
+          <td>
+            <a href={`pathname:///docs/api-reference/${path}`}>{name}</a>
+          </td>
+          <td>{included_in_rster}</td>
+          <td>
+            <a href={`pathname:///docs/api-reference/${path}`}>
+              <img
+                src="https://img.shields.io/badge/npm-red?style=flat-square&logo=npm"
+                alt="npm"
+              />
+            </a>{" "}
+            <a href={`pathname:///docs/api-reference/${path}`}>
+              <img
+                src="https://img.shields.io/badge/source-black?style=flat-square&logo=github"
+                alt="source"
+              />
+            </a>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
+## List of Packages
+
+Rster consists of a number of packages. The main package is `rster`. All other packages are accessible through `@rster/{package-name}`. The packages are listed below with a link to their API reference.
+
+<ul>
+  <li>
+    {" "}
+    <a href="pathname:///docs/api-reference/rster">rster</a>{" "}
+  </li>
+  <PackageList index={ReferenceIndex} />
+</ul>
+
+---
+
+## More Information
+
+<PackageTable index={ReferenceIndex} />
