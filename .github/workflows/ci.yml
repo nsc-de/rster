@@ -1,6 +1,6 @@
 # Run all the mocha tests on nodejs
 
-name: Node.js CI
+name: Node.js CI 🧪
 
 on: [push, pull_request, workflow_dispatch]
 
