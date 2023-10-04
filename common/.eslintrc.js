@@ -15,7 +15,16 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-  ignorePatterns: ["node_modules/", "lib/", "dist/", "coverage/"],
+  ignorePatterns: [
+    "node_modules/",
+    "lib/",
+    "dist/",
+    "coverage/",
+    "assets/",
+    "api-reference/",
+    "typedoc/",
+    "build/",
+  ],
   rules: {
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": [
@@ -53,6 +62,20 @@ module.exports = {
         ],
         "@typescript-eslint/ban-ts-comment": 0,
         "no-empty": "warn",
+      },
+    },
+    {
+      files: [
+        "**/*.config.js",
+        "**/.eslintrc.js",
+        "docs/generate-reference-index.js",
+      ],
+      env: {
+        node: true,
+      },
+      plugins: [],
+      rules: {
+        "@typescript-eslint/no-var-requires": "off",
       },
     },
   ],

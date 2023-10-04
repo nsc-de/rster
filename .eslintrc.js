@@ -15,7 +15,16 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-  ignorePatterns: ["node_modules/", "lib/", "dist/", "coverage/"],
+  ignorePatterns: [
+    "node_modules/",
+    "lib/",
+    "dist/",
+    "coverage/",
+    "assets/",
+    "api-reference/",
+    "typedoc/",
+    "build/",
+  ],
   rules: {
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": [
@@ -30,6 +39,8 @@ module.exports = {
   },
 
   overrides: [
+    // Test files
+
     {
       files: ["**/*.test.[jt]s?(x)"],
       env: {
@@ -55,48 +66,19 @@ module.exports = {
         "no-empty": "warn",
       },
     },
+    // Config files should use commonjs
     {
-      files: ["**/gulpfile.js", "**/babel.config.js"],
+      files: [
+        "**/*.config.js",
+        "**/.eslintrc.js",
+        "docs/generate-reference-index.js",
+      ],
       env: {
         node: true,
       },
       plugins: [],
       rules: {
         "@typescript-eslint/no-var-requires": "off",
-      },
-    },
-    {
-      files: ["**/jest.config.js"],
-      env: {
-        jest: true,
-      },
-      plugins: ["jest"],
-      rules: {
-        "jest/no-disabled-tests": "warn",
-        "jest/no-focused-tests": "error",
-        "jest/no-identical-title": "error",
-        "jest/prefer-to-have-length": "warn",
-        "jest/valid-expect": "error",
-        "@typescript-eslint/no-unused-vars": [
-          "warn",
-          {
-            argsIgnorePattern: "^_",
-            varsIgnorePattern: "^_",
-            caughtErrorsIgnorePattern: "^_",
-          },
-        ],
-        "no-empty": "warn",
-      },
-    },
-    {
-      files: ["**/docusaurus.config.js"],
-      env: {
-        jest: true,
-      },
-      plugins: [],
-      rules: {
-        "@typescript-eslint/no-var-requires": "off",
-        "no-empty": "warn",
       },
     },
   ],
