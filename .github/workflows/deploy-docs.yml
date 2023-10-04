@@ -1,6 +1,6 @@
 # Build and Deploy TypeDoc to GitHub Pages
 
-name: Build and Deploy Documentation to GitHub Pages 📚
+name: "Deploy Documentation 📚"
 
 on:
   # Runs on pushes targeting the default branch
