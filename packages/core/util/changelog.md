@@ -1,5 +1,11 @@
 # Changelog for @rster/common
 
+## 0.1.2
+
+### Patch Changes
+
+- 0080b38: Update README
+
 ## 0.1.1
 
 ### Patch Changes

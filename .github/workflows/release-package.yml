@@ -56,11 +56,11 @@ jobs:
       - name: Lint 🧹
         run: npm run lint
 
-      - name: Create Changeset version
+      - name: Create Changeset version 📝
         id: changeset-version
         run: npx changeset version
 
-      - name: Publish to NPM
+      - name: Publish to NPM 📦
         id: changesets
         uses: changesets/action@v1
         with:
@@ -68,6 +68,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit changes 📝
+        uses: EndBug/add-and-commit@v9
+        if: steps.changesets.outputs.published == 'true'
+        with:
+          add: "*"
+          commit: --signoff
+          default_author: github_actions
+          message: "Release package(s) 🚀"
+          pathspec_error_handling: ignore
+          tag_push: "--force"
 
       # - name: Send a Slack notification if a publish happens
       #   if: steps.changesets.outputs.published == 'true'

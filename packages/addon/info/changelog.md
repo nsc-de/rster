@@ -1,5 +1,15 @@
 # Changelog for @rster/info
 
+## 0.1.8
+
+### Patch Changes
+
+- 0080b38: Update README
+- Updated dependencies [0080b38]
+  - @rster/basic@0.1.7
+  - @rster/common@0.1.4
+  - @rster/types@0.1.9
+
 ## 0.1.7
 
 ### Patch Changes

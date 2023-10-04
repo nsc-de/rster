@@ -1,5 +1,14 @@
 # Changelog for @rster/database-adapter-mongodb
 
+## 0.1.3
+
+### Patch Changes
+
+- 0080b38: Update README
+- Updated dependencies [0080b38]
+  - @rster/database@0.1.2
+  - @rster/types@0.1.9
+
 ## 0.1.2
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # Changelog for @rster/common
 
+## 0.1.4
+
+### Patch Changes
+
+- 0080b38: Update README
+- Updated dependencies [0080b38]
+  - @rster/util@0.1.2
+
 ## 0.1.3
 
 ### Patch Changes

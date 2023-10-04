@@ -1,5 +1,11 @@
 # Changelog for @rster/info-client
 
+## 0.1.4
+
+### Patch Changes
+
+- 0080b38: Update README
+
 ## 0.1.3
 
 ### Patch Changes

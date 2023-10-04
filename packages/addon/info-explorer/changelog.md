@@ -1,5 +1,19 @@
 # Changelog for @rster/info-explorer
 
+## 0.1.5
+
+### Patch Changes
+
+- 0080b38: Update README
+- Updated dependencies [0080b38]
+  - @rster/builder@0.1.8
+  - @rster/info@0.1.8
+  - @rster/info-client@0.1.4
+  - @rster/proxy@0.1.2
+  - @rster/basic@0.1.7
+  - rster@0.1.8
+  - @rster/worker-express@0.1.4
+
 ## 0.1.4
 
 ### Patch Changes
