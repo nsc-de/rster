@@ -1,13 +1,22 @@
 const path = require("path");
+const fs = require("fs");
 
 module.exports = function (p) {
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.resolve(p, "./package.json"), "utf8")
+  );
+
+  const name = packageJson.name.startsWith("@rster/")
+    ? packageJson.name.slice(7)
+    : packageJson.name;
+
   /** @type {import('typedoc').TypeDocOptions} */
   const options = {
     entryPoints: [path.resolve(p, "./src/index.ts")],
     out: path.resolve(
       __dirname,
       "../docs/static/docs/api-reference/",
-      path.basename(p)
+      `${name}`
     ),
     tsconfig: path.resolve(p, "./tsconfig.json"),
     // includeDeclarations: true,
@@ -17,6 +26,7 @@ module.exports = function (p) {
     sourceLinkTemplate: `https://github.com/nsc-de/rster/tree/{gitRevision}/{path}#L{line}`,
     includeVersion: true,
     excludeInternal: true,
+    skipErrorChecking: true,
   };
 
   return options;

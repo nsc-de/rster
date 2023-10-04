@@ -1,8 +1,0 @@
-{
-  "extends": "../../common/tsconfig.json",
-  "compilerOptions": {
-    "outDir": "lib"
-  },
-  "include": ["src/**/*.ts", "../database-adapter-tests/src/adapter.ts"],
-  "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.test.ts"]
-}

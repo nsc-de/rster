@@ -39,6 +39,9 @@
     "access": "public"
   },
   "workspaces": [
-    "packages/*"
+    "packages/core/*",
+    "packages/addon/*",
+    "packages/adapter/*",
+    "packages/worker/*"
   ]
 }
