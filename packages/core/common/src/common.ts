@@ -934,34 +934,94 @@ export function createSyntheticResponse(): {
         return this;
       },
       error(code: number, message: string) {
+        if (code !== 200)
+          console.warn(
+            "Double update status code of response from",
+            statusCode,
+            "to",
+            code
+          );
         statusCode = code;
-        if (data === "") {
-          data = message;
-        }
+        if (data !== "")
+          console.warn(
+            "Double update data of response from",
+            data,
+            "to",
+            message
+          );
+
+        data = message;
         return this;
       },
       header(field: string, value: string) {
-        headers[field] = value;
+        const key = field.toLowerCase();
+        if (headers[key] !== undefined)
+          console.warn(
+            "Double update header of response of header",
+            key,
+            "from",
+            headers[key],
+            "to",
+            value
+          );
+        headers[key] = value;
         return this;
       },
       json(body: any) {
+        if (data !== "")
+          console.warn(
+            "Double update data of response from",
+            data,
+            "to",
+            JSON.stringify(body)
+          );
         data = JSON.stringify(body);
         this.header("Content-Type", "application/json");
         return this;
       },
       status(code: number) {
+        if (statusCode !== 200)
+          console.warn(
+            "Double update status code of response from",
+            statusCode,
+            "to",
+            code
+          );
         statusCode = code;
         return this;
       },
       send(body: any) {
+        if (data !== "")
+          console.warn("Double update data of response from", data, "to", body);
         data = body;
         return this;
       },
       sendFile(path: string) {
+        if (sendFile !== undefined)
+          console.warn(
+            "Double update sendFile of response from",
+            sendFile,
+            "to",
+            path
+          );
         sendFile = path;
         return this;
       },
       redirect(path: string) {
+        if (statusCode !== 200)
+          console.warn(
+            "Double update status code of response from",
+            statusCode,
+            "to",
+            302
+          );
+        if (headers["location"] !== undefined)
+          console.warn(
+            "Double update location header of response from",
+            headers["location"],
+            "to",
+            path
+          );
         this.header("Location", path);
         this.status(302);
         return this;
