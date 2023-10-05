@@ -36,11 +36,11 @@ describe("Express tests", () => {
             });
           }
 
-          if (users.find((user) => user.email === email)) {
+          if (users.find((user) => user.email === email) !== undefined) {
             throw $409("User with that email already exists");
           }
 
-          if (users.find((user) => user.name === name)) {
+          if (users.find((user) => user.name === name) !== undefined) {
             throw $409("User with that name already exists");
           }
 
@@ -117,14 +117,16 @@ describe("Express tests", () => {
       method: "POST",
       path: "/api/users/register",
       body: {
-        name: "John",
-        email: "john@example.com",
+        name: "John2",
+        email: "john2@example.com",
         password: "a_password",
       },
     });
 
     app2.handle(...pass);
     const response = await promise;
+
+    console.log(response);
 
     expect(response.code).toEqual(409);
     expect(response.data).toEqual('{"message":"User created"}');
