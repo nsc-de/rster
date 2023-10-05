@@ -3,7 +3,18 @@
  * https://jestjs.io/docs/configuration
  */
 
-const { packages } = require("./package-list.json");
+const fs = require("fs");
+const path = require("path");
+
+const packagesFolder = path.resolve(__dirname, "packages");
+
+const pkgs = fs
+  .readdirSync(packagesFolder)
+  .flatMap((folder) =>
+    fs
+      .readdirSync(path.resolve(packagesFolder, folder))
+      .map((pkg) => path.join("<rootDir>", "packages", folder, pkg))
+  );
 
 /** @type {import('jest').Config} */
 const config = {
@@ -120,7 +131,7 @@ const config = {
   rootDir: __dirname,
 
   // A list of paths to directories that Jest should use to search for files in
-  roots: packages.map((pkg) => `<rootDir>/packages/${pkg.name}/src`),
+  roots: pkgs,
 
   // Allows you to use a custom runner instead of Jest's default test runner
   // runner: "jest-runner",
