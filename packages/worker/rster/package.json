@@ -1,0 +1,52 @@
+{
+  "name": "@rster/worker-rster",
+  "version": "0.1.0",
+  "description": "RSTER is a toolset for REST Api creation",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "author": "Nicolas Schmidt",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@rster/basic": "^0.1.7",
+    "@rster/common": "^0.1.4",
+    "@rster/types": "^0.1.9",
+    "debug": "^4.3.4"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.0",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-typescript": "^7.23.0",
+    "@types/debug": "^4.1.8",
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.7.1",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "babel-jest": "^29.7.0",
+    "eslint": "^8.50.0",
+    "eslint-plugin-jest": "^27.4.0",
+    "jest": "^29.7.0",
+    "source-map-support": "^0.5.21",
+    "supertest": "^6.3.3",
+    "typedoc": "^0.25.1",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build": "npm run build:types && npm run build:js",
+    "test": "jest --config=jest.config.js",
+    "type-check:watch": "npm run type-check --watch",
+    "type-check": "tsc --noEmit",
+    "typedoc": "typedoc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nsc-de/rster"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
