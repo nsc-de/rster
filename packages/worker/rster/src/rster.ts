@@ -9,35 +9,6 @@ declare module "@rster/basic" {
   }
 }
 
-export function transformResponse(response: Response) {
-  const information = {
-    ended: false,
-    statusSet: false,
-    headersSet: false,
-    bodySet: false,
-  };
-
-  return {
-    information,
-    response: {
-      ...response,
-      end() {
-        information.ended = true;
-        response.end();
-        return this;
-      },
-      status(code) {
-        if (information.ended) return this;
-        if (information.statusSet) return this;
-
-        information.statusSet = true;
-        response.status(code);
-        return this;
-      },
-    } as Response,
-  };
-}
-
 // create function to use in app.use()
 export function RsterMixin(api: RestfulApi, options?: RsterWorkerOptions) {
   if (!api) throw new Error("api is required");
@@ -50,8 +21,6 @@ export function RsterMixin(api: RestfulApi, options?: RsterWorkerOptions) {
   const send404 = options.send404 ?? true;
 
   return function (req: Request, res: Response, next: () => void) {
-    const { response, information } = transformResponse(res);
-
     // if the request path does not start with the base path, skip
     if (!req.path.startsWith(basePath)) {
       return next();
@@ -63,16 +32,7 @@ export function RsterMixin(api: RestfulApi, options?: RsterWorkerOptions) {
       fullApiPath: req.fullApiPath.substring(basePath.length),
     };
 
-    if (
-      information.bodySet ||
-      information.headersSet ||
-      information.statusSet ||
-      information.ended
-    ) {
-      throw new Error("Cannot modify response");
-    }
-
-    api.handle(req, response, { send404 });
+    api.execute(req, res);
   };
 }
 

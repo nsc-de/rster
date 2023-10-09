@@ -123,7 +123,7 @@ describe("Express tests", () => {
       },
     });
 
-    app2.handle(...pass);
+    await app2.handle(...pass);
     const response = await promise;
 
     console.log(response);

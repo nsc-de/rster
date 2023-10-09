@@ -28,9 +28,12 @@ export class RestfulApi extends Context {
     { send404 = true }: { send404?: boolean } = {}
   ): Promise<void> {
     send404 = send404 ?? true;
-
+    console.log("handle", req.fullPath, req.fullApiPath);
     try {
-      const found = await this.execute(req, res);
+      console.log("try");
+      const found = await this.execute(req, res).catch((e) => {
+        console.log("caught execute", e);
+      });
       if (!found && send404) {
         await res.status(404).json({
           message: `Not Found`,
@@ -42,6 +45,8 @@ export class RestfulApi extends Context {
       res.end();
       return;
     } catch (e: unknown) {
+      console.log("caught");
+      // console.error(e);
       if (e instanceof HttpError) {
         debugHttpError(e);
         res.status(e.status).json({ error: e.toJson() }).end();
@@ -53,6 +58,8 @@ export class RestfulApi extends Context {
           /* empty */
         }
       }
+    } finally {
+      console.log("finally");
     }
   }
 }
