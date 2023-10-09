@@ -7,7 +7,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "@changesets/cli": "^2.26.2",
-    "turbo": "^1.10.14"
+    "turbo": "^1.10.15"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.15",
