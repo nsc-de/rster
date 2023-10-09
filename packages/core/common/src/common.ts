@@ -954,17 +954,16 @@ export function createSyntheticResponse(): {
         return this;
       },
       header(field: string, value: string) {
-        const key = field.toLowerCase();
-        if (headers[key] !== undefined)
+        if (headers[field] !== undefined)
           console.warn(
             "Double update header of response of header",
-            key,
+            field,
             "from",
-            headers[key],
+            headers[field],
             "to",
             value
           );
-        headers[key] = value;
+        headers[field] = value;
         return this;
       },
       json(body: any) {

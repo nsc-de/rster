@@ -1,0 +1,51 @@
+{
+  "folders": [
+    // Root
+    {
+      "name": "Rster Root",
+      "path": "../"
+    },
+
+    // Packages
+    {
+      "name": "packages/core",
+      "path": "../packages/core"
+    },
+    {
+      "name": "packages/addon",
+      "path": "../packages/addon"
+    },
+    {
+      "name": "packages/adapters",
+      "path": "../packages/adapters"
+    },
+    {
+      "name": "packages/worker",
+      "path": "../packages/worker"
+    },
+
+    // Docs
+    {
+      "name": "docs",
+      "path": "../docs/"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "node_modules/": true
+    },
+    "jest.disabledWorkspaceFolders": [
+      "ROOT",
+      "packages/core",
+      "packages/addon",
+      "packages/adapters",
+      "packages/worker",
+      "docs"
+    ],
+    "jest.jestCommandLine": "npm run test --"
+  },
+
+  "extensions": {
+    "recommendations": ["dbaeumer.vscode-eslint", "orta.vscode-jest"]
+  }
+}

@@ -32,7 +32,7 @@
     "docs:build": "cd docs && npm run build && cd ..",
     "docs:prepare": "turbo typedoc",
     "lint": "turbo run lint",
-    "test": "turbo run test",
+    "test": "turbo run test -- ",
     "typedoc": "turbo run typedoc"
   },
   "publishConfig": {
