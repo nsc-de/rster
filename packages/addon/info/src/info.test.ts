@@ -248,7 +248,7 @@ describe("Context", () => {
 
       expect(await promise).toEqual({
         code: 404,
-        data: '{"error":{"status":404,"message":"No context found for path \\"/test/test\\""}}',
+        data: '{"error":{"status":404,"message":"No context found for path \\"/test/test\\""},"path":"/info/test/test","api_path":"/info/test/test","method":"GET"}',
         headers: {
           "Content-Type": "application/json",
         },

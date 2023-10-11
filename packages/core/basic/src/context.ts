@@ -45,6 +45,12 @@ export type ContextJson = {
   )[];
 };
 
+export type ErrorHandler = (
+  error: any,
+  req: Request,
+  res: Response
+) => Promise<void> | void;
+
 /**
  * Context child for containing a context and a condition (for nested routing)
  */
@@ -181,6 +187,8 @@ export class Context {
    * @see {@link Context._data}
    */
   private _data: { [key: string]: unknown } = {};
+
+  private _errorHandler?: ErrorHandler;
 
   /**
    * {@link Context}'s constructor
@@ -1421,7 +1429,11 @@ export class Context {
           }
         }
         if (collected[i].type === "action" && req.path === "") {
-          await (collected[i] as ContextChildAction).func(req, res);
+          try {
+            await (collected[i] as ContextChildAction).func(req, res);
+          } catch (e) {
+            this.errorHandler(e, req, res);
+          }
           return true;
         }
         if (collected[i].type === "use") {
@@ -1437,19 +1449,16 @@ export class Context {
                 }`
               );
 
-              const next = (err: unknown) => {
+              const next = () => {
                 if (next_called) return;
                 next_called = true;
-                if (err !== true && err) {
-                  reject(err);
-                }
                 do_execute(new_collect).then(resolve).catch(reject);
               };
 
               try {
                 await (collected[i] as ContextChildUse).func(req, res, next);
               } catch (e) {
-                next(e);
+                this.errorHandler(e, req, res);
               }
 
               if (!next_called) {
@@ -1505,6 +1514,28 @@ export class Context {
   setData(key: string, value: unknown): this {
     if (!key) throw new Error("No key provided");
     this._data[key] = value;
+    return this;
+  }
+
+  /**
+   * Get the context's error handler
+   */
+  get errorHandler(): ErrorHandler {
+    return (this._errorHandler ?? this.parent?.errorHandler)!;
+  }
+
+  /**
+   * Set the context's error handler
+   */
+  set errorHandler(errorHandler: ErrorHandler) {
+    this._errorHandler = errorHandler;
+  }
+
+  /**
+   * Set the context's error handler
+   */
+  handleErrors(func: ErrorHandler): this {
+    this.errorHandler = func;
     return this;
   }
 

@@ -1,30 +1,30 @@
 import rest, { $409 } from "@rster/basic";
 import ".";
-import request from "supertest";
+
 import { createSyntheticContext } from "@rster/common";
 
 describe("Express tests", () => {
   const users: { name: string; email: string; password: string }[] = [];
+
+  beforeAll(async () => {
+    const { pass, promise } = createSyntheticContext({
+      method: "POST",
+      path: "/api/users/register",
+      body: {
+        name: "John2",
+        email: "john2@example.com",
+        password: "a_password",
+      },
+    });
+    app2.handle(...pass);
+    await promise;
+  });
 
   const app = rest(function () {
     // This is a test rest api
     // It is not meant to be used in production
     // It is definitely not secure as it stores passwords in plain text in memory
     // Also after restarting the server all users are gone
-
-    beforeAll(async () => {
-      const { pass, promise } = createSyntheticContext({
-        method: "POST",
-        path: "/api/users/register",
-        body: {
-          name: "John2",
-          email: "john2@example.com",
-          password: "a_password",
-        },
-      });
-      app2.handle(...pass);
-      await promise;
-    });
 
     this.any("/users", function () {
       this.post("/register", function () {
@@ -104,7 +104,7 @@ describe("Express tests", () => {
       },
     });
 
-    app2.handle(...pass);
+    await app2.handle(...pass);
 
     const response = await promise;
 
@@ -129,7 +129,9 @@ describe("Express tests", () => {
     console.log(response);
 
     expect(response.code).toEqual(409);
-    expect(response.data).toEqual('{"message":"User created"}');
+    expect(response.data).toEqual(
+      '{"error":{"status":409,"message":"User with that email already exists"},"path":"/api/users/register","api_path":"/users/register","method":"POST"}'
+    );
   });
 
   //   it("should not register user with same name", async () => {

@@ -1,10 +1,32 @@
-import { Context, ContextInitializer } from "./context";
+import { Context, ContextInitializer, ErrorHandler } from "./context";
 import debug from "debug";
-import { HttpError } from "./error";
+import { $404, HttpError } from "./error";
 import { Request, Response } from "@rster/common";
 
 const debugHttpError = debug("rster:http-error");
 const debugCaught = debug("rster:caught-error");
+
+export const DefaultRsterErrorHandler: ErrorHandler = (e, req, res) => {
+  if (e instanceof HttpError) {
+    debugHttpError(e);
+    res
+      .status(e.status)
+      .json({
+        error: e.toJson(),
+        path: req.fullPath,
+        api_path: req.fullApiPath,
+        method: req.method,
+      })
+      .end();
+  } else {
+    debugCaught(e);
+    try {
+      res.status(500).json({ message: "Internal server error" }).end();
+    } catch (e) {
+      /* empty */
+    }
+  }
+};
 
 export class RestfulApi extends Context {
   private _options: RestfulApiOptions;
@@ -18,7 +40,6 @@ export class RestfulApi extends Context {
     };
 
     this._options = opts;
-
     this._api = this;
   }
 
@@ -28,39 +49,21 @@ export class RestfulApi extends Context {
     { send404 = true }: { send404?: boolean } = {}
   ): Promise<void> {
     send404 = send404 ?? true;
-    console.log("handle", req.fullPath, req.fullApiPath);
     try {
-      console.log("try");
-      const found = await this.execute(req, res).catch((e) => {
-        console.log("caught execute", e);
-      });
+      const found = await this.execute(req, res);
       if (!found && send404) {
-        await res.status(404).json({
-          message: `Not Found`,
-          path: req.fullPath,
-          api_path: req.fullApiPath,
-          method: req.method,
-        });
+        throw $404();
       }
       res.end();
       return;
     } catch (e: unknown) {
-      console.log("caught");
-      // console.error(e);
-      if (e instanceof HttpError) {
-        debugHttpError(e);
-        res.status(e.status).json({ error: e.toJson() }).end();
-      } else {
-        debugCaught(e);
-        try {
-          res.status(500).json({ message: "Internal server error" }).end();
-        } catch (e) {
-          /* empty */
-        }
-      }
-    } finally {
-      console.log("finally");
+      await this.errorHandler(e, req, res);
     }
+  }
+
+  get errorHandler(): ErrorHandler {
+    const sp = super.errorHandler;
+    return sp ?? DefaultRsterErrorHandler;
   }
 }
 
