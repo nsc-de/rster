@@ -129,7 +129,9 @@ describe("Express tests", () => {
     console.log(response);
 
     expect(response.code).toEqual(409);
-    expect(response.data).toEqual('{"message":"User created"}');
+    expect(response.data).toEqual(
+      '{"error":{"status":409,"message":"User with that email already exists"},"path":"/api/users/register","api_path":"/users/register","method":"POST"}'
+    );
   });
 
   //   it("should not register user with same name", async () => {

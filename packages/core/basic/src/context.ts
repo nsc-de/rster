@@ -1429,7 +1429,11 @@ export class Context {
           }
         }
         if (collected[i].type === "action" && req.path === "") {
-          await (collected[i] as ContextChildAction).func(req, res);
+          try {
+            await (collected[i] as ContextChildAction).func(req, res);
+          } catch (e) {
+            this.errorHandler(e, req, res);
+          }
           return true;
         }
         if (collected[i].type === "use") {
@@ -1445,19 +1449,16 @@ export class Context {
                 }`
               );
 
-              const next = (err: unknown) => {
+              const next = () => {
                 if (next_called) return;
                 next_called = true;
-                if (err !== true && err) {
-                  reject(err);
-                }
                 do_execute(new_collect).then(resolve).catch(reject);
               };
 
               try {
                 await (collected[i] as ContextChildUse).func(req, res, next);
               } catch (e) {
-                next(e);
+                this.errorHandler(e, req, res);
               }
 
               if (!next_called) {

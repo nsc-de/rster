@@ -13,6 +13,7 @@ import {
 } from "./context";
 import { $404 } from "./error";
 import { createSyntheticContext } from "@rster/common";
+import { RestfulApi } from "./rster";
 
 // @ts-ignore
 const createEmptyContext = () => new Context();
@@ -1577,38 +1578,6 @@ describe("Context", () => {
       expect(executed).toBe(true);
     });
 
-    it("Test middleware with error passed to next", async () => {
-      const context = createEmptyContext();
-      context.use(async (req, res, next) => {
-        await next(new Error("test"));
-      });
-
-      const { pass } = createSyntheticContext({
-        method: "get",
-        path: "/test",
-      });
-
-      await expect(async () => await context.execute(...pass)).rejects.toThrow(
-        "test"
-      );
-    });
-
-    it("Test middleware with error thrown", async () => {
-      const context = createEmptyContext();
-      context.use(async () => {
-        throw new Error("test");
-      });
-
-      const { pass } = createSyntheticContext({
-        method: "get",
-        path: "/test",
-      });
-
-      await expect(async () => await context.execute(...pass)).rejects.toThrow(
-        "test"
-      );
-    });
-
     it("Test middleware not throwing error if true is passed to next", async () => {
       const context = createEmptyContext();
       context.use(async (req, res, next) => {
@@ -1782,35 +1751,6 @@ describe("Context", () => {
         await context.execute(...pass);
 
         expect(executed).toBe(false);
-      });
-
-      it("Test HTTP error", async () => {
-        const context = createEmptyContext();
-        context.get("/test", function () {
-          this.action(() => {
-            throw $404("test");
-          });
-        });
-
-        await expect(() =>
-          context.execute(
-            // @ts-ignore
-            {
-              method: "get",
-              path: "/test",
-            },
-            {
-              json() {
-                return this;
-              },
-              status() {
-                return this;
-              },
-
-              end() {},
-            }
-          )
-        ).rejects.toThrow($404("test"));
       });
     });
   });
