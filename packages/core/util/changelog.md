@@ -1,5 +1,11 @@
 # Changelog for @rster/common
 
+## 0.1.3
+
+### Patch Changes
+
+- 3970c8d: Include LICENSE
+
 ## 0.1.2
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # Changelog for @rster/database-adapter-tests
 
+## 0.1.5
+
+### Patch Changes
+
+- 3970c8d: Include LICENSE
+- Updated dependencies [3970c8d]
+  - @rster/database@0.1.3
+  - @rster/types@0.1.10
+
 ## 0.1.4
 
 ### Patch Changes

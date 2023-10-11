@@ -1,6 +1,6 @@
 {
   "name": "@rster/generator",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
@@ -8,10 +8,10 @@
   "author": "Nicolas Schmidt",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@rster/basic": "^0.1.7",
-    "@rster/common": "^0.1.4",
-    "@rster/info": "^0.1.8",
-    "@rster/types": "^0.1.9",
+    "@rster/basic": "^0.1.9",
+    "@rster/common": "^0.1.6",
+    "@rster/info": "^0.1.9",
+    "@rster/types": "^0.1.10",
     "debug": "^4.3.4",
     "glob": "^10.3.10"
   },

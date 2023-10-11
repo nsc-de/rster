@@ -1,5 +1,15 @@
 # Changelog for @rster/worker-express
 
+## 0.1.5
+
+### Patch Changes
+
+- 3970c8d: Include LICENSE
+- Updated dependencies [3970c8d]
+  - @rster/common@0.1.6
+  - @rster/basic@0.1.9
+  - @rster/types@0.1.10
+
 ## 0.1.4
 
 ### Patch Changes

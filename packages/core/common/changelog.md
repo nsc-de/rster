@@ -1,5 +1,13 @@
 # Changelog for @rster/common
 
+## 0.1.6
+
+### Patch Changes
+
+- 3970c8d: Include LICENSE
+- Updated dependencies [3970c8d]
+  - @rster/util@0.1.3
+
 ## 0.1.4
 
 ### Patch Changes

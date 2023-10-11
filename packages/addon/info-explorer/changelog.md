@@ -1,5 +1,19 @@
 # Changelog for @rster/info-explorer
 
+## 0.1.6
+
+### Patch Changes
+
+- 3970c8d: Include LICENSE
+- Updated dependencies [3970c8d]
+  - @rster/info-client@0.1.5
+  - @rster/worker-express@0.1.5
+  - @rster/builder@0.1.9
+  - @rster/proxy@0.1.3
+  - @rster/info@0.1.9
+  - @rster/basic@0.1.9
+  - rster@0.1.10
+
 ## 0.1.5
 
 ### Patch Changes

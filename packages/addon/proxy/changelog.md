@@ -1,5 +1,18 @@
 # Changelog for @rster/proxy
 
+## 0.1.3
+
+### Patch Changes
+
+- 3970c8d: Include LICENSE
+- Updated dependencies [3970c8d]
+  - @rster/builder@0.1.9
+  - @rster/common@0.1.6
+  - @rster/info@0.1.9
+  - @rster/basic@0.1.9
+  - @rster/types@0.1.10
+  - @rster/util@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes
