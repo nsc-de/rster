@@ -1,13 +1,13 @@
 {
   "name": "@rster/basic",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "Nicolas Schmidt",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@rster/common": "^0.1.4",
+    "@rster/common": "^0.1.5",
     "@rster/types": "^0.1.9",
     "@rster/util": "^0.1.2",
     "debug": "^4.3.4"
