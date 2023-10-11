@@ -31,9 +31,7 @@ export class RestfulApi extends Context {
     console.log("handle", req.fullPath, req.fullApiPath);
     try {
       console.log("try");
-      const found = await this.execute(req, res).catch((e) => {
-        console.log("caught execute", e);
-      });
+      const found = await this.execute(req, res);
       if (!found && send404) {
         await res.status(404).json({
           message: `Not Found`,

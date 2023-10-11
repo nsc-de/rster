@@ -326,7 +326,7 @@ describe("createSyntheticResponse", () => {
     const result = await promise;
     expect(result).toEqual({
       code: 404,
-      data: "send",
+      data: "error",
       headers: {},
       sendFile: undefined,
     });

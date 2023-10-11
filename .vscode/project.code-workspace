@@ -42,7 +42,7 @@
       "packages/worker",
       "docs"
     ],
-    "jest.jestCommandLine": "npm run test --"
+    "jest.jestCommandLine": "npx jest --config jest.config.js"
   },
 
   "extensions": {
