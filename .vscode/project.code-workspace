@@ -16,8 +16,8 @@
       "path": "../packages/addon"
     },
     {
-      "name": "packages/adapters",
-      "path": "../packages/adapters"
+      "name": "packages/adapter",
+      "path": "../packages/adapter"
     },
     {
       "name": "packages/worker",
@@ -35,10 +35,9 @@
       "node_modules/": true
     },
     "jest.disabledWorkspaceFolders": [
-      "ROOT",
       "packages/core",
       "packages/addon",
-      "packages/adapters",
+      "packages/adapter",
       "packages/worker",
       "docs"
     ],
