@@ -31,7 +31,7 @@ export default function Home(): JSX.Element {
   return (
     <Layout
       title={`Welcome to ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      description="Rster us a framework for building your restful backend api. Take a look at the rster documentation <head />">
       <HomepageHeader />
       <main>
         <HomepageFeatures />
