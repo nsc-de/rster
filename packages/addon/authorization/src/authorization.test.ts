@@ -23,7 +23,7 @@ describe("useAuthentification", () => {
       "Content-Type": "application/json",
     });
     expect(data.data).toEqual(
-      '{"error":{"status":409,"message":"Invalid token"}}'
+      '{"error":{"status":409,"message":"Invalid token"},"path":"/","api_path":"/","method":"GET"}'
     );
   });
 
