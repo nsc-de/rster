@@ -45,6 +45,12 @@ export type ContextJson = {
   )[];
 };
 
+export type ErrorHandler = (
+  error: any,
+  req: Request,
+  res: Response
+) => Promise<void> | void;
+
 /**
  * Context child for containing a context and a condition (for nested routing)
  */
@@ -181,6 +187,8 @@ export class Context {
    * @see {@link Context._data}
    */
   private _data: { [key: string]: unknown } = {};
+
+  private _errorHandler?: ErrorHandler;
 
   /**
    * {@link Context}'s constructor
@@ -1505,6 +1513,28 @@ export class Context {
   setData(key: string, value: unknown): this {
     if (!key) throw new Error("No key provided");
     this._data[key] = value;
+    return this;
+  }
+
+  /**
+   * Get the context's error handler
+   */
+  get errorHandler(): ErrorHandler {
+    return (this._errorHandler ?? this.parent?.errorHandler)!;
+  }
+
+  /**
+   * Set the context's error handler
+   */
+  set errorHandler(errorHandler: ErrorHandler) {
+    this._errorHandler = errorHandler;
+  }
+
+  /**
+   * Set the context's error handler
+   */
+  handleErrors(func: ErrorHandler): this {
+    this.errorHandler = func;
     return this;
   }
 
