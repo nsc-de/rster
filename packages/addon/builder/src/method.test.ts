@@ -458,7 +458,7 @@ describe("RsterApiMethod", () => {
 
       expect(result).toEqual({
         code: 400,
-        data: '{"error":{"status":400,"message":"Missing body parameter test"}}',
+        data: '{"error":{"status":400,"message":"Missing body parameter test"},"path":"/test","api_path":"/test","method":"GET"}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -504,7 +504,7 @@ describe("RsterApiMethod", () => {
 
       expect(result).toEqual({
         code: 400,
-        data: '{"error":{"status":400,"message":"Invalid body parameter test: Expected {\\"type\\":\\"string\\"}"}}',
+        data: '{"error":{"status":400,"message":"Invalid body parameter test: Expected {\\"type\\":\\"string\\"}"},"path":"/test","api_path":"/test","method":"GET"}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -640,7 +640,7 @@ describe("RsterApiMethod", () => {
 
       expect(result).toEqual({
         code: 400,
-        data: '{"error":{"status":400,"message":"Missing query parameter test"}}',
+        data: '{"error":{"status":400,"message":"Missing query parameter test"},"path":"/test","api_path":"/test","method":"GET"}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -687,7 +687,7 @@ describe("RsterApiMethod", () => {
 
       expect(result).toEqual({
         code: 400,
-        data: '{"error":{"status":400,"message":"Invalid query parameter test: Expected {\\"type\\":\\"string\\"}"}}',
+        data: '{"error":{"status":400,"message":"Invalid query parameter test: Expected {\\"type\\":\\"string\\"}"},"path":"/test","api_path":"/test","method":"GET"}',
         headers: {
           "Content-Type": "application/json",
         },
@@ -811,7 +811,7 @@ describe("RsterApiMethod", () => {
 
       expect(result).toEqual({
         code: 400,
-        data: '{"error":{"status":400,"message":"Missing path parameter test"}}',
+        data: '{"error":{"status":400,"message":"Missing path parameter test"},"path":"/test/test/test2","api_path":"/test/test/test2","method":"GET"}',
         headers: {
           "Content-Type": "application/json",
         },

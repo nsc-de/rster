@@ -235,6 +235,9 @@ describe("Express tests", () => {
 
     expect(response.status).toEqual(409);
     expect(response.body).toEqual({
+      method: "POST",
+      path: "/api/users/register",
+      api_path: "/users/register",
       error: {
         status: 409,
         message: "User with that email already exists",
@@ -253,6 +256,9 @@ describe("Express tests", () => {
 
     expect(response.status).toEqual(409);
     expect(response.body).toEqual({
+      method: "POST",
+      path: "/api/users/register",
+      api_path: "/users/register",
       error: {
         status: 409,
         message: "User with that name already exists",
@@ -271,6 +277,9 @@ describe("Express tests", () => {
 
     expect(response.status).toEqual(409);
     expect(response.body).toEqual({
+      method: "POST",
+      path: "/api/users/register",
+      api_path: "/users/register",
       error: {
         status: 409,
         message: "Password must be at least 8 characters long",
@@ -298,6 +307,9 @@ describe("Express tests", () => {
 
     expect(response.status).toEqual(409);
     expect(response.body).toEqual({
+      method: "POST",
+      path: "/api/users/login",
+      api_path: "/users/login",
       error: {
         status: 409,
         message: "Invalid password",
@@ -313,6 +325,9 @@ describe("Express tests", () => {
 
     expect(response.status).toEqual(409);
     expect(response.body).toEqual({
+      method: "POST",
+      path: "/api/users/login",
+      api_path: "/users/login",
       error: {
         status: 409,
         message: "User with that email does not exist",
@@ -339,7 +354,10 @@ describe("Express tests", () => {
     expect(response.status).toEqual(404);
     expect(response.body).toEqual({
       api_path: "/users",
-      message: "Not Found",
+      error: {
+        message: "Not Found",
+        status: 404,
+      },
       method: "POST",
       path: "/api/users",
     });

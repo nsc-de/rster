@@ -1,6 +1,6 @@
 import { Context, ContextInitializer, ErrorHandler } from "./context";
 import debug from "debug";
-import { HttpError } from "./error";
+import { $404, HttpError } from "./error";
 import { Request, Response } from "@rster/common";
 
 const debugHttpError = debug("rster:http-error");
@@ -9,7 +9,15 @@ const debugCaught = debug("rster:caught-error");
 export const DefaultRsterErrorHandler: ErrorHandler = (e, req, res) => {
   if (e instanceof HttpError) {
     debugHttpError(e);
-    res.status(e.status).json({ error: e.toJson() }).end();
+    res
+      .status(e.status)
+      .json({
+        error: e.toJson(),
+        path: req.fullPath,
+        api_path: req.fullApiPath,
+        method: req.method,
+      })
+      .end();
   } else {
     debugCaught(e);
     try {
@@ -44,12 +52,7 @@ export class RestfulApi extends Context {
     try {
       const found = await this.execute(req, res);
       if (!found && send404) {
-        await res.status(404).json({
-          message: `Not Found`,
-          path: req.fullPath,
-          api_path: req.fullApiPath,
-          method: req.method,
-        });
+        throw $404();
       }
       res.end();
       return;

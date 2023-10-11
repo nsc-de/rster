@@ -62,7 +62,7 @@ describe("RestfulApi", () => {
       const result = await promise;
       expect(result).toEqual({
         code: 404,
-        data: '{"message":"Not Found","path":"/test","api_path":"/test","method":"GET"}',
+        data: '{"error":{"status":404,"message":"Not Found"},"path":"/test","api_path":"/test","method":"GET"}',
         headers: { "Content-Type": "application/json" },
         sendFile: undefined,
       });
@@ -86,7 +86,7 @@ describe("RestfulApi", () => {
       const result = await promise;
       expect(result).toEqual({
         code: 400,
-        data: '{"error":{"status":400,"message":"Bad Request"}}',
+        data: '{"error":{"status":400,"message":"Bad Request"},"path":"/aaa","api_path":"/aaa","method":"GET"}',
         headers: { "Content-Type": "application/json" },
         sendFile: undefined,
       });
