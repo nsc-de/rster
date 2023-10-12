@@ -1,5 +1,6 @@
 {
   "name": "@rster/worker-http-server",
+  "private": true,
   "version": "0.1.0",
   "description": "RSTER is a toolset for REST Api creation",
   "main": "lib/index.js",
@@ -26,6 +27,7 @@
     "@typescript-eslint/eslint-plugin": "^6.7.5",
     "@typescript-eslint/parser": "^6.7.5",
     "babel-jest": "^29.7.0",
+    "cross-fetch": "^4.0.0",
     "eslint": "^8.50.0",
     "eslint-plugin-jest": "^27.4.0",
     "jest": "^29.7.0",

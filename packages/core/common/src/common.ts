@@ -869,43 +869,49 @@ export function createSyntheticRequest(
         return false;
       }) as { (): string[]; (type: string | string[]): string | false }),
 
-    acceptsCharsets: ((search?: string | string[]) => {
-      if (!search) return ["utf-8"];
-      if (typeof search === "string") {
-        if (search === "utf-8") return "utf-8";
+    acceptsCharsets:
+      info.acceptsCharsets ??
+      (((search?: string | string[]) => {
+        if (!search) return ["utf-8"];
+        if (typeof search === "string") {
+          if (search === "utf-8") return "utf-8";
+          return false;
+        }
+        if (Array.isArray(search)) {
+          if (search.includes("utf-8")) return "utf-8";
+          return false;
+        }
         return false;
-      }
-      if (Array.isArray(search)) {
-        if (search.includes("utf-8")) return "utf-8";
-        return false;
-      }
-      return false;
-    }) as { (): string[]; (type: string | string[]): string | false },
+      }) as { (): string[]; (type: string | string[]): string | false }),
 
-    acceptsEncodings: ((search?: string | string[]) => {
-      if (!search) return ["identity"];
-      if (typeof search === "string") {
-        if (search === "identity") return "identity";
+    acceptsEncodings:
+      info.acceptsEncodings ??
+      (((search?: string | string[]) => {
+        if (!search) return ["identity"];
+        if (typeof search === "string") {
+          if (search === "identity") return "identity";
+          return false;
+        }
+        if (Array.isArray(search)) {
+          if (search.includes("identity")) return "identity";
+          return false;
+        }
         return false;
-      }
-      if (Array.isArray(search)) {
-        if (search.includes("identity")) return "identity";
+      }) as { (): string[]; (type: string | string[]): string | false }),
+    acceptsLanguages:
+      info.acceptsLanguages ??
+      (((search?: string | string[]) => {
+        if (!search) return ["en"];
+        if (typeof search === "string") {
+          if (search === "en") return "en";
+          return false;
+        }
+        if (Array.isArray(search)) {
+          if (search.includes("en")) return "en";
+          return false;
+        }
         return false;
-      }
-      return false;
-    }) as { (): string[]; (type: string | string[]): string | false },
-    acceptsLanguages: ((search?: string | string[]) => {
-      if (!search) return ["en"];
-      if (typeof search === "string") {
-        if (search === "en") return "en";
-        return false;
-      }
-      if (Array.isArray(search)) {
-        if (search.includes("en")) return "en";
-        return false;
-      }
-      return false;
-    }) as { (): string[]; (type: string | string[]): string | false },
+      }) as { (): string[]; (type: string | string[]): string | false }),
     body: info.body ?? {},
     cookies: info.cookies ?? {},
     hostname: info.hostname ?? "localhost",

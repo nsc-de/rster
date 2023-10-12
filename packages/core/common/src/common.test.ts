@@ -14,7 +14,6 @@ describe("createSyntheticRequest", () => {
     expect(request.acceptsLanguages()).toEqual(["en"]);
     expect(request.body).toEqual({});
     expect(request.cookies).toEqual({});
-    expect(request.fresh).toEqual(false);
     expect(request.hostname).toEqual("localhost");
     expect(request.ip).toEqual(getLocalIP());
     expect(request.ips).toEqual([getLocalIP()]);
@@ -29,7 +28,6 @@ describe("createSyntheticRequest", () => {
     expect(request.fullPath).toEqual("/");
     expect(request.secure).toEqual(false);
     expect(request.signedCookies).toEqual({});
-    expect(request.stale).toEqual(false);
     expect(request.subdomains).toEqual([]);
     expect(request.xhr).toEqual(false);
 
@@ -51,9 +49,13 @@ describe("createSyntheticRequest", () => {
 
   it("should create a synthetic with all parameters", () => {
     const request = createSyntheticRequest({
+      // @ts-ignore
       accepts: () => ["text/html"],
+      // @ts-ignore
       acceptsCharsets: () => ["utf-8", "utf-16"],
+      // @ts-ignore
       acceptsEncodings: () => ["identity", "gzip", "deflate"],
+      // @ts-ignore
       acceptsLanguages: () => ["en", "fr"],
       body: { name: "John Doe" },
       cookies: { name: "John Doe" },
@@ -87,7 +89,6 @@ describe("createSyntheticRequest", () => {
     expect(request.acceptsLanguages()).toEqual(["en", "fr"]);
     expect(request.body).toEqual({ name: "John Doe" });
     expect(request.cookies).toEqual({ name: "John Doe" });
-    expect(request.fresh).toEqual(true);
     expect(request.hostname).toEqual("example.com");
     expect(request.ip).toEqual("example.com");
     expect(request.ips).toEqual(["example.com"]);
@@ -102,7 +103,6 @@ describe("createSyntheticRequest", () => {
     expect(request.fullPath).toEqual("/aaa");
     expect(request.secure).toEqual(true);
     expect(request.signedCookies).toEqual({ name: "John Doe" });
-    expect(request.stale).toEqual(true);
     expect(request.subdomains).toEqual(["example"]);
     expect(request.xhr).toEqual(true);
 
@@ -124,9 +124,13 @@ describe("createSyntheticRequest", () => {
 
   it("Test with custom function", () => {
     const request = createSyntheticRequest({
+      // @ts-ignore
       accepts: () => ["text/html"],
+      // @ts-ignore
       acceptsCharsets: () => ["utf-8", "utf-16"],
+      // @ts-ignore
       acceptsEncodings: () => ["identity", "gzip", "deflate"],
+      // @ts-ignore
       acceptsLanguages: () => ["en", "fr"],
       body: { name: "John Doe" },
       cookies: { name: "John Doe" },
@@ -171,7 +175,6 @@ describe("createSyntheticRequest", () => {
     expect(request.acceptsLanguages()).toEqual(["en", "fr"]);
     expect(request.body).toEqual({ name: "John Doe" });
     expect(request.cookies).toEqual({ name: "John Doe" });
-    expect(request.fresh).toEqual(true);
     expect(request.hostname).toEqual("example.com");
     expect(request.ip).toEqual("example.com");
     expect(request.ips).toEqual(["example.com"]);
@@ -186,7 +189,6 @@ describe("createSyntheticRequest", () => {
     expect(request.fullPath).toEqual("/aaa");
     expect(request.secure).toEqual(true);
     expect(request.signedCookies).toEqual({ name: "John Doe" });
-    expect(request.stale).toEqual(true);
     expect(request.subdomains).toEqual(["example"]);
     expect(request.xhr).toEqual(true);
 
@@ -343,7 +345,6 @@ describe("createSyntheticContext", () => {
     expect(request.acceptsLanguages()).toEqual(["en"]);
     expect(request.body).toEqual({});
     expect(request.cookies).toEqual({});
-    expect(request.fresh).toEqual(false);
     expect(request.hostname).toEqual("localhost");
     expect(request.ip).toEqual(getLocalIP());
     expect(request.ips).toEqual([getLocalIP()]);
@@ -358,7 +359,6 @@ describe("createSyntheticContext", () => {
     expect(request.fullPath).toEqual("/");
     expect(request.secure).toEqual(false);
     expect(request.signedCookies).toEqual({});
-    expect(request.stale).toEqual(false);
     expect(request.subdomains).toEqual([]);
     expect(request.xhr).toEqual(false);
 
@@ -392,9 +392,13 @@ describe("createSyntheticContext", () => {
 
   it("test with parameters", () => {
     const { request, pass, promise, response } = createSyntheticContext({
+      // @ts-ignore
       accepts: () => ["text/html"],
+      // @ts-ignore
       acceptsCharsets: () => ["utf-8", "utf-16"],
+      // @ts-ignore
       acceptsEncodings: () => ["identity", "gzip", "deflate"],
+      // @ts-ignore
       acceptsLanguages: () => ["en", "fr"],
       body: { name: "John Doe" },
       cookies: { name: "John Doe" },
@@ -434,12 +438,12 @@ describe("createSyntheticContext", () => {
     });
 
     expect(request.accepts()).toEqual(["text/html"]);
+    // @ts-ignore
     expect(request.acceptsCharsets()).toEqual(["utf-8", "utf-16"]);
     expect(request.acceptsEncodings()).toEqual(["identity", "gzip", "deflate"]);
     expect(request.acceptsLanguages()).toEqual(["en", "fr"]);
     expect(request.body).toEqual({ name: "John Doe" });
     expect(request.cookies).toEqual({ name: "John Doe" });
-    expect(request.fresh).toEqual(true);
     expect(request.hostname).toEqual("example.com");
     expect(request.ip).toEqual("example.com");
     expect(request.ips).toEqual(["example.com"]);
@@ -454,7 +458,6 @@ describe("createSyntheticContext", () => {
     expect(request.fullPath).toEqual("/aaa");
     expect(request.secure).toEqual(true);
     expect(request.signedCookies).toEqual({ name: "John Doe" });
-    expect(request.stale).toEqual(true);
     expect(request.subdomains).toEqual(["example"]);
     expect(request.xhr).toEqual(true);
 

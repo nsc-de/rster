@@ -1,5 +1,13 @@
 # Changelog for @rster/worker-express
 
+## 0.1.6
+
+### Patch Changes
+
+- Remove request.fresh & Request.stale and fix accepts functions to match with expresses default functions
+- Updated dependencies
+  - @rster/common@0.1.7
+
 ## 0.1.5
 
 ### Patch Changes
