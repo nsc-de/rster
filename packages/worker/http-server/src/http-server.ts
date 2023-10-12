@@ -2,10 +2,11 @@ import { Request, Response } from "@rster/common";
 import { RestfulApi } from "@rster/basic";
 import http from "http";
 import querystring from "querystring";
+import fs from "fs";
 
 declare module "@rster/basic" {
   interface RestfulApi {
-    createHttpServer(options?: ExpressOptions): http.Server;
+    createHttpServer(options?: HttpServerOptions): http.Server;
   }
 }
 
@@ -20,11 +21,68 @@ function parseCookies(cookieHeader: string | undefined) {
   return cookieObject;
 }
 
+function contentTypeForExt(ext: string): string {
+  let contentType = "text/plain";
+
+  switch (ext) {
+    case "html":
+    case "htm":
+      contentType = "text/html";
+      break;
+    case "css":
+      contentType = "text/css";
+      break;
+    case "js":
+      contentType = "text/javascript";
+      break;
+    case "json":
+      contentType = "application/json";
+      break;
+    case "png":
+      contentType = "image/png";
+      break;
+    case "jpg":
+    case "jpeg":
+      contentType = "image/jpeg";
+      break;
+    case "gif":
+      contentType = "image/gif";
+      break;
+    case "svg":
+      contentType = "image/svg+xml";
+      break;
+    case "ico":
+      contentType = "image/x-icon";
+      break;
+    case "pdf":
+      contentType = "application/pdf";
+      break;
+    case "zip":
+      contentType = "application/zip";
+      break;
+    case "txt":
+      contentType = "text/plain";
+      break;
+    case "csv":
+      contentType = "text/csv";
+      break;
+    case "xml":
+      contentType = "application/xml";
+      break;
+    // Add more cases for other common file extensions as needed
+
+    default:
+      contentType = "application/octet-stream";
+      break;
+  }
+
+  return contentType;
+}
+
 export async function transformHttpServerRequest(
   req: http.IncomingMessage
-): Request {
+): Promise<Request> {
   const url = new URL(req.url ?? "", "http://localhost");
-  const path = url.pathname;
   const query: Record<string, string> = {};
   for (const [key, value] of url.searchParams.entries()) query[key] = value;
 
@@ -62,7 +120,7 @@ export async function transformHttpServerRequest(
   return {
     baseUrl: req.url ?? "",
     body,
-    cookies: req.headers.cookie,
+    cookies: cookies,
     hostname: req.headers.host ?? "localhost",
     ip: req.socket.remoteAddress ?? "",
     ips: req.socket.remoteAddress ? [req.socket.remoteAddress] : [], // TODO
@@ -110,20 +168,23 @@ export async function transformHttpServerRequest(
     header(field: string): string {
       return req.headers[field] as string;
     },
-  };
+  } as Request;
 }
 
-export function transformExpressResponse(res: ExpressResponse): Response {
+export function transformHttpServerResponse(
+  res: http.OutgoingMessage
+): Response {
+  let _code: number = 200;
+  let _body: string;
+  const _headers: Record<string, string> = {};
+
   return {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    __express_res: res,
     status(code: number): Response {
-      res.status(code);
+      _code = code;
       return this;
     },
-    json(body: any): Response {
-      res.json(body);
+    json(body: unknown): Response {
+      _body = JSON.stringify(body);
       return this;
     },
     end(): Response {
@@ -131,30 +192,36 @@ export function transformExpressResponse(res: ExpressResponse): Response {
       return this;
     },
     error(code: number, message: string): Response {
-      res.status(code).send(message);
+      _code = code;
+      _body = message;
       return this;
     },
     header(field: string, value: string): Response {
-      res.header(field, value);
+      _headers[field] = value;
       return this;
     },
     redirect(url: string): Response {
-      res.redirect(url);
+      this.header("Location", url);
       return this;
     },
-    send(body: any): Response {
-      res.send(body);
+    send(body: string): Response {
+      _body = body;
       return this;
     },
     sendFile(path: string): Response {
-      res.sendFile(path);
+      const data = fs.readFileSync(path);
+      const ext = path.split(".").pop();
+      const contentType = contentTypeForExt(ext ?? "");
+      this.header("Content-Type", contentType);
+      this.send(data.toString());
+      this.status(200);
       return this;
     },
   };
 }
 
 // create function to use in app.use()
-export function httpServerFor(api: RestfulApi, options?: ExpressOptions) {
+export function httpServerFor(api: RestfulApi, options?: HttpServerOptions) {
   if (!api) throw new Error("api is required");
 
   if (!(api instanceof RestfulApi))
@@ -164,14 +231,37 @@ export function httpServerFor(api: RestfulApi, options?: ExpressOptions) {
   const basePath = options.basePath || "";
   const send404 = options.send404 ?? true;
 
-  const httpServer = http.createServer((req, res) => {});
+  return http.createServer(async (req, res) => {
+    const request = await transformHttpServerRequest(req);
+    const response = transformHttpServerResponse(res);
+
+    if (!request.path.startsWith(basePath)) {
+      response.status(404).json({ error: "Not Found" }).end();
+      return;
+    }
+
+    const newPath = request.path.substring(basePath.length);
+
+    api.handle(
+      {
+        ...request,
+        path: newPath,
+        fullApiPath: newPath,
+      },
+      response,
+      {
+        send404,
+      }
+    );
+  });
 }
 
-export interface ExpressOptions {
+export interface HttpServerOptions {
   basePath?: string;
   send404?: boolean;
+  port?: number;
 }
 
-RestfulApi.prototype.express = function (options?: ExpressOptions) {
-  return ExpressMixin(this, options);
+RestfulApi.prototype.createHttpServer = function (options?: HttpServerOptions) {
+  return httpServerFor(this, options);
 };
