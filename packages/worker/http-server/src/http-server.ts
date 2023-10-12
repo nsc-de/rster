@@ -86,9 +86,9 @@ export async function transformHttpServerRequest(
   const query: Record<string, string> = {};
   for (const [key, value] of url.searchParams.entries()) query[key] = value;
 
-  const headers: Record<string, string> = req.headers as any;
+  const headers: Record<string, string> = req.headers as Record<string, string>;
   const bodyRaw = await new Promise<Buffer>((resolve, reject) => {
-    const chunks: any[] = [];
+    const chunks: Uint8Array[] = [];
     req.on("data", (chunk) => chunks.push(chunk));
     req.on("end", () => {
       const body = Buffer.concat(chunks);
@@ -97,7 +97,7 @@ export async function transformHttpServerRequest(
     req.on("error", (err) => reject(err));
   });
 
-  let body: any = JSON.parse(bodyRaw.toString());
+  let body: unknown = JSON.parse(bodyRaw.toString());
 
   try {
     body = JSON.parse(bodyRaw.toString());
@@ -105,9 +105,7 @@ export async function transformHttpServerRequest(
     throw new Error("body is not a valid JSON");
   }
 
-  const cookies = Object.fromEntries(
-    (headers.cookie ?? "").split(";").map((c) => c.trim().split("="))
-  );
+  const cookies = parseCookies(headers.cookie);
 
   const accepts = headers.accept?.split(",").map((a) => a.trim()) ?? [];
   const acceptsCharsets =
@@ -195,7 +193,7 @@ export function transformHttpServerResponse(
     end(): Response {
       if (ended) throw new Error("Response already ended");
       ended = true;
-      res.writeHead(200, _headers);
+      res.writeHead(_code, _headers);
       res.end(_body);
       return this;
     },
