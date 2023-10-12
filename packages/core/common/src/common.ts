@@ -33,13 +33,6 @@ export interface Request {
   readonly cookies: any;
 
   /**
-   * @property {string} fresh - Indicates whether the request is "fresh".
-   * @description It is the opposite of req.stale.
-   * @see {@link https://expressjs.com/en/4x/api.html#req.fresh}
-   */
-  readonly fresh: boolean;
-
-  /**
    * @property {string} hostname - Contains the hostname derived from the Host HTTP header.
    */
   readonly hostname: string;
@@ -100,11 +93,6 @@ export interface Request {
   readonly signedCookies: any;
 
   /**
-   * @property {string} stale - Indicates whether the request is “stale,” and is the opposite of req.fresh.
-   */
-  readonly stale: boolean;
-
-  /**
    * @property {string} subdomains - Contains an array of subdomains in the domain name of the request.
    */
   readonly subdomains: string[];
@@ -120,24 +108,64 @@ export interface Request {
   readonly headers: IncomingHttpHeaders;
 
   /**
-   * @property {string} accepts - Returns the first accepted type (type/ subtype) as an array of strings in the order of preference.
+   * Checks if the specified content types are acceptable, based on the request’s Accept HTTP header field. The method returns the best match, or if none of the specified content types is acceptable, returns
+   * false (in which case, the application should respond with 406 "Not Acceptable").
+   *
+   * The type value may be a single MIME type string (such as “application/json”), an extension name such as “json”, a comma-delimited list, or an array. For a list or array, the method returns the best
+   * match (if any).
    */
   accepts(): string[];
 
   /**
-   * @property {string} acceptsCharsets - Returns the charsets that the request accepts, in the order of the client’s preference (most preferred first).
+   * Checks if the specified content types are acceptable, based on the request’s Accept HTTP header field. The method returns the best match, or if none of the specified content types is acceptable, returns
+   * false (in which case, the application should respond with 406 "Not Acceptable").
+   *
+   * The type value may be a single MIME type string (such as “application/json”), an extension name such as “json”, a comma-delimited list, or an array. For a list or array, the method returns the best
+   * match (if any).
+   */
+  accepts(type: string | string[]): string | false;
+
+  /**
+   * Returns the first accepted charset of the specified character sets, based on the request’s Accept-Charset HTTP header field. If none of the specified charsets is accepted, returns false.
+   *
+   * For more information, or if you have issues or concerns, see {@link accepts}.
    */
   acceptsCharsets(): string[];
 
   /**
-   * @property {string} acceptsEncodings - Returns the encoding that the request accepts, in the order of the client’s preference (most preferred first).
+   * Returns the first accepted charset of the specified character sets, based on the request’s Accept-Charset HTTP header field. If none of the specified charsets is accepted, returns false.
+   *
+   * For more information, or if you have issues or concerns, see {@link accepts}.
+   */
+  acceptsCharsets(charset: string | string[]): string | false;
+
+  /**
+   * Returns the first accepted encoding of the specified encodings, based on the request’s Accept-Encoding HTTP header field. If none of the specified encodings is accepted, returns false.
+   *
+   * For more information, or if you have issues or concerns, see {@link accepts}.
    */
   acceptsEncodings(): string[];
 
   /**
-   * @property {string} acceptsLanguages - Returns the languages that the request accepts, in the order of the client’s preference (most preferred first).
+   * Returns the first accepted encoding of the specified encodings, based on the request’s Accept-Encoding HTTP header field. If none of the specified encodings is accepted, returns false.
+   *
+   * For more information, or if you have issues or concerns, see {@link accepts}.
+   */
+  acceptsEncodings(encoding: string | string[]): string | false;
+
+  /**
+   * Returns the first accepted language of the specified languages, based on the request’s Accept-Language HTTP header field. If none of the specified languages is accepted, returns false.
+   *
+   * For more information, or if you have issues or concerns, see {@link accepts}.
    */
   acceptsLanguages(): string[];
+
+  /**
+   * Returns the first accepted language of the specified languages, based on the request’s Accept-Language HTTP header field. If none of the specified languages is accepted, returns false.
+   *
+   * For more information, or if you have issues or concerns, see {@link accepts}.
+   */
+  acceptsLanguages(lang: string | string[]): string | false;
 
   /**
    * @property {string} query - The parsed query string.
@@ -826,13 +854,60 @@ export function createSyntheticRequest(
   info: AllOptional<Request> = {}
 ): Request {
   return {
-    accepts: info.accepts ?? (() => ["application/json"]),
-    acceptsCharsets: info.acceptsCharsets ?? (() => ["utf-8"]),
-    acceptsEncodings: info.acceptsEncodings ?? (() => ["identity"]),
-    acceptsLanguages: info.acceptsLanguages ?? (() => ["en"]),
+    accepts:
+      info.accepts ??
+      (((search?: string | string[]) => {
+        if (!search) return ["application/json"];
+        if (typeof search === "string") {
+          if (search === "application/json") return "application/json";
+          return false;
+        }
+        if (Array.isArray(search)) {
+          if (search.includes("application/json")) return "application/json";
+          return false;
+        }
+        return false;
+      }) as { (): string[]; (type: string | string[]): string | false }),
+
+    acceptsCharsets: ((search?: string | string[]) => {
+      if (!search) return ["utf-8"];
+      if (typeof search === "string") {
+        if (search === "utf-8") return "utf-8";
+        return false;
+      }
+      if (Array.isArray(search)) {
+        if (search.includes("utf-8")) return "utf-8";
+        return false;
+      }
+      return false;
+    }) as { (): string[]; (type: string | string[]): string | false },
+
+    acceptsEncodings: ((search?: string | string[]) => {
+      if (!search) return ["identity"];
+      if (typeof search === "string") {
+        if (search === "identity") return "identity";
+        return false;
+      }
+      if (Array.isArray(search)) {
+        if (search.includes("identity")) return "identity";
+        return false;
+      }
+      return false;
+    }) as { (): string[]; (type: string | string[]): string | false },
+    acceptsLanguages: ((search?: string | string[]) => {
+      if (!search) return ["en"];
+      if (typeof search === "string") {
+        if (search === "en") return "en";
+        return false;
+      }
+      if (Array.isArray(search)) {
+        if (search.includes("en")) return "en";
+        return false;
+      }
+      return false;
+    }) as { (): string[]; (type: string | string[]): string | false },
     body: info.body ?? {},
     cookies: info.cookies ?? {},
-    fresh: info.fresh ?? false,
     hostname: info.hostname ?? "localhost",
     ip: info.ip ?? getLocalIP(),
     ips: info.ips ?? [getLocalIP()],
@@ -872,7 +947,6 @@ export function createSyntheticRequest(
     is: info.is ?? (() => false),
     secure: info.secure ?? false,
     signedCookies: info.signedCookies ?? {},
-    stale: info.stale ?? false,
     subdomains: info.subdomains ?? [],
     xhr: info.xhr ?? false,
   };
