@@ -1,5 +1,11 @@
 # Changelog for @rster/common
 
+## 0.1.7
+
+### Patch Changes
+
+- Remove request.fresh & Request.stale and fix accepts functions to match with expresses default functions
+
 ## 0.1.6
 
 ### Patch Changes

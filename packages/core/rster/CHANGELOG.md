@@ -1,5 +1,12 @@
 # Changelog for rster
 
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies
+  - @rster/common@0.1.7
+
 ## 0.1.10
 
 ### Patch Changes

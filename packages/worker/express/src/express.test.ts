@@ -82,7 +82,6 @@ describe("transformExpressRequest", () => {
         name: "John",
         age: 30,
       },
-      fresh: undefined,
       headers: {
         "content-type": "application/json",
       },
@@ -107,7 +106,6 @@ describe("transformExpressRequest", () => {
         name: "John",
         age: 30,
       },
-      stale: false,
       subdomains: ["john"],
       xhr: false,
       get: request.get,
