@@ -111,11 +111,11 @@ export async function transformHttpServerRequest(
 
   const accepts = headers.accept?.split(",").map((a) => a.trim()) ?? [];
   const acceptsCharsets =
-    headers["accept-charset"].split(",").map((a) => a.trim()) ?? [];
+    headers["accept-charset"]?.split(",").map((a) => a.trim()) ?? [];
   const acceptsEncodings =
-    headers["accept-encoding"].split(",").map((a) => a.trim()) ?? [];
+    headers["accept-encoding"]?.split(",").map((a) => a.trim()) ?? [];
   const acceptsLanguages =
-    headers["accept-language"].split(",").map((a) => a.trim()) ?? [];
+    headers["accept-language"]?.split(",").map((a) => a.trim()) ?? [];
 
   return {
     baseUrl: req.url ?? "",
@@ -172,43 +172,56 @@ export async function transformHttpServerRequest(
 }
 
 export function transformHttpServerResponse(
-  res: http.OutgoingMessage
+  res: http.ServerResponse<http.IncomingMessage> & {
+    req: http.IncomingMessage;
+  }
 ): Response {
   let _code: number = 200;
   let _body: string;
   const _headers: Record<string, string> = {};
+  let ended = false;
 
   return {
     status(code: number): Response {
+      if (ended) throw new Error("Response already ended");
       _code = code;
       return this;
     },
     json(body: unknown): Response {
+      if (ended) throw new Error("Response already ended");
       _body = JSON.stringify(body);
       return this;
     },
     end(): Response {
-      res.end();
+      if (ended) throw new Error("Response already ended");
+      ended = true;
+      res.writeHead(200, _headers);
+      res.end(_body);
       return this;
     },
     error(code: number, message: string): Response {
+      if (ended) throw new Error("Response already ended");
       _code = code;
       _body = message;
       return this;
     },
     header(field: string, value: string): Response {
+      if (ended) throw new Error("Response already ended");
       _headers[field] = value;
       return this;
     },
     redirect(url: string): Response {
+      if (ended) throw new Error("Response already ended");
       this.header("Location", url);
       return this;
     },
     send(body: string): Response {
+      if (ended) throw new Error("Response already ended");
       _body = body;
       return this;
     },
     sendFile(path: string): Response {
+      if (ended) throw new Error("Response already ended");
       const data = fs.readFileSync(path);
       const ext = path.split(".").pop();
       const contentType = contentTypeForExt(ext ?? "");
@@ -259,7 +272,6 @@ export function httpServerFor(api: RestfulApi, options?: HttpServerOptions) {
 export interface HttpServerOptions {
   basePath?: string;
   send404?: boolean;
-  port?: number;
 }
 
 RestfulApi.prototype.createHttpServer = function (options?: HttpServerOptions) {
