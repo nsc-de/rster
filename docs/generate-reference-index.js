@@ -41,7 +41,7 @@ const packagesFiltered = packages
       name: packageJson.name,
       path: packagePath,
       included_in_rster: included_in_rster.includes(package),
-      packageJson,
+      // packageJson,
     };
   });
 
