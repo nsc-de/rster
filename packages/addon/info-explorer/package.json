@@ -8,7 +8,7 @@
     "@rster/info-client": "^0.1.5",
     "@rster/proxy": "^0.1.3",
     "@rster/worker-express": "^0.1.5",
-    "commander": "^11.0.0",
+    "commander": "^11.1.0",
     "cors": "^2.8.5",
     "cross-fetch": "^4.0.0",
     "debug": "^4.3.4",
