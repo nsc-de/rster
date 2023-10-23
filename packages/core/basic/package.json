@@ -13,7 +13,7 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.8",
+    "@types/debug": "^4.1.10",
     "typedoc": "^0.25.2"
   },
   "scripts": {
