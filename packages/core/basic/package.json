@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@types/debug": "^4.1.10",
-    "typedoc": "^0.25.2"
+    "typedoc": "^0.25.3"
   },
   "scripts": {
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
