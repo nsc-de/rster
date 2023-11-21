@@ -11,7 +11,7 @@
     "@rster/database": "^0.1.3",
     "@rster/types": "^0.1.10",
     "debug": "^4.3.4",
-    "mongodb": "^6.2.0",
+    "mongodb": "^6.3.0",
     "mongodb-memory-server": "^9.1.1"
   },
   "scripts": {
