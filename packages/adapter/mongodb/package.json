@@ -37,7 +37,7 @@
     "@rster/database-adapter-tests": "^0.1.5",
     "@types/debug": "^4.1.10",
     "@types/jest": "^29.5.7",
-    "@types/node": "^20.8.9",
+    "@types/node": "^20.9.3",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.9.1",
     "babel-jest": "^29.7.0",
