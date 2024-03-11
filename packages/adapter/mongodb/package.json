@@ -12,7 +12,7 @@
     "@rster/types": "^0.1.10",
     "debug": "^4.3.4",
     "mongodb": "^6.3.0",
-    "mongodb-memory-server": "^9.1.1"
+    "mongodb-memory-server": "^9.1.7"
   },
   "scripts": {
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
